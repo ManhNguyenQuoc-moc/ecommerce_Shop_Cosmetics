@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const fillAddressLine = require("../middleware/addressPopulate"); // đường dẫn tuỳ project
+const fillAddressLine = require("../middleware/addressPopulate");
 
 const addressSchema = new mongoose.Schema(
   {
@@ -14,7 +14,6 @@ const addressSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Gán middleware
 addressSchema.pre("save", fillAddressLine);
 
 module.exports = mongoose.model("Address", addressSchema);
