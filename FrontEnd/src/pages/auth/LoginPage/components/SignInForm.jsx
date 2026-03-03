@@ -6,13 +6,17 @@ import MyInput from "../../../../components/ui/MyInput";
 import GoogleIco from "../../../../../public/icon/GoogleIco";
 import FacebookIco from "../../../../../public/icon/FaceBookIco";
 import mockLogin from "../../../../services/auth/auth.service";
-import { useState } from "react";
+import { useState, useRef } from "react";
 export default function SignInForm() {
     const [formData, setFormData] = useState({
         username: "",
         password: "",
         remember: false
     })
+    // const usernameRef = useRef(null);
+    // const passwordRef = useRef(null);
+    // const rememberRef = useRef(null);
+    console.log("render");
     const [errors, setErrors] = useState({})
     const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -53,10 +57,26 @@ export default function SignInForm() {
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
+    // const validate = (username, password) => {
+    //     const newErrors = {};
+
+    //     if (!username) {
+    //         newErrors.username = "Vui lòng nhập email hoặc số điện thoại";
+    //     }
+
+    //     if (!password) {
+    //         newErrors.password = "Vui lòng nhập mật khẩu";
+    //     } else if (password.length < 6) {
+    //         newErrors.password = "Mật khẩu phải có ít nhất 6 ký tự";
+    //     }
+
+    //     setErrors(newErrors);
+    //     return Object.keys(newErrors).length === 0;
+    // };
     const handleSubmit = async (e) => {
         e.preventDefault();// ngan chan hanh vi mac dinh cua trinh duyen dung de luu state 
         if (!validate()) return;
-
+        
         try {
             setIsSubmitting(true);
 
@@ -76,12 +96,39 @@ export default function SignInForm() {
 
             showNotificationSuccess("Đăng nhập thành công 🎉");
         } catch (err) {
-            showNotificationError(err.message || "Sai tài khoản hoặc mật khẩu");
+            showNotificationError(err.message || "Sai tài khoản hoặc mật khẩu");  
         } finally {
             setIsSubmitting(false);
         }
     };
+    //  const handleSubmit = async (e) => {
+    //     e.preventDefault();
 
+    //     // const username = usernameRef.current.value.trim();
+    //     // const password = passwordRef.current.value;
+    //     // const remember = rememberRef.current.checked;
+
+    //     if (!validate(username, password)) return;
+
+    //     try {
+    //         setIsSubmitting(true);
+
+    //         const res = await mockLogin({ username, password });
+
+    //         if (remember) {
+    //             localStorage.setItem("token", res.token);
+    //             localStorage.setItem("user", JSON.stringify(res.user));
+    //         } else {
+    //             sessionStorage.setItem("token", res.token);
+    //         }
+
+    //         showNotificationSuccess("Đăng nhập thành công 🎉");
+    //     } catch (err) {
+    //         showNotificationError(err.message || "Sai tài khoản hoặc mật khẩu");
+    //     } finally {
+    //         setIsSubmitting(false);
+    //     }
+    // };
     return (
         <div className="w-full max-w-md mx-auto px-4">
             <div className="mb-8">
@@ -98,6 +145,7 @@ export default function SignInForm() {
                     placeholder="Nhập email hoặc số điện thoại"
                     type="text"
                     name="username"
+                    // ref={usernameRef}
                     onChange={handleChange}
                     value={formData.username}
                     error={!!errors.username}
@@ -108,6 +156,7 @@ export default function SignInForm() {
                     placeholder="Nhập password"
                     name="password"
                     type="password"
+                    // ref={passwordRef}
                     onChange={handleChange}
                     value={formData.password}
                     error={!!errors.password}
@@ -117,7 +166,9 @@ export default function SignInForm() {
                     <label className="flex items-center text-gray-600 dark:text-gray-400 cursor-pointer">
                         <input name="remember" type="checkbox" className="mr-2 rounded border-gray-300 accent-brand-500"
                             checked={formData.remember}
+                              // ref={rememberRef} 
                             onChange={handleChange} />
+                          
                         Ghi nhớ đăng nhập
                     </label>
                     <a href="#" className="font-medium hover:underline">
@@ -143,6 +194,7 @@ export default function SignInForm() {
             <div className="flex items-center text-sm gap-3 mt-4">
                 <MyButton
                     type="submit"
+                    
                     variant="outline"
                     className="w-full"
                     startIcon={<GoogleIco />}
