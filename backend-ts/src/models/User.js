@@ -5,10 +5,9 @@ const userSchema = new mongoose.Schema(
     email: {
       type: String,
       unique: true,
-      sparse: true, // cho phép nhiều document có email=null, nhưng khi có email thì phải unique
+      sparse: true,
       validate: {
         validator: function (v) {
-          // Nếu có email thì check đúng định dạng
           return v == null || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
         },
         message: (props) => `${props.value} không phải email hợp lệ!`,

@@ -1,0 +1,47 @@
+model User {
+  id                     String   @id @default(uuid())
+
+  email                  String?  @unique
+  password_hash          String?
+  full_name              String?
+
+  phone                  String?  @unique
+
+  gender                 Gender?
+  birthday               DateTime?
+
+  role                   Role     @default(CUSTOMER)
+  loyalty_points         Int      @default(0)
+
+  provider               Provider @default(LOCAL)
+  is_verified            Boolean  @default(false)
+
+  googleId               String?
+  facebookId             String?
+
+  refresh_token          String?
+
+  is_banned              Boolean  @default(false)
+
+  reset_password_token   String?
+  reset_password_expires DateTime?
+
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+}
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum Role {
+  CUSTOMER
+  ADMIN
+}
+
+enum Provider {
+  LOCAL
+  GOOGLE
+  FACEBOOK
+}
