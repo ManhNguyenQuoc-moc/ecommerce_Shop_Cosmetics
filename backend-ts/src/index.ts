@@ -1,25 +1,20 @@
-import express, { Request, Response } from "express";
-import { runMigrations } from "./migrate";
+import express from "express";
+import { prisma } from "./config/prisma";
 
 const app = express();
-const PORT = 3000;
+app.use(express.json());
 
-app.get("/", (req: Request, res: Response) => {
-  res.json({ message: "Backend chạy bằng TypeScript" });
+app.post("/users", async (req, res) => {
+  const user = await prisma.user.create({
+    data: {
+      email: req.body.email,
+      password: req.body.password
+    }
+  });
+
+  res.json(user);
 });
 
-async function bootstrap() {
-  try {
-    console.log("🔄 Running migrations...");
-    await runMigrations();
-
-    app.listen(PORT, () => {
-      console.log(`Server running at http://localhost:${PORT}`);
-    });
-  } catch (error) {
-    console.error("Startup failed:", error);
-    process.exit(1);
-  }
-}
-
-bootstrap();
+app.listen(3000, () => {
+  console.log("Server running at http://localhost:3000");
+});
