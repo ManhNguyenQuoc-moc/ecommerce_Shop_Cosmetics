@@ -1,7 +1,7 @@
 "use client";
 
 import FormDetail from "./components/SignInForm";
-import useMyTitle from "../../../hooks/useMyTitle";
+import useMyTitle from "../../../../../FrontEnd/src/hooks/useMyTitle";
 import { Link } from "react-router-dom";
 export default function Register() {
     useMyTitle("Đăng Ky");

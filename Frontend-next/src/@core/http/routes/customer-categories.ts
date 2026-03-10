@@ -11,7 +11,11 @@ export const customerCategories: Category[] = [
     slug: "home",
     path: "/",
   },
-
+  {
+    name: "Sản phẩm",
+    slug: "san-pham",
+    path: "/products",
+  },
   {
     name: "Chăm sóc da",
     slug: "cham-soc-da",

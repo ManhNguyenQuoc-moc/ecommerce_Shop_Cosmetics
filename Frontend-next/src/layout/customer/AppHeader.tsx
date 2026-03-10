@@ -1,7 +1,8 @@
 "use client";
-
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import UserDropdown from "../components/header/UserDropDown";
+import Cart from "../components/header/Cart"
 import {
   Menu,
   Search,
@@ -15,10 +16,21 @@ import { customerCategories } from "@/src/@core/http/routes/customer-categories"
 
 export default function CustomerHeader() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const cartCount = 3;
+  const [scrolled, setScrolled] = useState(false);
+useEffect(() => {
+  const handleScroll = () => {
+    setScrolled(window.scrollY > 10);
+  };
 
+  window.addEventListener("scroll", handleScroll);
+  return () => window.removeEventListener("scroll", handleScroll);
+}, []);
   return (
-    <header className="border-b sticky top-0 bg-white z-50">
+    <header
+  className={`sticky top-0 z-50 transition-all duration-300
+  ${scrolled ? "bg-white shadow-md border-b" : "bg-transparent"}
+`}
+>
       <div className="max-w-7xl mx-auto flex items-center justify-between px-4 py-3 gap-4">
         <button
           className="lg:hidden"
@@ -26,7 +38,7 @@ export default function CustomerHeader() {
         >
           <Menu size={24} />
         </button>
-        <Link href="/" className="font-bold text-xl text-brand-500">
+        <Link href="/" className="font-bold text-2xl text-brand-500">
           Cosmetics<span className="text-black">Shop</span>
         </Link>
         <div className="hidden md:flex flex-1 max-w-xl mx-6 relative">
@@ -39,28 +51,21 @@ export default function CustomerHeader() {
             className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
           />
         </div>
-        <div className="flex items-center gap-3">
-          <Link
-            href="/wishlist"
-            className="hidden sm:flex p-2 hover:bg-gray-100 rounded-full"
-          >
-            <Heart size={22} />
-          </Link>
-          <div className="hidden sm:flex p-2 hover:bg-gray-100 rounded-full cursor-pointer">
-            <User size={22} />
-          </div>
-          <Link
-            href="/cart"
-            className="relative p-2 hover:bg-gray-100 rounded-full">
-            <ShoppingCart size={22} />
-            {cartCount > 0 && (
-              <span className="absolute top-0 right-0 bg-red-500 text-white text-[10px] font-bold h-5 w-5 flex items-center justify-center rounded-full">
-                {cartCount}
-              </span>
-            )}
-          </Link>
-
-        </div>
+       <div className="flex items-center gap-3">
+  <div className="flex items-center gap-2">
+  <Link
+    href="/wishlist"
+    className="hidden sm:flex items-center justify-center w-10 h-10 rounded-full hover:bg-gray-100 transition">
+    <Heart size={20} className="text-red-500" />
+  </Link>
+  <div className="relative">
+    <Cart/>
+  </div>
+  <div className="hidden sm:flex items-center justify-center w-10 h-10 rounded-full hover:bg-gray-100 transition">
+    <UserDropdown />
+  </div>
+</div>
+</div>
       </div>
 
       <div className="px-4 pb-3 md:hidden">

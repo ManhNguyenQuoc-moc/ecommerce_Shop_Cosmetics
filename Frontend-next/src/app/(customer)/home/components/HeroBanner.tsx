@@ -75,6 +75,7 @@ const HeroBanner = ({ banners, loading }: Props) => {
       </Carousel>
     </SWTCard>
   );
+
 };
 
 export default HeroBanner;

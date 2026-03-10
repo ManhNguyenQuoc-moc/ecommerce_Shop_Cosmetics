@@ -1,10 +1,10 @@
 "use client";
 
 import FormDetail from "./components/SignInForm";
-import useMyTitle from "../../../hooks/useMyTitle";
+import useSWTTitle from "@/src/@core/hooks/useSWTTitle"
 import { Link } from "react-router-dom";
 export default function SignIn() {
-    useMyTitle("Đăng nhập");
+    useSWTTitle("Đăng nhập");
     return (
         <div className="flex min-h-screen w-full items-center justify-center">
             <div className="relative flex w-full max-w-5xl h-[600px] rounded-xl overflow-hidden shadow-lg">

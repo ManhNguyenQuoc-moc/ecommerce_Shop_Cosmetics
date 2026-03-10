@@ -1,23 +1,28 @@
 import React from "react";
-import { showNotificationError, showNotificationSuccess } from "../../../../utils/message";
-import { Link } from "react-router-dom";
-import MyButton from "../../../../components/ui/MyButton";
-import MyInput from "../../../../components/ui/MyInput";
-import GoogleIco from "../../../../../public/icon/GoogleIco";
-import FacebookIco from "../../../../../public/icon/FaceBookIco";
-import mockLogin from "../../../../services/auth/auth.service";
-import { useState } from "react";
+// import { showNotificationError, showNotificationSuccess } from "@/"
+import { Link } from "next/link";
+import SWTButton from "@/src/@core/component/AntD/SWTButton";
+import SWTInput from "@/src/@core/component/AntD/SWTInput";
+// import GoogleIco from "../../../../../public/icon/GoogleIco";
+// import FacebookIco from "../../../../../public/icon/FaceBookIco";
+// import mockLogin from "../../../../services/auth/auth.service";
+import { useState, useRef } from "react";
 export default function SignInForm() {
     const [formData, setFormData] = useState({
         username: "",
         password: "",
         remember: false
     })
+    // const usernameRef = useRef(null);
+    // const passwordRef = useRef(null);
+    // const rememberRef = useRef(null);
+    console.log("render");
     const [errors, setErrors] = useState({})
     const [isSubmitting, setIsSubmitting] = useState(false)
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
+        
         setFormData((prev) => ({
             ...prev,
             [name]: type === "checkbox" ? checked : value,
@@ -52,35 +57,78 @@ export default function SignInForm() {
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
-    const handleSubmit = async (e) => {
-        e.preventDefault();// ngan chan hanh vi mac dinh cua trinh duyen dung de luu state 
-        if (!validate()) return;
+    // const validate = (username, password) => {
+    //     const newErrors = {};
 
-        try {
-            setIsSubmitting(true);
+    //     if (!username) {
+    //         newErrors.username = "Vui lòng nhập email hoặc số điện thoại";
+    //     }
 
-            const res = await mockLogin({
-                username: formData.username,
-                password: formData.password,
-            });
+    //     if (!password) {
+    //         newErrors.password = "Vui lòng nhập mật khẩu";
+    //     } else if (password.length < 6) {
+    //         newErrors.password = "Mật khẩu phải có ít nhất 6 ký tự";
+    //     }
 
-            console.log("LOGIN OK:", res);
+    //     setErrors(newErrors);
+    //     return Object.keys(newErrors).length === 0;
+    // };
+    // const handleSubmit = async (e) => {
+    //     e.preventDefault();// ngan chan hanh vi mac dinh cua trinh duyen dung de luu state 
+    //     if (!validate()) return;
+        
+    //     try {
+    //         setIsSubmitting(true);
 
-            if (formData.remember) {
-                localStorage.setItem("token", res.token);
-                localStorage.setItem("user", JSON.stringify(res.user));
-            } else {
-                sessionStorage.setItem("token", res.token);
-            }
+    //         const res = await mockLogin({
+    //             username: formData.username,
+    //             password: formData.password,
+    //         });
 
-            showNotificationSuccess("Đăng nhập thành công 🎉");
-        } catch (err) {
-            showNotificationError(err.message || "Sai tài khoản hoặc mật khẩu");
-        } finally {
-            setIsSubmitting(false);
-        }
-    };
+    //         console.log("LOGIN OK:", res);
 
+    //         if (formData.remember) {
+    //             localStorage.setItem("token", res.token);
+    //             localStorage.setItem("user", JSON.stringify(res.user));
+    //         } else {
+    //             sessionStorage.setItem("token", res.token);
+    //         }
+
+    //         showNotificationSuccess("Đăng nhập thành công 🎉");
+    //     } catch (err) {
+    //         showNotificationError(err.message || "Sai tài khoản hoặc mật khẩu");  
+    //     } finally {
+    //         setIsSubmitting(false);
+    //     }
+    // };
+    //  const handleSubmit = async (e) => {
+    //     e.preventDefault();
+
+    //     // const username = usernameRef.current.value.trim();
+    //     // const password = passwordRef.current.value;
+    //     // const remember = rememberRef.current.checked;
+
+    //     if (!validate(username, password)) return;
+
+    //     try {
+    //         setIsSubmitting(true);
+
+    //         const res = await mockLogin({ username, password });
+
+    //         if (remember) {
+    //             localStorage.setItem("token", res.token);
+    //             localStorage.setItem("user", JSON.stringify(res.user));
+    //         } else {
+    //             sessionStorage.setItem("token", res.token);
+    //         }
+
+    //         showNotificationSuccess("Đăng nhập thành công 🎉");
+    //     } catch (err) {
+    //         showNotificationError(err.message || "Sai tài khoản hoặc mật khẩu");
+    //     } finally {
+    //         setIsSubmitting(false);
+    //     }
+    // };
     return (
         <div className="w-full max-w-md mx-auto px-4">
             <div className="mb-8">
@@ -91,22 +139,24 @@ export default function SignInForm() {
                     Vui lòng nhập thông tin để đăng nhập
                 </p>
             </div>
-            <form onSubmit={handleSubmit} className="space-y-5">
-                <MyInput
+            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+                <SWTInput
                     label="Tên đăng nhập"
                     placeholder="Nhập email hoặc số điện thoại"
                     type="text"
                     name="username"
+                    // ref={usernameRef}
                     onChange={handleChange}
                     value={formData.username}
                     error={!!errors.username}
                     hint={errors.username}
                 />
-                <MyInput
+                <SWTInput
                     label="Mật khẩu"
                     placeholder="Nhập password"
                     name="password"
                     type="password"
+                    // ref={passwordRef}
                     onChange={handleChange}
                     value={formData.password}
                     error={!!errors.password}
@@ -116,21 +166,23 @@ export default function SignInForm() {
                     <label className="flex items-center text-gray-600 dark:text-gray-400 cursor-pointer">
                         <input name="remember" type="checkbox" className="mr-2 rounded border-gray-300 accent-brand-500"
                             checked={formData.remember}
+                              // ref={rememberRef} 
                             onChange={handleChange} />
+                          
                         Ghi nhớ đăng nhập
                     </label>
                     <a href="#" className="font-medium hover:underline">
                         Quên mật khẩu?
                     </a>
                 </div>
-                <MyButton
+                <SWTButton
                     type="submit"
                     variant="primary"
                     className="w-full py-4 text-lg"
                     disabled={isSubmitting}
                 >
                     Đăng nhập
-                </MyButton>
+                </SWTButton>
                 <div className="flex items-center">
                     <div className="flex-1 h-px bg-gray-300 dark:bg-gray-600"></div>
                     <p className="px-3 text-sm text-gray-600 dark:text-gray-400 whitespace-nowrap">
@@ -140,42 +192,40 @@ export default function SignInForm() {
                 </div>
             </form>
             <div className="flex items-center text-sm gap-3 mt-4">
-                <MyButton
+                <SWTButton
                     type="submit"
+                    
                     variant="outline"
                     className="w-full"
-                    startIcon={<GoogleIco />}
+                    // startIcon={<GoogleIco />}
                     size="sm"
                 >
                     Google
-                </MyButton>
-                <MyButton
+                </SWTButton>
+                <SWTButton
                     type="submit"
-                    startIcon={<FacebookIco className="" />}
+                    // startIcon={<FacebookIco className="" />}
                     variant="outline"
                     size="sm"
                     className="w-full"
                 >
                     Facebook
-                </MyButton>
+                </SWTButton>
             </div>
             <p className="text-center text-sm text-gray-600 dark:text-gray-400 mt-6">
                 Chưa có tài khoản?{" "}
-                <Link
-                    to="/register"
-                    className="font-bold text-[var(--color-primary)] hover:underline"
-                >
+                <Link to="/register" className="text-brand-500 hover:text-brand-600 font-bold">
                     Đăng ký ngay
                 </Link>
             </p>
-            <div className=" text-amber-50 flex justify-around text-center text-sm mt-6">
-                <a href="#" className="text-[var(--color-black)] hover:text-[var(--color-primary)]">
+            <div className="flex justify-around text-center text-sm mt-6">
+                <a href="#" className="text-brand-500 hover:underline dark:text-white">
                     CHÍNH SÁCH BẢO MẬT
                 </a>
-                <a href="#" className="text-[var(--color-black)] hover:text-[var(--color-primary)]">
+                <a href="#" className="text-brand-500 hover:underline dark:text-white">
                     ĐIỀU KHOẢN DỊCH VỤ
                 </a>
-                <a href="#" className="text-[var(--color-black)] hover:text-[var(--color-primary)]">
+                <a href="#" className="text-brand-500 hover:underline dark:text-white">
                     TRỢ GIÚP
                 </a>
             </div>

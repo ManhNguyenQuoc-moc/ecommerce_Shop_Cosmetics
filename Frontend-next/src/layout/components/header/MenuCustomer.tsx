@@ -10,7 +10,6 @@ type Props = {
 };
 
 export default function MenuCustomer({ categories }: Props) {
-
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -33,7 +32,7 @@ export default function MenuCustomer({ categories }: Props) {
     focus:!shadow-none active:!shadow-none
     transition-all
   `;
-  
+
   return (
     <nav className="flex items-center justify-center gap-4">
       {categories.map((category) => {
@@ -44,7 +43,7 @@ export default function MenuCustomer({ categories }: Props) {
             variant={active ? "primary" : "outline"}
             className={`${buttonBaseClass} ${
               active
-                ? "!text-brand-600" 
+                ? "!text-brand-600"
                 : "!text-gray-700 hover:!text-brand-600"
             }`}
             onClick={() => router.push(category.path)}
@@ -69,6 +68,7 @@ export default function MenuCustomer({ categories }: Props) {
                 subItems: category.children.map((child) => ({
                   name: child.name,
                   path: child.path,
+                  onClick: () => router.push(child.path),
                 })),
               }}
             >

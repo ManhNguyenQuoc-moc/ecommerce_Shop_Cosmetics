@@ -5,6 +5,7 @@ import { SidebarProvider } from "../@core/provider/sidebar-provider";
 import viVN from "antd/locale/vi_VN";
 import { ConfigProvider } from "antd";
 import { StyleProvider } from "@ant-design/cssinjs";
+import { AuthProvider } from "@/src/context/AuthContext";
 import "@/public/css/globals.css";
 import { useMessageInit } from "../@core/utils/message";
 import { Provider } from "react-redux";
@@ -36,7 +37,9 @@ export default function RootLayout({
             <ConfigProvider locale={viVN}>
               <ThemeProvider>
                 <MessageInitializer>
-                  <SidebarProvider>{children}</SidebarProvider>
+                  <SidebarProvider>
+                    <AuthProvider>{children}</AuthProvider>
+                    </SidebarProvider>
                 </MessageInitializer>
               </ThemeProvider>
             </ConfigProvider>
