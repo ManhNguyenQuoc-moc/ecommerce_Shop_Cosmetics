@@ -1,35 +1,51 @@
-import SWTCard from "@/src/@core/component/AntD/SWTCard";
+"use client";
 
-type Product = {
-  name: string;
-  price: number;
-  image: string;
-};
+import ProductCard, { Product } from "./ProductCard";
+import SWTEmpty from "@/src/@core/component/AntD/SWTEmpty";
 
 type Props = {
   title: string;
   products: Product[];
+  loading?: boolean;
 };
 
-export default function ProductSection({ title, products }: Props) {
+export default function ProductSection({
+  title,
+  products,
+  loading = false,
+}: Props) {
+
+  const skeletonArray: (Product | undefined)[] = Array.from({ length: 12 });
+
+  const renderList = loading ? skeletonArray : products;
+
+  const isEmpty = !loading && (!products || products.length === 0);
+
   return (
-    <section>
-      <h2 className="text-xl font-semibold my-4">{title}</h2>
-      <div className="grid grid-cols-5 gap-4">
-        {products.map((product, index) => (
-          <SWTCard key={index}>
-            <div className="p-4 hover:scale-[1.02] transition cursor-pointer">
-              <img src={product.image} className="h-32 mx-auto mb-3 object-contain" />
-              <p className="text-sm font-medium line-clamp-2">
-                {product.name}
-              </p>
-              <p className="text-blue-600 font-bold mt-2">
-                {product.price.toLocaleString()}đ
-              </p>
-            </div>
-          </SWTCard>
-        ))}
-      </div>
-    </section>
+    <>
+      <h2 className="text-xl font-bold my-6 text-brand-700">
+        {title}
+      </h2>
+
+      <section className="bg-brand-200 my-5 p-4 border border-gray-200 rounded-xl shadow-sm">
+
+        {isEmpty ? (
+          <div className="py-10 flex justify-center">
+            <SWTEmpty description="Chưa có sản phẩm" />
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4">
+            {renderList.map((product, index) => (
+              <ProductCard
+                key={product?.id ?? index}
+                product={product}
+                loading={loading}
+              />
+            ))}
+          </div>
+        )}
+
+      </section>
+    </>
   );
 }

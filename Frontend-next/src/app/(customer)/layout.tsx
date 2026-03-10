@@ -1,4 +1,5 @@
 import CustomerHeader from "@/src/layout/customer/AppHeader";
+import AppFooter from "@/src/layout/customer/AppFooter";
 
 export default function CustomerLayout({
   children,
@@ -11,6 +12,7 @@ export default function CustomerLayout({
       <main className="max-w-[1250px] mx-auto p-4 ">
         {children}
       </main>
+      <AppFooter/>
     </div>
   );
 }

@@ -1,28 +1,23 @@
 import React from "react";
-import { showNotificationError, showNotificationSuccess } from "../../../../utils/message";
+import { showNotificationError, showNotificationSuccess } from "../../../../../../FrontEnd/src/utils/message";
 import { Link } from "react-router-dom";
-import MyButton from "../../../../components/ui/MyButton";
-import MyInput from "../../../../components/ui/MyInput";
-import GoogleIco from "../../../../../public/icon/GoogleIco";
-import FacebookIco from "../../../../../public/icon/FaceBookIco";
-import mockLogin from "../../../../services/auth/auth.service";
-import { useState, useRef } from "react";
+import MyButton from "../../../../../../FrontEnd/src/components/ui/MyButton";
+import MyInput from "../../../../../../FrontEnd/src/components/ui/MyInput";
+import GoogleIco from "../../../../../../FrontEnd/public/icon/GoogleIco";
+import FacebookIco from "../../../../../../FrontEnd/public/icon/FaceBookIco";
+import mockLogin from "../../../../../../FrontEnd/src/services/auth/auth.service";
+import { useState } from "react";
 export default function SignInForm() {
     const [formData, setFormData] = useState({
         username: "",
         password: "",
         remember: false
     })
-    // const usernameRef = useRef(null);
-    // const passwordRef = useRef(null);
-    // const rememberRef = useRef(null);
-    console.log("render");
     const [errors, setErrors] = useState({})
     const [isSubmitting, setIsSubmitting] = useState(false)
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
-        
         setFormData((prev) => ({
             ...prev,
             [name]: type === "checkbox" ? checked : value,
@@ -57,26 +52,10 @@ export default function SignInForm() {
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
-    // const validate = (username, password) => {
-    //     const newErrors = {};
-
-    //     if (!username) {
-    //         newErrors.username = "Vui lòng nhập email hoặc số điện thoại";
-    //     }
-
-    //     if (!password) {
-    //         newErrors.password = "Vui lòng nhập mật khẩu";
-    //     } else if (password.length < 6) {
-    //         newErrors.password = "Mật khẩu phải có ít nhất 6 ký tự";
-    //     }
-
-    //     setErrors(newErrors);
-    //     return Object.keys(newErrors).length === 0;
-    // };
     const handleSubmit = async (e) => {
         e.preventDefault();// ngan chan hanh vi mac dinh cua trinh duyen dung de luu state 
         if (!validate()) return;
-        
+
         try {
             setIsSubmitting(true);
 
@@ -96,39 +75,12 @@ export default function SignInForm() {
 
             showNotificationSuccess("Đăng nhập thành công 🎉");
         } catch (err) {
-            showNotificationError(err.message || "Sai tài khoản hoặc mật khẩu");  
+            showNotificationError(err.message || "Sai tài khoản hoặc mật khẩu");
         } finally {
             setIsSubmitting(false);
         }
     };
-    //  const handleSubmit = async (e) => {
-    //     e.preventDefault();
 
-    //     // const username = usernameRef.current.value.trim();
-    //     // const password = passwordRef.current.value;
-    //     // const remember = rememberRef.current.checked;
-
-    //     if (!validate(username, password)) return;
-
-    //     try {
-    //         setIsSubmitting(true);
-
-    //         const res = await mockLogin({ username, password });
-
-    //         if (remember) {
-    //             localStorage.setItem("token", res.token);
-    //             localStorage.setItem("user", JSON.stringify(res.user));
-    //         } else {
-    //             sessionStorage.setItem("token", res.token);
-    //         }
-
-    //         showNotificationSuccess("Đăng nhập thành công 🎉");
-    //     } catch (err) {
-    //         showNotificationError(err.message || "Sai tài khoản hoặc mật khẩu");
-    //     } finally {
-    //         setIsSubmitting(false);
-    //     }
-    // };
     return (
         <div className="w-full max-w-md mx-auto px-4">
             <div className="mb-8">
@@ -139,13 +91,12 @@ export default function SignInForm() {
                     Vui lòng nhập thông tin để đăng nhập
                 </p>
             </div>
-            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+            <form onSubmit={handleSubmit} className="space-y-5">
                 <MyInput
                     label="Tên đăng nhập"
                     placeholder="Nhập email hoặc số điện thoại"
                     type="text"
                     name="username"
-                    // ref={usernameRef}
                     onChange={handleChange}
                     value={formData.username}
                     error={!!errors.username}
@@ -156,7 +107,6 @@ export default function SignInForm() {
                     placeholder="Nhập password"
                     name="password"
                     type="password"
-                    // ref={passwordRef}
                     onChange={handleChange}
                     value={formData.password}
                     error={!!errors.password}
@@ -166,9 +116,7 @@ export default function SignInForm() {
                     <label className="flex items-center text-gray-600 dark:text-gray-400 cursor-pointer">
                         <input name="remember" type="checkbox" className="mr-2 rounded border-gray-300 accent-brand-500"
                             checked={formData.remember}
-                              // ref={rememberRef} 
                             onChange={handleChange} />
-                          
                         Ghi nhớ đăng nhập
                     </label>
                     <a href="#" className="font-medium hover:underline">
@@ -194,7 +142,6 @@ export default function SignInForm() {
             <div className="flex items-center text-sm gap-3 mt-4">
                 <MyButton
                     type="submit"
-                    
                     variant="outline"
                     className="w-full"
                     startIcon={<GoogleIco />}
@@ -214,18 +161,21 @@ export default function SignInForm() {
             </div>
             <p className="text-center text-sm text-gray-600 dark:text-gray-400 mt-6">
                 Chưa có tài khoản?{" "}
-                <Link to="/register" className="text-brand-500 hover:text-brand-600 font-bold">
+                <Link
+                    to="/register"
+                    className="font-bold text-[var(--color-primary)] hover:underline"
+                >
                     Đăng ký ngay
                 </Link>
             </p>
-            <div className="flex justify-around text-center text-sm mt-6">
-                <a href="#" className="text-brand-500 hover:underline dark:text-white">
+            <div className=" text-amber-50 flex justify-around text-center text-sm mt-6">
+                <a href="#" className="text-[var(--color-black)] hover:text-[var(--color-primary)]">
                     CHÍNH SÁCH BẢO MẬT
                 </a>
-                <a href="#" className="text-brand-500 hover:underline dark:text-white">
+                <a href="#" className="text-[var(--color-black)] hover:text-[var(--color-primary)]">
                     ĐIỀU KHOẢN DỊCH VỤ
                 </a>
-                <a href="#" className="text-brand-500 hover:underline dark:text-white">
+                <a href="#" className="text-[var(--color-black)] hover:text-[var(--color-primary)]">
                     TRỢ GIÚP
                 </a>
             </div>

@@ -11,7 +11,7 @@ const SWTAvatar = ({ ...props }: SWTAvatarProps) => {
     return (
         <Avatar
             {...props}
-            className={`rounded-full shadow-md hover:shadow-xl transition-all duration-200 bg-white${props?.className || ''}`}
+            className={`rounded-full border-2 shadow-md hover:shadow-xl transition-all duration-200 bg-white${props?.className || ''}`}
             size={props?.size ?? 48}
             shape={props?.shape ?? 'square'}
             src={props?.src || DEFAULT_AVATAR_IMAGE}
