@@ -1,5 +1,4 @@
-"use client";
-
+"use client"
 import { Carousel } from "antd";
 import Image from "next/image";
 import { ChevronLeft, ChevronRight } from "lucide-react";

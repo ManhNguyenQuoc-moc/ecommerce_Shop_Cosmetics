@@ -1,45 +1,28 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
-
-type User = {
-  id: string;
-  fullName: string;
-  email: string;
-  avatar?: string;
-};
+import React, { createContext, useContext, useState } from "react";
+import { authStorage, AuthUser } from "@/src/@core/utils/authStorage";
 
 type AuthContextType = {
-  currentUser: User | null;
-  login: (user: User) => void;
+  currentUser: AuthUser | null;
+  login: (token: string, user: AuthUser) => void;
   logout: () => void;
 };
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const AuthContext = createContext<AuthContextType | null>(null);
 
-type Props = {
-  children: ReactNode;
-};
-
-export function AuthProvider({ children }: Props) {
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
-  
-  useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-
-    if (storedUser) {
-      setCurrentUser(JSON.parse(storedUser));
-    }
-  }, []);
-
-  const login = (user: User) => {
+export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+  const [currentUser, setCurrentUser] = useState<AuthUser | null>(() => {
+  return authStorage.getUser();
+});
+  const login = (token: string, user: AuthUser) => {
+    authStorage.login(token, user);
     setCurrentUser(user);
-    localStorage.setItem("user", JSON.stringify(user));
   };
 
   const logout = () => {
+    authStorage.logout();
     setCurrentUser(null);
-    localStorage.removeItem("user");
   };
 
   return (
@@ -47,14 +30,13 @@ export function AuthProvider({ children }: Props) {
       {children}
     </AuthContext.Provider>
   );
-}
+};
 
-export function useAuth(): AuthContextType {
+export const useAuth = () => {
   const context = useContext(AuthContext);
-
   if (!context) {
     throw new Error("useAuth must be used inside AuthProvider");
   }
 
   return context;
-}
+};

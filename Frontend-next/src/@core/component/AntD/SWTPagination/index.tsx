@@ -11,7 +11,7 @@ const SWTPagination = (props: SWTPaginationProps) => {
       showSizeChanger
       defaultCurrent={1}
       total={props?.total || 0}
-      pageSizeOptions={[10, 20, 50, 100]}
+      pageSizeOptions={[6, 9, 12, 15]}
       showTotal={
         (total: number, range: [number, number]) => `${range[0]}-${range[1]} trong ${total}`
       }

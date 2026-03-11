@@ -1,117 +1,80 @@
 "use client";
 
-import React from "react";
-import { Input, GetProps } from "antd";
-import PasswordCursor from "@/src/@core/component/SWTIcon/iconoir/password-cursor";
+import { Input } from "antd";
+import type { GetProps } from "antd";
 import SearchIcon from "@/src/@core/component/SWTIcon/iconoir/search";
+
+const { TextArea, Password } = Input;
+
 type InputProps = GetProps<typeof Input>;
-type PasswordProps = GetProps<typeof Input.Password>;
-type TextAreaProps = GetProps<typeof Input.TextArea>;
-type SearchProps = GetProps<typeof Input.Search>;
-type OTPProps = GetProps<typeof Input.OTP>;
-
-const { Search, TextArea, OTP, Password } = Input;
-
+type PasswordProps = GetProps<typeof Password>;
+type TextAreaProps = GetProps<typeof TextArea>;
 export type SWTInputProps = InputProps & {
   label?: string;
-  className?: string;
 };
 
-export type SWTInputPasswordProps = PasswordProps & {
-  className?: string;
-};
+export type SWTInputPasswordProps = PasswordProps;
+export type SWTInputTextAreaProps = TextAreaProps;
+export type SWTInputSearchProps = InputProps;
 
-export type SWTInputTextAreaProps = TextAreaProps & {
-  className?: string;
-};
-
-export type SWTInputSearchProps = SearchProps & {
-  className?: string;
-};
-
-export type SWTInputOTPProps = OTPProps & {
-  className?: string;
-};
-
-const SWTInput = ({ ...props }: SWTInputProps) => {
+const SWTInput = ({ label, placeholder, onChange, ...props }: SWTInputProps) => {
   return (
     <Input
       {...props}
-      placeholder={
-        props?.label !== undefined && props?.label !== null
-          ? "Nhập " + props?.label.toLowerCase()
-          : "Nhập dữ liệu"
-      }
-      onChange={(e: any) => {
-        props?.onChange?.(e.target.value);
-      }}
-      showCount={props?.showCount ?? true}
-      maxLength={props?.maxLength ?? 250}
-      allowClear={props?.allowClear ?? true}
-      className={`w-full !hover:border-primary rounded-lg border-gray-300 bg-white px-3 py-2 text-sm shadow-theme-xs placeholder-gray-400 transition focus:border-primary focus:ring-1 focus:ring-primary disabled:cursor-not-allowed disabled:bg-gray-100 disabled:opacity-50 dark:border-gray-700 dark:bg-gray-800 dark:placeholder-gray-500 dark:focus:border-primary dark:focus:ring-primary ${props.className ?? ""}`}
+      placeholder={placeholder ?? (label ? `Nhập ${label.toLowerCase()}` : "Nhập dữ liệu")}
+      allowClear={props.allowClear ?? true}
+      maxLength={props.maxLength ?? 250}
+      showCount={props.showCount ?? true}
+      onChange={(e) => onChange?.(e)}
+      className={`h-11 rounded-lg ${props.className ?? ""}`}
     />
   );
 };
-
-const SWTInputPassword = ({ ...props }: SWTInputPasswordProps) => {
+const SWTInputPassword = ({ onChange, ...props }: SWTInputPasswordProps) => {
   return (
     <Password
       {...props}
-      onChange={(e: any) => {
-        props?.onChange?.(e.target.value);
-      }}
-      prefix={<PasswordCursor />}
-      maxLength={props.maxLength ?? 32}
       allowClear={props.allowClear ?? true}
+      maxLength={props.maxLength ?? 32}
       placeholder={props.placeholder ?? "Nhập mật khẩu"}
+      onChange={(e) => onChange?.(e)}
+      className={`
+    h-11 rounded-lg 
+    !bg-slate-200
+    [&_.ant-input]:!bg-transparent
+    ${props.className ?? ""}
+  `}
     />
   );
 };
-
-const SWTInputTextArea = ({ ...props }: SWTInputTextAreaProps) => {
+const SWTInputTextArea = ({ onChange, ...props }: SWTInputTextAreaProps) => {
   return (
     <TextArea
       {...props}
-      onChange={(e: any) => {
-        props?.onChange?.(e.target.value);
-      }}
       maxLength={props.maxLength ?? 500}
       showCount={props.showCount ?? true}
+      onChange={(e) => onChange?.(e)}
+      className={`rounded-lg ${props.className ?? ""}`}
     />
   );
 };
-
-const SWTInputSearch = ({ className, ...props }: SWTInputSearchProps) => {
+const SWTInputSearch = ({ className, onChange, ...props }: SWTInputSearchProps) => {
   return (
     <Input
-      prefix={<SearchIcon size={20} className="text-gray-400" />}
-      variant="borderless"
-      placeholder={props.placeholder ?? "Tìm kiếm"}
       {...props}
+      prefix={<SearchIcon size={18} className="text-gray-400" />}
+      placeholder={props.placeholder ?? "Tìm kiếm"}
+      onChange={(e) => onChange?.(e)}
       className={`
-        !border !border-gray-200 
-        hover:!border-blue-400 
-        focus-within:!border-blue-500 
-        !rounded-xl !bg-white 
+        h-10
+        !border !border-gray-200
+        hover:!border-blue-400
+        focus-within:!border-blue-500
+        !rounded-xl !bg-white
         transition-all duration-200
         px-2
         ${className ?? ""}
-      `.trim()}
-      onChange={(e: any) => {
-        props?.onChange?.(e.target.value);
-      }}
-    />
-  );
-};
-
-const SWTInputOTP = ({ ...props }: SWTInputOTPProps) => {
-  return (
-    <OTP
-      {...props}
-      onChange={(e: any) => {
-        props?.onChange?.(e.target.value);
-      }}
-      length={props.length ?? 6}
+      `}
     />
   );
 };
@@ -120,7 +83,6 @@ export {
   SWTInputPassword,
   SWTInputTextArea,
   SWTInputSearch,
-  SWTInputOTP,
 };
 
 export default SWTInput;

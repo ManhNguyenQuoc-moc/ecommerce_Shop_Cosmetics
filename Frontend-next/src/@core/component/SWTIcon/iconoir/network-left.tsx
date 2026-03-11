@@ -1,4 +1,4 @@
-import { ColorKey, COLORS } from "@/src/themes/colors";
+import { ColorKey, COLORS } from "@/src/themes/color";
 import clsx from "clsx";
 
 type Props = React.SVGProps<SVGSVGElement> & {

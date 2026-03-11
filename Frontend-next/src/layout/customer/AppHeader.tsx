@@ -6,18 +6,18 @@ import Cart from "../components/header/Cart"
 import {
   Menu,
   Search,
-  ShoppingCart,
   Heart,
-  User,
 } from "lucide-react";
 import MenuCustomer from "../components/header/MenuCustomer"
 import AppSideBar from "./AppSideBar";
 import { customerCategories } from "@/src/@core/http/routes/customer-categories";
 
 export default function CustomerHeader() {
+  
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-useEffect(() => {
+
+  useEffect(() => {
   const handleScroll = () => {
     setScrolled(window.scrollY > 10);
   };

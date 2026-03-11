@@ -11,10 +11,13 @@ type Props = {
 
 export default function MenuCustomer({ categories }: Props) {
   const pathname = usePathname();
+
   const searchParams = useSearchParams();
+
   const router = useRouter();
 
   const categoryParam = searchParams.get("category");
+  
   const currentPath = categoryParam
     ? `${pathname}?category=${categoryParam}`
     : pathname;
@@ -32,15 +35,12 @@ export default function MenuCustomer({ categories }: Props) {
     focus:!shadow-none active:!shadow-none
     transition-all
   `;
-
   return (
     <nav className="flex items-center justify-center gap-4">
       {categories.map((category) => {
         const active = isActive(category);
-
         const button = (
           <SWTButton
-            variant={active ? "primary" : "outline"}
             className={`${buttonBaseClass} ${
               active
                 ? "!text-brand-600"

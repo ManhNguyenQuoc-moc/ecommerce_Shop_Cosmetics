@@ -1,51 +1,43 @@
 import { Button, ButtonProps } from "antd";
 
-type SWTButtonProps = Omit<ButtonProps, "size" | "type"> & {
+type SWTButtonProps = Omit<ButtonProps, "size"> & {
   children?: React.ReactNode;
   size?: "sm" | "md" | "lg";
-  variant?: "primary" | "outline" | "ghost";
-  
+  intent?: "primary" | "outline" | "ghost";
   startIcon?: React.ReactNode;
   endIcon?: React.ReactNode;
 };
 
+const sizeClasses = {
+  sm: "px-4 py-3 text-sm",
+  md: "px-5 py-3.5 text-sm",
+  lg: "px-6 py-4 text-base",
+} as const;
+
 const SWTButton = ({
   children,
   size = "md",
-  variant = "primary",
   startIcon,
   endIcon,
-  onClick,
   className = "",
   disabled = false,
   ...props
 }: SWTButtonProps) => {
 
-  const sizeClasses = {
-    sm: "px-4 py-2 text-sm",
-    md: "px-5 py-2.5 text-sm",
-    lg: "px-6 py-3 text-base",
-  };
-
-  const variantClasses = {
-    primary: "!bg-brand-500 !text-white hover:!bg-brand-600",
-    outline: "!border !border-brand-500 !text-brand-500 hover:!bg-brand-50",
-    ghost: "!bg-transparent !text-brand-500 hover:!bg-brand-50 !shadow-none",
-  };
-
   return (
     <Button
+      {...props}
+      variant={props.variant ?? "solid"}
+      disabled={disabled}
       className={`
+        px-4 py-5
+        text-gray-500
         inline-flex items-center justify-center
-        gap-2 rounded-lg font-medium transition
+        font-medium gap-2 rounded-lg transition
         ${sizeClasses[size]}
-        ${variantClasses[variant]}
         ${disabled ? "cursor-not-allowed opacity-50" : ""}
         ${className}
       `}
-      onClick={onClick}
-      disabled={disabled}
-      {...props}
     >
       {startIcon && <span className="flex items-center">{startIcon}</span>}
       {children}
@@ -54,4 +46,4 @@ const SWTButton = ({
   );
 };
 
-export default SWTButton; 
+export default SWTButton;
