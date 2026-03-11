@@ -9,4 +9,3 @@ export const DEFAULT_PAGE_SIZE = 10;
 export const DEFAULT_PAGE = 1;
 export const DEFAULT_AVATAR_IMAGE = "https://tse4.mm.bing.net/th/id/OIP.ant51cjdZTWiNDKyAFaFsQHaHX?rs=1&pid=ImgDetMain&o=7&rm=3"
 
-// title

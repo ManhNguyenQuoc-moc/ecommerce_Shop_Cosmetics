@@ -16,9 +16,7 @@ export default function ProductSection({
 }: Props) {
 
   const skeletonArray: (Product | undefined)[] = Array.from({ length: 12 });
-
   const renderList = loading ? skeletonArray : products;
-
   const isEmpty = !loading && (!products || products.length === 0);
 
   return (

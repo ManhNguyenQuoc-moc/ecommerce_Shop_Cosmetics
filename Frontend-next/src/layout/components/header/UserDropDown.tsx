@@ -4,25 +4,43 @@ import AntDropDown from "@/src/@core/component/AntD/AntDropDown";
 import SWTAvatar from "@/src/@core/component/AntD/SWTAvatar";
 import { User, Settings, LogOut, CreditCard } from "lucide-react";
 import { useRouter } from "next/navigation";
-type MenuItem = {
-  name: string;
-  path?: string;
-  icon?: React.ReactNode;
-  onClick?: () => void;
-};
+import { useAuth } from "@/src/context/AuthContext";
+import Link from "next/link";
 
-type Menu = {
-  name: string;
-  subItems: MenuItem[];
-};
 export default function UserDropdown() {
   const router = useRouter();
+  const { currentUser, logout } = useAuth();
 
   const handleLogout = () => {
-    router.push("/");
+    logout();
+    router.push("/login");
   };
 
-  const userMenuItems: Menu = {
+ if (!currentUser) {
+  const guestMenu = {
+    name: "Tài khoản",
+    subItems: [
+      {
+        name: "Đăng nhập",
+        path: "/login",
+      },
+      {
+        name: "Đăng ký",
+        path: "/register",
+      }
+    ]
+  };
+
+  return (
+    <AntDropDown item={guestMenu}>
+      <div className="flex items-center justify-center w-9 h-9 rounded-full hover:bg-gray-100 cursor-pointer">
+        <User className="text-black" size={26} />
+      </div>
+    </AntDropDown>
+  );
+}
+
+  const userMenuItems = {
     name: "Tài khoản",
     subItems: [
       { name: "Trang cá nhân", path: "/profile", icon: <User size={16} /> },
@@ -37,9 +55,10 @@ export default function UserDropdown() {
       },
     ],
   };
+
   return (
     <AntDropDown item={userMenuItems}>
-      <SWTAvatar size={36} shape = "circle">
+      <SWTAvatar size={36} shape="circle"  src={currentUser.avatar}>
       </SWTAvatar>
     </AntDropDown>
   );

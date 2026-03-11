@@ -129,3 +129,29 @@ export const bestSellingProducts = [...featuredProducts].sort(
 )
 
 export const newestProducts = [...featuredProducts].reverse()
+export const mockProducts = Array.from({ length: 120 }).map((_, index) => {
+  const base = featuredProducts[index % featuredProducts.length];
+
+  return {
+    ...base,
+    id: `${base.id}-${index + 1}`,
+    sold: (base.sold ?? 0) + Math.floor(Math.random() * 500),
+    price: base.price + Math.floor(Math.random() * 20000),
+  };
+});
+export async function getProducts(
+  page: number = 1,
+  pageSize: number = 12
+) {
+  const start = (page - 1) * pageSize;
+  const end = start + pageSize;
+
+  await new Promise((resolve) => setTimeout(resolve, 800));
+
+  return {
+    data: mockProducts.slice(start, end),
+    total: mockProducts.length,
+    page,
+    pageSize,
+  };
+}

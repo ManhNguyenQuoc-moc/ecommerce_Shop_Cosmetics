@@ -19,8 +19,8 @@ export default function HomePage() {
     }, []);
   return (
     <div className="space-y-10 ">
-      <HeroBanner banners={banners} loading={isLoading} />
-      <CategorySection categories={categories} loading={isLoading} />
+      <HeroBanner banners={banners} loading ={isLoading}/>
+      <CategorySection categories={categories} loading ={isLoading}/>
       <ProductSection
         title="Sản phẩm nổi bật"
         products={featuredProducts}

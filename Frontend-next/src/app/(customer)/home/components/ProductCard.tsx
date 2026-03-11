@@ -88,11 +88,11 @@ export default function ProductCard({ product, loading }: Props) {
 
           </div>
 
-          <div className="p-3 pt-0">
-            <SWTButton className="w-full h-[40px]">
-            Thêm vào giỏ hàng
-            </SWTButton>
-          </div>
+      <div className="px-3 pb-3">
+  <SWTButton className="w-full h-10 rounded-lg !bg-brand-500 !text-white hover:!bg-brand-600 transition">
+    Thêm vào giỏ hàng
+  </SWTButton>
+</div>
 
         </div>
       )}
