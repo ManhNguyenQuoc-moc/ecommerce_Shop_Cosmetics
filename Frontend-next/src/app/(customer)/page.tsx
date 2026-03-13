@@ -1,4 +1,9 @@
 import HomePage from "./home/HomePage";
-export default function Page() {
-  return <HomePage/>;
+import { getHomeData } from "@/src/services/customer/home";
+
+export default async function Page() {
+
+  const data = await getHomeData();
+  
+  return <HomePage initialData={data} />;
 }

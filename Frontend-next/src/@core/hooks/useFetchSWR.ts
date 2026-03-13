@@ -1,13 +1,15 @@
-import useSWR, { Key } from "swr";
+import useSWR, { Key, SWRConfiguration } from "swr";
 
-export const useFetchSWR = <T>(key: Key, fetcher: () => Promise<T>) => {
-  const { data, error, isLoading, isValidating, mutate } = useSWR<T>(key, fetcher);
+export const useFetchSWR = <T>(
+  key: Key,
+  fetcher: () => Promise<T>,
+  options?: SWRConfiguration
+) => {
+  const { data, error, isLoading, isValidating, mutate } = useSWR<T>(
+    key,
+    fetcher,
+    options
+  );
 
-  return {
-    data,
-    error,
-    isLoading,
-    isValidating,
-    mutate,
-  };
+  return { data, error, isLoading, isValidating, mutate };
 };

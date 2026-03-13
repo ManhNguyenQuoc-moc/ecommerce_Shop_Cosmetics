@@ -15,3 +15,31 @@ export type ProductPagination = {
   page: number;
   pageSize: number;
 };
+
+export type ProductDetail = {
+  id: string;
+  name: string;
+  brand: string;
+  description: string;
+
+  price: number;
+  salePrice?: number;
+
+  images: string[];
+
+  rating: number;
+  reviewCount: number;
+  sold: number;
+
+  stock: number;
+
+  variants?: {
+    color?: string;
+    size?: string;
+  }[];
+
+  specifications?: {
+    label: string;
+    value: string;
+  }[];
+};

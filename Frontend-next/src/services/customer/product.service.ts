@@ -1,11 +1,16 @@
-import { get } from "../api";
-import { ProductPagination } from "@/src/@core/type/Product";
+// import { get } from "../api";
+import { getServer } from "../apiServer";
+import { ProductPagination, ProductDetail} from "@/src/@core/type/Product";
 
-type Params = {
+
+
+export const getProducts = (params: {
   page: number;
   pageSize: number;
-  category?: string;
+}) => {
+  return getServer<ProductPagination>("/products", params);
 };
 
-export const getProducts = (params: Params) =>
-  get<ProductPagination>("/products", params);
+export const getProductDetail = (id: string) => {
+  return getServer<ProductDetail>(`/products/${id}`);
+};

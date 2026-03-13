@@ -12,11 +12,12 @@ const sizeClasses = {
   sm: "px-4 py-3 text-sm",
   md: "px-5 py-3.5 text-sm",
   lg: "px-6 py-4 text-base",
+  xl: "px-8 py-5 text-lg",
 } as const;
 
 const SWTButton = ({
   children,
-  size = "md",
+  size = "xl",
   startIcon,
   endIcon,
   className = "",
@@ -30,10 +31,13 @@ const SWTButton = ({
       variant={props.variant ?? "solid"}
       disabled={disabled}
       className={`
-        px-4 py-5
-        text-gray-500
+        w-full
+        !h-12
+        text-lg
         inline-flex items-center justify-center
-        font-medium gap-2 rounded-lg transition
+        font-medium gap-2
+        rounded-lg
+        transition
         ${sizeClasses[size]}
         ${disabled ? "cursor-not-allowed opacity-50" : ""}
         ${className}

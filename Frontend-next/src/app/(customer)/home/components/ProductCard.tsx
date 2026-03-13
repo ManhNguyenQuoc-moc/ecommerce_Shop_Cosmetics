@@ -102,6 +102,7 @@ export default function ProductCard({ product, loading }: Props) {
             {/* BUTTON */}
             <div className="px-3 pb-3">
               <SWTButton
+                size="lg"
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();

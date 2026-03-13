@@ -168,7 +168,7 @@ const brands = [
 
 const categories = [
 {
-    name: "Sữa rửa mặt",
+    name: "Sữa rửa mat",
     image: "https://media.hasaki.vn/wysiwyg/HaNguyen1/kem-rua-mat-hada-labo-duong-am-toi-uu-cho-moi-loai-da-80g_2.jpg",
   },
   {
@@ -371,7 +371,109 @@ app.get("/products", async (req, res) => {
   });
 
 });
+export type ProductDetail = {
+  id: string;
+  name: string;
+  brand: string;
+  description: string;
 
+  price: number;
+  salePrice?: number;
+
+  images: string[];
+
+  rating: number;
+  reviewCount: number;
+  sold: number;
+
+  stock: number;
+
+  variants?: {
+    color?: string;
+    size?: string;
+  }[];
+
+  specifications?: {
+    label: string;
+    value: string;
+  }[];
+};
+export const productDetails: ProductDetail[] = [
+  {
+    id: "p12",
+    name: "Tai nghe Bluetooth Sony WH-1000XM5",
+    brand: "Sony",
+    description:
+      "Tai nghe chống ồn chủ động cao cấp với thời lượng pin lên đến 30 giờ.",
+
+    price: 8990000,
+    salePrice: 7990000,
+
+    images: [
+      "/images/products/headphone1.jpg",
+      "/images/products/headphone2.jpg",
+      "/images/products/headphone3.jpg",
+    ],
+
+    rating: 4.8,
+    reviewCount: 235,
+    sold: 1200,
+
+    stock: 50,
+
+    variants: [
+      { color: "Black" },
+      { color: "Silver" },
+    ],
+
+    specifications: [
+      { label: "Thương hiệu", value: "Sony" },
+      { label: "Kết nối", value: "Bluetooth 5.2" },
+      { label: "Thời lượng pin", value: "30 giờ" },
+      { label: "Chống ồn", value: "Active Noise Cancelling" },
+    ],
+  },
+  {
+    id: "p11",
+    name: "Chuột Logitech MX Master 3S",
+    brand: "Logitech",
+    description:
+      "Chuột không dây cao cấp dành cho dân văn phòng và designer.",
+
+    price: 2990000,
+    salePrice: 2590000,
+
+    images: [
+      "/images/products/mouse1.jpg",
+      "/images/products/mouse2.jpg",
+    ],
+
+    rating: 4.7,
+    reviewCount: 180,
+    sold: 900,
+
+    stock: 120,
+
+    specifications: [
+      { label: "DPI", value: "8000 DPI" },
+      { label: "Kết nối", value: "Bluetooth / USB Receiver" },
+      { label: "Pin", value: "70 ngày" },
+    ],
+  },
+];
+app.get("/products/:id", async (req, res) => {
+  await new Promise((r) => setTimeout(r, 500));
+
+  const { id } = req.params;
+
+  const product = productDetails.find((p) => p.id === id);
+
+  res.json({
+    success: true,
+    message: "Get product detail successfully",
+    data: product,
+  });
+});
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {

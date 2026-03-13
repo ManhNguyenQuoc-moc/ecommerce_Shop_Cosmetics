@@ -137,6 +137,7 @@ export default function SignInForm() {
         </div>
         <SWTButton
           htmlType="submit"
+          size="lg"
           className="w-full py-4 text-lg !text-white !bg-brand-500 hover:!bg-brand-700"
         >
           Đăng nhập
@@ -158,9 +159,8 @@ export default function SignInForm() {
           Google
         </SWTButton>
         <SWTButton
-           variant="outlined"
+          variant="outlined"
           size="sm"
-          className="w-full"
           startIcon={<FacebookIco />}
         >
           Facebook
