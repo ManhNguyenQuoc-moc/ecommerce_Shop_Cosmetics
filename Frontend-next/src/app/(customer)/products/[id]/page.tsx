@@ -1,288 +1,292 @@
-import Image from "next/image";
-import { Star, ShoppingCart } from "lucide-react";
+"use client";
 
-import SWTButton from "@/src/@core/component/AntD/SWTButton";
-import SWTCard from "@/src/@core/component/AntD/SWTCard";
+import { useState } from "react";
 
 type Props = {
-  params: Promise<{
+  params: {
     id: string;
-  }>;
+  };
 };
 
-export default async function ProductDetail({ params }: Props) {
-
-  const { id } = await params;
+export default function ProductPage({ params }: Props) {
 
   /* ================= MOCK DATA ================= */
 
   const product = {
-    id: "hasaki_000007",
-
-    name: "Sáp Tẩy Trang Banila Co Original Cho Mọi Loại Da 100ml",
-
-    brand: "Banila Co",
-
-    shortName: "Clean it Zero Cleansing Balm #Original",
-
-    image:
-      "https://media.hcdn.vn/catalog/product/f/a/facebook-dynamic-sap-tay-trang-banila-co-original-cho-moi-loai-da-100ml-1740631254_img_320x320_b04c1a_fit_center.jpg",
-
-    rating: 4.9,
-
-    sold: 1800,
-
-    price: 380000,
-
-    salePrice: 315000,
-
+    title: "Nước Tẩy Trang L'Oreal Micellar Water 400ml",
+    price: 137000,
+    oldPrice: 249000,
+    rating: 4.8,
+    sold: 1179,
+    images: [
+      "/images/p1.jpg",
+      "/images/p2.jpg",
+      "/images/p3.jpg",
+      "/images/p4.jpg",
+    ],
+    variants: ["4×95ml", "5×95ml", "95ml", "400ml", "400ml+95ml"],
     description:
-      "Sáp Tẩy Trang Banila Co Original Cho Mọi Loại Da Clean it Zero Cleansing Balm là sản phẩm sáp tẩy trang bán chạy hàng đầu của thương hiệu mỹ phẩm Banila Co đến từ Hàn Quốc, với khả năng làm sạch sâu nhanh chóng và hiệu quả, từ sản phẩm chống nắng đến makeup chống thấm nước, đồng thời cung cấp độ ẩm cho da mềm mịn, không bị khô căng sau khi tẩy trang. Bên cạnh đó, chiết xuất Acerola và Vitamin C giúp chống oxy hoá và hỗ trợ dưỡng sáng da. Hiện sản phẩm Sáp Tẩy Trang Banila Co Clean it Zero Cleansing Balm #Original đã có mặt tại Hasaki được thiết kế dành cho mọi loại da.     Sáp Tẩy Trang Banila Co Original Cho Mọi Loại Da phù hợp với loại da nào? Sản phẩm thích hợp tẩy trang cho mọi loại da. Ưu thế nổi bật của Sáp Tẩy Trang Banila Co Original Cho Mọi Loại Da:  Bằng cách lên men nước khoáng từ các suối nước nóng ở Pháp, phân tử thành phần hoạt chất có lợi trở nên nhỏ hơn được hấp thụ sâu vào da sau quá trình rửa mặt, mang lại hiệu quả tuyệt vời về dưỡng ẩm và làm dịu da. Thành phần chống oxi hóa chính của Clean It Zero kết hợp từ chiết xuất Acerola và Vitamin C. Chiết xuất cranberrys - dưỡng da khỏe mạnh. Chiết xuất lựu - Mang lại sự sức sống cho làn da. Sản phẩm là dạng sáp không có mùi (no perfume). Có khả năng làm sạch sâu từ sản phẩm chống nắng đến lớp trang điểm chống thấm nước, tất cả chỉ trong một bước duy nhất! Sản phẩm thân thiện với làn da, có thể sử dụng cho mắt và môi. Công dụng: Giúp tẩy sạch kem chống nắng và lớp trang điểm mặt / mắt môi, kể cả sản phẩm chống thấm nước. Cung cấp độ ẩm, giúp da mềm mại, không bị khô rát sau khi tẩy trang. Chống oxy hoá và hỗ trợ dưỡng sáng da.",
-
-    highlights: [
-      "Làm sạch lớp trang điểm chống nước",
-      "Chiết xuất Acerola và Vitamin C chống oxy hoá",
-      "Dưỡng ẩm giúp da mềm mịn",
-      "Không chứa hương liệu",
-    ],
-
-    safety: [
-      "Đã kiểm định không gây kích ứng da",
-      "Không chứa 23 thành phần gây hại",
-      "Không có màu nhân tạo",
-      "Công thức thuần chay",
-    ],
-
-    storage: [
-      "Bảo quản nơi khô ráo thoáng mát",
-      "Tránh ánh nắng trực tiếp",
-      "Đậy nắp kín sau khi sử dụng",
-    ],
+      "Có hai lớp chất lỏng giúp hòa tan chất bẩn và loại bỏ toàn bộ lớp trang điểm hiệu quả.",
   };
 
-  /* ================= PAGE ================= */
+  /* ================= STATE ================= */
+
+  const [activeImage, setActiveImage] = useState(product.images[0]);
+  const [qty, setQty] = useState(1);
+  const [tab, setTab] = useState("desc");
+  const [variant, setVariant] = useState("400ml");
 
   return (
-    <div className="bg-gray-100 min-h-screen py-6">
+    <div className="container mx-auto px-4 py-8 space-y-8">
 
-      <div className="max-w-7xl mx-auto px-4 space-y-6">
+      {/* ================= TOP PRODUCT ================= */}
 
-        {/* Breadcrumb */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 border-2 border-brand-500 p-4 mb-4">
 
-        <div className="text-sm text-gray-500">
-          Trang chủ / Sản phẩm / {id}
-        </div>
+        {/* ================= IMAGE GALLERY ================= */}
 
+        <div className="lg:col-span-5 space-y-4">
 
-        {/* MAIN PRODUCT */}
+          <img
+            src={activeImage}
+            className="w-full h-[450px] object-cover rounded-lg border mb-6"
+          />
 
-        <div className="grid grid-cols-12 gap-6">
-
-          {/* GALLERY */}
-
-          <div className="col-span-5">
-
-            <SWTCard className="p-4">
-
-              <div className="relative w-full h-[420px]">
-
-                <Image
-                  src={product.image}
-                  alt={product.name}
-                  fill
-                  className="object-contain"
-                />
-
-              </div>
-
-              <div className="flex gap-2 mt-4">
-
-                {[1, 2, 3, 4].map((i) => (
-
-                  <div
-                    key={i}
-                    className="relative w-16 h-16 border rounded cursor-pointer"
-                  >
-
-                    <Image
-                      src={product.image}
-                      alt=""
-                      fill
-                      className="object-cover"
-                    />
-
-                  </div>
-
-                ))}
-
-              </div>
-
-            </SWTCard>
-
-          </div>
-
-
-          {/* PRODUCT INFO */}
-
-          <div className="col-span-7">
-
-            <SWTCard className="p-5 space-y-4">
-
-              <h1 className="text-xl font-semibold">
-                {product.name}
-              </h1>
-
-              <p className="text-sm text-gray-500">
-                Thương hiệu: <b>{product.brand}</b>
-              </p>
-
-
-              {/* rating */}
-
-              <div className="flex items-center gap-4 text-sm text-gray-600">
-
-                <span className="flex items-center gap-1">
-                  <Star
-                    size={16}
-                    className="text-yellow-500 fill-yellow-500"
-                  />
-                  {product.rating}
-                </span>
-
-                <span>Đã bán {product.sold}</span>
-
-              </div>
-
-
-              {/* price */}
-
-              <div className="flex items-center gap-3">
-
-                <span className="text-3xl font-bold text-red-600">
-                  {product.salePrice.toLocaleString()}đ
-                </span>
-
-                <span className="line-through text-gray-400">
-                  {product.price.toLocaleString()}đ
-                </span>
-
-              </div>
-
-
-              {/* quantity */}
-
-              <div className="flex items-center gap-4 pt-2">
-
-                <span>Số lượng</span>
-
-                <div className="flex border rounded">
-
-                  <button className="px-3 py-1">-</button>
-
-                  <input
-                    className="w-12 text-center outline-none"
-                    defaultValue={1}
-                  />
-
-                  <button className="px-3 py-1">+</button>
-
-                </div>
-
-              </div>
-
-
-              {/* buttons */}
-
-              <div className="flex gap-3 pt-4">
-
-                <SWTButton className="flex-1 h-12 !bg-brand-500 !text-white text-lg">
-                  Mua ngay
-                </SWTButton>
-
-                <SWTButton className="flex-1 h-12 border border-blue-500 text-blue-600 flex items-center justify-center gap-2">
-                  <ShoppingCart size={18} />
-                  Thêm vào giỏ
-                </SWTButton>
-
-              </div>
-
-            </SWTCard>
-
-          </div>
-
-        </div>
-
-
-        {/* HIGHLIGHTS */}
-
-        <SWTCard className="p-6 space-y-3">
-
-          <h2 className="text-lg font-semibold">
-            Ưu thế nổi bật
-          </h2>
-
-          <ul className="list-disc pl-5 space-y-2 text-gray-700">
-
-            {product.highlights.map((item, index) => (
-              <li key={index}>{item}</li>
+          <div className="flex gap-2 mb-6">
+            {product.images.map((img) => (
+              <img
+                key={img}
+                src={img}
+                onClick={() => setActiveImage(img)}
+                className={`w-16 h-16 object-cover border rounded cursor-pointer
+                ${activeImage === img ? "border-orange-500" : "border-gray-200"}`}
+              />
             ))}
+          </div>
 
-          </ul>
-
-        </SWTCard>
-
-
-        {/* DESCRIPTION */}
-
-        <SWTCard className="p-6 space-y-3">
-
-          <h2 className="text-lg font-semibold">
-            Mô tả sản phẩm
+        </div>
+        {/* ================= PRODUCT INFO ================= */}
+        <div className="lg:col-span-5 space-y-5">
+          <h1 className="text-2xl font-semibold">
+            {product.title}
+          </h1>
+           <h2 className="text-sm text-gray">
+            mo ta ngan tho 
           </h2>
+          <h2 className="text-sm text-gray">
+           Thuong hieu : xxxxxx
+          </h2>
+          <div className="flex items-center gap-4 text-sm text-gray-600">
+            ⭐ {product.rating}
+            <span>|</span>
+            {product.sold} đã bán
+            <span>|</span>
+            ma san pham : 0976532
+          </div>
+          <div className="flex items-center gap-3 mt-6">
+            <span className="text-3xl text-orange-600 font-bold">
+              {product.price.toLocaleString()}đ
+            </span>
+            <span className="line-through text-gray-400">
+              {product.oldPrice.toLocaleString()}đ
+            </span>
+          </div>
 
-          <p className="text-gray-700 leading-relaxed">
+          {/* ================= VARIANT ================= */}
+
+          <div className="space-y-3">
+
+            <p className="text-sm mt-3">
+              Dung tích: <span className="font-semibold">{variant}</span>
+            </p>
+
+            <div className="flex flex-wrap gap-2 mb-8">
+              {product.variants.map((v) => {
+                const active = variant === v;
+
+                return (
+                  <button
+                    key={v}
+                    onClick={() => setVariant(v)}
+                    className={`px-4 py-2 rounded-full border text-sm transition
+                    ${active
+                        ? "border-brand-500 text-brand-500 bg-brand-50"
+                        : "border-gray-300 hover:border-brand-500"
+                      }`}
+                  >
+                    {v}
+                  </button>
+                );
+
+              })}
+
+            </div>
+
+          </div>
+
+          {/* ================= QUANTITY ================= */}
+
+          <div className="flex items-center gap-4 mb-3">
+
+            <span className="text-sm">Số lượng</span>
+
+            <div className="flex border rounded">
+
+              <button
+                onClick={() => setQty((q) => Math.max(1, q - 1))}
+                className="px-3 py-1"
+              >
+                -
+              </button>
+
+              <span className="px-4 py-1">{qty}</span>
+
+              <button
+                onClick={() => setQty((q) => q + 1)}
+                className="px-3 py-1"
+              >
+                +
+              </button>
+
+            </div>
+
+          </div>
+
+          {/* ================= BUTTONS ================= */}
+
+          <div className="flex gap-4 pt-2">
+
+            <button className="border border-brand-500 text-brand-500 px-6 py-2 rounded hover:bg-orange-50">
+              Thêm giỏ hàng
+            </button>
+
+            <button className="bg-brand-500 text-white px-6 py-2 rounded hover:bg-brand-600">
+              Mua ngay
+            </button>
+
+          </div>
+
+        </div>
+
+        {/* ================= SHIPPING ================= */}
+
+
+      </div>
+              
+        <div className="lg:col-span-2 border rounded-lg p-4 space-y-3 text-sm border-2 border-brand-500 p-4 mb-4">
+
+          <h3 className="font-semibold">Miễn phí vận chuyển</h3>
+
+          <p>✔ Giao nhanh 2H</p>
+          <p>✔ Hoàn tiền nếu hàng giả</p>
+          <p>✔ Đổi trả 30 ngày</p>
+
+        </div>
+      {/* ================= PRODUCT TABS ================= */}
+
+      <div className="border rounded-lg p-6 border-2 border-brand-500 mb-6 h-[500px]">
+
+        <div className="flex gap-6 border-b pb-3 mb-4">
+
+          <button
+            onClick={() => setTab("desc")}
+            className={tab === "desc" ? "font-semibold text-orange-500" : ""}
+          >
+            Mô tả
+          </button>
+
+          <button
+            onClick={() => setTab("review")}
+            className={tab === "review" ? "font-semibold text-orange-500" : ""}
+          >
+            Đánh giá
+          </button>
+
+          <button
+            onClick={() => setTab("qa")}
+            className={tab === "qa" ? "font-semibold text-orange-500" : ""}
+          >
+            Hỏi đáp
+          </button>
+
+        </div>
+
+        {tab === "desc" && (
+          <p className="text-sm text-gray-700">
             {product.description}
           </p>
+        )}
 
-        </SWTCard>
+        {tab === "review" && (
+          <div>
 
+            <h3 className="text-lg font-semibold mb-2">
+              Đánh giá sản phẩm
+            </h3>
 
-        {/* SAFETY */}
+            <p>⭐ 4.8 / 5 (298 đánh giá)</p>
 
-        <SWTCard className="p-6 space-y-3">
+            <div className="mt-4 border-t pt-4">
 
-          <h2 className="text-lg font-semibold">
-            Độ an toàn
-          </h2>
+              <p className="font-semibold">Nguyễn Văn A</p>
 
-          <ul className="list-disc pl-5 space-y-2 text-gray-700">
+              <p className="text-sm text-gray-500">
+                Sản phẩm rất tốt
+              </p>
 
-            {product.safety.map((item, index) => (
-              <li key={index}>{item}</li>
-            ))}
+            </div>
 
-          </ul>
+          </div>
+        )}
 
-        </SWTCard>
+        {tab === "qa" && (
+          <div>
 
+            <h3 className="font-semibold mb-2">
+              Hỏi đáp
+            </h3>
 
-        {/* STORAGE */}
+            <p className="text-sm">
+              Giá trên web có giống ngoài cửa hàng không?
+            </p>
 
-        <SWTCard className="p-6 space-y-3">
+          </div>
+        )}
 
-          <h2 className="text-lg font-semibold">
-            Hướng dẫn bảo quản
-          </h2>
+      </div>
 
-          <ul className="list-disc pl-5 space-y-2 text-gray-700">
+      {/* ================= RELATED ================= */}
 
-            {product.storage.map((item, index) => (
-              <li key={index}>{item}</li>
-            ))}
+      <div className="space-y-4 ">
 
-          </ul>
+        <h2 className="text-lg font-semibold">
+          Có thể bạn thích
+        </h2>
 
-        </SWTCard>
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 border-2 border-brand-500">
+
+          {Array.from({ length: 5 }).map((_, i) => (
+
+            <div
+              key={i}
+              className="border rounded-lg p-3 space-y-2 hover:shadow"
+            >
+
+              <div className="h-32 bg-gray-200 rounded" />
+
+              <p className="text-sm">
+                Sản phẩm gợi ý {i + 1}
+              </p>
+
+              <p className="text-orange-500 font-semibold">
+                120.000đ
+              </p>
+
+            </div>
+
+          ))}
+
+        </div>
 
       </div>
 

@@ -1,4 +1,5 @@
-"use client"
+"use client";
+
 import { Carousel } from "antd";
 import Image from "next/image";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -12,10 +13,10 @@ type Banner = {
 
 type Props = {
   banners: Banner[];
-  loading?: boolean;
+  
 };
 
-const ArrowLeft = ( props: any) => (
+const ArrowLeft = (props: any) => (
   <button
     {...props}
     className="
@@ -43,38 +44,44 @@ const ArrowRight = (props: any) => (
   </button>
 );
 
-const HeroBanner = ({ banners, loading }: Props) => {
+const HeroBanner = ({ banners }: Props) => {
   return (
-    <SWTCard
-      loading={loading}
-      height={360}
-      className="overflow-hidden rounded-2xl shadow-lg shadow-blue-300 group"
-    >
-      <Carousel
-        autoplay
-        autoplaySpeed={4000}
-        dots
-        arrows
-        prevArrow={<ArrowLeft />}
-        nextArrow={<ArrowRight />}
-      >
-        {banners.map((banner, index) => (
-          <div key={index}>
-            <div className="relative w-full h-[200px] sm:h-[360px] md:h-[420px] lg:h-[360px]">
+    <SWTCard className="overflow-hidden rounded-2xl shadow-lg shadow-blue-300 group">
+
+      <div className="relative w-full h-[360px]">
+
+        <Carousel
+          autoplay
+          autoplaySpeed={4000}
+          arrows
+          dots
+          draggable
+          pauseOnHover
+          prevArrow={<ArrowLeft />}
+          nextArrow={<ArrowRight />}
+        >
+
+          {banners.map((banner, index) => (
+            <div key={index} className="relative w-full h-[360px]">
+
               <Image
                 src={banner.image}
-                alt="banner"
+                alt={banner.title}
                 fill
+                sizes="100vw"
+                priority={index === 0}
                 className="object-cover"
-                priority
               />
+
             </div>
-          </div>
-        ))}
-      </Carousel>
+          ))}
+
+        </Carousel>
+
+      </div>
+
     </SWTCard>
   );
-
 };
 
 export default HeroBanner;

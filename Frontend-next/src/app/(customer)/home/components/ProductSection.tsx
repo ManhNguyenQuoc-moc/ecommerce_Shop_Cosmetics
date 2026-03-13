@@ -1,6 +1,7 @@
 "use client";
 
-import ProductCard, { Product } from "./ProductCard";
+import ProductCard from "./ProductCard";
+import type{Product} from "@/src/@core/type/Product"
 import SWTEmpty from "@/src/@core/component/AntD/SWTEmpty";
 
 type Props = {

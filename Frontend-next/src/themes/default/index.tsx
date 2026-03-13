@@ -2,7 +2,7 @@ const defaultTheme = {
   token: {
     fontFamily: "Be Vietnam Pro, sans-serif",
     colorPrimary: "#7B61FF",
-    borderRadius: 2,
+    borderRadius: 12,
   },
   components: {
     Menu: {

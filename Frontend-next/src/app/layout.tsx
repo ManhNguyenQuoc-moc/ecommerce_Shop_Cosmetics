@@ -1,6 +1,7 @@
 "use client";
 import { Outfit } from "next/font/google";
 import ThemeProvider from "../@core/provider/theme-provider";
+import {AntdRegistry} from '@ant-design/nextjs-registry';
 import { SidebarProvider } from "../@core/provider/sidebar-provider";
 import viVN from "antd/locale/vi_VN";
 import { ConfigProvider } from "antd";
@@ -24,7 +25,7 @@ export default function RootLayout({
     useMessageInit();
     return <>{children}</>;
   };
-
+  
   return (
     <html lang="en">
       <head>
@@ -38,7 +39,7 @@ export default function RootLayout({
               <ThemeProvider>
                 <MessageInitializer>
                   <SidebarProvider>
-                    <AuthProvider>{children}</AuthProvider>
+                    <AuthProvider><AntdRegistry>{children}</AntdRegistry></AuthProvider>
                     </SidebarProvider>
                 </MessageInitializer>
               </ThemeProvider>
