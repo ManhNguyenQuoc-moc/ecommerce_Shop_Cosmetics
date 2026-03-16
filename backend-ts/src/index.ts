@@ -371,29 +371,42 @@ app.get("/products", async (req, res) => {
   });
 
 });
+
+export type ProductVariant = {
+  id: string;
+  color?: string;
+  size?: string;
+
+  price: number;
+  salePrice?: number;
+
+  stock: number;
+
+  image?: string;
+};
+
 export type ProductDetail = {
   id: string;
   name: string;
   brand: string;
   description: string;
-
-  price: number;
-  salePrice?: number;
-
+  shortdescription: string;
   images: string[];
 
   rating: number;
   reviewCount: number;
   sold: number;
 
-  stock: number;
+  priceRange: {
+    min: number;
+    max: number;
+  };
 
-  variants?: {
-    color?: string;
-    size?: string;
-  }[];
+  totalStock: number;
 
-  specifications?: {
+  variants: ProductVariant[];
+
+  specifications: {
     label: string;
     value: string;
   }[];
@@ -401,63 +414,111 @@ export type ProductDetail = {
 export const productDetails: ProductDetail[] = [
   {
     id: "p12",
-    name: "Tai nghe Bluetooth Sony WH-1000XM5",
-    brand: "Sony",
+    name: "Son môi Dior Rouge 999",
+    brand: "Dior",
     description:
-      "Tai nghe chống ồn chủ động cao cấp với thời lượng pin lên đến 30 giờ.",
-
-    price: 8990000,
-    salePrice: 7990000,
-
+      "Son môi cao cấp với màu đỏ kinh điển, chất son mịn lì và dưỡng ẩm nhẹ.",
+    shortdescription: "Son môi cao cấp với màu đỏ kinh điển, chất son mịn lì và dưỡng ẩm nhẹ.",
     images: [
-      "/images/products/headphone1.jpg",
-      "/images/products/headphone2.jpg",
-      "/images/products/headphone3.jpg",
+      "https://images.unsplash.com/photo-1586495777744-4413f21062fa",
+      "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9",
+      "https://images.unsplash.com/photo-1596462502278-27bfdc403348",
+    ],
+
+    rating: 4.9,
+    reviewCount: 412,
+    sold: 1800,
+
+    priceRange: {
+      min: 850000,
+      max: 990000,
+    },
+
+    totalStock: 120,
+
+    variants: [
+      {
+        id: "v1",
+        color: "Classic Red",
+        price: 990000,
+        salePrice: 850000,
+        stock: 40,
+        image: "https://images.unsplash.com/photo-1586495777744-4413f21062fa",
+      },
+      {
+        id: "v2",
+        color: "Rose Pink",
+        price: 990000,
+        salePrice: 850000,
+        stock: 40,
+        image: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9",
+      },
+      {
+        id: "v3",
+        color: "Coral Orange",
+        price: 990000,
+        salePrice: 820000,
+        stock: 40,
+        image: "https://images.unsplash.com/photo-1596462502278-27bfdc403348",
+      },
+    ],
+
+    specifications: [
+      { label: "Thương hiệu", value: "Dior" },
+      { label: "Loại son", value: "Matte Lipstick" },
+      { label: "Xuất xứ", value: "Pháp" },
+      { label: "Dung tích", value: "3.5g" },
+    ],
+  },
+
+  {
+    id: "p11",
+    name: "Serum dưỡng da Estee Lauder Advanced Night Repair",
+    brand: "Estee Lauder",
+    description:
+      "Serum phục hồi và tái tạo da ban đêm giúp da căng mịn và sáng khỏe.",
+    shortdescription: "Son môi cao cấp với màu đỏ kinh điển, chất son mịn lì và dưỡng ẩm nhẹ.",
+    images: [
+      "https://images.unsplash.com/photo-1600180758890-6b94519a8ba6",
+      "https://images.unsplash.com/photo-1598440947619-2c35fc9aa908",
+      "https://images.unsplash.com/photo-1571781926291-c477ebfd024b",
     ],
 
     rating: 4.8,
-    reviewCount: 235,
-    sold: 1200,
+    reviewCount: 356,
+    sold: 1400,
 
-    stock: 50,
+    priceRange: {
+      min: 2890000,
+      max: 3590000,
+    },
+
+    totalStock: 80,
 
     variants: [
-      { color: "Black" },
-      { color: "Silver" },
+      {
+        id: "v4",
+        size: "30ml",
+        price: 3200000,
+        salePrice: 2890000,
+        stock: 40,
+        image: "https://images.unsplash.com/photo-1600180758890-6b94519a8ba6",
+      },
+      {
+        id: "v5",
+        size: "50ml",
+        price: 3800000,
+        salePrice: 3590000,
+        stock: 40,
+        image: "https://images.unsplash.com/photo-1598440947619-2c35fc9aa908",
+      },
     ],
 
     specifications: [
-      { label: "Thương hiệu", value: "Sony" },
-      { label: "Kết nối", value: "Bluetooth 5.2" },
-      { label: "Thời lượng pin", value: "30 giờ" },
-      { label: "Chống ồn", value: "Active Noise Cancelling" },
-    ],
-  },
-  {
-    id: "p11",
-    name: "Chuột Logitech MX Master 3S",
-    brand: "Logitech",
-    description:
-      "Chuột không dây cao cấp dành cho dân văn phòng và designer.",
-
-    price: 2990000,
-    salePrice: 2590000,
-
-    images: [
-      "/images/products/mouse1.jpg",
-      "/images/products/mouse2.jpg",
-    ],
-
-    rating: 4.7,
-    reviewCount: 180,
-    sold: 900,
-
-    stock: 120,
-
-    specifications: [
-      { label: "DPI", value: "8000 DPI" },
-      { label: "Kết nối", value: "Bluetooth / USB Receiver" },
-      { label: "Pin", value: "70 ngày" },
+      { label: "Thương hiệu", value: "Estee Lauder" },
+      { label: "Loại sản phẩm", value: "Serum dưỡng da" },
+      { label: "Dung tích", value: "30ml / 50ml" },
+      { label: "Công dụng", value: "Phục hồi và tái tạo da" },
     ],
   },
 ];
