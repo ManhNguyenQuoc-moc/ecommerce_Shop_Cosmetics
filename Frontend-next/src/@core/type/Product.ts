@@ -16,29 +16,41 @@ export type ProductPagination = {
   pageSize: number;
 };
 
+export type ProductVariant = {
+  id: string;
+  color?: string;
+  size?: string;
+
+  price: number;
+  salePrice?: number;
+
+  stock: number;
+
+  image?: string;
+};
+
 export type ProductDetail = {
   id: string;
   name: string;
   brand: string;
   description: string;
-
-  price: number;
-  salePrice?: number;
-
+  shortdescription: string
   images: string[];
 
   rating: number;
   reviewCount: number;
   sold: number;
 
-  stock: number;
+  priceRange: {
+    min: number;
+    max: number;
+  };
 
-  variants?: {
-    color?: string;
-    size?: string;
-  }[];
+  totalStock: number;
 
-  specifications?: {
+  variants: ProductVariant[];
+
+  specifications: {
     label: string;
     value: string;
   }[];

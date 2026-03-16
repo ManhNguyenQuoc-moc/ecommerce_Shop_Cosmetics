@@ -1,9 +1,10 @@
 import { ApiResponse } from "@/src/@core/type/api";
 
 const baseURL = process.env.NEXT_PUBLIC_API_URL;
-
+console.log("BASE URL:", baseURL);
 type FetchOptions = RequestInit & {
   revalidate?: number;
+  cache?: RequestCache;
 };
 
 export async function getServer<T>(
@@ -16,14 +17,21 @@ export async function getServer<T>(
     ? "?" + new URLSearchParams(params).toString()
     : "";
 
-  const { revalidate = 60, ...fetchOptions } = options || {};
+  const {
+    revalidate = 60,
+    cache,
+    ...fetchOptions
+  } = options || {};
 
   const res = await fetch(`${baseURL}${url}${query}`, {
     method: "GET",
     ...fetchOptions,
-    next: {
-      revalidate
-    }
+
+    ...(cache
+      ? { cache }
+      : {
+          next: { revalidate }
+        })
   });
 
   if (!res.ok) {

@@ -1,4 +1,4 @@
-// import { get } from "../api";
+
 import { getServer } from "../apiServer";
 import { ProductPagination, ProductDetail} from "@/src/@core/type/Product";
 
