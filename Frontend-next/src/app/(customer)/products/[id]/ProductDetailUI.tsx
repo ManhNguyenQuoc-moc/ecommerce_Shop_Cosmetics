@@ -8,7 +8,6 @@ import ProductVariants from "./components/ProductVariants";
 import ProductInfo from "./components/ProductInfo";
 import ProductQuantity from "./components/ProductQuantity";
 import ProductTabs from "./components/ProductTabs";
-import ShippingInfo from "./components/ShippingInfo";
 import ProductActions from "./components/ProductActions";
 import ProductSidebar from "./components/ProductSidebar/ProductSidebar";
 import { getProductDetail } from "@/src/services/customer/product.service";
@@ -20,7 +19,7 @@ type Props = {
 
 export default function ProductDetailUI({ product }: Props) {
 
-  const { data } = useFetchSWR<ProductDetail>(
+  const { data, isLoading } = useFetchSWR<ProductDetail>(
     ["products", product.id],
     () => getProductDetail(product.id),
     {
@@ -61,7 +60,7 @@ export default function ProductDetailUI({ product }: Props) {
     <div className="container mx-auto px-4 py-8 space-y-8">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <div className="lg:col-span-9 space-y-8">
-          <SWTCard>
+          <SWTCard loading={isLoading}>
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 p-4">
               <ProductGallery
                 productName={currentProduct.name}
@@ -84,7 +83,7 @@ export default function ProductDetailUI({ product }: Props) {
                   </div>
                 )}
                 <ProductQuantity qty={qty} setQty={setQty} />
-                <ProductActions qty={qty} />
+                <ProductActions qty={qty} product={currentProduct} variant={variant}/>
               </div>
             </div>
           </SWTCard>

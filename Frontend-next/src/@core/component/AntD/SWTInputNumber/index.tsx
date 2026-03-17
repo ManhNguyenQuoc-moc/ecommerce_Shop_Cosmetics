@@ -1,26 +1,33 @@
 "use client";
 import { InputNumber, InputNumberProps } from "antd";
+
 export type SWTInputNumberProps = InputNumberProps & {
-    classNames?: string;
-    mode?: "spinner" | "input";
-    defaultValue?: number;
-    min?: number;
-    max?: number;
-    size?: 'small' | 'middle' | 'large';
-    onChange?: (value: number) => void;
-    variant?: "outlined" | "filled";
+  classNames?: string; 
+  mode?: "spinner" | "input"; 
 };
-const SWTInputNumber = ({ ...props }: SWTInputNumberProps) => {
-    return <InputNumber {...props}
-        className={props?.classNames}
-        defaultValue={props?.defaultValue ?? 0}
-        min={props?.min ?? 1}
-        max={props?.max ?? 1000}
-        size={props?.size ?? 'middle'}
-        onChange={(value) => props?.onChange?.(value ?? 0)}
-        style={{ width: "100", ...props?.style }}
-        mode={props?.mode ?? "input"}
-        variant={props?.variant ?? "outlined"}
-    />;
+
+const SWTInputNumber = ({
+  classNames,
+  defaultValue = 0,
+  min = 1,
+  max = 1000,
+  size = "middle",
+  variant = "outlined",
+  style,
+  ...restProps 
+}: SWTInputNumberProps) => {
+  return (
+    <InputNumber
+      {...restProps}
+      classNames={classNames}
+      defaultValue={defaultValue}
+      min={min}
+      max={max}
+      size={size}
+      variant={variant}
+      style={{ width: 100, ...style }}
+    />
+  );
 };
+
 export default SWTInputNumber;

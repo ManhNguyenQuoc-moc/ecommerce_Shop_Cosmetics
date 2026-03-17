@@ -17,7 +17,7 @@ export default function ProductQuantity({ qty, setQty }: Props) {
         min={1}
         max={100}
         onChange={(v) => setQty(v)}
-        classNames="!w-[120px]"
+        className="!w-[120px]"
         size="middle"
       />
     </div>

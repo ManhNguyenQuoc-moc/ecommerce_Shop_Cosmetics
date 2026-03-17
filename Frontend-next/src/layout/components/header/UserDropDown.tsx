@@ -8,6 +8,7 @@ import { useAuth } from "@/src/context/AuthContext";
 import Link from "next/link";
 
 export default function UserDropdown() {
+  
   const router = useRouter();
   const { currentUser, logout } = useAuth();
 
