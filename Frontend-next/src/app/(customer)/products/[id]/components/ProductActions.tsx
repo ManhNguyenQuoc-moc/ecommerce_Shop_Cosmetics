@@ -1,25 +1,72 @@
+"use client";
+
 import SWTButton from "@/src/@core/component/AntD/SWTButton";
+import { ProductDetail, ProductVariant } from "@/src/@core/type/Product"; // Nhớ import đúng type
+import { useCheckoutStore } from "@/src/stores/useCheckoutStore";
+import { useCartStore } from "@/src/stores/useCartStore";
+import { useRouter } from "next/navigation";
 
 type Props = {
   qty: number;
+  product: ProductDetail;
+  variant: ProductVariant;
 };
 
-export default function ProductActions({ qty }: Props) {
+export default function ProductActions({ qty, product, variant }: Props) {
+  const setBuyNow = useCheckoutStore((s) => s.setBuyNow);
+  const addItem = useCartStore((s) => s.addItem);
+  const router = useRouter();
+
+  const currentVariantId = variant ? variant.id : "default";
+  
+  const currentPrice = variant?.salePrice || variant?.price || product.priceRange?.min || 0;
+  const currentPriceOrigin = variant?.price;
+  const currentImage = variant?.image || product.images?.[0] || "";
+  const variantLabel = variant ? ` - ${variant.color || variant.size || ""}` : "";
+  const currentProductName = `${product.name}${variantLabel}`;
+
+  const handleBuyNow = () => {
+    setBuyNow({
+      id: `${product.id}-${currentVariantId}-buy`,
+      productId: product.id,
+      variantId: currentVariantId,
+      productName: currentProductName,
+      image: currentImage,
+      price: currentPrice,
+      quantity: qty,
+    });
+    router.push("/checkout");
+  };
+
+  const handleAddToCart = () => {
+    addItem({
+      id: `${product.id}-${currentVariantId}`,
+      productId: product.id,
+      variantId: currentVariantId,
+      productName: currentProductName,
+      brand: product.brand || "Đang cập nhật",
+      image: currentImage,
+      price: currentPrice,
+      originalPrice: currentPriceOrigin,
+      quantity: qty,
+    });
+  };
+
   return (
     <div className="flex gap-3 pt-4">
-
       <SWTButton
+        onClick={handleAddToCart}
         className="flex-1 !border-brand-500 !text-brand-500 !py-5 font-medium hover:!bg-brand-50 transition"
       >
         Thêm vào giỏ hàng
       </SWTButton>
 
       <SWTButton
+        onClick={handleBuyNow}
         className="flex-1 !bg-brand-500 !text-white !py-5 font-medium hover:!bg-brand-700 transition"
       >
         Mua ngay ({qty})
       </SWTButton>
-
     </div>
   );
 }

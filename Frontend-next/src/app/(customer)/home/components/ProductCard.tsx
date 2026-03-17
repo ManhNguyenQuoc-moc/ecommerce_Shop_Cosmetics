@@ -7,13 +7,19 @@ import { Heart, Star } from "lucide-react";
 import SWTCard from "@/src/@core/component/AntD/SWTCard";
 import SWTButton from "@/src/@core/component/AntD/SWTButton";
 import type { Product } from "@/src/@core/type/Product";
-
+import { useCartStore } from "@/src/stores/useCartStore";
+import { useWishlistStore } from "@/src/stores/useWishlistStore";
 type Props = {
   product?: Product;
   loading?: boolean;
 };
 
 export default function ProductCard({ product, loading }: Props) {
+  const addItem = useCartStore((s) => s.addItem);
+  const toggleWishlist = useWishlistStore((s) => s.toggleItem);
+const isInWishlist = useWishlistStore((s) =>
+  product ? s.isInWishlist(product.id) : false
+);
   return (
     <SWTCard
       loading={loading}
@@ -23,7 +29,6 @@ export default function ProductCard({ product, loading }: Props) {
       {!loading && product && (
         <Link href={`/products/${product.id}`} className="block h-full">
           <div className="group cursor-pointer flex flex-col h-full">
-            {/* IMAGE */}
             <div className="relative w-full h-44 bg-gray-100">
               <Image
                 src={product.image}
@@ -32,32 +37,39 @@ export default function ProductCard({ product, loading }: Props) {
                 unoptimized
                 className="object-cover group-hover:scale-105 transition"
               />
-
               {product.salePrice && (
                 <div className="absolute top-2 left-2 bg-orange-500 text-white text-xs px-2 py-1 rounded">
                   -{Math.round((1 - product.salePrice / product.price) * 100)}%
                 </div>
               )}
-
               <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                }}
-                className="absolute top-2 right-2 bg-white/80 backdrop-blur p-1.5 rounded-full hover:bg-red-500 hover:text-white transition"
-              >
-                <Heart size={16} />
-              </button>
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (!product) return;
+                toggleWishlist(product);
+              }}
+              className={`absolute top-2 right-2 p-1.5 rounded-full backdrop-blur transition
+                ${
+                  isInWishlist
+                    ? "bg-red-500 text-white"
+                    : "bg-white/80 text-gray-600 hover:bg-red-500 hover:text-white"
+                }
+              `}
+            >
+        <Heart
+          size={16}
+          className={isInWishlist ? "fill-white" : ""}
+        />
+            </button>
             </div>
-
             {/* INFO */}
             <div className="p-3 space-y-1 flex-1">
-
               <p className="text-xs text-gray-500">
                 {product.brand}
               </p>
 
-              <p className="text-sm font-medium line-clamp-2 min-h-[40px]">
+              <p className="!text-sm !font-medium !line-clamp-2 min-h-[40px] !text-black">
                 {product.name}
               </p>
 
@@ -74,14 +86,14 @@ export default function ProductCard({ product, loading }: Props) {
                     </span>
                   </>
                 ) : (
-                  <span className="text-blue-600 font-bold">
+                  <span className="text-black font-bold">
                     {product.price.toLocaleString()}đ
                   </span>
                 )}
               </div>
 
               {/* RATING */}
-              <div className="flex justify-between text-sm text-gray-500">
+              <div className="flex justify-between text-sm text-gray-500 mt-3">
                 {product.rating && (
                   <span className="flex items-center gap-1">
                     <Star
@@ -91,28 +103,12 @@ export default function ProductCard({ product, loading }: Props) {
                     {product.rating}
                   </span>
                 )}
-
                 {product.sold && (
                   <span>{product.sold} sold</span>
                 )}
               </div>
 
             </div>
-
-            {/* BUTTON */}
-            <div className="px-3 pb-3">
-              <SWTButton
-                size="lg"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                }}
-                className="w-full h-10 rounded-lg !bg-brand-500 !text-white hover:!bg-brand-600 transition"
-              >
-                Thêm vào giỏ hàng
-              </SWTButton>
-            </div>
-
           </div>
         </Link>
       )}

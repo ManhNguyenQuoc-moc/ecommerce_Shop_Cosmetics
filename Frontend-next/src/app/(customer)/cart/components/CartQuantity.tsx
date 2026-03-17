@@ -1,16 +1,26 @@
 "use client";
 
+import SWTInputNumber from "@/src/@core/component/AntD/SWTInputNumber";
+
 type Props = {
-  quantity: number;
+ quantity: number;
+ onChange?: (value: number | string | null) => void;
 };
 
-export default function CartQuantity({ quantity }: Props) {
+export default function CartQuantity({ quantity, onChange }: Props) {
   return (
-    <input
-      type="number"
-      defaultValue={quantity}
+    <SWTInputNumber
+      variant ="filled"
+      mode ="spinner"
       min={1}
-      className="w-16 border rounded px-2 py-1 text-center"
+      size="small"
+      value={quantity} 
+      onChange={(value) => {
+        if (value !== null) {
+          onChange?.(value);
+        }
+      }}
+      classNames="w-12"
     />
   );
 }

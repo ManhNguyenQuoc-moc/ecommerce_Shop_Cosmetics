@@ -3,8 +3,10 @@
 import Link from "next/link";
 import { ShoppingCart } from "lucide-react";
 import SWTBadge from "@/src/@core/component/SWTBadge";
+import {useCartStore} from "@/src/stores/useCartStore";
 export default function Cart() {
-  const cartCount = 3;
+
+  const cartCount = useCartStore((s) => s.getCount());
 
   return (
     <Link

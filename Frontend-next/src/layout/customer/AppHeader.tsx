@@ -28,7 +28,7 @@ export default function CustomerHeader() {
   return (
     <header
   className={`sticky top-0 z-50 transition-all duration-300
-  ${scrolled ? "bg-white shadow-md border-b" : "bg-transparent"}
+  ${scrolled ? "bg-white shadow-md border-b" : "bg-white"}
 `}
 >
       <div className="max-w-7xl mx-auto flex items-center justify-between px-4 py-3 gap-4">
