@@ -23,7 +23,7 @@
 @import "./pages/scroll.css" layer(utilities);
 @import "./pages/menu-item.css" layer(utilities);
 /* @import "pages/triangle.css"; */
-
+@import "leaflet/dist/leaflet.css";
 @custom-variant dark (&:is(.dark *));
 
 @theme {

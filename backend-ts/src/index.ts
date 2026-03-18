@@ -329,7 +329,47 @@ const homeData = {
   newestProducts,
   brands
 };
+const users = [
+  {
+    id: "1",
+    name: "Nguyen Van A",
+    phone: "0912345678",
+    addresses: [
+      { address: "123 Đường Lê Lợi, Quận 1, TP.HCM", lat: 10.7769, lon: 106.7009 },
+      { address: "456 Đường Trần Hưng Đạo, Quận 5, TP.HCM", lat: 10.7625, lon: 106.6829 },
+    ],
+  },
+  {
+    id: "2",
+    name: "Tran Thi B",
+    phone: "0987654321",
+    addresses: [
+      { address: "789 Đường Hai Bà Trưng, Quận 3, TP.HCM", lat: 10.7712, lon: 106.6930 },
+    ],
+  },
+];
 
+app.get("/users/:id", (req, res) => {
+  const { id } = req.params;
+  const user = users.find((u) => u.id === id);
+
+  if (!user) {
+    return res.status(404).json({
+      success: false,
+      message: "User not found",
+    });
+  }
+
+  res.json({
+    success: true,
+    message: "Get customer info successfully",
+    data: {
+      name: user.name,
+      phone: user.phone,
+      addresses: user.addresses,
+    },
+  });
+});
 app.get("/home", async (req,res)=>{
 // fake loading
 res.json({
