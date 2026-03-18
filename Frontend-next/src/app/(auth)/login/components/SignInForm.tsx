@@ -37,7 +37,12 @@ export default function SignInForm() {
         username: data.username,
         name: "User Demo",
         email: data.username,
+        phone: "0987654321",
         avatar: "https://th.bing.com/th/id/R.51f5810985ac0534807da6c3de962eea?rik=LJoOJPD%2fLaKG4w&pid=ImgRaw&r=0",
+        addresses: [
+  { address: "123 Đường A, Quận B, TP C", lat: 12.345, lon: 67.890 },
+  { address: "456 Đường X, Quận Y, TP Z", lat: 23.456, lon: 78.901 }
+],
         role:"admin"
       }
     };
