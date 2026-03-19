@@ -5,7 +5,8 @@ import { ProductDetail, ProductVariant } from "@/src/@core/type/Product"; // Nhá
 import { useCheckoutStore } from "@/src/stores/useCheckoutStore";
 import { useCartStore } from "@/src/stores/useCartStore";
 import { useRouter } from "next/navigation";
-
+import { useState } from "react";
+import Loading from "@/src/@core/component/Loading";
 type Props = {
   qty: number;
   product: ProductDetail;
@@ -16,6 +17,7 @@ export default function ProductActions({ qty, product, variant }: Props) {
   const setBuyNow = useCheckoutStore((s) => s.setBuyNow);
   const addItem = useCartStore((s) => s.addItem);
   const router = useRouter();
+  const [loading, setLoading] = useState(false); 
 
   const currentVariantId = variant ? variant.id : "default";
   
@@ -35,6 +37,7 @@ export default function ProductActions({ qty, product, variant }: Props) {
       price: currentPrice,
       quantity: qty,
     });
+    setLoading(true);
     router.push("/checkout");
   };
 
@@ -53,6 +56,7 @@ export default function ProductActions({ qty, product, variant }: Props) {
   };
 
   return (
+    <>
     <div className="flex gap-3 pt-4">
       <SWTButton
         onClick={handleAddToCart}
@@ -68,5 +72,7 @@ export default function ProductActions({ qty, product, variant }: Props) {
         Mua ngay ({qty})
       </SWTButton>
     </div>
+    {loading && <Loading shopName="SWT Shop" />}
+    </>
   );
 }

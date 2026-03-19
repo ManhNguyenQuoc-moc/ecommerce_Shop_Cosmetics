@@ -5,12 +5,11 @@ import { useCartStore} from "@/src/stores/useCartStore";
 import {useCheckoutStore} from "@/src/stores/useCheckoutStore"
 
 export default function OrderItems() {
-  const mode = useCheckoutStore((s) => s.mode);
+const mode = useCheckoutStore((s) => s.mode);
 const checkoutItems = useCheckoutStore((s) => s.items);
 const cartItems = useCartStore((s) => s.items);
 
 const items = mode === "buy_now" ? checkoutItems : cartItems;
-
   return (
     <div className="bg-white p-5 rounded-xl shadow space-y-4">
       <h2 className="text-lg font-semibold">Sản phẩm</h2>

@@ -31,9 +31,9 @@ type CartState = {
   updateQuantity: (id: string, quantity: number) => void;
 
   removeItem: (id: string) => void;
-
+  clearCart: () => void;
   getTotal: () => number;
-
+  
   getCount: () => number;
 };
 
@@ -70,16 +70,16 @@ export const useCartStore = create<CartState>()(
 
       updateQuantity: (id, quantity) =>
         set((state) => {
-          // ... logic của bạn ...
+      
           return { items: state.items.map((i) => (i.id === id ? { ...i, quantity } : i)) };
         }),
 
       removeItem: (id) =>
         set((state) => {
-          // ... logic của bạn ...
+      
           return { items: state.items.filter((i) => i.id !== id) };
         }),
-
+      clearCart: () => set({ items: [] }),
       getTotal: () =>
         get().items.reduce((sum, i) => sum + i.price * i.quantity, 0),
 

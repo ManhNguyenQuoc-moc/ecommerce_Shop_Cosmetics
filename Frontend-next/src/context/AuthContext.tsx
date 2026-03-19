@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState } from "react";
 import { authStorage, AuthUser } from "@/src/@core/utils/authStorage";
-
+import { useCheckoutStore } from "@/src/stores/useCheckoutStore";
 type AuthContextType = {
   currentUser: AuthUser | null;
   login: (token: string, user: AuthUser) => void;
@@ -23,6 +23,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const logout = () => {
     authStorage.logout();
     setCurrentUser(null);
+    useCheckoutStore.getState().reset();
   };
 
   return (
@@ -37,6 +38,5 @@ export const useAuth = () => {
   if (!context) {
     throw new Error("useAuth must be used inside AuthProvider");
   }
-
   return context;
 };
