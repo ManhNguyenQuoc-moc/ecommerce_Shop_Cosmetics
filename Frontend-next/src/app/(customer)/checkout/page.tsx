@@ -1,8 +1,6 @@
 "use client";
 
 import CheckoutForm from "./components/CheckoutForm";
-import ShippingMethod from "./components/ShippingMethod";
-import PaymentMethod from "./components/PaymentMethod";
 import CheckoutSummary from "./components/CheckoutSummary";
 import SWTBreadcrumb from "@/src/@core/component/AntD/SWTBreadcrumb";
 
@@ -15,21 +13,16 @@ export default function CheckoutPage() {
           { title: "Thanh toán" },
         ]}
       />
-      
+
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mt-6">
-        
-        <div className="col-span-1 lg:col-span-4">
+        <div className="lg:col-span-7">
           <CheckoutForm />
         </div>
-
-        <div className="col-span-1 lg:col-span-4 space-y-8">
-          <ShippingMethod />
-          <PaymentMethod />
+        <div className="lg:col-span-5">
+          <div>
+            <CheckoutSummary />
+          </div>
         </div>
-        <div className="col-span-1 lg:col-span-4">
-          <CheckoutSummary />
-        </div>
-        
       </div>
     </div>
   );

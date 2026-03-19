@@ -18,7 +18,6 @@ type Props = {
 export default function HomePage({ initialData }: Props) {
 
   useSWTTitle("Trang chủ");
-
   const { data, isValidating } = useFetchSWR<HomeData>(
     "home",
     getHomeData,

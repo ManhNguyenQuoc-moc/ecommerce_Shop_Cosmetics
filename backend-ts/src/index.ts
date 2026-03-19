@@ -1,5 +1,7 @@
 import express from "express";
 import { prisma } from "./config/prisma";
+import paymentRoute from "./routes/payment.route";
+import { createPaymentUrl } from "./services/vnpay.service";
 import cors from "cors";
 import dotenv from "dotenv";
 dotenv.config();
@@ -10,7 +12,45 @@ app.use(express.json());
 app.get("/ping", (req, res) => {
   res.json({ message: "may nhin cai cho gi" });
 });
+type OrderStatus = "pending" | "paid" | "failed";
+type PaymentMethod = "cod" | "vnpay";
 
+type OrderItem = {
+  productId: string;
+  variantId:string
+  productName: string;
+  price: number;
+  quantity: number;
+  image?: string;
+};
+
+type CustomerInfo = {
+  name: string;
+  phone: string;
+};
+
+type Address = {
+  address: string;
+  lat?: number;
+  lon?: number;
+};
+
+type Order = {
+  id: string;
+  items: OrderItem[];
+  customer: CustomerInfo;
+  address: Address;
+  total: number;
+  paymentMethod: PaymentMethod;
+  status: OrderStatus;
+  createdAt: Date;
+
+  paidAt?: Date;
+  transactionId?: string;
+};
+
+
+const orders: Order[] = [];
 const featuredProducts = [
 {
 id:"p1",
@@ -574,6 +614,51 @@ app.get("/products/:id", async (req, res) => {
     message: "Get product detail successfully",
     data: product,
   });
+});
+
+app.use("/api/payment", paymentRoute);
+
+app.post("/checkout", async (req, res) => {
+  try {
+    const { items, customer, address, total, paymentMethod } = req.body;
+    if (!items?.length) {
+      return res.status(400).json({ message: "No items" });
+    }
+    const orderId = "ORDER_" + Date.now();
+    const order = {
+      id: orderId,
+      items,
+      customer,
+      address,
+      total,
+      paymentMethod,
+      status: paymentMethod === "cod" ? "paid" : "pending",
+      createdAt: new Date(),
+    };
+    orders.push(order);
+
+    console.log("NEW ORDER:", order);
+
+    if (paymentMethod === "cod") {
+      return res.json({
+        success: true,
+        message: "Order created (COD)",
+        data: order,
+      });
+    }
+
+    const paymentUrl = createPaymentUrl({
+      amount: total,
+      orderId,
+    });
+    return res.json({
+      success: true,
+      paymentUrl,
+    });
+
+  } catch (err) {
+    res.status(500).json({ message: "Checkout error" });
+  }
 });
 const PORT = process.env.PORT || 3000;
 

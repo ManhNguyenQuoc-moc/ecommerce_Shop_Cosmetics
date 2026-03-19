@@ -20,12 +20,9 @@ export type ProductVariant = {
   id: string;
   color?: string;
   size?: string;
-
   price: number;
   salePrice?: number;
-
   stock: number;
-
   image?: string;
 };
 
@@ -36,20 +33,15 @@ export type ProductDetail = {
   description: string;
   shortdescription: string
   images: string[];
-
   rating: number;
   reviewCount: number;
   sold: number;
-
   priceRange: {
     min: number;
     max: number;
   };
-
   totalStock: number;
-
   variants: ProductVariant[];
-
   specifications: {
     label: string;
     value: string;

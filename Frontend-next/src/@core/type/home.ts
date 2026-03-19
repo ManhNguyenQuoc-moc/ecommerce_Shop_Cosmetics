@@ -1,3 +1,4 @@
+
 export type HomeData = {
   banners: any[];
   categories: any[];

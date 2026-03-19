@@ -5,9 +5,7 @@ import Link from "next/link";
 import { Heart, Star } from "lucide-react";
 
 import SWTCard from "@/src/@core/component/AntD/SWTCard";
-import SWTButton from "@/src/@core/component/AntD/SWTButton";
 import type { Product } from "@/src/@core/type/Product";
-import { useCartStore } from "@/src/stores/useCartStore";
 import { useWishlistStore } from "@/src/stores/useWishlistStore";
 type Props = {
   product?: Product;
@@ -15,8 +13,7 @@ type Props = {
 };
 
 export default function ProductCard({ product, loading }: Props) {
-  const addItem = useCartStore((s) => s.addItem);
-  const toggleWishlist = useWishlistStore((s) => s.toggleItem);
+const toggleWishlist = useWishlistStore((s) => s.toggleItem);
 const isInWishlist = useWishlistStore((s) =>
   product ? s.isInWishlist(product.id) : false
 );
@@ -63,7 +60,6 @@ const isInWishlist = useWishlistStore((s) =>
         />
             </button>
             </div>
-            {/* INFO */}
             <div className="p-3 space-y-1 flex-1">
               <p className="text-xs text-gray-500">
                 {product.brand}
@@ -72,8 +68,6 @@ const isInWishlist = useWishlistStore((s) =>
               <p className="!text-sm !font-medium !line-clamp-2 min-h-[40px] !text-black">
                 {product.name}
               </p>
-
-              {/* PRICE */}
               <div className="flex items-center gap-2">
                 {product.salePrice ? (
                   <>
@@ -91,8 +85,6 @@ const isInWishlist = useWishlistStore((s) =>
                   </span>
                 )}
               </div>
-
-              {/* RATING */}
               <div className="flex justify-between text-sm text-gray-500 mt-3">
                 {product.rating && (
                   <span className="flex items-center gap-1">
@@ -107,7 +99,6 @@ const isInWishlist = useWishlistStore((s) =>
                   <span>{product.sold} sold</span>
                 )}
               </div>
-
             </div>
           </div>
         </Link>

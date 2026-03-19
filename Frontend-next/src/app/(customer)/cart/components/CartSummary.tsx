@@ -4,13 +4,14 @@ import SWTCard from "@/src/@core/component/AntD/SWTCard";
 import SWTButton from "@/src/@core/component/AntD/SWTButton";
 import Image from "next/image";
 import { useRouter } from "next/navigation"; 
-
+import Loading from "@/src/@core/component/Loading";
+import { useState } from "react";
 import { useCartStore } from "@/src/stores/useCartStore";
 import { useCheckoutStore } from "@/src/stores/useCheckoutStore";
 
 export default function CartSummary() {
+   const [loading, setLoading] = useState(false);
   const items = useCartStore((s) => s.items);
-  const setCartMode = useCheckoutStore((s) => s.setCartMode); 
   const router = useRouter();
 
   const subtotal = items.reduce(
@@ -28,13 +29,29 @@ export default function CartSummary() {
 
   const formatPrice = (value: number) =>
     value.toLocaleString("vi-VN") + " đ";
-  const handleCheckout = () => {
+  const  handleCheckout = async () => {
     if (items.length === 0) return;
-    setCartMode(); 
+
+    const checkoutItems = items.map((item) => ({
+      id: item.id,
+      productId: item.productId,
+      variantId: item.variantId,
+      productName: item.productName,
+      image: item.image,
+      price: item.price,
+      quantity: item.quantity,
+    }));
+
+    useCheckoutStore.getState().setCartMode(checkoutItems);
+    setLoading(true); 
+    
+    await new Promise((resolve) => setTimeout(resolve, 800));
+
     router.push("/checkout");
   };
 
   return (
+    <>
     <SWTCard
       title="Hóa đơn của bạn"
       className="!rounded-xl !shadow-md !border-0"
@@ -114,5 +131,8 @@ export default function CartSummary() {
         Tiến hành đặt hàng
       </SWTButton>
     </SWTCard>
+     {loading && <Loading shopName="CosmeticsShop"/>} 
+     </>
   );
+   
 }
