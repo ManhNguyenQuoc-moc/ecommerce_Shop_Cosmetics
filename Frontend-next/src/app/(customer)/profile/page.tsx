@@ -1,28 +1,28 @@
+"use client";
+
+import { useAuth } from "@/src/context/AuthContext";
+import { useFetchSWR } from "@/src/@core/hooks/useFetchSWR";
+import { getCustomerInfo, getProfile } from "@/src/services/customer/user.service";
+import ProfileForm from "./components/ProfileForm";
+import SWTCard from "@/src/@core/component/AntD/SWTCard";
+
 export default function ProfilePage() {
+
+  const { currentUser } = useAuth();
+  const userId = currentUser?.id;
+
+  const { data: profile, isLoading } = useFetchSWR(
+    "/users/me",
+    () => getProfile()
+  );
+
   return (
-    <div>
-      <h1 className="text-xl font-semibold mb-4">
-        Thông tin cá nhân
-      </h1>
-
-      <div className="space-y-4">
-
-        <div>
-          <p className="text-sm text-gray-500">Họ tên</p>
-          <p className="font-medium">Nguyễn Văn A</p>
-        </div>
-
-        <div>
-          <p className="text-sm text-gray-500">Email</p>
-          <p className="font-medium">example@gmail.com</p>
-        </div>
-
-        <div>
-          <p className="text-sm text-gray-500">Số điện thoại</p>
-          <p className="font-medium">0123456789</p>
-        </div>
-
-      </div>
-    </div>
+      <SWTCard loading={isLoading} className="min-h-[500px] !border-none !shadow-sm !rounded-2xl">
+        {profile && (
+          <ProfileForm
+            initialData={profile}
+          />
+        )}
+      </SWTCard>
   );
 }

@@ -1,0 +1,79 @@
+model Order {
+  id        String  @id @default(uuid())
+  userId    String
+  user      User    @relation(fields: [userId], references: [id])
+  addressId String?
+
+  discountCodeId String?
+  discountCode   DiscountCode? @relation(fields: [discountCodeId], references: [id], onDelete: SetNull)
+
+  total_amount Float @default(0)
+  final_amount Float @default(0)
+
+  current_status OrderStatus   @default(PENDING)
+  payment_method PaymentMethod @default(COD)
+  payment_status PaymentStatus @default(UNPAID)
+
+  items          OrderItem[]
+  status_history OrderStatusHistory[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model OrderItem {
+  id      String @id @default(uuid())
+  orderId String
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  variantId String?
+  variant   ProductVariant? @relation(fields: [variantId], references: [id], onDelete: SetNull)
+
+  quantity          Int
+  price_at_purchase Float
+}
+
+model OrderStatusHistory {
+  id        String      @id @default(uuid())
+  orderId   String
+  order     Order       @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  status    OrderStatus
+  timestamp DateTime    @default(now())
+}
+
+model DiscountCode {
+  id          String       @id @default(uuid())
+  code        String       @unique
+  discount    Float
+  type        DiscountType
+  valid_from  DateTime
+  valid_until DateTime
+  usage_limit Int          @default(100)
+  used_count  Int          @default(0)
+  isActive    Boolean      @default(true)
+  orders      Order[]
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  SHIPPING
+  DELIVERED
+  CANCELLED
+}
+
+enum PaymentMethod {
+  COD
+  VNPAY
+}
+
+enum PaymentStatus {
+  UNPAID
+  PAID
+  REFUNDED
+}
+
+enum DiscountType {
+  PERCENTAGE
+  FLAT_AMOUNT
+}

@@ -13,6 +13,7 @@ import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/src/context/AuthContext";
+import http from "@/src/@core/http";
 
 type LoginValues = {
   username: string;
@@ -25,33 +26,20 @@ export default function SignInForm() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
-  const mockLogin = async (data: LoginValues) => {
-    await new Promise((r) => setTimeout(r, 1000));
-    if (data.password !== "123456") {
-      throw new Error("Sai tài khoản hoặc mật khẩu");
-    }
-    return {
-      token: "fake-token",
-      user: {
-        id: "2",
-        username: data.username,
-        name: "User Demo",
-        email: data.username,
-        avatar: "https://th.bing.com/th/id/R.51f5810985ac0534807da6c3de962eea?rik=LJoOJPD%2fLaKG4w&pid=ImgRaw&r=0",
-        role:"admin"
-      }
-    };
-  };
-
   const handleSubmit = async (values: LoginValues) => {
     try {
       setIsLoading(true);
-      const res = await mockLogin(values);
-      login(res.token, res.user);
+      const res = await http.post("/auth/login", {
+        email: values.username, // Send username as email
+        password: values.password,
+      });
+      // API returns: { success: true, message: "Login successfully", data: { token, user } }
+      const { token, user } = res.data.data;
+      login(token, user);
       showNotificationSuccess("Đăng nhập thành công");
       router.push("/");
     } catch (err: any) {
-      showNotificationError(err.message || "Đăng nhập thất bại");
+      showNotificationError(err.response?.data?.message || err.message || "Đăng nhập thất bại");
     } finally {
       setIsLoading(false);
     }

@@ -4,54 +4,32 @@ import axios, {
   HttpStatusCode,
   InternalAxiosRequestConfig,
 } from "axios";
-import { getCookie, removeCookie, setCookie } from "../utils/cookie";
+import { authStorage } from "../utils/authStorage";
 import {
-  ACCESS_TOKEN_KEY,
   AUTHORIZATION_KEY,
-  REFRESH_TOKEN_KEY,
-  TENANT_KEY,
   TOKEN_TYPE_KEY,
 } from "../const";
-import { RefreshLoginInputDto } from "@/src/services/administration-service/auth/models/input.model";
-import { administrationService } from "@/src/services/administration-service/administration.service";
-import qs from "qs";
 import { showNotificationError } from "../utils/message";
-
-let isRefreshing = false;
-let refreshPromise: Promise<any> | null = null;
-
-// Xử lý refresh token
-async function refreshTokenAsync() {
-  const requestLogin: RefreshLoginInputDto = {
-    refreshToken: getCookie(REFRESH_TOKEN_KEY) ?? "",
-    accessToken: getCookie(ACCESS_TOKEN_KEY) ?? "",
-  };
-  try {
-    const response =
-      await administrationService.authService.refreshTokenAsync(requestLogin);
-    return response;
-  } catch (error: any) {
-    if (error.statusCode === HttpStatusCode.Unauthorized) {
-      http.defaults.headers.common[AUTHORIZATION_KEY] = "";
-      removeCookie(ACCESS_TOKEN_KEY);
-      removeCookie(REFRESH_TOKEN_KEY);
-      window.location.href = `/signin`;
-    }
-  }
-}
 
 // Xử lý request trước khi gửi đi
 const onRequestInterceptor = (config: InternalAxiosRequestConfig) => {
-  const accessToken = getCookie(ACCESS_TOKEN_KEY);
-  config.headers[TENANT_KEY] = localStorage.getItem(TENANT_KEY) ?? "";
-
+  const accessToken = authStorage.getToken();
+  
   if (accessToken) {
     config.headers[AUTHORIZATION_KEY] = `${TOKEN_TYPE_KEY} ${accessToken}`;
   }
+  
   if (config.params) {
     config.paramsSerializer = {
-      serialize: (params: Record<string, any>) =>
-        qs.stringify(params, { encode: true }),
+      serialize: (params: Record<string, any>) => {
+        const searchParams = new URLSearchParams();
+        Object.entries(params).forEach(([key, value]) => {
+          if (value !== undefined && value !== null) {
+            searchParams.append(key, String(value));
+          }
+        });
+        return searchParams.toString();
+      }
     };
   }
   return config;
@@ -61,64 +39,56 @@ const onRequestInterceptor = (config: InternalAxiosRequestConfig) => {
 const onResponseInterceptor = async (error: AxiosError) => {
   if (error.code == "ERR_NETWORK") {
     showNotificationError("Lỗi kết nối đến máy chủ, vui lòng thử lại sau.");
-    return Promise.reject({});
+    return Promise.reject(error);
   }
 
-  // 401 => Unauthorized, token hết hạn hoặc không hợp lệ => refresh token
+  // 401 => Unauthorized. Chuyển hướng về login nếu token không hợp lệ
   if (error.response && error.response.status === HttpStatusCode.Unauthorized) {
-    if (!isRefreshing) {
-      isRefreshing = true;
-      refreshPromise = refreshTokenAsync();
+    if (typeof window !== "undefined") {
+        authStorage.logout();
+        // window.location.href = `/login`; // Tạm tắt redirect tự động để tránh loop
     }
-    if (refreshPromise) {
-      const newToken = await refreshPromise;
-      refreshPromise = null;
-      isRefreshing = false;
-
-      http.defaults.headers.common[AUTHORIZATION_KEY] =
-        `${TOKEN_TYPE_KEY} ${newToken.accessToken}`;
-      setCookie(ACCESS_TOKEN_KEY, newToken.accessToken);
-      setCookie(REFRESH_TOKEN_KEY, newToken.refreshToken);
-
-      return http(error.config as InternalAxiosRequestConfig);
-    }
+    return Promise.reject(error.response.data);
   }
 
   const _response = error.response?.data as any;
-  // 400 => Bad Request, lỗi từ phía client => hiển thị thông báo lỗi
+  
+  // 400 => Bad Request
   if (error.response && error.response.status === HttpStatusCode.BadRequest) {
     showNotificationError(
-      `${_response?.error.message ?? "Lỗi không xác định, vui lòng liên hệ quản trị viên."}`,
+      `${_response?.message ?? "Lỗi không xác định, vui lòng liên hệ quản trị viên."}`,
     );
     return Promise.reject(error.response.data);
   }
 
-  // 403 => Forbidden, không có quyền truy cập => chuyển hướng đến trang 403
+  // 403 => Forbidden
   if (error.response && error.response.status === HttpStatusCode.Forbidden) {
-    window.location.href = `/403`;
+    if (typeof window !== "undefined") window.location.href = `/403`;
     return Promise.reject(error.response.data);
   }
 
-  // 404 => Not Found, không tìm thấy tài nguyên => chuyển hướng đến trang 404
+  // 404 => Not Found
   if (error.response && error.response.status === HttpStatusCode.NotFound) {
-    window.location.href = `/404`;
+    // window.location.href = `/404`;
     return Promise.reject(error.response.data);
   }
 
-  // 500 => Internal Server Error, lỗi từ phía server => chuyển hướng đến trang 500
+  // 500 => Internal Server Error
   if (
     error.response &&
     error.response.status === HttpStatusCode.InternalServerError
   ) {
-    window.location.href = `/500`;
+    // if (typeof window !== "undefined") window.location.href = `/500`;
+    showNotificationError("Hệ thống đang gặp sự cố, vui lòng thử lại sau.");
     return Promise.reject(error.response.data);
   }
 
   // Hiển thị thông báo lỗi cho các lỗi khác
-  showNotificationError(
-    `${_response?.error.message ?? "Lỗi không xác định, vui lòng liên hệ quản trị viên."}`,
-  );
-  return Promise.reject(_response);
+  if (_response?.message) {
+    showNotificationError(_response.message);
+  }
+  
+  return Promise.reject(error);
 };
 
 const http = axios.create({

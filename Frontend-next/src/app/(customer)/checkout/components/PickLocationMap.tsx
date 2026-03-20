@@ -2,7 +2,8 @@
 
 import { useState, useCallback, useEffect } from "react";
 import { GoogleMap, useJsApiLoader, Marker, Autocomplete } from "@react-google-maps/api";
-import { Input, message } from "antd";
+import { Input } from "antd";
+import { showNotificationError } from "@/src/@core/utils/message";
 import { AimOutlined, CheckCircleOutlined } from "@ant-design/icons";
 import SWTButton from "@/src/@core/component/AntD/SWTButton";
 
@@ -56,7 +57,7 @@ export default function PickLocationMap({ onSelect, onSave, initialAddress }: an
   };
 
   const handleGetCurrentLocation = () => {
-    if (!navigator.geolocation) return message.error("GPS không khả dụng");
+    if (!navigator.geolocation) return showNotificationError("GPS không khả dụng");
     setLocating(true);
     navigator.geolocation.getCurrentPosition(
       (pos) => {
@@ -67,7 +68,7 @@ export default function PickLocationMap({ onSelect, onSave, initialAddress }: an
       },
       () => {
         setLocating(false);
-        message.error("Vui lòng bật quyền GPS");
+        showNotificationError("Vui lòng bật quyền GPS");
       }
     );
   };

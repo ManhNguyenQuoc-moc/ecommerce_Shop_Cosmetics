@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useCheckoutStore } from "@/src/stores/useCheckoutStore";
 import { useCartStore } from "@/src/stores/useCartStore";
 import SWTButton from "@/src/@core/component/AntD/SWTButton";
-import { showMessageSuccess, showMessageError } from "@/src/@core/utils/message";
+import { showNotificationSuccess, showNotificationError } from "@/src/@core/utils/message";
 import SWTCard from "@/src/@core/component/AntD/SWTCard";
 import SWTSelect from "@/src/@core/component/AntD/SWTSelect";
 import { checkoutService } from "@/src/services/customer/checkout.service";
@@ -35,12 +35,12 @@ export default function CheckoutSummary() {
 
   const handleCheckout = async () => {
     if (!items.length) {
-      showMessageError("Không có sản phẩm trong đơn hàng");
+      showNotificationError("Không có sản phẩm trong đơn hàng");
       return;
     }
 
     if (!customer.name || !customer.phone || !selectedAddress) {
-      showMessageError("Vui lòng nhập đầy đủ thông tin giao hàng");
+      showNotificationError("Vui lòng nhập đầy đủ thông tin giao hàng");
       return;
     }
     
@@ -73,7 +73,7 @@ export default function CheckoutSummary() {
         window.location.href = res.paymentUrl;
         return;
       }
-      showMessageSuccess("Đặt hàng thành công 🎉");
+      showNotificationSuccess("Đặt hàng thành công 🎉");
       if (mode === "cart" && typeof clearCart === "function") {
         clearCart();
       }
@@ -82,7 +82,7 @@ export default function CheckoutSummary() {
       router.push("/");
     } catch (err) {
       console.error("Checkout error:", err);
-      showMessageError("Đã có lỗi xảy ra trong quá trình thanh toán");
+      showNotificationError("Đã có lỗi xảy ra trong quá trình thanh toán");
     } finally {
       setLoadingPay(false);
     }

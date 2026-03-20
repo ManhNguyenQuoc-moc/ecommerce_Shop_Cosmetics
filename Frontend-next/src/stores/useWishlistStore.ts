@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import type { Product } from "@/src/@core/type/Product";
-import { showMessageSuccess } from "@/src/@core/utils/message";
+import { showNotificationSuccess } from "@/src/@core/utils/message";
 
 type WishlistState = {
   items: Product[];
@@ -29,13 +29,13 @@ export const useWishlistStore = create<WishlistState>((set, get) => ({
   const exist = get().items.find((i) => i.id === product.id);
 
   if (exist) {
-    showMessageSuccess("Đã xóa khỏi wishlist 💔");
+    showNotificationSuccess("Đã xóa khỏi wishlist 💔");
 
     set((state) => ({
       items: state.items.filter((i) => i.id !== product.id),
     }));
   } else {
-    showMessageSuccess("Đã thêm vào wishlist ❤️");
+    showNotificationSuccess("Đã thêm vào wishlist ❤️");
 
     set((state) => ({
       items: [...state.items, product],

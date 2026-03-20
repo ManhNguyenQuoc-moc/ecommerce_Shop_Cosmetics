@@ -1,34 +1,42 @@
 model User {
-  id                     String   @id @default(uuid())
-
-  email                  String?  @unique
+  id                     String    @id @default(uuid())
+  email                  String?   @unique
   password_hash          String?
   full_name              String?
-
-  phone                  String?  @unique
-
+  phone                  String?   @unique
   gender                 Gender?
   birthday               DateTime?
-
-  role                   Role     @default(CUSTOMER)
-  loyalty_points         Int      @default(0)
-
-  provider               Provider @default(LOCAL)
-  is_verified            Boolean  @default(false)
-
+  role                   Role      @default(CUSTOMER)
+  loyalty_points         Int       @default(0)
+  provider               Provider  @default(LOCAL)
+  is_verified            Boolean   @default(false)
   googleId               String?
   facebookId             String?
-
   refresh_token          String?
-
-  is_banned              Boolean  @default(false)
-
+  is_banned              Boolean   @default(false)
   reset_password_token   String?
   reset_password_expires DateTime?
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
 
-  createdAt              DateTime @default(now())
-  updatedAt              DateTime @updatedAt
+  addresses Address[]
+  orders    Order[]
+  reviews   Review[]
+  cart      Cart?
 }
+
+model Address {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  address   String
+  lat       Float?
+  lon       Float?
+  isDefault Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 enum Gender {
   MALE
   FEMALE

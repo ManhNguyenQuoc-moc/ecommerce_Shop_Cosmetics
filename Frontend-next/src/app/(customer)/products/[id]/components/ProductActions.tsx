@@ -10,7 +10,7 @@ import Loading from "@/src/@core/component/Loading";
 type Props = {
   qty: number;
   product: ProductDetail;
-  variant: ProductVariant;
+  variant: ProductVariant | null;
 };
 
 export default function ProductActions({ qty, product, variant }: Props) {
