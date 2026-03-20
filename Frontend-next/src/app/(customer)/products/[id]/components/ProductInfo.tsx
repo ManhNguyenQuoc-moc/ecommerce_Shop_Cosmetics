@@ -8,9 +8,9 @@ export default function ProductInfo({ product }: Props) {
       </h1>
       <div className="flex items-center gap-2 text-xl mb-1.5">
         <span className="text-gray-500">Thương hiệu:</span>
-        <span className="px-2 py-0.5 rounded bg-blue-100 text-gray-700 font-medium">
-          {product.brand}
-        </span>
+       <span className="px-2 py-0.5 rounded bg-blue-100 text-gray-700 font-medium">
+          {product.brand?.name}
+      </span>
       </div>
       <div className="flex flex-wrap items-center gap-3 text-md text-gray-600">
         <div className="flex items-center gap-1 bg-orange-500 rounded-xl p-2">

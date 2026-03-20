@@ -1,83 +1,39 @@
-import React from "react";
-import { showNotificationError, showNotificationSuccess } from "../../../../../../FrontEnd/src/utils/message";
-import { Link } from "react-router-dom";
-import MyButton from "../../../../../../FrontEnd/src/components/ui/MyButton";
-import MyInput from "../../../../../../FrontEnd/src/components/ui/MyInput";
-import GoogleIco from "../../../../../../FrontEnd/public/icon/GoogleIco";
-import FacebookIco from "../../../../../../FrontEnd/public/icon/FaceBookIco";
-import mockLogin from "../../../../../../FrontEnd/src/services/auth/auth.service";
-import { useState } from "react";
-export default function SignInForm() {
-    const [formData, setFormData] = useState({
-        username: "",
-        password: "",
-        remember: false
-    })
-    const [errors, setErrors] = useState({})
-    const [isSubmitting, setIsSubmitting] = useState(false)
+"use client";
 
-    const handleChange = (e) => {
-        const { name, value, type, checked } = e.target;
-        setFormData((prev) => ({
-            ...prev,
-            [name]: type === "checkbox" ? checked : value,
-        }));
-        setErrors((prev) => ({
-            ...prev,
-            [name]: "",
-        }));
-    };
+import React, { useState } from "react";
+import { showNotificationError, showNotificationSuccess } from "@/src/@core/utils/message";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import SWTForm from "@/src/@core/component/AntD/SWTForm";
+import SWTFormItem from "@/src/@core/component/AntD/SWTFormItem";
+import SWTButton from "@/src/@core/component/AntD/SWTButton";
+import { SWTInput, SWTInputPassword } from "@/src/@core/component/AntD/SWTInput";
+import GoogleIco from "@/src/@core/component/SWTIcon/iconoir/icon/GoogleIco";
+import FacebookIco from "@/src/@core/component/SWTIcon/iconoir/icon/FaceBookIco";
+import { Eye, EyeOff } from "lucide-react";
+import http from "@/src/@core/http";
 
-    const validate = () => {
-        const newErrors = {};
-        const username = formData.username.trim();
+export default function RegisterForm() {
+    const router = useRouter();
+    const [isLoading, setIsLoading] = useState(false);
 
-        if (!username) {
-            newErrors.username = "Vui lòng nhập email hoặc số điện thoại";
-        } else {
-            const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(username);
-            const isPhone = /^0\d{9,10}$/.test(username);
-
-            if (!isEmail && !isPhone) {
-                newErrors.username = "Email hoặc số điện thoại không hợp lệ";
-            }
-        }
-
-        if (!formData.password) {
-            newErrors.password = "Vui lòng nhập mật khẩu";
-        } else if (formData.password.length < 6) {
-            newErrors.password = "Mật khẩu phải có ít nhất 6 ký tự";
-        }
-
-        setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
-    };
-    const handleSubmit = async (e) => {
-        e.preventDefault();// ngan chan hanh vi mac dinh cua trinh duyen dung de luu state 
-        if (!validate()) return;
-
+    const handleSubmit = async (values) => {
         try {
-            setIsSubmitting(true);
+            setIsLoading(true);
 
-            const res = await mockLogin({
-                username: formData.username,
-                password: formData.password,
+            await http.post("/auth/register", {
+                email: values.email,
+                password: values.password,
+                full_name: values.fullName,
+                phone: values.phone
             });
 
-            console.log("LOGIN OK:", res);
-
-            if (formData.remember) {
-                localStorage.setItem("token", res.token);
-                localStorage.setItem("user", JSON.stringify(res.user));
-            } else {
-                sessionStorage.setItem("token", res.token);
-            }
-
-            showNotificationSuccess("Đăng nhập thành công 🎉");
+            showNotificationSuccess("Đăng ký thành công 🎉. Vui lòng đăng nhập!");
+            router.push("/login");
         } catch (err) {
-            showNotificationError(err.message || "Sai tài khoản hoặc mật khẩu");
+            showNotificationError(err.response?.data?.message || err.message || "Đăng ký thất bại");
         } finally {
-            setIsSubmitting(false);
+            setIsLoading(false);
         }
     };
 
@@ -85,100 +41,91 @@ export default function SignInForm() {
         <div className="w-full max-w-md mx-auto px-4">
             <div className="mb-8">
                 <h2 className="text-2xl font-bold">
-                    Chào mừng trở lại
+                    Tạo tài khoản mới
                 </h2>
-                <p className="text-gray-500 dark:text-gray-400 mt-2">
-                    Vui lòng nhập thông tin để đăng nhập
+                <p className="text-gray-500 mt-2">
+                    Vui lòng nhập thông tin để đăng ký
                 </p>
             </div>
-            <form onSubmit={handleSubmit} className="space-y-5">
-                <MyInput
-                    label="Tên đăng nhập"
-                    placeholder="Nhập email hoặc số điện thoại"
-                    type="text"
-                    name="username"
-                    onChange={handleChange}
-                    value={formData.username}
-                    error={!!errors.username}
-                    hint={errors.username}
-                />
-                <MyInput
-                    label="Mật khẩu"
-                    placeholder="Nhập password"
+            
+            <SWTForm onFinish={handleSubmit} loading={isLoading} layout="vertical">
+                <SWTFormItem
+                    name="fullName"
+                    label="Họ và tên"
+                    rules={[{ required: true, message: "Vui lòng nhập họ tên" }]}
+                >
+                    <SWTInput placeholder="Nhập họ và tên đầy đủ" className="h-11 rounded-lg" />
+                </SWTFormItem>
+
+                <SWTFormItem
+                    name="email"
+                    label="Email"
+                    rules={[
+                        { required: true, message: "Vui lòng nhập email" },
+                        { type: "email", message: "Email không hợp lệ" }
+                    ]}
+                >
+                    <SWTInput placeholder="Nhập địa chỉ email" className="h-11 rounded-lg" />
+                </SWTFormItem>
+
+                <SWTFormItem
+                    name="phone"
+                    label="Số điện thoại"
+                    rules={[
+                        { required: true, message: "Vui lòng nhập số điện thoại" },
+                        { pattern: /^0\d{9,10}$/, message: "Số điện thoại không hợp lệ" }
+                    ]}
+                >
+                    <SWTInput placeholder="Nhập số điện thoại" className="h-11 rounded-lg" />
+                </SWTFormItem>
+
+                <SWTFormItem
                     name="password"
-                    type="password"
-                    onChange={handleChange}
-                    value={formData.password}
-                    error={!!errors.password}
-                    hint={errors.password}
-                />
-                <div className="flex items-center justify-between text-sm">
-                    <label className="flex items-center text-gray-600 dark:text-gray-400 cursor-pointer">
-                        <input name="remember" type="checkbox" className="mr-2 rounded border-gray-300 accent-brand-500"
-                            checked={formData.remember}
-                            onChange={handleChange} />
-                        Ghi nhớ đăng nhập
-                    </label>
-                    <a href="#" className="font-medium hover:underline">
-                        Quên mật khẩu?
-                    </a>
-                </div>
-                <MyButton
-                    type="submit"
-                    variant="primary"
-                    className="w-full py-4 text-lg"
-                    disabled={isSubmitting}
+                    label="Mật khẩu"
+                    rules={[
+                        { required: true, message: "Vui lòng nhập mật khẩu" },
+                        { min: 6, message: "Mật khẩu phải có ít nhất 6 ký tự" }
+                    ]}
                 >
-                    Đăng nhập
-                </MyButton>
-                <div className="flex items-center">
-                    <div className="flex-1 h-px bg-gray-300 dark:bg-gray-600"></div>
-                    <p className="px-3 text-sm text-gray-600 dark:text-gray-400 whitespace-nowrap">
-                        Hoặc đăng nhập bằng
+                    <SWTInputPassword
+                        placeholder="Nhập mật khẩu"
+                        className="h-11 rounded-lg"
+                        iconRender={(visible) => visible ? <Eye size={18} /> : <EyeOff size={18} />}
+                    />
+                </SWTFormItem>
+
+                <SWTButton
+                    htmlType="submit"
+                    size="lg"
+                    className="w-full py-4 text-lg !text-white !bg-brand-500 hover:!bg-brand-700 mt-4"
+                >
+                    Đăng ký
+                </SWTButton>
+
+                <div className="flex items-center my-6">
+                    <div className="flex-1 h-px bg-gray-300"></div>
+                    <p className="px-3 text-sm text-gray-600 whitespace-nowrap">
+                        Hoặc đăng ký bằng
                     </p>
-                    <div className="flex-1 h-px bg-gray-300 dark:bg-gray-600"></div>
+                    <div className="flex-1 h-px bg-gray-300"></div>
                 </div>
-            </form>
-            <div className="flex items-center text-sm gap-3 mt-4">
-                <MyButton
-                    type="submit"
-                    variant="outline"
-                    className="w-full"
-                    startIcon={<GoogleIco />}
-                    size="sm"
-                >
-                    Google
-                </MyButton>
-                <MyButton
-                    type="submit"
-                    startIcon={<FacebookIco className="" />}
-                    variant="outline"
-                    size="sm"
-                    className="w-full"
-                >
-                    Facebook
-                </MyButton>
-            </div>
-            <p className="text-center text-sm text-gray-600 dark:text-gray-400 mt-6">
-                Chưa có tài khoản?{" "}
-                <Link
-                    to="/register"
-                    className="font-bold text-[var(--color-primary)] hover:underline"
-                >
-                    Đăng ký ngay
+
+                <div className="flex items-center text-sm gap-3">
+                    <SWTButton variant="outlined" className="w-full" startIcon={<GoogleIco />} size="sm">
+                        Google
+                    </SWTButton>
+                    <SWTButton variant="outlined" size="sm" startIcon={<FacebookIco />}>
+                        Facebook
+                    </SWTButton>
+                </div>
+            </SWTForm>
+
+            <p className="text-center text-sm text-gray-600 mt-8">
+                Đã có tài khoản?{" "}
+                <Link href="/login" className="text-brand-500 hover:text-brand-600 font-bold">
+                    Đăng nhập ngay
                 </Link>
             </p>
-            <div className=" text-amber-50 flex justify-around text-center text-sm mt-6">
-                <a href="#" className="text-[var(--color-black)] hover:text-[var(--color-primary)]">
-                    CHÍNH SÁCH BẢO MẬT
-                </a>
-                <a href="#" className="text-[var(--color-black)] hover:text-[var(--color-primary)]">
-                    ĐIỀU KHOẢN DỊCH VỤ
-                </a>
-                <a href="#" className="text-[var(--color-black)] hover:text-[var(--color-primary)]">
-                    TRỢ GIÚP
-                </a>
-            </div>
         </div>
     );
 }

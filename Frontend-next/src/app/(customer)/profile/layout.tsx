@@ -9,6 +9,9 @@ import {
   Star,
   TicketPercent,
 } from "lucide-react";
+import { useAuth } from "@/src/context/AuthContext";
+import SWTAvatar from "@/src/@core/component/AntD/SWTAvatar";
+import SWTCard from "@/src/@core/component/AntD/SWTCard";
 
 const menu = [
   {
@@ -38,8 +41,8 @@ export default function ProfileLayout({
 }: {
   children: React.ReactNode;
 }) {
-
   const pathname = usePathname();
+  const { currentUser } = useAuth();
 
   const currentMenu = menu.find((m) =>
     pathname.startsWith(m.path)
@@ -66,45 +69,46 @@ export default function ProfileLayout({
       {/* Breadcrumb */}
       <SWTBreadcrumb items={breadcrumbItems} />
 
-      <div className="grid grid-cols-12 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
 
         {/* Sidebar */}
-        <aside className="col-span-3 bg-white border rounded-xl p-4 h-fit">
+        <aside className="md:col-span-1 space-y-4">
+          <SWTCard className="!p-4 !rounded-2xl !border-none !shadow-sm">
+            <div className="flex items-center gap-3 mb-6">
+              <SWTAvatar size={48} src={currentUser?.avatar} className="bg-brand-100" />
+              <div className="overflow-hidden">
+                 <p className="text-xs text-gray-500">Tài khoản của</p>
+                 <p className="font-bold text-gray-800 truncate">{currentUser?.name || "Khách hàng"}</p>
+              </div>
+            </div>
 
-          <h2 className="font-semibold mb-4 text-lg">
-            Tài khoản của tôi
-          </h2>
+            <div className="flex flex-col gap-1">
+              {menu.map((item) => {
+                const Icon = item.icon;
+                const active = pathname === item.path;
 
-          <div className="flex flex-col gap-2">
-
-            {menu.map((item) => {
-
-              const Icon = item.icon;
-              const active = pathname === item.path;
-
-              return (
-                <Link
-                  key={item.path}
-                  href={item.path}
-                  className={`flex items-center gap-3 px-3 py-2 rounded-lg transition
-                  ${
-                    active
-                      ? "bg-pink-50 text-brand-600 font-semibold"
-                      : "hover:bg-gray-100"
-                  }`}
-                >
-                  <Icon size={18} />
-                  {item.name}
-                </Link>
-              );
-            })}
-
-          </div>
-
+                return (
+                  <Link
+                    key={item.path}
+                    href={item.path}
+                    className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200
+                    ${
+                      active
+                        ? "bg-brand-50 text-brand-600 font-bold shadow-sm"
+                        : "text-gray-600 hover:bg-gray-50 hover:text-brand-500"
+                    }`}
+                  >
+                    <Icon size={20} className={active ? "text-brand-600" : "text-gray-400"} />
+                    <span className="text-sm">{item.name}</span>
+                  </Link>
+                );
+              })}
+            </div>
+          </SWTCard>
         </aside>
 
         {/* Content */}
-        <main className="col-span-9 bg-white border rounded-xl p-6">
+        <main className="md:col-span-3 min-h-[600px]">
           {children}
         </main>
 

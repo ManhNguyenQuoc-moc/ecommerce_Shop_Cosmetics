@@ -19,17 +19,21 @@ type Props = {
 
 export default function ProductDetailUI({ product }: Props) {
 
-  const { data, isLoading } = useFetchSWR<ProductDetail>(
-    ["products", product.id],
-    () => getProductDetail(product.id),
-    {
-      fallbackData: product,
-      revalidateOnMount: false,
-      revalidateOnFocus: false
-    }
-  );
+  const { data, isLoading } = useFetchSWR(
+  ["products", product.id],
+  () => getProductDetail(product.id),
+  {
+    fallbackData: product,
+    revalidateOnMount: true, 
+    revalidateOnFocus: false,  
+  }
+);
 
-  const currentProduct = data ?? product;
+  const currentProduct = {
+  ...product,
+  priceRange: data?.priceRange ?? product.priceRange,
+  variants: data?.variants ?? product.variants
+  };
   
   const [variant, setVariant] = useState<ProductVariant | null>(
     currentProduct.variants?.[0] ?? null
@@ -60,7 +64,7 @@ export default function ProductDetailUI({ product }: Props) {
     <div className="container mx-auto px-4 py-8 space-y-8">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <div className="lg:col-span-9 space-y-8">
-          <SWTCard loading={isLoading}>
+          <SWTCard loading={isLoading} className="min-h-[600px]">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 p-4">
               <ProductGallery
                 productName={currentProduct.name}

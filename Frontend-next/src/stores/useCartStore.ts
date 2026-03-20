@@ -2,8 +2,8 @@
 
 import { create } from "zustand";
 import {
-  showMessageSuccess,
-  showMessageError,
+  showNotificationSuccess,
+  showNotificationError,
 } from "@/src/@core/utils/message";
 import { persist } from "zustand/middleware";
 export type CartItem = {
@@ -50,7 +50,7 @@ export const useCartStore = create<CartState>()(
             const exist = state.items.find((i) => i.id === item.id);
 
             if (exist) {
-              showMessageSuccess(`Đã tăng số lượng sản phẩm ${item.productName}`);
+              showNotificationSuccess(`Đã tăng số lượng sản phẩm ${item.productName}`);
               return {
                 items: state.items.map((i) =>
                   i.id === item.id
@@ -60,10 +60,10 @@ export const useCartStore = create<CartState>()(
               };
             }
 
-            showMessageSuccess(`Đã thêm ${item.productName} vào giỏ hàng`);
+            showNotificationSuccess(`Đã thêm ${item.productName} vào giỏ hàng`);
             return { items: [...state.items, item] };
           } catch (err) {
-            showMessageError("Thêm vào giỏ hàng thất bại");
+            showNotificationError("Thêm vào giỏ hàng thất bại");
             return state;
           }
         }),
