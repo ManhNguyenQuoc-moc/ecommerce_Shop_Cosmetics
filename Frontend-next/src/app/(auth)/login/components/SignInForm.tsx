@@ -13,33 +13,31 @@ import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/src/context/AuthContext";
-import http from "@/src/@core/http";
+import { authService } from "@/src/services/customer/auth.service";
 
-type LoginValues = {
-  username: string;
+type LoginFormValues = {
+  email: string;
   password: string;
   remember?: boolean;
 };
 
 export default function SignInForm() {
- const { login } = useAuth();
+  const { login } = useAuth();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = async (values: LoginValues) => {
+  const handleSubmit = async (values: LoginFormValues) => {
     try {
       setIsLoading(true);
-      const res = await http.post("/auth/login", {
-        email: values.username, // Send username as email
+      const result = await authService.loginAsync({
+        email: values.email,
         password: values.password,
       });
-      // API returns: { success: true, message: "Login successfully", data: { token, user } }
-      const { token, user } = res.data.data;
-      login(token, user);
+      login(result.token, result.user);
       showNotificationSuccess("Đăng nhập thành công");
       router.push("/");
     } catch (err: any) {
-      showNotificationError(err.response?.data?.message || err.message || "Đăng nhập thất bại");
+      showNotificationError(err?.message || "Đăng nhập thất bại");
     } finally {
       setIsLoading(false);
     }
@@ -60,8 +58,8 @@ export default function SignInForm() {
       <SWTForm
         onFinish={handleSubmit} loading={isLoading} >
         <SWTFormItem
-          name="username"
-          label="Tên đăng nhập"
+          name="email"
+          label="Email hoặc số điện thoại"
           rules={[
             { required: true, message: "Vui lòng nhập email hoặc số điện thoại" },
             {

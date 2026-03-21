@@ -283,8 +283,9 @@
 html,
 body {
   height: 100%;
-  background-color: #fcfcfc;
+  background: transparent !important;
 }
+
 .ant-input,
 .ant-input-affix-wrapper {
   background: white !important;

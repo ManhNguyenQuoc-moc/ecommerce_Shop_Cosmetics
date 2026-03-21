@@ -17,7 +17,7 @@ export default function MenuCustomer({ categories }: Props) {
   const router = useRouter();
 
   const categoryParam = searchParams.get("category");
-  
+
   const currentPath = categoryParam
     ? `${pathname}?category=${categoryParam}`
     : pathname;
@@ -28,31 +28,27 @@ export default function MenuCustomer({ categories }: Props) {
   };
 
   const buttonBaseClass = `
-    !flex !items-center !gap-1 !font-semibold !text-sm
+    !flex !items-center !gap-1 !font-bold !text-sm
     !h-10 !px-4 !border-none !shadow-none
-    !outline-none focus:!outline-none active:!outline-none
-    focus:!ring-0 active:!ring-0
-    focus:!shadow-none active:!shadow-none
-    transition-all
+    !bg-transparent !outline-none
+    transition-all duration-300
   `;
   return (
-    <nav className="flex items-center justify-center gap-4">
+    <nav className="flex items-center justify-center gap-6">
       {categories.map((category) => {
         const active = isActive(category);
         const button = (
           <SWTButton
-            className={`${buttonBaseClass} ${
-              active
-                ? "!text-brand-600"
-                : "!text-gray-700 hover:!text-brand-600"
-            }`}
+            type="text"
+            className={`${buttonBaseClass} ${active
+                ? "!text-brand-500"
+                : "!text-white/80 hover:!text-brand-400"
+              }`}
             onClick={() => router.push(category.path)}
           >
-            <span className="relative">
+            <span className="relative py-1">
               {category.name}
-              {active && (
-                <span className="absolute -bottom-2 left-0 w-full h-0.5 bg-brand-500 rounded-full" />
-              )}
+              <span className={`absolute -bottom-1 left-0 w-full h-0.5 bg-brand-500 rounded-full transition-all duration-300 transform origin-left ${active ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100 opacity-50"}`} />
             </span>
           </SWTButton>
         );

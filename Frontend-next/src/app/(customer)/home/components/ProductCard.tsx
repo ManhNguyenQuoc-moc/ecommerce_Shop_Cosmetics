@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Heart, Star } from "lucide-react";
+import { Heart, Star, Zap } from "lucide-react";
 
 import SWTCard from "@/src/@core/component/AntD/SWTCard";
 import type { Product } from "@/src/@core/type/Product";
@@ -20,89 +20,123 @@ const isInWishlist = useWishlistStore((s) =>
   return (
     <SWTCard
       loading={loading}
-      height={420}
-      className="overflow-hidden border border-blue-light-50 hover:border-brand-500"
+      height={loading ? 420 : "auto"}
+      className="!overflow-hidden !border-none !shadow-sm hover:!shadow-xl transition-all duration-500 group/card !rounded-2xl"
+      bodyClassName="!p-0"
     >
       {!loading && product && (
-        <Link href={`/products/${product.id}`} className="block h-full">
-          <div className="group cursor-pointer flex flex-col h-full">
-            <div className="relative w-full h-44 bg-gray-100">
+        <Link href={`/products/${product.id}`} className="block h-full relative">
+          <div className="flex flex-col h-full bg-white">
+            {/* Image Wrapper */}
+            <div className="relative w-full aspect-square bg-gray-50 overflow-hidden">
               <Image
                 src={product.image}
                 alt={product.name}
                 fill
                 unoptimized
-                className="object-cover group-hover:scale-105 transition"
+                className="object-cover group-hover/card:scale-110 transition-transform duration-700"
               />
-              {product.salePrice && (
-                <div className="absolute top-2 left-2 bg-orange-500 text-white text-xs px-2 py-1 rounded">
-                  -{Math.round((1 - product.salePrice / product.price) * 100)}%
+              
+              {/* Badges */}
+              <div className="absolute top-2 left-2 flex flex-col gap-1.5">
+                {product.salePrice && (
+                  <div className="bg-brand-500 text-white text-[9px] font-black px-2 py-0.5 rounded-full shadow-lg shadow-brand-200 flex items-center gap-1 uppercase tracking-tighter">
+                    <Zap size={8} fill="currentColor" />
+                    Sale
+                  </div>
+                )}
+                <div className="bg-black/80 text-white text-[9px] font-black px-2 py-0.5 rounded-full backdrop-blur-sm shadow-sm uppercase tracking-tighter">
+                  Mới
+                </div>
+              </div>
+
+              {/* Action Buttons Overlay */}
+              <div className="absolute inset-0 bg-black/5 opacity-0 group-hover/card:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                 <div className="translate-y-2 group-hover/card:translate-y-0 transition-transform duration-300">
+                    <div className="bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-full font-bold text-[10px] text-gray-900 shadow-xl border border-white/50 whitespace-nowrap">
+                      Xem chi tiết
+                    </div>
+                 </div>
+              </div>
+
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  if (!product) return;
+                  toggleWishlist(product);
+                }}
+                className={`absolute top-2 right-2 p-1.5 rounded-full backdrop-blur-md transition-all duration-300 shadow-lg
+                  ${
+                    isInWishlist
+                      ? "bg-brand-500 text-white"
+                      : "bg-white/70 text-gray-900 hover:bg-brand-500 hover:text-white"
+                  }
+                `}
+              >
+                <Heart
+                  size={14}
+                  className={isInWishlist ? "fill-white" : ""}
+                />
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="p-3 space-y-2">
+              <div className="space-y-0.5">
+                <p className="text-[9px] font-black text-brand-500 uppercase tracking-widest flex items-center gap-1 leading-none">
+                  {product.brand}
+                </p>
+                <h3 className="text-xs font-bold text-gray-800 line-clamp-2 min-h-[32px] leading-tight group-hover/card:text-brand-600 transition-colors">
+                  {product.name}
+                </h3>
+              </div>
+              
+              <div className="flex items-center justify-between gap-1 border-t border-gray-50 pt-2">
+                <div className="flex flex-col">
+                  {product.salePrice ? (
+                    <>
+                      <span className="text-brand-600 text-base font-black leading-none">
+                        {product.salePrice.toLocaleString()}₫
+                      </span>
+                      <span className="text-gray-400 line-through text-[10px] mt-0.5">
+                        {product.price.toLocaleString()}₫
+                      </span>
+                    </>
+                  ) : (
+                    <span className="text-gray-900 font-black text-base leading-none">
+                      {product.price.toLocaleString()}₫
+                    </span>
+                  )}
+                </div>
+                
+                {product.rating && (
+                  <div className="flex items-center gap-0.5 bg-brand-50 px-1.5 py-0.5 rounded-full">
+                    <Star
+                      size={8}
+                      className="text-brand-100 fill-brand-100"
+                    />
+                    <span className="text-[9px] font-black text-brand-700">{product.rating}</span>
+                  </div>
+                )}
+              </div>
+              
+              {product.sold && (
+                <div className="pt-0.5">
+                   <div className="w-full h-1 bg-gray-100 rounded-full overflow-hidden">
+                      <div className="h-full bg-gradient-to-r from-brand-500 to-brand-700 rounded-full" style={{ width: '65%' }} />
+                   </div>
+                   <p className="text-[9px] text-gray-400 font-bold mt-1 uppercase tracking-tighter">
+                      Đã bán: <span className="text-brand-500">{product.sold}</span>
+                   </p>
                 </div>
               )}
-              <button
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                if (!product) return;
-                toggleWishlist(product);
-              }}
-              className={`absolute top-2 right-2 p-1.5 rounded-full backdrop-blur transition
-                ${
-                  isInWishlist
-                    ? "bg-red-500 text-white"
-                    : "bg-white/80 text-gray-600 hover:bg-red-500 hover:text-white"
-                }
-              `}
-            >
-        <Heart
-          size={16}
-          className={isInWishlist ? "fill-white" : ""}
-        />
-            </button>
             </div>
-            <div className="p-3 space-y-1 flex-1">
-              <p className="text-xs text-gray-500">
-                {product.brand}
-              </p>
 
-              <p className="!text-sm !font-medium !line-clamp-2 min-h-[40px] !text-black">
-                {product.name}
-              </p>
-              <div className="flex items-center gap-2">
-                {product.salePrice ? (
-                  <>
-                    <span className="text-red-600 text-xl font-bold">
-                      {product.salePrice.toLocaleString()}đ
-                    </span>
-
-                    <span className="text-gray-400 line-through text-sm">
-                      {product.price.toLocaleString()}đ
-                    </span>
-                  </>
-                ) : (
-                  <span className="text-black font-bold">
-                    {product.price.toLocaleString()}đ
-                  </span>
-                )}
-              </div>
-              <div className="flex justify-between text-sm text-gray-500 mt-3">
-                {product.rating && (
-                  <span className="flex items-center gap-1">
-                    <Star
-                      size={16}
-                      className="text-yellow-500 fill-yellow-500"
-                    />
-                    {product.rating}
-                  </span>
-                )}
-                {product.sold && (
-                  <span>{product.sold} sold</span>
-                )}
-              </div>
-            </div>
           </div>
         </Link>
       )}
     </SWTCard>
+
   );
 }

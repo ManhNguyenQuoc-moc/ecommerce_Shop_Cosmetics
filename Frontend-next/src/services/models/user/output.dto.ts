@@ -7,9 +7,10 @@ export type UserProfileDTO = {
   phone?: string;
   gender?: "MALE" | "FEMALE" | "OTHER";
   birthday?: string;
+  avatar?: string;
   addresses?: Address[];
   loyalty_points?: number;
   is_verified?: boolean;
   createdAt?: string;
   updatedAt?: string;
-};
+};

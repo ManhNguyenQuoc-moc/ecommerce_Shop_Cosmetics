@@ -22,6 +22,7 @@ const nextConfig = {
       "ananmart.com",
       "images.unsplash.com",
       "logo.clearbit.com",
+      "placehold.co",
     ],
   },
 };
