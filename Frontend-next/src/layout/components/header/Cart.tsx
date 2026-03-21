@@ -11,9 +11,10 @@ export default function Cart() {
   return (
     <Link
       href="/cart"
-      className="relative p-2 hover:bg-gray-100 rounded-full flex items-center justify-center"
+      className="relative p-2 hover:bg-white/10 transition-colors rounded-full flex items-center justify-center group/cart"
     >
-      <ShoppingCart className="text-black" size={22}/>
+      <ShoppingCart className="text-white group-hover/cart:text-brand-400 transition-colors" size={22}/>
+
       {cartCount > 0 && (
         <div className="absolute -top-1 -right-1">
           <SWTBadge

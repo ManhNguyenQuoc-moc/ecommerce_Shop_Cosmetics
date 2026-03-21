@@ -1,8 +1,8 @@
 "use client";
-
 import ProductCard from "./ProductCard";
-import type{Product} from "@/src/@core/type/Product"
+import type { Product } from "@/src/@core/type/Product";
 import SWTEmpty from "@/src/@core/component/AntD/SWTEmpty";
+import { Sparkles } from "lucide-react";
 
 type Props = {
   title: string;
@@ -22,11 +22,16 @@ export default function ProductSection({
 
   return (
     <>
-      <h2 className="text-xl font-bold my-6 text-brand-700">
-        {title}
-      </h2>
+      <div className="flex items-center gap-3 mb-8 px-2">
+        <div className="w-10 h-10 rounded-full bg-brand-500 flex items-center justify-center text-white shrink-0 shadow-lg shadow-brand-200">
+          <Sparkles size={20} fill="currentColor" />
+        </div>
+        <h2 className="text-2xl font-black text-gray-900 tracking-tight uppercase italic">{title}</h2>
+      </div>
 
-      <section className="bg-brand-200 my-5 p-4 border border-gray-200 rounded-xl shadow-sm">
+
+      <section className="bg-white/30 backdrop-blur-xl my-5 p-6 border border-white/20 rounded-2xl shadow-sm">
+
 
         {isEmpty ? (
           <div className="py-10 flex justify-center">

@@ -2,10 +2,13 @@
 import Image from "next/image";
 import { Carousel } from "antd";
 import SWTCard from "@/src/@core/component/AntD/SWTCard";
+import { LayoutGrid } from "lucide-react";
 
 type Category = {
   name: string;
   image: string;
+  slug?: string;
+  id?: string;
 };
 
 type Props = {
@@ -30,9 +33,13 @@ export default function CategorySection({ categories, loading }: Props) {
 
   return (
     <section>
-      <h2 className="text-xl md:text-xl font-bold my-6 text-brand-700">
-        Danh mục
-      </h2>
+      <div className="flex items-center gap-3 mb-8 px-2">
+        <div className="w-10 h-10 rounded-full bg-brand-500 flex items-center justify-center text-white shrink-0 shadow-lg shadow-brand-200">
+          <LayoutGrid size={20} fill="currentColor" />
+        </div>
+        <h2 className="text-2xl font-black text-gray-900 tracking-tight uppercase italic">Danh mục</h2>
+      </div>
+
 
       <SWTCard className="my-4" loading={loading} height={240}>
         <Carousel arrows dots={false}>
@@ -71,11 +78,12 @@ export default function CategorySection({ categories, loading }: Props) {
                     </div>
                     <div className="absolute bottom-3 left-1/2 -translate-x-1/2">
                 <div className="w-[160px] h-[42px] flex items-center justify-center
-bg-white/40 backdrop-blur-md border border-white/30
-rounded-lg text-xs font-semibold text-center
-shadow-lg px-2 leading-tight">
+bg-white/40 backdrop-blur-md border border-white/20
+rounded-lg text-xs font-bold text-center
+shadow-lg px-2 leading-tight text-gray-900 group-hover:bg-white/80 transition-all">
   {item.name}
 </div>
+
                 </div>
                   </div>
                 ))}
