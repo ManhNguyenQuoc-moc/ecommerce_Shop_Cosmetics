@@ -35,7 +35,7 @@ export default function CustomerHeader() {
       <div className="h-[150px] md:h-[160px] lg:h-[180px]" />
 
     <header
-      className={`fixed top-0 left-0 w-full z-[100] transition-all duration-500 ease-in-out bg-brand-50
+      className={`fixed top-0 left-0 w-full z-[100] transition-all duration-[250ms] ease-out bg-brand-50
       ${scrolled 
         ? "border-b border-brand-200/50 shadow-xl shadow-brand-900/5 py-2.5" 
         : "py-5 shadow-lg shadow-brand-900/5"}
@@ -57,16 +57,16 @@ export default function CustomerHeader() {
 
         {/* Premium Top Accent Bar removed */}
 
-        <div className="max-w-7xl mx-auto flex items-center justify-between px-6 gap-8 relative z-10 transition-all duration-700">
+        <div className="max-w-7xl mx-auto flex items-center justify-between px-4 sm:px-6 gap-3 sm:gap-4 md:gap-8 relative z-10 transition-all duration-700">
           <button
-            className="lg:hidden p-2 hover:bg-brand-500/10 rounded-xl transition-colors group"
+            className="lg:hidden p-1.5 sm:p-2 -ml-1 sm:-ml-2 hover:bg-brand-500/10 rounded-xl transition-colors group shrink-0"
             onClick={() => setSidebarOpen(true)}
           >
             <Menu size={24} className="text-brand-900 group-hover:text-brand-600 transition-colors" />
           </button>
 
-          <Link href="/" className="group flex items-center gap-3">
-            <div className="relative overflow-hidden w-10 h-10 md:w-11 md:h-11 bg-brand-500 rounded-xl flex items-center justify-center transform rotate-12 group-hover:rotate-0 transition-all duration-500 shadow-xl shadow-brand-500/30">
+          <Link href="/" className="group flex items-center gap-2 sm:gap-3 shrink-0">
+            <div className="relative overflow-hidden w-9 h-9 sm:w-10 sm:h-10 md:w-11 md:h-11 bg-brand-500 rounded-xl flex items-center justify-center transform rotate-12 group-hover:rotate-0 transition-all duration-500 shadow-xl shadow-brand-500/30 shrink-0">
               {/* Hiệu ứng quét sáng */}
               <div className="absolute inset-0 bg-white/40 animate-sweep z-0 pointer-events-none mix-blend-overlay" />
               <span className="relative z-10 text-white font-black text-2xl italic drop-shadow-sm">C</span>
@@ -75,7 +75,7 @@ export default function CustomerHeader() {
               <span className="font-black text-xl md:text-2xl text-brand-900 tracking-tight leading-none">
                 COSMETICS
               </span>
-              <span className="font-bold text-[10px] md:text-[11px] text-brand-600 tracking-[0.3em] leading-none mt-1.5 uppercase">
+              <span className="hidden sm:block font-bold text-[10px] md:text-[11px] text-brand-600 tracking-[0.3em] leading-none mt-1.5 uppercase">
                 Premium Beauty Shop
               </span>
             </div>
@@ -93,7 +93,7 @@ export default function CustomerHeader() {
             />
           </div>
 
-          <div className="flex items-center gap-2 md:gap-6">
+          <div className="flex items-center gap-1.5 sm:gap-2 md:gap-6 shrink-0">
             <Link
               href="/wishlist"
               className="hidden sm:flex items-center justify-center w-11 h-11 rounded-2xl bg-white border border-brand-200/60 hover:border-brand-500/40 text-brand-900 hover:text-brand-600 transition-all group shadow-sm"
@@ -104,7 +104,6 @@ export default function CustomerHeader() {
             <div className="relative">
               <Cart />
             </div>
-
             <div className="hidden sm:block">
               <UserDropdown />
             </div>
@@ -112,8 +111,8 @@ export default function CustomerHeader() {
         </div>
 
         {/* Mobile Search - Collapse logic */}
-        <div className={`overflow-hidden transition-all duration-500 ease-in-out md:hidden ${scrolled ? "max-h-0 opacity-0 -translate-y-4" : "max-h-[80px] opacity-100 translate-y-0"}`}>
-          <div className="px-6 pt-4 pb-2">
+        <div className={`overflow-hidden transition-all duration-[250ms] ease-out md:hidden ${scrolled ? "max-h-0 opacity-0 -translate-y-2" : "max-h-[80px] opacity-100 translate-y-0"}`}>
+          <div className="px-4 sm:px-6 pt-4 pb-2">
             <div className="relative">
               <input
                 placeholder="Tìm kiếm..."
@@ -128,7 +127,7 @@ export default function CustomerHeader() {
         </div>
 
         {/* Menu Navigation - Collapses on Scroll */}
-        <div className={`hidden lg:block overflow-hidden transition-all duration-500 ease-in-out origin-top ${scrolled ? "max-h-0 opacity-0 -translate-y-4" : "max-h-[76px] opacity-100 translate-y-0"}`}>
+        <div className={`hidden lg:block overflow-hidden transition-all duration-[250ms] ease-out origin-top ${scrolled ? "max-h-0 opacity-0 -translate-y-2" : "max-h-[76px] opacity-100 translate-y-0"}`}>
           <div className="pt-5 border-t border-brand-200/50 mt-2">
             <div className="max-w-7xl mx-auto h-[48px] flex items-center justify-center">
               <MenuCustomer categories={customerCategories} />

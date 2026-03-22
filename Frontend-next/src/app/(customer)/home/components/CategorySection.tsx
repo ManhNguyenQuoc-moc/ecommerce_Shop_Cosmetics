@@ -64,6 +64,7 @@ export default function CategorySection({ categories, loading }: Props) {
                         src={item.image}
                         alt={item.name}
                         fill
+                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 16vw"
                         className="
                         object-cover
                         group-hover:scale-110

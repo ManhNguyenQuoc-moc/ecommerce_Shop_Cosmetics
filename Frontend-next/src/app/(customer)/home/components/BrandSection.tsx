@@ -43,6 +43,7 @@ export default function BrandSection({
                     src={(brand as Brand).banner}
                     alt={(brand as Brand).name}
                     fill
+                    sizes="(max-width: 640px) 50vw, 25vw"
                     className="object-cover group-hover:scale-110 transition duration-500"
                   />
 
@@ -56,6 +57,7 @@ export default function BrandSection({
                       src={(brand as Brand).logo}
                       alt={(brand as Brand).name}
                       fill
+                      sizes="120px"
                       className="object-contain"
                     />
                   </div>
