@@ -21,18 +21,13 @@ export default function BrandSection({
 
   return (
     <>
-      {/* TITLE */}
-      <div className="flex items-center gap-3 mb-8 px-2">
+      <div className="flex items-center gap-3">
         <div className="w-10 h-10 rounded-full bg-brand-500 flex items-center justify-center text-white shrink-0 shadow-lg shadow-brand-200">
           <Award size={20} fill="currentColor" />
         </div>
-        <h2 className="text-2xl font-black text-gray-900 tracking-tight uppercase italic">Thương hiệu nổi bật</h2>
+        <h2 className="text-2xl !mb-0 font-black text-gray-900 tracking-tight uppercase italic">Thương hiệu nổi bật</h2>
       </div>
-
-
-      {/* CONTAINER */}
-      <section className="bg-white/40 backdrop-blur-xl p-6 rounded-2xl shadow-sm border border-white/20">
-
+      <div className="pt-2">
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-5">
           {(loading ? skeletonArray : brands).map((brand, index) => (
             <div
@@ -70,7 +65,7 @@ export default function BrandSection({
             </div>
           ))}
         </div>
-      </section>
+      </div>
     </>
   );
 }

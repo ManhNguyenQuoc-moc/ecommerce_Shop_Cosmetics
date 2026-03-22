@@ -42,7 +42,7 @@ export default function MenuCustomer({ categories }: Props) {
             type="text"
             className={`${buttonBaseClass} ${active
                 ? "!text-brand-500"
-                : "!text-white/80 hover:!text-brand-400"
+                : "!text-brand-900 hover:!text-brand-600"
               }`}
             onClick={() => router.push(category.path)}
           >

@@ -47,7 +47,7 @@ export default function CheckoutForm() {
     if (!customer) return;
     const firstAddr = customer.addresses?.[0];
     setCustomer({
-        name: customer.name || "",
+        name: (customer as any).full_name || customer.name || "",
         phone: customer.phone || "",
         
     });

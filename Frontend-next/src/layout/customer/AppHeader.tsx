@@ -31,19 +31,19 @@ export default function CustomerHeader() {
 
   return (
     <>
-      {/* Layout Spacer to prevent content jump - Matches Header height */}
-      <div className={`transition-all duration-500 ${scrolled ? "h-[70px] md:h-[80px]" : "h-[140px] md:h-[160px] lg:h-[180px]"}`} />
+      {/* Layout Spacer to prevent content jump - Static height matches initial Header height */}
+      <div className="h-[150px] md:h-[160px] lg:h-[180px]" />
 
     <header
-      className={`fixed top-0 left-0 w-full z-[100] transition-all duration-500 ease-in-out bg-[#0f0408]
+      className={`fixed top-0 left-0 w-full z-[100] transition-all duration-500 ease-in-out bg-brand-50
       ${scrolled 
-        ? "border-b border-white/[0.05] shadow-xl shadow-black/30 py-2.5" 
+        ? "border-b border-brand-200/50 shadow-xl shadow-brand-900/5 py-2.5" 
         : "py-5 shadow-lg shadow-brand-900/5"}
     `}
     >
 
       {/* Premium Gradient Overlay - Fades out on scroll for stability */}
-      <div className={`absolute inset-0 bg-gradient-to-r from-[#0f0408] via-[#1a0a12] to-[#0f0408] transition-opacity duration-500 ${scrolled ? "opacity-0" : "opacity-100"}`} />
+      <div className={`absolute inset-0 bg-gradient-to-r from-brand-25 via-brand-50 to-brand-25 transition-opacity duration-500 ${scrolled ? "opacity-0" : "opacity-100"}`} />
 
       {/* Decorative Cosmetic Icons Layer (Living Background) - High visibility */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-[0.2] z-[1]">
@@ -55,26 +55,27 @@ export default function CustomerHeader() {
       </div>
 
 
-        {/* Premium Top Accent Bar */}
-        <div className="absolute top-0 left-0 w-full h-[3px] bg-gradient-to-r from-brand-600 via-brand-500 to-brand-700 shadow-sm opacity-90 shadow-brand-500/20" />
+        {/* Premium Top Accent Bar removed */}
 
         <div className="max-w-7xl mx-auto flex items-center justify-between px-6 gap-8 relative z-10 transition-all duration-700">
           <button
-            className="lg:hidden p-2 hover:bg-white/10 rounded-xl transition-colors group"
+            className="lg:hidden p-2 hover:bg-brand-500/10 rounded-xl transition-colors group"
             onClick={() => setSidebarOpen(true)}
           >
-            <Menu size={24} className="text-white group-hover:text-brand-400 transition-colors" />
+            <Menu size={24} className="text-brand-900 group-hover:text-brand-600 transition-colors" />
           </button>
 
           <Link href="/" className="group flex items-center gap-3">
-            <div className="w-10 h-10 md:w-11 md:h-11 bg-brand-500 rounded-xl flex items-center justify-center transform rotate-12 group-hover:rotate-0 transition-all duration-500 shadow-xl shadow-brand-500/30">
-               <span className="text-white font-black text-2xl italic drop-shadow-sm">C</span>
+            <div className="relative overflow-hidden w-10 h-10 md:w-11 md:h-11 bg-brand-500 rounded-xl flex items-center justify-center transform rotate-12 group-hover:rotate-0 transition-all duration-500 shadow-xl shadow-brand-500/30">
+              {/* Hiệu ứng quét sáng */}
+              <div className="absolute inset-0 bg-white/40 animate-sweep z-0 pointer-events-none mix-blend-overlay" />
+              <span className="relative z-10 text-white font-black text-2xl italic drop-shadow-sm">C</span>
             </div>
             <div className="flex flex-col">
-              <span className="font-black text-xl md:text-2xl text-white tracking-tight leading-none">
+              <span className="font-black text-xl md:text-2xl text-brand-900 tracking-tight leading-none">
                 COSMETICS
               </span>
-              <span className="font-bold text-[10px] md:text-[11px] text-brand-400 tracking-[0.3em] leading-none mt-1.5 uppercase">
+              <span className="font-bold text-[10px] md:text-[11px] text-brand-600 tracking-[0.3em] leading-none mt-1.5 uppercase">
                 Premium Beauty Shop
               </span>
             </div>
@@ -84,18 +85,18 @@ export default function CustomerHeader() {
           <div className="hidden md:flex flex-1 max-w-xl mx-4 relative group">
             <input
               placeholder="Tìm kiếm mỹ phẩm chính hãng..."
-              className="w-full bg-white/[0.05] border border-white/10 rounded-2xl px-5 py-2.5 pl-12 text-sm text-white placeholder:text-gray-500 outline-none focus:border-brand-500/70 focus:bg-white/[0.09] focus:ring-4 focus:ring-brand-500/10 transition-all shadow-inner group-hover:border-white/25"
+              className="w-full bg-white border border-brand-200/60 rounded-2xl px-5 py-2.5 pl-12 text-sm text-brand-900 placeholder:text-gray-400 outline-none focus:border-brand-500/70 focus:ring-4 focus:ring-brand-500/10 transition-all shadow-sm group-hover:border-brand-300"
             />
             <Search
               size={18}
-              className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-brand-400 transition-colors"
+              className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-brand-500 transition-colors"
             />
           </div>
 
           <div className="flex items-center gap-2 md:gap-6">
             <Link
               href="/wishlist"
-              className="hidden sm:flex items-center justify-center w-11 h-11 rounded-2xl bg-white/[0.05] border border-white/5 hover:border-brand-500/40 hover:bg-white/15 text-gray-400 hover:text-brand-400 transition-all group shadow-sm"
+              className="hidden sm:flex items-center justify-center w-11 h-11 rounded-2xl bg-white border border-brand-200/60 hover:border-brand-500/40 text-brand-900 hover:text-brand-600 transition-all group shadow-sm"
             >
               <Heart size={20} className="group-hover:fill-brand-400/20 transition-all" />
             </Link>
@@ -111,23 +112,27 @@ export default function CustomerHeader() {
         </div>
 
         {/* Mobile Search - Collapse logic */}
-        <div className={`px-6 overflow-hidden transition-all duration-500 md:hidden ${scrolled ? "max-h-0 opacity-0" : "max-h-[70px] opacity-100 pt-4 pb-2"}`}>
-          <div className="relative">
-            <input
-              placeholder="Tìm kiếm..."
-              className="w-full bg-white/[0.07] border border-white/10 rounded-xl px-4 py-2.5 pl-11 text-sm text-white outline-none focus:ring-2 focus:ring-brand-500/30"
-            />
-            <Search
-              size={18}
-              className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
-            />
+        <div className={`overflow-hidden transition-all duration-500 ease-in-out md:hidden ${scrolled ? "max-h-0 opacity-0 -translate-y-4" : "max-h-[80px] opacity-100 translate-y-0"}`}>
+          <div className="px-6 pt-4 pb-2">
+            <div className="relative">
+              <input
+                placeholder="Tìm kiếm..."
+                className="w-full bg-white border border-brand-200/60 rounded-xl px-4 py-2.5 pl-11 text-sm text-brand-900 outline-none focus:ring-2 focus:ring-brand-500/30 shadow-sm"
+              />
+              <Search
+                size={18}
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+              />
+            </div>
           </div>
         </div>
 
         {/* Menu Navigation - Collapses on Scroll */}
-        <div className={`hidden lg:block transition-all duration-700 ease-in-out overflow-hidden border-white/[0.06] ${scrolled ? "max-h-0 opacity-0 translate-y-[-20px]" : "max-h-[60px] opacity-100 mt-5 pt-2 border-t"}`}>
-          <div className="max-w-7xl mx-auto h-[48px] flex items-center justify-center">
-            <MenuCustomer categories={customerCategories} />
+        <div className={`hidden lg:block overflow-hidden transition-all duration-500 ease-in-out origin-top ${scrolled ? "max-h-0 opacity-0 -translate-y-4" : "max-h-[76px] opacity-100 translate-y-0"}`}>
+          <div className="pt-5 border-t border-brand-200/50 mt-2">
+            <div className="max-w-7xl mx-auto h-[48px] flex items-center justify-center">
+              <MenuCustomer categories={customerCategories} />
+            </div>
           </div>
         </div>
 

@@ -7,8 +7,8 @@ import { ChevronLeft } from "lucide-react";
 export default function RegisterPage() {
     return (
         <div className="flex min-h-screen w-full items-center justify-center bg-gray-50/50">
-            <div className="relative flex w-full max-w-5xl h-[700px] rounded-2xl overflow-hidden shadow-2xl bg-white">
-                {/* Back to Login Link */}
+            <div className="relative flex w-full max-w-5xl h-[800px] rounded-2xl overflow-hidden shadow-2xl bg-white">
+       
                 <Link
                     href="/login"
                     className="absolute top-6 left-6 z-20 inline-flex items-center text-sm font-semibold text-gray-600 hover:text-brand-500 transition-colors"
@@ -16,8 +16,6 @@ export default function RegisterPage() {
                     <ChevronLeft size={20} className="mr-1" />
                     Quay lại đăng nhập
                 </Link>
-
-                {/* Left Side: Image/Branding */}
                 <div className="relative hidden lg:flex w-1/2 items-center justify-center font-bold">
                     <img
                         src="/images/main/brand.jpg"
@@ -31,7 +29,6 @@ export default function RegisterPage() {
                     </div>
                 </div>
 
-                {/* Right Side: Register Form */}
                 <div className="flex w-full lg:w-1/2 items-center justify-center p-8 overflow-y-auto">
                     <div className="w-full">
                         <RegisterForm />

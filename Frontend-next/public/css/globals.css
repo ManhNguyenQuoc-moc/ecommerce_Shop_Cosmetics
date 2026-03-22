@@ -190,6 +190,12 @@
 
   --animate-float: float 5s linear 0s infinite normal none running;
   --animate-shake: shake 15s ease 0s infinite normal none running;
+  --animate-sweep: sweep 5s infinite;
+
+  @keyframes sweep {
+    0% { transform: translateX(-150%) skewX(-12deg); }
+    20%, 100% { transform: translateX(150%) skewX(-12deg); }
+  }
 
   @keyframes float {
     0%,
