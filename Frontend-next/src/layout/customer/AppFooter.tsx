@@ -62,7 +62,7 @@ export default function AppFooter() {
                 <p className="text-xs text-brand-500 font-bold uppercase tracking-wider mb-4">
                   Phương thức thanh toán
                 </p>
-                <div className="flex gap-3">
+                <div className="flex flex-wrap gap-3">
                   
                   {/* Mastercard */}
                   <div className="bg-white px-2 py-1 rounded shadow-sm border border-gray-100 flex items-center justify-center h-9 w-14 transition-transform hover:-translate-y-1 cursor-default">

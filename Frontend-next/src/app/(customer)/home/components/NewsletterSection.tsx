@@ -28,7 +28,7 @@ export default function NewsletterSection() {
               <SWTInput
                 placeholder="Nhập email của bạn..."
                 showCount={false}
-                className="!bg-white/95 backdrop-blur-sm !rounded-xl !border-none !h-[48px] !w-[160px]!px-4 !text-sm !text-gray-900 w-full shadow-inner focus:!ring-2 focus:!ring-brand-200 transition-all placeholder:text-gray-400"
+                className="!bg-white/95 backdrop-blur-sm !rounded-xl !border-none !h-[48px] !px-4 !text-sm !text-gray-900 !w-full shadow-inner focus:!ring-2 focus:!ring-brand-200 transition-all placeholder:text-gray-400"
               />
             </div>
             <SWTButton

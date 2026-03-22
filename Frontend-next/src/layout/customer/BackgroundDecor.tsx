@@ -17,8 +17,6 @@ const BackgroundDecor = () => {
               <path d="M40 25 L41.5 38.5 L55 40 L41.5 41.5 L40 55 L38.5 41.5 L25 40 L38.5 38.5 Z" className="fill-brand-200" />
               <circle cx="15" cy="15" r="2.5" className="fill-brand-200" opacity="0.8" />
               <circle cx="65" cy="65" r="3" className="fill-brand-200" opacity="0.6" />
-              
-              {/* Star 2 */}
               <path d="M120 105 L121.5 118.5 L135 120 L121.5 121.5 L120 135 L118.5 121.5 L105 120 L118.5 118.5 Z" className="fill-brand-200" opacity="0.7" />
               <circle cx="95" cy="95" r="2" className="fill-brand-200" opacity="0.9" />
               <circle cx="145" cy="145" r="3.5" className="fill-brand-200" opacity="0.5" />

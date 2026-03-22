@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useSWRConfig } from "swr";
 import { Form, Divider, Tag } from "antd";
 import {
   UserOutlined,
@@ -44,6 +45,7 @@ export default function ProfileForm({ initialData }: Props) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [addresses, setAddresses] = useState(initialData.addresses || []);
   const [showAddAddress, setShowAddAddress] = useState(false);
+  const { mutate } = useSWRConfig();
 
   useEffect(() => {
     form.setFieldsValue({
@@ -65,10 +67,11 @@ export default function ProfileForm({ initialData }: Props) {
         birthday: values.birthday ? values.birthday.toISOString() : null,
         addresses,
       });
+      await mutate("/users/me");
       showNotificationSuccess("Cập nhật thành công");
       setIsEdit(false);
     } catch (err: any) {
-      showNotificationError(err.message);
+      showNotificationError(err.message || "Đã có lỗi xảy ra");
     } finally {
       setIsSubmitting(false);
     }
