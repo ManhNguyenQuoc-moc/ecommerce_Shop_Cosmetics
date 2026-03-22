@@ -34,8 +34,8 @@ export default function UserDropdown() {
 
   return (
     <AntDropDown item={guestMenu}>
-      <div className="flex items-center justify-center w-9 h-9 rounded-full hover:bg-white/10 transition-colors cursor-pointer">
-        <User className="text-white" size={26} />
+      <div className="flex items-center justify-center w-9 h-9 rounded-full hover:bg-brand-500/10 transition-colors cursor-pointer group">
+        <User className="text-brand-900 group-hover:text-brand-600 transition-colors" size={26} />
       </div>
     </AntDropDown>
 

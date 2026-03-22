@@ -22,17 +22,13 @@ export default function ProductSection({
 
   return (
     <>
-      <div className="flex items-center gap-3 mb-8 px-2">
+      <div className="flex items-center gap-3">
         <div className="w-10 h-10 rounded-full bg-brand-500 flex items-center justify-center text-white shrink-0 shadow-lg shadow-brand-200">
           <Sparkles size={20} fill="currentColor" />
         </div>
-        <h2 className="text-2xl font-black text-gray-900 tracking-tight uppercase italic">{title}</h2>
+        <h2 className="text-2xl !mb-0 font-black text-gray-900 tracking-tight uppercase italic">{title}</h2>
       </div>
-
-
-      <section className="bg-white/30 backdrop-blur-xl my-5 p-6 border border-white/20 rounded-2xl shadow-sm">
-
-
+      <div className="my-5">
         {isEmpty ? (
           <div className="py-10 flex justify-center">
             <SWTEmpty description="Chưa có sản phẩm" />
@@ -49,7 +45,7 @@ export default function ProductSection({
           </div>
         )}
 
-      </section>
+      </div>
     </>
   );
 }

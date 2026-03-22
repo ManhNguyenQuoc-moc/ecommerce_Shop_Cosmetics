@@ -30,22 +30,19 @@ export default function CategorySection({ categories, loading }: Props) {
 
     grouped.push(group);
   }
-
   return (
-    <section>
-      <div className="flex items-center gap-3 mb-8 px-2">
+    <>
+      <div className="flex items-center gap-3 mb-3">
         <div className="w-10 h-10 rounded-full bg-brand-500 flex items-center justify-center text-white shrink-0 shadow-lg shadow-brand-200">
           <LayoutGrid size={20} fill="currentColor" />
         </div>
-        <h2 className="text-2xl font-black text-gray-900 tracking-tight uppercase italic">Danh mục</h2>
+        <h2 className="text-2xl !mb-0 font-black text-gray-900 tracking-tight uppercase italic">Danh mục</h2>
       </div>
-
-
-      <SWTCard className="my-4" loading={loading} height={240}>
+      <div>
         <Carousel arrows dots={false}>
           {grouped.map((group, index) => (
             <div key={index}>
-              <div className="p-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-5">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-5">
                 {group.map((item, idx) => (
                   <div
                     key={idx}
@@ -61,7 +58,7 @@ export default function CategorySection({ categories, loading }: Props) {
                     duration-300
                     hover:-translate-y-1
                   "
-                  >
+                    >
                     <div className="relative h-[140px]">
                       <Image
                         src={item.image}
@@ -78,12 +75,11 @@ export default function CategorySection({ categories, loading }: Props) {
                     </div>
                     <div className="absolute bottom-3 left-1/2 -translate-x-1/2">
                 <div className="w-[160px] h-[42px] flex items-center justify-center
-bg-white/40 backdrop-blur-md border border-white/20
-rounded-lg text-xs font-bold text-center
-shadow-lg px-2 leading-tight text-gray-900 group-hover:bg-white/80 transition-all">
-  {item.name}
-</div>
-
+                  bg-white/40 backdrop-blur-md border border-white/20
+                  rounded-lg text-xs font-bold text-center
+                  shadow-lg px-2 leading-tight text-gray-900 group-hover:bg-white/80 transition-all">
+                    {item.name}
+                  </div>
                 </div>
                   </div>
                 ))}
@@ -91,7 +87,7 @@ shadow-lg px-2 leading-tight text-gray-900 group-hover:bg-white/80 transition-al
             </div>
           ))}
         </Carousel>
-      </SWTCard>
-    </section>
+      </div>
+      </>
   );
 }
