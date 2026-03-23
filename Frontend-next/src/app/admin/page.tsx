@@ -7,8 +7,10 @@ import SimpleDashboard from "./components/dashboard/SimpleDashboard";
 import AdvancedDashboard from "./components/dashboard/AdvancedDashboard";
 import SWTBreadcrumb from "@/src/@core/component/AntD/SWTBreadcrumb";
 import { LayoutDashboard } from "lucide-react";
+import useSWTTitle from "@/src/@core/hooks/useSWTTitle";
 
 export default function AdminDashboardPage() {
+  useSWTTitle("Thống Kê Hệ Thống | Admin");
   const [isLoading, setIsLoading] = useState(false);
   const tabsItems = [
     {

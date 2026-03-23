@@ -41,9 +41,21 @@ const SWTSelect = ({ ...props }: SWTSelectProps) => {
     <Select
       {...props}
       className={clsx(
-        "rounded-lg! p-2!",
+        "transition-all duration-300",
+        "h-11",
+        "[&_.ant-select-selector]:!h-11",
+        "[&_.ant-select-selector]:!items-center",
+        "dark:[&_.ant-select-selector]:!bg-slate-900/50",
+        "dark:[&_.ant-select-selector]:!border-slate-700/80",
+        "dark:[&_.ant-select-selection-item]:!text-slate-200",
+        "dark:[&_.ant-select-selection-placeholder]:!text-slate-500",
+        "dark:[&_.ant-select-arrow]:!text-slate-400",
+        "dark:[&_.ant-select-clear]:!text-slate-400 dark:[&_.ant-select-clear]:!bg-transparent",
+        "hover:dark:[&_.ant-select-selector]:!border-cyan-400/50",
+        "focus-within:dark:[&_.ant-select-selector]:!border-cyan-500",
         props?.className,
       )}
+      popupClassName="dark:bg-slate-800 dark:border dark:border-slate-700 dark:shadow-xl dark:shadow-black/50 dark:[&_.ant-select-item]:text-slate-300 dark:[&_.ant-select-item-option-active]:bg-slate-700 dark:[&_.ant-select-item-option-selected]:bg-cyan-900/30 dark:[&_.ant-select-item-option-selected]:text-cyan-400"
       placeholder={
         props.placeholder
           ? props.placeholder

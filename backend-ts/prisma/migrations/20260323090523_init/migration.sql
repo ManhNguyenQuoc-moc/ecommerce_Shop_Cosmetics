@@ -14,6 +14,9 @@ CREATE TYPE "DiscountType" AS ENUM ('PERCENTAGE', 'FLAT_AMOUNT');
 CREATE TYPE "ProductStatus" AS ENUM ('BEST_SELLING', 'TRENDING', 'NEW');
 
 -- CreateEnum
+CREATE TYPE "ItemStatus" AS ENUM ('ACTIVE', 'HIDDEN', 'STOPPED');
+
+-- CreateEnum
 CREATE TYPE "Gender" AS ENUM ('MALE', 'FEMALE', 'OTHER');
 
 -- CreateEnum
@@ -139,7 +142,7 @@ CREATE TABLE "Product" (
     "slug" TEXT NOT NULL,
     "short_description" TEXT,
     "long_description" TEXT,
-    "statusName" "ProductStatus" NOT NULL DEFAULT 'NEW',
+    "status" "ItemStatus" NOT NULL DEFAULT 'ACTIVE',
     "price" DOUBLE PRECISION NOT NULL DEFAULT 0,
     "salePrice" DOUBLE PRECISION,
     "rating" DOUBLE PRECISION NOT NULL DEFAULT 0,
@@ -175,6 +178,7 @@ CREATE TABLE "ProductVariant" (
     "stock_quantity" INTEGER NOT NULL DEFAULT 0,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
+    "statusName" "ProductStatus" NOT NULL DEFAULT 'NEW',
 
     CONSTRAINT "ProductVariant_pkey" PRIMARY KEY ("id")
 );

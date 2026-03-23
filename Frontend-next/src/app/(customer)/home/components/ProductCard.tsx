@@ -40,13 +40,13 @@ export default function ProductCard({ product, loading }: Props) {
       bodyClassName="!p-0"
     >
       {!loading && product && (
-        <Link href={`/products/${product.id}`} className="block h-full relative">
+        <Link href={`/products/${product.id}${product.variantId ? `?variant=${product.variantId}` : ''}`} className="block h-full relative">
           <div className="flex flex-col h-full bg-white">
             
             {/* Image Wrapper */}
             <div className="relative w-full aspect-square bg-gray-50 overflow-hidden">
               <Image
-                src={product.image}
+                src={product.image || "https://placehold.co/400x400/png?text=No+Image"}
                 alt={product.name}
                 fill
                 sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"

@@ -90,9 +90,9 @@ export default function ProfileForm({ initialData }: Props) {
   };
 
   return (
-    <SWTCard className=" !rounded-2xl !border-none !shadow-sm overflow-hidden" bodyClassName="p-0">
+    <SWTCard className=" !rounded-2xl !border-none !shadow-sm" bodyClassName="p-0">
       <div
-        className="relative h-40 md:h-52 bg-gradient-to-r from-brand-400 via-pink-400 to-rose-400 rounded-t-2xl"
+        className="relative h-20 bg-gradient-to-r from-brand-400 via-pink-400 to-rose-400 rounded-t-2xl overflow-hidden"
         style={{
           backgroundImage:
             "radial-gradient(ellipse at 20% 50%, rgba(255,180,150,0.4) 0%, transparent 60%), radial-gradient(ellipse at 80% 30%, rgba(180,120,255,0.35) 0%, transparent 60%)",
@@ -100,7 +100,6 @@ export default function ProfileForm({ initialData }: Props) {
       >
         <div className="absolute top-4 left-6 w-24 h-24 bg-white/10 rounded-full blur-2xl" />
         <div className="absolute bottom-2 right-12 w-32 h-32 bg-white/10 rounded-full blur-3xl" />
-
         <div className="absolute top-4 right-4 flex gap-2">
           {!isEdit ? (
             <SWTButton
@@ -155,7 +154,7 @@ export default function ProfileForm({ initialData }: Props) {
 
           {/* Loyalty points pill — top right of name area */}
           <div className="shrink-0 sm:pb-1">
-            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-amber-400 to-orange-400 text-white text-sm font-semibold px-4 py-2 rounded-full shadow-sm">
+            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-amber-400 to-orange-400 text-white text-sm font-semibold px-5 py-2 rounded-full shadow-sm">
               <GiftOutlined />
               {initialData.loyalty_points ?? 0} điểm
             </div>
@@ -163,7 +162,6 @@ export default function ProfileForm({ initialData }: Props) {
         </div>
         <Divider className="!my-4" />
         <SWTForm form={form} layout="vertical" onFinish={onFinish}>
-          {/* Section label */}
           <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-4">
             Thông tin cơ bản
           </p>
@@ -228,7 +226,7 @@ export default function ProfileForm({ initialData }: Props) {
               </label>
               {isEdit ? (
                 <SWTFormItem name="birthday" className="!mb-0">
-                  <SWTDatePicker className="w-full" label="Ngày sinh" />
+                  <SWTDatePicker className="w-full h-10  !rounded-md" label="Ngày sinh" />
                 </SWTFormItem>
               ) : (
                 <p className="text-gray-800 font-semibold text-base">
@@ -244,7 +242,6 @@ export default function ProfileForm({ initialData }: Props) {
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest flex items-center gap-2">
-                <EnvironmentOutlined />
                 Địa chỉ giao hàng
               </p>
               {isEdit && (

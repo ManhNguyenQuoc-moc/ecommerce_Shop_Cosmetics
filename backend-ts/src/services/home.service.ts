@@ -31,16 +31,45 @@ export class HomeService implements IHomeService {
       })
     ]);
 
-    const formatProduct = (p: any) => ({
-      id: p.id,
-      name: p.name,
-      brand: p.brand?.name || null,
-      price: p.price,
-      salePrice: p.salePrice,
-      rating: p.rating,
-      sold: p.sold,
-      image: p.productImages?.[0]?.image?.url || p.variants?.[0]?.image?.url || null
-    });
+    const flattenProduct = (p: any) => {
+      const results: any[] = [];
+      if (p.variants && p.variants.length > 0) {
+        p.variants.forEach((v: any) => {
+          const variantName = [p.name, v.color, v.size].filter(Boolean).join(' - ');
+          results.push({
+             id: p.id,
+             slug: p.slug,
+             variantId: v.id,
+             name: variantName,
+             brand: p.brand?.name || null,
+             category: p.category?.name || "Chưa phân loại",
+             price: v.price || p.price,
+             salePrice: v.salePrice || p.salePrice || null,
+             rating: p.rating,
+             sold: p.sold,
+             stock: v.stock_quantity || 0,
+             image: v.image?.url || p.productImages?.[0]?.image?.url || null,
+             status: v.statusName || "NEW"
+          });
+        });
+      } else {
+        results.push({
+          id: p.id,
+          slug: p.slug,
+          name: p.name,
+          brand: p.brand?.name || null,
+          category: p.category?.name || "Chưa phân loại",
+          price: p.price,
+          salePrice: p.salePrice || null,
+          rating: p.rating,
+          sold: p.sold,
+          stock: 0,
+          image: p.productImages?.[0]?.image?.url || null,
+          status: "NEW"
+        });
+      }
+      return results;
+    };
 
     const formatCategory = (c: any) => ({
       name: c.name,
@@ -60,9 +89,9 @@ export class HomeService implements IHomeService {
     return {
       banners,
       categories: categories.map(formatCategory),
-      featuredProducts: featuredProducts.map(formatProduct),
-      bestSellingProducts: bestSellingProducts.map(formatProduct),
-      newestProducts: newestProducts.map(formatProduct),
+      featuredProducts: featuredProducts.flatMap(flattenProduct),
+      bestSellingProducts: bestSellingProducts.flatMap(flattenProduct),
+      newestProducts: newestProducts.flatMap(flattenProduct),
       brands: brands.map((b: any) => ({
         name: b.name,
         logo: b.logo?.url || null,

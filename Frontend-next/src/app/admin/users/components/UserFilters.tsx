@@ -15,9 +15,7 @@ export default function UserFilters() {
       </div>
       
       <div className="flex flex-wrap items-center gap-3 w-full xl:w-auto">
-        <div className="h-10 border border-slate-200 rounded-lg overflow-hidden flex items-center bg-white px-1">
-          <SWTDatePickerRange style={{ border: 'none', boxShadow: 'none' }} />
-        </div>
+        <SWTDatePickerRange />
         
         <SWTSelect 
           placeholder="Vai trò"

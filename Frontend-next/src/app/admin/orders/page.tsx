@@ -6,8 +6,10 @@ import OrderTable from "./components/OrderTable";
 import { Plus, ShoppingCart } from "lucide-react";
 import SWTButton from "@/src/@core/component/AntD/SWTButton";
 import SWTBreadcrumb from "@/src/@core/component/AntD/SWTBreadcrumb";
+import useSWTTitle from "@/src/@core/hooks/useSWTTitle";
 
 export default function OrdersPage() {
+  useSWTTitle("Quản Lý Đơn Hàng | Admin");
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Header */}

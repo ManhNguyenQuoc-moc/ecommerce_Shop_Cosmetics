@@ -62,16 +62,20 @@ const SWTInputSearch = ({ className, onChange, ...props }: SWTInputSearchProps) 
   return (
     <Input
       {...props}
-      prefix={<SearchIcon size={18} className="text-gray-400" />}
+      prefix={<SearchIcon size={18} className="text-gray-400 dark:text-slate-500 transition-colors" />}
       placeholder={props.placeholder ?? "Tìm kiếm"}
       onChange={(e) => onChange?.(e)}
       className={`
         h-10
-        !border !border-gray-200
-        hover:!border-blue-400
-        focus-within:!border-blue-500
-        !rounded-xl !bg-white
-        transition-all duration-200
+        !border !border-gray-200 dark:!border-slate-700/80
+        hover:!border-brand-400 dark:hover:!border-cyan-400/50
+        focus-within:!border-brand-500 dark:focus-within:!border-cyan-500
+        !rounded-xl 
+        !bg-white dark:!bg-slate-900/50
+        !text-slate-800 dark:!text-slate-200
+        [&>input]:!bg-transparent [&>input]:dark:!text-slate-200 [&>input::placeholder]:dark:!text-slate-500
+        transition-all duration-300
+        backdrop-blur-sm
         px-2
         ${className ?? ""}
       `}

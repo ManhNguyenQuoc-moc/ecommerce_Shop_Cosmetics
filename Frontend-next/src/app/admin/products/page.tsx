@@ -3,11 +3,14 @@
 import React from 'react';
 import ProductFilters from "./components/ProductFilters";
 import ProductTable from "./components/ProductTable";
-import { Plus, Package } from "lucide-react";
+import { Info, Package } from "lucide-react";
 import SWTButton from "@/src/@core/component/AntD/SWTButton";
+import { Tooltip } from "antd";
 import SWTBreadcrumb from "@/src/@core/component/AntD/SWTBreadcrumb";
+import useSWTTitle from "@/src/@core/hooks/useSWTTitle";
 
 export default function ProductsPage() {
+  useSWTTitle("Quản Lý Sản Phẩm | Admin");
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Header */}
@@ -28,13 +31,16 @@ export default function ProductsPage() {
             Xem, thêm mới và quản lý thông tin các sản phẩm trong kho.
           </p>
         </div>
-        
-        <SWTButton 
-          type="primary" 
-          className="!h-11 !w-11 !p-0 flex items-center justify-center !bg-brand-500 hover:!bg-brand-600 !text-brand-900 rounded-xl shadow-[0_0_15px_rgba(236,72,153,0.4)] border-none"
+
+        <Tooltip
+          title={<span className="text-sm">Mọi thao tác thêm mới và tuỳ chỉnh được thực hiện bên trong Bảng Dữ Liệu.</span>}
+          placement="left"
+          color="white"
         >
-          <Plus size={20} className="stroke-[3]" />
-        </SWTButton>
+          <div className="!h-11 !w-11 flex items-center justify-center bg-brand-50 hover:bg-brand-500/50 dark:bg-slate-800 dark:hover:bg-slate-700 text-brand-600 dark:text-cyan-400 rounded-xl cursor-help transition-all shadow-sm border border-brand-200 dark:border-slate-700 group">
+            <Info size={22} className="stroke-[2.5] group-hover:scale-110 transition-transform" />
+          </div>
+        </Tooltip>
       </div>
 
       {/* Main Content */}

@@ -23,6 +23,7 @@ const nextConfig = {
       "images.unsplash.com",
       "logo.clearbit.com",
       "placehold.co",
+      "res.cloudinary.com",
     ],
   },
 };

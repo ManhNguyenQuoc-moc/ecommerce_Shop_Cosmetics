@@ -48,7 +48,7 @@ model Product {
   slug              String        @unique
   short_description String?       @db.Text
   long_description  String?       @db.Text
-  statusName        ProductStatus @default(NEW)
+  status            ItemStatus    @default(ACTIVE)
   price             Float         @default(0)
   salePrice         Float?
   rating            Float         @default(0)
@@ -102,6 +102,8 @@ model ProductVariant {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  
+  statusName ProductStatus @default(NEW)
 }
 
 model Review {
@@ -120,4 +122,10 @@ enum ProductStatus {
   BEST_SELLING
   TRENDING
   NEW
+}
+
+enum ItemStatus {
+  ACTIVE
+  HIDDEN
+  STOPPED
 }

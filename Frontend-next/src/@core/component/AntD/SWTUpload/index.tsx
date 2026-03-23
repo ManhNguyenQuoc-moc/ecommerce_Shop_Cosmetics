@@ -29,7 +29,7 @@ const SWTUpload = ({
     uploadType = "image",
     multiple = uploadType !== "avatar" && true,
     icon = <UploadIcon />,
-    label = `${uploadType === "avatar" ? "" : "ảnh lên"}`,
+    label = `${uploadType === "avatar" ? "" : "Tải ảnh lên"}`,
     className,
     listType = "picture",
     crop = false,
@@ -65,6 +65,7 @@ const SWTUpload = ({
             return file;
         });
         setFileList(newFileList);
+        props.onChange?.(info);
         setLoading(status === "uploading");
         if (status === "done") {
             showNotificationSuccess(

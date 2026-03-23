@@ -4,8 +4,10 @@ import SWTInput from "@/src/@core/component/AntD/SWTInput";
 import { Award, Plus } from "lucide-react";
 import RewardTable from "./components/RewardTable";
 import RewardFilters from "./components/RewardFilters";
+import useSWTTitle from "@/src/@core/hooks/useSWTTitle";
 
 export default function AdminRewardsPage() {
+  useSWTTitle("Điểm Thưởng | Admin");
   return (
     <div className="space-y-6 animate-fade-in relative z-0">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
