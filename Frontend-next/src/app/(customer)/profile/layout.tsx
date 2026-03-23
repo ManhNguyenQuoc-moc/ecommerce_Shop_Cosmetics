@@ -68,7 +68,6 @@ export default function ProfileLayout({
         <aside className="md:col-span-1">
           <div className="sticky top-24 space-y-4">
             <SWTCard className="!p-0 !rounded-2xl !border-none !shadow-sm overflow-hidden">
-              {/* Profile Header in Sidebar */}
               <div className="bg-gradient-to-r from-brand-50 to-rose-50 p-6 flex flex-col items-center text-center">
                 <div className="relative mb-3">
                   <SWTAvatar 
@@ -126,7 +125,7 @@ export default function ProfileLayout({
               </div>
             </SWTCard>
 
-            <SWTCard className="!bg-brand-50 !rounded-2xl !border-brand-100 !mt-4" bodyClassName="p-4">
+            <SWTCard className="!bg-brand-50 !rounded-2xl border-1 !border-brand-100 !mt-4" bodyClassName="!p-4">
                <p className="text-xs text-brand-700 font-bold mb-1 italic">Bạn cần hỗ trợ?</p>
                <p className="text-[10px] text-brand-600 leading-relaxed font-medium">Nếu có bất kỳ thắc mắc nào, hãy liên hệ với chúng tôi ngay nhé!</p>
                <button className="mt-2 text-[10px] text-white bg-brand-500 hover:bg-brand-600 px-3 py-1.5 rounded-full font-bold transition-all">
@@ -136,8 +135,6 @@ export default function ProfileLayout({
 
           </div>
         </aside>
-
-        {/* Content */}
         <main className="md:col-span-3 min-h-[600px]">
           {children}
         </main>

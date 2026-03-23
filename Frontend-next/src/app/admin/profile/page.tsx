@@ -4,8 +4,10 @@ import { useAuth } from "@/src/context/AuthContext";
 import SWTAvatar from "@/src/@core/component/AntD/SWTAvatar";
 import { Mail, Phone, MapPin, Calendar, Shield, Edit, User } from "lucide-react";
 import SWTButton from "@/src/@core/component/AntD/SWTButton";
+import useSWTTitle from "@/src/@core/hooks/useSWTTitle";
 
 export default function AdminProfilePage() {
+  useSWTTitle("Hồ Sơ Quản Trị Viên | Admin");
   const { currentUser } = useAuth();
   
   return (

@@ -64,9 +64,7 @@ export default function AdvancedDashboard() {
             ]}
           />
           {timeFilter === "custom" && (
-            <div className="h-10 border border-slate-200 rounded-lg overflow-hidden flex items-center px-1">
-              <SWTDatePickerRange style={{ border: 'none', boxShadow: 'none' }} />
-            </div>
+            <SWTDatePickerRange />
           )}
         </div>
       </div>

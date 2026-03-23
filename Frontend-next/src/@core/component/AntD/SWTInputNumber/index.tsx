@@ -26,6 +26,7 @@ const SWTInputNumber = ({
       size={size}
       variant={variant}
       style={{ width: 100, ...style }}
+      className={`h-11 flex items-center [&_.ant-input-number-input]:h-11 ${restProps.className || ""}`}
     />
   );
 };

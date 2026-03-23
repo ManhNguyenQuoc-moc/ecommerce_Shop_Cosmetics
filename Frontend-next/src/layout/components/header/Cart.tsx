@@ -11,9 +11,9 @@ export default function Cart() {
   return (
     <Link
       href="/cart"
-      className="relative p-2 hover:bg-brand-500/10 transition-colors rounded-full flex items-center justify-center group/cart"
+      className="relative flex items-center justify-center w-11 h-11 rounded-2xl bg-white border border-brand-200/60 hover:border-brand-500/40 text-brand-900 hover:text-brand-600 transition-all group shadow-sm"
     >
-      <ShoppingCart className="text-brand-900 group-hover/cart:text-brand-600 transition-colors" size={22}/>
+      <ShoppingCart className="group-hover:fill-brand-400/20 transition-all" size={20}/>
 
       {cartCount > 0 && (
         <div className="absolute -top-1 -right-1">

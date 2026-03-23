@@ -1,7 +1,7 @@
 "use client";
 import { Outfit } from "next/font/google";
 import ThemeProvider from "../@core/provider/theme-provider";
-import {AntdRegistry} from '@ant-design/nextjs-registry';
+import { AntdRegistry } from '@ant-design/nextjs-registry';
 import { SidebarProvider } from "../@core/provider/sidebar-provider";
 import viVN from "antd/locale/vi_VN";
 import { ConfigProvider } from "antd";
@@ -25,26 +25,26 @@ export default function RootLayout({
     useMessageInit();
     return <>{children}</>;
   };
-  
+
   return (
     <html lang="en">
       <head>
         <title>SHOP COSMETICS</title>
-        <link rel="icon" type="image/png" href="/images/main/app-logo-transparent.png"></link>
+        <link rel="icon" type="image/png" href="/images/main/logo-app.png"></link>
       </head>
       <body className={`${outfit.className}`}>
         {/* <Provider store={store}> */}
-          <StyleProvider hashPriority="low">
-            <ConfigProvider locale={viVN}>
-              <ThemeProvider>
-                <MessageInitializer>
-                  <SidebarProvider>
-                    <AuthProvider><AntdRegistry>{children}</AntdRegistry></AuthProvider>
-                    </SidebarProvider>
-                </MessageInitializer>
-              </ThemeProvider>
-            </ConfigProvider>
-          </StyleProvider>
+        <StyleProvider hashPriority="low">
+          <ConfigProvider locale={viVN}>
+            <ThemeProvider>
+              <MessageInitializer>
+                <SidebarProvider>
+                  <AuthProvider><AntdRegistry>{children}</AntdRegistry></AuthProvider>
+                </SidebarProvider>
+              </MessageInitializer>
+            </ThemeProvider>
+          </ConfigProvider>
+        </StyleProvider>
         {/* </Provider> */}
       </body>
     </html>

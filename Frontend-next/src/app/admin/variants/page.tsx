@@ -1,3 +1,4 @@
+"use client"
 import SWTBreadcrumb from "@/src/@core/component/AntD/SWTBreadcrumb";
 import SWTButton from "@/src/@core/component/AntD/SWTButton";
 import SWTInput from "@/src/@core/component/AntD/SWTInput";
@@ -7,8 +8,10 @@ import VariantTable from "./components/VariantTable";
 import VariantFilters from "./components/VariantFilters";
 import InventoryTable from "./components/InventoryTable";
 import InventoryFilters from "./components/InventoryFilters";
+import useSWTTitle from "@/src/@core/hooks/useSWTTitle";
 
 export default function AdminVariantsPage() {
+  useSWTTitle("Biến Thể & Tồn Kho | Admin");
   const tabsItems = [
     {
       key: "variants",
@@ -60,7 +63,6 @@ export default function AdminVariantsPage() {
         </SWTButton>
       </div>
 
-      {/* Main Content */}
       <div className="bg-transparent">
         <SWTTabs 
           items={tabsItems}

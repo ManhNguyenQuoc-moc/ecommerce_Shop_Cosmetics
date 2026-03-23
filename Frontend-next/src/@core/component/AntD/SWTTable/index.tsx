@@ -28,6 +28,20 @@ const SWTTable = ({
       <Table
         rowKey={props?.rowKey ?? "id"}
         {...props}
+        className={`
+          dark:[&_.ant-table]:!bg-transparent
+          dark:[&_.ant-table-container]:!bg-transparent
+          dark:[&_.ant-table-content]:!bg-transparent
+          dark:[&_.ant-table-thead>tr>th]:!bg-slate-800/80
+          dark:[&_.ant-table-thead>tr>th]:!text-slate-200
+          dark:[&_.ant-table-thead>tr>th]:!border-slate-700
+          dark:[&_.ant-table-tbody>tr>td]:!bg-transparent
+          dark:[&_.ant-table-tbody>tr>td]:!text-slate-200
+          dark:[&_.ant-table-tbody>tr>td]:!border-slate-700/50
+          dark:[&_.ant-table-tbody>tr:hover>td]:!bg-slate-800/50
+          dark:[&_.ant-table-placeholder]:!bg-transparent
+          ${props.className || ""}
+        `}
         columns={columns}
         dataSource={dataSource}
         pagination={false}
@@ -37,7 +51,7 @@ const SWTTable = ({
       />
       <SWTRenderIf condition={pagination != null && pagination != undefined}>
         <SWTPagination
-          className="m-2 flex justify-end rounded-xl"
+          className="!m-2 flex justify-end rounded-xl"
           total={pagination?.totalCount}
           current={pagination?.page}
           pageSize={pagination?.fetch}

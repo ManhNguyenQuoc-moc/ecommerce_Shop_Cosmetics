@@ -12,8 +12,9 @@ export class ProductController {
     try {
       const page = Number(req.query.page) || 1;
       const limit = Number(req.query.pageSize || req.query.limit) || 10;
+      const flatten = req.query.flatten === 'true';
 
-      const result = await this.productService.getProducts(page, limit);
+      const result = await this.productService.getProducts(page, limit, flatten);
 
       res.status(200).json({
         success: true,

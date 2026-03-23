@@ -89,8 +89,8 @@ export default function AddressAutocomplete({ value, onChange }: Props) {
         allowClear
       />
 
-      {showDropdown && (loading || options.length > 0) && (
-        <div className="absolute top-full left-0 w-full bg-white shadow-lg rounded-b-lg mt-1 max-h-[250px] overflow-y-auto z-50">
+      {showDropdown && (
+        <div className="absolute top-full left-0 w-full bg-white shadow-2xl rounded-xl mt-1 max-h-[250px] overflow-y-auto z-[999] border border-gray-100">
           {loading ? (
             <div className="p-4 text-center">
               <Spin size="small" />

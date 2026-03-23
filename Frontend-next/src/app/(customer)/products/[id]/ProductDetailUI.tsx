@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, } from "react";
+import { useSearchParams } from "next/navigation";
 import { ProductDetail, ProductVariant } from "@/src/@core/type/Product";
 import { useFetchSWR } from "@/src/@core/hooks/useFetchSWR";
 import ProductGallery from "./components/ProductGallery";
@@ -35,8 +36,11 @@ export default function ProductDetailUI({ product }: Props) {
   variants: data?.variants ?? product.variants
   };
   
+  const searchParams = useSearchParams();
+  const variantQueryId = searchParams.get("variant");
+
   const [variant, setVariant] = useState<ProductVariant | null>(
-    currentProduct.variants?.[0] ?? null
+    currentProduct.variants?.find(v => v.id === variantQueryId) ?? currentProduct.variants?.[0] ?? null
   );
   
   const [activeImage, setActiveImage] = useState(

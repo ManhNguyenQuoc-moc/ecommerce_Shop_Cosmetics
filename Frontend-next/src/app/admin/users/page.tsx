@@ -7,8 +7,10 @@ import UserFilters from "./components/UserFilters";
 import SWTButton from "@/src/@core/component/AntD/SWTButton";
 import { SWTInputSearch } from "@/src/@core/component/AntD/SWTInput";
 import SWTBreadcrumb from "@/src/@core/component/AntD/SWTBreadcrumb";
+import useSWTTitle from "@/src/@core/hooks/useSWTTitle";
 
 export default function UsersPage() {
+  useSWTTitle("Quản Lý Người Dùng | Admin");
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Header */}
