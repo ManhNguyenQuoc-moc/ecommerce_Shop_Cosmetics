@@ -12,7 +12,11 @@ import Link from "next/link";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useState } from "react";
 
-export default function ProductTable() {
+interface ProductTableProps {
+  isPending?: boolean;
+}
+
+export default function ProductTable({ isPending }: ProductTableProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -32,9 +36,10 @@ export default function ProductTable() {
   const isHiddenTab = searchParams.get("status") === "hidden";
 
   const filters = {
-    search: searchParams.get("search") || "",
+    searchTerm: searchParams.get("search") || "",
     categoryId: searchParams.get("categoryId") || "all",
-    status: isHiddenTab ? "hidden" : "active", // Force filter based on tab
+    brandId: searchParams.get("brandId") || "all",
+    status: isHiddenTab ? "hidden" : (searchParams.get("status") || "active_tab"),
     soldRange: searchParams.get("soldRange") || "all",
     sortBy: searchParams.get("sortBy") || "newest",
   };
@@ -131,26 +136,48 @@ export default function ProductTable() {
       render: (sold: number) => <div className="text-sm font-bold text-sky-600 dark:text-sky-400">{sold || 0}</div>,
     },
     {
+      title: "Ngày tạo",
+      dataIndex: "createdAt",
+      key: "createdAt",
+      render: (date: string) => (
+        <div className="text-xs font-medium text-slate-500 dark:text-slate-400">
+          {new Date(date).toLocaleDateString("vi-VN")}
+        </div>
+      ),
+    },
+    {
       title: "Trạng thái",
       dataIndex: "status",
       key: "status",
       render: (status: string) => {
-        let colorClass = "bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-800/80 dark:text-slate-300 dark:border-slate-700";
-        let dotClass = "bg-slate-500";
-        if (status === "ACTIVE") {
-          colorClass = "bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900/40 dark:text-emerald-400 dark:border-emerald-500/30";
-          dotClass = "bg-emerald-500";
-        } else if (status === "HIDDEN") {
-          colorClass = "bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/40 dark:text-amber-400";
-          dotClass = "bg-amber-500";
-        } else if (status === "STOPPED") {
-          colorClass = "bg-red-100 text-red-700 border-red-200 dark:bg-red-900/40 dark:text-red-500";
-          dotClass = "bg-red-500";
-        }
+        const statusMap: Record<string, { label: string; color: string; dot: string }> = {
+          ACTIVE: {
+            label: "Đang kinh doanh",
+            color: "bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900/40 dark:text-emerald-400 dark:border-emerald-500/30",
+            dot: "bg-emerald-500",
+          },
+          HIDDEN: {
+            label: "Đang ẩn",
+            color: "bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/40 dark:text-amber-400",
+            dot: "bg-amber-500",
+          },
+          STOPPED: {
+            label: "Hết hàng",
+            color: "bg-red-100 text-red-700 border-red-200 dark:bg-red-900/40 dark:text-red-500",
+            dot: "bg-red-500",
+          },
+        };
+
+        const config = statusMap[status] || {
+          label: status,
+          color: "bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-800/80 dark:text-slate-300 dark:border-slate-700",
+          dot: "bg-slate-500",
+        };
+
         return (
-          <div className={`text-xs font-semibold px-2.5 py-1 rounded-full border flex items-center gap-1.5 w-max ${colorClass}`}>
-            <span className={`w-1.5 h-1.5 rounded-full ${dotClass}`} />
-            {status}
+          <div className={`text-[11px] uppercase tracking-wider font-bold px-2.5 py-1 rounded-lg border flex items-center gap-1.5 w-max shadow-sm ${config.color}`}>
+            <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${config.dot}`} />
+            {config.label}
           </div>
         );
       },
@@ -196,7 +223,7 @@ export default function ProductTable() {
           columns={columns}
           dataSource={products}
           rowKey="id"
-          loading={isLoading}
+          loading={isLoading || isPending}
           rowSelection={{
             selectedRowKeys,
             preserveSelectedRowKeys: true,

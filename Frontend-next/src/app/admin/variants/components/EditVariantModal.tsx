@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Tag } from "lucide-react";
+import { Tag, Plus } from "lucide-react";
 import SWTForm from "@/src/@core/component/AntD/SWTForm";
 import SWTFormItem from "@/src/@core/component/AntD/SWTFormItem";
 import SWTInput from "@/src/@core/component/AntD/SWTInput";
@@ -11,11 +11,24 @@ import SWTModal from "@/src/@core/component/AntD/SWTModal";
 import SWTUpload from "@/src/@core/component/AntD/SWTUpload";
 import { updateVariant } from "@/src/services/admin/product.service";
 import { showNotificationError, showNotificationSuccess } from "@/src/@core/utils/message";
+import { uploadFileToCloudinary } from "@/src/services/admin/upload.service";
+import { UpdateVariantInput } from "@/src/services/models/product/input.dto";
+import { ProductVariantDto } from "@/src/services/models/product/output.dto";
+
+interface EditVariantFormValues {
+  color: string;
+  size?: string;
+  sku?: string;
+  price: number;
+  salePrice?: number;
+  statusName?: 'BEST_SELLING' | 'TRENDING' | 'NEW';
+  imageFile?: any[]; // AntD Upload file list
+}
 
 interface EditVariantModalProps {
   isOpen: boolean;
   onClose: () => void;
-  variant: any;
+  variant: ProductVariantDto | null;
   onUpdate: () => void;
 }
 
@@ -32,20 +45,62 @@ export default function EditVariantModal({ isOpen, onClose, variant, onUpdate }:
         price: variant.price,
         salePrice: variant.salePrice,
         statusName: variant.statusName || 'NEW',
+        imageFile: variant.image ? [{
+          uid: `-v-img-${variant.id}`,
+          name: 'variant-image',
+          status: 'done',
+          url: variant.image,
+        }] : [],
       });
     }
   }, [variant, isOpen, form]);
 
-  const handleFinish = async (values: any) => {
+  const handleFinish = async (values: EditVariantFormValues) => {
+    if (!variant) return;
     setIsSubmitting(true);
+
     try {
-      await updateVariant(variant.id, values);
+      let imageUrl: string | null = variant.image || null;
+      let imageId: string | null = (variant as any).imageId || null;
+
+      // 1. Upload new image if presents
+      if (values.imageFile && values.imageFile.length > 0) {
+        const fileItem = values.imageFile[0];
+        const rawFile = fileItem.originFileObj || fileItem;
+        
+        if (rawFile instanceof File || rawFile instanceof Blob) {
+          imageUrl = await uploadFileToCloudinary(rawFile, "variants");
+          imageId = null; // Backend will create new record
+        } else if (fileItem.url) {
+          imageUrl = fileItem.url;
+        }
+      } else {
+        imageUrl = null;
+        imageId = null;
+      }
+
+      // 2. Prepare clean DTO
+      const submissionData: UpdateVariantInput = {
+        id: variant.id,
+        color: values.color,
+        size: values.size,
+        sku: values.sku,
+        price: values.price,
+        salePrice: values.salePrice || null,
+        statusName: values.statusName,
+        imageUrl,
+        imageId
+      };
+
+      console.log(">>> [Update Variant] Submission Data:", submissionData);
+
+      await updateVariant(variant.id, submissionData);
       showNotificationSuccess("Cập nhật biến thể thành công");
       onUpdate();
       onClose();
     } catch (err: any) {
       console.error(err);
-      showNotificationError("Lỗi khi cập nhật biến thể");
+      showNotificationError(err.message || "Lỗi khi cập nhật biến thể");
     } finally {
       setIsSubmitting(false);
     }
@@ -106,9 +161,9 @@ export default function EditVariantModal({ isOpen, onClose, variant, onUpdate }:
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6">
           <SWTFormItem
             name="sku"
-            label="Mã SKU (Barcode)"
+            label="Mã SKU (Tự động)"
           >
-            <SWTInput placeholder="Vd: VAR-10293..." className="dark:!bg-slate-800/80 dark:!border-slate-700 dark:!text-white" />
+            <SWTInput disabled placeholder="Mã SKU..." className="dark:!bg-slate-800/80 dark:!border-slate-700 dark:!text-white" />
           </SWTFormItem>
 
           <SWTFormItem
@@ -150,6 +205,29 @@ export default function EditVariantModal({ isOpen, onClose, variant, onUpdate }:
               style={{ width: "100%" }}
               className="dark:[&_.ant-input-number-input]:!text-white dark:!bg-slate-800/80 dark:!border-slate-700"
             />
+          </SWTFormItem>
+          <SWTFormItem
+            name="imageFile"
+            label="Ảnh minh họa riêng cho biến thể"
+            valuePropName="fileList"
+            getValueFromEvent={(e) => {
+              if (Array.isArray(e)) return e;
+              return e?.fileList;
+            }}
+          >
+            <SWTUpload
+              type="drag"
+              limitFile={1}
+              uploadType="image"
+              listType="picture-card"
+              beforeUpload={() => false}
+              className="dark:[&_.ant-upload-drag]:!bg-slate-800/50 dark:[&_.ant-upload-drag]:!border-slate-700"
+            >
+               <div className="flex flex-col items-center justify-center py-4">
+                  <Plus size={24} className="text-slate-400 mb-2" />
+                  <span className="text-sm font-medium text-slate-600 dark:text-slate-300">Thay đổi ảnh</span>
+               </div>
+            </SWTUpload>
           </SWTFormItem>
         </div>
       </SWTForm>

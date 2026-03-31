@@ -6,31 +6,37 @@ import { SWTInputSearch } from "@/src/@core/component/AntD/SWTInput";
 import SWTSelect from "@/src/@core/component/AntD/SWTSelect";
 import SWTTooltip from "@/src/@core/component/AntD/SWTTooltip";
 import AddVariantModal from "./AddVariantModal";
+import { useDebounce } from "@/src/@core/hooks/useDebounce";
+import { TransitionStartFunction } from "react";
 
-export default function VariantFilters({ onUpdate }: { onUpdate: () => void }) {
+interface VariantFiltersProps {
+  onUpdate: () => void;
+  startTransition: TransitionStartFunction;
+}
+
+export default function VariantFilters({ onUpdate, startTransition }: VariantFiltersProps) {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [isPending, startTransition] = useTransition();
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
 
   const searchStr = searchParams.get("search") || "";
   const [localSearch, setLocalSearch] = useState(searchStr);
+  const debouncedSearch = useDebounce(localSearch, 500);
 
   useEffect(() => {
     setLocalSearch(searchStr);
   }, [searchStr]);
 
   useEffect(() => {
-    const handler = setTimeout(() => {
-      if (localSearch !== searchStr) {
-        updateFilter("search", localSearch);
-      }
-    }, 500);
-    return () => clearTimeout(handler);
-  }, [localSearch]);
+    if (debouncedSearch !== searchStr) {
+      updateFilter("search", debouncedSearch);
+    }
+  }, [debouncedSearch]);
 
   const sortByVal = searchParams.get("sortBy") || "newest";
+
+  const statusNameVal = searchParams.get("statusName") || "all";
 
   const updateFilter = (key: string, value: string) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -51,6 +57,8 @@ export default function VariantFilters({ onUpdate }: { onUpdate: () => void }) {
     params.delete("sortBy");
     params.delete("classification");
     params.delete("priceRange");
+    params.delete("status");
+    params.delete("statusName");
     params.set("page", "1");
     startTransition(() => {
       router.replace(`${pathname}?${params.toString()}`, { scroll: false });
@@ -130,6 +138,20 @@ export default function VariantFilters({ onUpdate }: { onUpdate: () => void }) {
               <Filter size={16} />
               <span className="text-xs uppercase tracking-wide">Bộ lọc</span>
             </div>
+
+            {/* Status Name (Nhãn) */}
+            <SWTSelect
+              placeholder="Nhãn"
+              className="min-w-[150px] !h-10"
+              value={statusNameVal}
+              onChange={(v) => updateFilter("statusName", v)}
+              options={[
+                { label: "Tất cả nhãn", value: "all" },
+                { label: "Bán chạy", value: "BEST_SELLING" },
+                { label: "Xu hướng", value: "TRENDING" },
+                { label: "Mới ra mắt", value: "NEW" },
+              ]}
+            />
 
             {/* Classification */}
             <SWTSelect

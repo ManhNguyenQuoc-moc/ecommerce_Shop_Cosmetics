@@ -11,11 +11,24 @@ import SWTModal from "@/src/@core/component/AntD/SWTModal";
 import SWTUpload from "@/src/@core/component/AntD/SWTUpload";
 import { useProducts, createVariant } from "@/src/services/admin/product.service";
 import { showNotificationError, showNotificationSuccess } from "@/src/@core/utils/message";
+import { uploadFileToCloudinary } from "@/src/services/admin/upload.service";
+import { CreateVariantInput } from "@/src/services/models/product/input.dto";
+import { ProductListItemDto } from "@/src/services/models/product/output.dto";
+
+interface AddVariantFormValues {
+  color: string;
+  size?: string;
+  sku?: string;
+  price: number;
+  salePrice?: number;
+  statusName?: 'BEST_SELLING' | 'TRENDING' | 'NEW';
+  imageFile?: any[];
+}
 
 interface AddVariantModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onAdd: (data: any) => void;
+  onAdd: (data: CreateVariantInput & { productId: string }) => void;
 }
 
 export default function AddVariantModal({ isOpen, onClose, onAdd }: AddVariantModalProps) {
@@ -24,26 +37,52 @@ export default function AddVariantModal({ isOpen, onClose, onAdd }: AddVariantMo
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   const { products, isLoading: isProductsLoading } = useProducts(1, 100);
 
-  const selectedProduct = products.find((p: any) => p.id === selectedProductId);
-
-  const handleFinish = async (values: any) => {
+  const handleFinish = async (values: AddVariantFormValues) => {
+    if (!selectedProductId) return;
     setIsSubmitting(true);
+    let imageUrl: string | null = null;
+
     try {
-      await createVariant({ ...values, productId: selectedProductId });
+      // 1. Upload image to Cloudinary if presents
+      if (values.imageFile && values.imageFile.length > 0) {
+        const fileItem = values.imageFile[0];
+        const rawFile = fileItem.originFileObj || fileItem;
+        if (rawFile instanceof File || rawFile instanceof Blob) {
+          imageUrl = await uploadFileToCloudinary(rawFile, "variants");
+        }
+      }
+
+      // 2. Prepare clean DTO
+      const submissionData: CreateVariantInput & { productId: string } = {
+        productId: selectedProductId,
+        color: values.color,
+        size: values.size,
+        sku: values.sku,
+        price: values.price,
+        salePrice: values.salePrice || null,
+        statusName: values.statusName,
+        imageUrl: imageUrl,
+      };
+
+      console.log(">>> [Create Variant] Submission Data:", submissionData);
+
+      await createVariant(submissionData);
       showNotificationSuccess("Tạo biến thể thành công");
-      onAdd({ ...values, productId: selectedProductId });
+      onAdd(submissionData);
       form.resetFields();
       setSelectedProductId(null);
       onClose();
     } catch (err: any) {
       console.error(err);
-      showNotificationError("Lỗi khi tạo biến thể");
+      showNotificationError(err.message || "Lỗi khi tạo biến thể");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const selectedProductVariants = selectedProduct?.variants || []; // Assuming the API returns nested variants, or mock it
+  const selectedProduct = products.find((p: ProductListItemDto) => p.id === selectedProductId);
+
+  const selectedProductVariants = (selectedProduct as any)?.variants || []; // Assuming nested variants if available
 
   return (
     <SWTModal
@@ -137,9 +176,9 @@ export default function AddVariantModal({ isOpen, onClose, onAdd }: AddVariantMo
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6">
             <SWTFormItem
               name="sku"
-              label="Mã SKU (Barcode)"
+              label="Mã SKU (Tự động)"
             >
-               <SWTInput placeholder="Vd: VAR-10293..." className="dark:!bg-slate-800/80 dark:!border-slate-700 dark:!text-white" />
+               <SWTInput disabled placeholder="Mã SKU sẽ được tự động tạo..." className="dark:!bg-slate-800/80 dark:!border-slate-700 dark:!text-white" />
             </SWTFormItem>
 
             <SWTFormItem

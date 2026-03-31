@@ -9,14 +9,16 @@ import VariantFilters from "./components/VariantFilters";
 import useSWTTitle from "@/src/@core/hooks/useSWTTitle";
 import { useVariants } from "@/src/services/admin/product.service";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
+import { useTransition } from "react";
 import SWTTabs from "@/src/@core/component/AntD/SWTTabs";
+import { ProductQueryParams } from "@/src/services/models/product/input.dto";
 
 export default function AdminVariantsPage() {
   useSWTTitle("Quản lý Biến Thể | Admin");
-
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
+  const [isPending, startTransition] = useTransition();
 
   const activeTab = searchParams.get("status") === "hidden" ? "hidden" : "active";
 
@@ -29,10 +31,20 @@ export default function AdminVariantsPage() {
 
   const page = Number(searchParams.get("page") ?? 1);
   const pageSize = Number(searchParams.get("pageSize") ?? 6);
-  const { variants, total, isLoading, mutate } = useVariants(page, pageSize, activeTab);
+  
+  const filters: ProductQueryParams = {
+    status: activeTab,
+    search: searchParams.get("search") || undefined,
+    sortBy: searchParams.get("sortBy") || undefined,
+    classification: searchParams.get("classification") || undefined,
+    priceRange: searchParams.get("priceRange") || undefined,
+    statusName: searchParams.get("statusName") || undefined,
+  };
 
-  const { total: activeTotal } = useVariants(1, 1, 'active');
-  const { total: hiddenTotal } = useVariants(1, 1, 'hidden');
+  const { variants, total, isLoading, mutate } = useVariants(page, pageSize, filters);
+
+  const { total: activeTotal } = useVariants(1, 1, { status: 'active' });
+  const { total: hiddenTotal } = useVariants(1, 1, { status: 'hidden' });
 
   const handlePaginationChange = (p: number, f: number) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -45,14 +57,15 @@ export default function AdminVariantsPage() {
     {
       key: "active",
       label: "Đang hoạt động",
-      prefix: { value: activeTotal || 0, color: "primary" as any, variant: "light" as any },
+      prefix: { value: activeTotal || 0, color: "primary", variant: "light" } as const,
       children: (
         <div className="bg-white/90 dark:bg-slate-900/80 backdrop-blur-md rounded-3xl shadow-sm dark:shadow-[0_0_15px_rgba(0,0,0,0.5)] border border-slate-200 dark:border-pink-500/20 transition-colors p-6 mt-4">
-          <VariantFilters onUpdate={() => mutate()} />
+          <VariantFilters startTransition={startTransition} onUpdate={() => mutate()} />
           <VariantTable 
             variants={variants} 
             total={total} 
             isLoading={isLoading} 
+            isPending={isPending}
             page={page} 
             pageSize={pageSize} 
             onPaginationChange={handlePaginationChange}
@@ -64,14 +77,15 @@ export default function AdminVariantsPage() {
     {
       key: "hidden",
       label: "Đã ẩn",
-      prefix: { value: hiddenTotal || 0, color: "error" as any, variant: "light" as any },
+      prefix: { value: hiddenTotal || 0, color: "error", variant: "light" } as const,
       children: (
         <div className="bg-white/90 dark:bg-slate-900/80 backdrop-blur-md rounded-3xl shadow-sm dark:shadow-[0_0_15px_rgba(0,0,0,0.5)] border border-slate-200 dark:border-pink-500/20 transition-colors p-6 mt-4">
-          <VariantFilters onUpdate={() => mutate()} />
+          <VariantFilters startTransition={startTransition} onUpdate={() => mutate()} />
           <VariantTable 
             variants={variants} 
             total={total} 
             isLoading={isLoading} 
+            isPending={isPending}
             page={page} 
             pageSize={pageSize} 
             onPaginationChange={handlePaginationChange}

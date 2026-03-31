@@ -1,12 +1,16 @@
+export interface ProductSpecificationDTO {
+    label: string;
+    value: string;
+}
+
 export interface CreateVariantDTO {
     sku?: string;
     color?: string;
     size?: string;
     price: number;
-    salePrice?: number;
-    newImages?: Express.Multer.File[]; 
-    imageUrl?: string;
-    imageId?: string;
+    salePrice?: number | null;
+    imageUrl?: string | null;
+    imageId?: string | null;
     statusName?: 'BEST_SELLING' | 'TRENDING' | 'NEW';
 }
 
@@ -18,9 +22,8 @@ export interface CreateProductDTO {
     long_description?: string;
     status?: 'ACTIVE' | 'HIDDEN' | 'STOPPED';
     price: number;
-    salePrice?: number;
-    specifications?: any;
-    newProductImages?: Express.Multer.File[];
-    images?: string[];
+    salePrice?: number | null;
+    specifications?: ProductSpecificationDTO[];
+    images?: string[]; 
     variants?: CreateVariantDTO[];
 }

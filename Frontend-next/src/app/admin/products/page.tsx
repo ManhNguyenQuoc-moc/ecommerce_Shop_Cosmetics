@@ -9,6 +9,7 @@ import SWTBreadcrumb from "@/src/@core/component/AntD/SWTBreadcrumb";
 import useSWTTitle from "@/src/@core/hooks/useSWTTitle";
 
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
+import { useTransition } from "react";
 import SWTTabs from "@/src/@core/component/AntD/SWTTabs";
 import { useProducts } from "@/src/services/admin/product.service";
 
@@ -17,10 +18,11 @@ export default function ProductsPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
+  const [isPending, startTransition] = useTransition();
 
   const activeTab = searchParams.get("status") === "hidden" ? "hidden" : "active";
 
-  const { total: activeTotal } = useProducts(1, 1, { status: "active" });
+  const { total: activeTotal } = useProducts(1, 1, { status: "active_tab" });
   const { total: hiddenTotal } = useProducts(1, 1, { status: "hidden" });
 
   const onTabChange = (key: string) => {
@@ -41,8 +43,8 @@ export default function ProductsPage() {
       prefix: { value: activeTotal || 0, color: "primary" as any, variant: "light" as any },
       children: (
         <div className="mt-4 p-6 bg-white/90 dark:bg-slate-900/80 backdrop-blur-md rounded-3xl shadow-sm dark:shadow-[0_0_15px_rgba(0,0,0,0.5)] border border-slate-200 dark:border-pink-500/20 transition-colors">
-          <ProductFilters />
-          <ProductTable />
+          <ProductFilters startTransition={startTransition} />
+          <ProductTable isPending={isPending} />
         </div>
       )
     },
@@ -52,8 +54,8 @@ export default function ProductsPage() {
       prefix: { value: hiddenTotal || 0, color: "error" as any, variant: "light" as any },
       children: (
         <div className="mt-4 p-6 bg-white/90 dark:bg-slate-900/80 backdrop-blur-md rounded-3xl shadow-sm dark:shadow-[0_0_15px_rgba(0,0,0,0.5)] border border-slate-200 dark:border-pink-500/20 transition-colors">
-          <ProductFilters />
-          <ProductTable />
+          <ProductFilters startTransition={startTransition} />
+          <ProductTable isPending={isPending} />
         </div>
       )
     }

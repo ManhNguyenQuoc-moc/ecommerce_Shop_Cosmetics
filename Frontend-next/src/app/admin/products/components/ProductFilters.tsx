@@ -7,41 +7,45 @@ import SWTSelect from "@/src/@core/component/AntD/SWTSelect";
 import SWTTooltip from "@/src/@core/component/AntD/SWTTooltip";
 import AntSpin from "@/src/@core/component/AntD/AntSpin";
 import { showMessageError, showMessageSuccess } from "@/src/@core/utils/message";
-import { useState, useEffect, useTransition } from "react";
+import { useState, useEffect, TransitionStartFunction } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useCategories } from "@/src/services/admin/category.service";
+import { useBrands } from "@/src/services/admin/brand.service";
 import AddProductModal from "./AddProductModal";
 import { mutate } from "swr";
 import { PRODUCT_API_ENDPOINT, createProduct } from "@/src/services/admin/product.service";
+import { useDebounce } from "@/src/@core/hooks/useDebounce";
 
-export default function ProductFilters() {
+interface ProductFiltersProps {
+  startTransition: TransitionStartFunction;
+}
+
+export default function ProductFilters({ startTransition }: ProductFiltersProps) {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [isPending, startTransition] = useTransition();
   
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
   const { categories } = useCategories();
+  const { brands } = useBrands();
 
-  // Parse current values
   const searchStr = searchParams.get("search") || "";
   const [localSearch, setLocalSearch] = useState(searchStr);
+  const debouncedSearch = useDebounce(localSearch, 500);
 
   useEffect(() => {
     setLocalSearch(searchStr);
   }, [searchStr]);
 
   useEffect(() => {
-    const handler = setTimeout(() => {
-      if (localSearch !== searchStr) {
-        updateFilter("search", localSearch);
-      }
-    }, 500);
-    return () => clearTimeout(handler);
-  }, [localSearch]);
+    if (debouncedSearch !== searchStr) {
+      updateFilter("search", debouncedSearch);
+    }
+  }, [debouncedSearch]);
 
   const sortByVal = searchParams.get("sortBy") || "newest";
   const categoryVal = searchParams.get("categoryId") || "all";
+  const brandVal = searchParams.get("brandId") || "all";
   const statusVal = searchParams.get("status") || "all";
   const soldRangeVal = searchParams.get("soldRange") || "all";
 
@@ -52,6 +56,13 @@ export default function ProductFilters() {
     ...(Array.isArray(categoryList) ? categoryList.map((c: any) => ({ label: c.name, value: c.id })) : [])
   ];
 
+  // Brand mapping safely
+  const brandList = brands?.data || brands || [];
+  const brandOptions = [
+    { label: "Tất cả thương hiệu", value: "all" },
+    ...(Array.isArray(brandList) ? brandList.map((b: any) => ({ label: b.name, value: b.id })) : [])
+  ];
+
   const updateFilter = (key: string, value: string) => {
     const params = new URLSearchParams(searchParams.toString());
     if (value && value !== "" && value !== "all") {
@@ -59,7 +70,6 @@ export default function ProductFilters() {
     } else {
       params.delete(key);
     }
-    // reset to page 1 on filter
     params.set("page", "1");
     startTransition(() => {
       router.replace(`${pathname}?${params.toString()}`, { scroll: false });
@@ -70,6 +80,7 @@ export default function ProductFilters() {
     const params = new URLSearchParams(searchParams.toString());
     params.delete("search");
     params.delete("categoryId");
+    params.delete("brandId");
     params.delete("status");
     params.delete("soldRange");
     params.delete("sortBy");
@@ -81,7 +92,6 @@ export default function ProductFilters() {
 
   return (
     <>
-    <AntSpin spinning={isPending}>
       <div className="flex flex-col gap-4 mb-6">
       <div className="flex flex-col xl:flex-row items-start xl:items-center justify-between gap-4">
         <div className="flex-1 w-full max-w-xl">
@@ -113,8 +123,6 @@ export default function ProductFilters() {
               options={[
                 { label: "Ngày tạo: Mới nhất", value: "newest" },
                 { label: "Ngày tạo: Cũ nhất", value: "oldest" },
-                { label: "Giá: Thấp đến Cao", value: "price_asc" },
-                { label: "Giá: Cao đến Thấp", value: "price_desc" },
                 { label: "Đã bán: Nhiều nhất", value: "sold_desc" },
                 { label: "Đã bán: Ít nhất", value: "sold_asc" },
               ]}
@@ -165,6 +173,15 @@ export default function ProductFilters() {
             options={categoryOptions}
           />
 
+          {/* Brand */}
+          <SWTSelect
+            placeholder="Thương hiệu"
+            className="min-w-[150px] !h-10"
+            value={brandVal}
+            onChange={(v) => updateFilter("brandId", v)}
+            options={brandOptions}
+          />
+
           {/* Status */}
           <SWTSelect
             placeholder="Trạng thái"
@@ -173,9 +190,9 @@ export default function ProductFilters() {
             onChange={(v) => updateFilter("status", v)}
             options={[
               { label: "Tất cả trạng thái", value: "all" },
-              { label: "Đang bán", value: "active" },
+              { label: "Đang kinh doanh", value: "active" },
               { label: "Hết hàng", value: "out_of_stock" },
-              { label: "Đã ẩn", value: "hidden" }
+              { label: "Đang ẩn", value: "hidden" }
             ]}
           />
 
@@ -206,7 +223,6 @@ export default function ProductFilters() {
         </div>
       </div>
     </div>
-    </AntSpin>
       <AddProductModal 
         isOpen={isAddModalOpen} 
         onClose={() => setIsAddModalOpen(false)} 

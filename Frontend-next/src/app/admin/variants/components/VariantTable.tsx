@@ -11,14 +11,18 @@ import { mutate as globalMutate } from "swr";
 import { RotateCcw, Layers, Edit, Eye, Trash2 } from "lucide-react";
 import EditVariantModal from "./EditVariantModal";
 import SWTConfirmModal from "@/src/@core/component/AntD/SWTConfirmModal";
+import { ProductVariantDto } from "@/src/services/models/product/output.dto";
 
-const formatVND = (v: number) =>
-  new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(v || 0);
+interface TableRecord extends ProductVariantDto {
+  onEdit: (record: ProductVariantDto) => void;
+  productStatus?: string;
+}
 
 interface VariantTableProps {
-  variants: any[];
+  variants: ProductVariantDto[];
   total: number;
   isLoading: boolean;
+  isPending?: boolean;
   page: number;
   pageSize: number;
   onPaginationChange: (page: number, pageSize: number) => void;
@@ -29,24 +33,26 @@ export default function VariantTable({
   variants,
   total,
   isLoading,
+  isPending,
   page,
   pageSize,
   onPaginationChange,
   mutate: refetch,
 }: VariantTableProps) {
-  const [editingVariant, setEditingVariant] = useState<any>(null);
+  console.log("VariantTable Data:", { variants, total });
+  const [editingVariant, setEditingVariant] = useState<ProductVariantDto | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
   const [isDeleting, setIsDeleting] = useState(false);
 
   // Confirm states
-  const [confirmSingle, setConfirmSingle] = useState<{ open: boolean; record: any | null }>({ open: false, record: null });
+  const [confirmSingle, setConfirmSingle] = useState<{ open: boolean; record: ProductVariantDto | null }>({ open: false, record: null });
   const [confirmBulk, setConfirmBulk] = useState(false);
 
   const searchParams = useSearchParams();
   const isHiddenTab = searchParams.get("status") === "hidden";
 
-  const handleEdit = (record: any) => {
+  const handleEdit = (record: ProductVariantDto) => {
     setEditingVariant(record);
     setIsEditModalOpen(true);
   };
@@ -102,14 +108,17 @@ export default function VariantTable({
   };
 
 
-  const dataSource = variants.map((v: any) => ({ ...v, onEdit: handleEdit }));
+  const dataSource: TableRecord[] = variants.map((v) => ({ ...v, onEdit: handleEdit }));
+
+const formatVND = (v: number) =>
+  new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(v || 0);
 
   const columns = [
     {
       title: "Biến thể",
       dataIndex: "name",
       key: "name",
-      render: (text: string, record: any) => (
+      render: (text: string, record: TableRecord) => (
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center border border-slate-200 shrink-0 overflow-hidden">
             {record.image ? (
@@ -148,7 +157,7 @@ export default function VariantTable({
       title: "Giá khuyến mãi",
       dataIndex: "salePrice",
       key: "salePrice",
-      render: (salePrice: number, record: any) => (
+      render: (salePrice: number, record: TableRecord) => (
         <div className="font-bold text-sm text-rose-600 dark:text-rose-400">
           {formatVND(salePrice || record.price)}
         </div>
@@ -163,10 +172,20 @@ export default function VariantTable({
       ),
     },
     {
+      title: "Ngày tạo",
+      dataIndex: "createdAt",
+      key: "createdAt",
+      render: (date: string) => (
+        <div className="text-xs font-medium text-slate-500 dark:text-slate-400">
+          {new Date(date).toLocaleDateString("vi-VN")}
+        </div>
+      ),
+    },
+    {
       title: "Nhãn",
-      dataIndex: "status",
-      key: "status",
-      render: (status: string) => {
+      dataIndex: "statusName",
+      key: "statusName",
+      render: (statusName: string) => {
         const map: Record<string, { label: string; cls: string; dot: string }> = {
           BEST_SELLING: {
             label: "Bán chạy",
@@ -178,11 +197,16 @@ export default function VariantTable({
             cls: "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/40 dark:text-blue-400 dark:border-blue-500/30",
             dot: "bg-blue-500",
           },
+          NEW: {
+            label: "Mới ra mắt",
+            cls: "bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900/40 dark:text-emerald-400 dark:border-emerald-500/30",
+            dot: "bg-emerald-500",
+          },
         };
-        const info = map[status] || {
-          label: "Mới ra mắt",
-          cls: "bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900/40 dark:text-emerald-400 dark:border-emerald-500/30",
-          dot: "bg-emerald-500",
+        const info = map[statusName] || {
+          label: statusName || "N/A",
+          cls: "bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-800/80 dark:text-slate-300 dark:border-slate-700",
+          dot: "bg-slate-500",
         };
         return (
           <div className={`text-xs font-semibold px-2.5 py-1 rounded-full border flex items-center gap-1.5 w-max ${info.cls}`}>
@@ -196,7 +220,7 @@ export default function VariantTable({
       title: "Thao tác",
       key: "actions",
       align: "center" as const,
-      render: (_: any, record: any) => (
+      render: (_: unknown, record: TableRecord) => (
         <div className="flex items-center gap-2 justify-center">
           <SWTTooltip title="Xem chi tiết" color="#3b82f6">
             <Link href={`/admin/variants/${record.id}`}>
@@ -244,9 +268,8 @@ export default function VariantTable({
           columns={columns}
           dataSource={dataSource}
           rowKey="id"
-          loading={isLoading}
+          loading={isLoading || isPending}
           rowSelection={{
-            selectedRowKeys,
             preserveSelectedRowKeys: true,
             onChange: (keys: any) => setSelectedRowKeys(keys),
           }}

@@ -15,10 +15,33 @@ import { uploadFileToCloudinary, deleteUploads } from "@/src/services/admin/uplo
 import { useBrands } from "@/src/services/admin/brand.service";
 import { useCategories } from "@/src/services/admin/category.service";
 
+import { CreateProductInput, ProductSpecificationInput } from "@/src/services/models/product/input.dto";
+
+interface AddProductFormValues {
+  name: string;
+  brandId: string;
+  categoryId: string;
+  short_description?: string;
+  long_description?: string;
+  status?: 'ACTIVE' | 'HIDDEN' | 'STOPPED';
+  price: number;
+  salePrice?: number;
+  specifications?: ProductSpecificationInput[];
+  variants?: Array<{
+    color?: string;
+    size?: string;
+    sku?: string;
+    price: number;
+    salePrice?: number;
+    statusName?: 'BEST_SELLING' | 'TRENDING' | 'NEW';
+    imageFile?: any[]; // AntD Upload file list
+  }>;
+}
+
 interface AddProductModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onAdd: (data: any) => void;
+  onAdd: (data: CreateProductInput) => void;
 }
 
 export default function AddProductModal({ isOpen, onClose, onAdd }: AddProductModalProps) {
@@ -29,24 +52,17 @@ export default function AddProductModal({ isOpen, onClose, onAdd }: AddProductMo
   const { brands, isLoading: isBrandsLoading } = useBrands();
   const { categories, isLoading: isCategoriesLoading } = useCategories();
 
-  const handleFinish = async (values: any) => {
+  const handleFinish = async (values: AddProductFormValues) => {
     setIsSubmitting(true);
     let uploadedUrls: string[] = [];
 
     try {
-      // Safely upload files straight to Cloudinary bypass backend
-      const parsedImages = await Promise.all(
-        fileList.map(async (f) => {
-          if (f.url) return f.url;
-          if (f.thumbUrl && f.thumbUrl.startsWith("http")) return f.thumbUrl; // old existing images
-          
-          if (f.originFileObj) {
-            const url = await uploadFileToCloudinary(f.originFileObj, "products");
-            uploadedUrls.push(url);
-            return url;
-          }
-          if (f instanceof File || f instanceof Blob) {
-            const url = await uploadFileToCloudinary(f, "products");
+      // 1. Upload gallery images
+      const images = await Promise.all(
+        fileList.map(async (file) => {
+          const rawFile = file.originFileObj || file;
+          if (rawFile instanceof File || rawFile instanceof Blob) {
+            const url = await uploadFileToCloudinary(rawFile, "products");
             uploadedUrls.push(url);
             return url;
           }
@@ -54,37 +70,49 @@ export default function AddProductModal({ isOpen, onClose, onAdd }: AddProductMo
         })
       );
 
-      const submissionData = {
-        ...values,
-        images: parsedImages.filter(Boolean),
-      };
-      
-      // Ensure nested objects don't trigger crashes
-      if (!submissionData.variants) submissionData.variants = [];
-      if (!submissionData.specifications) submissionData.specifications = [];
-
-      // Process variant-specific images
-      if (submissionData.variants.length > 0) {
-        for (let i = 0; i < submissionData.variants.length; i++) {
-          const variant = submissionData.variants[i];
-          if (variant.imageFile && variant.imageFile.length > 0) {
-            const fileItem = variant.imageFile[0];
+      // 2. Process variants and their images
+      const variants = values.variants ? await Promise.all(
+        values.variants.map(async (v) => {
+          let imageUrl: string | undefined = undefined;
+          
+          if (v.imageFile && v.imageFile.length > 0) {
+            const fileItem = v.imageFile[0];
             const rawFile = fileItem.originFileObj || fileItem;
             
             if (rawFile instanceof File || rawFile instanceof Blob) {
-              const url = await uploadFileToCloudinary(rawFile, "variants");
-              uploadedUrls.push(url);
-              variant.imageUrl = url;
-            } else if (fileItem.url) {
-              variant.imageUrl = fileItem.url;
-            } else if (fileItem.thumbUrl && fileItem.thumbUrl.startsWith("http")) {
-              variant.imageUrl = fileItem.thumbUrl;
+              imageUrl = await uploadFileToCloudinary(rawFile, "variants");
+              uploadedUrls.push(imageUrl);
             }
-            // Cleanup the heavy binary object from the payload
-            delete variant.imageFile;
           }
-        }
-      }
+
+          return {
+            color: v.color,
+            size: v.size,
+            sku: v.sku,
+            price: v.price,
+            salePrice: v.salePrice || null,
+            statusName: v.statusName,
+            imageUrl: imageUrl || null
+          };
+        })
+      ) : [];
+
+      // 3. Construct clean submission data
+      const submissionData: CreateProductInput = {
+        name: values.name,
+        brandId: values.brandId,
+        categoryId: values.categoryId,
+        short_description: values.short_description,
+        long_description: values.long_description,
+        status: values.status,
+        price: values.price,
+        salePrice: values.salePrice || null,
+        images: images.filter((url): url is string => url !== null),
+        specifications: values.specifications || [],
+        variants: variants
+      };
+
+      console.log(">>> [Create Product] Submission Data:", submissionData);
 
       await onAdd(submissionData);
       form.resetFields();
@@ -92,13 +120,12 @@ export default function AddProductModal({ isOpen, onClose, onAdd }: AddProductMo
       onClose();
       showNotificationSuccess("Thêm sản phẩm thành công!");
     } catch (err: any) {
-      console.error(err);
-      showNotificationError(err.message || 'Lỗi khi tải ảnh lên hệ thống');
+      console.error("Add Product Error:", err);
+      showNotificationError(err.message || 'Lỗi khi tạo sản phẩm');
       
       if (uploadedUrls.length > 0) {
          try {
            await deleteUploads(uploadedUrls);
-           console.log("Rolled back orphaned images from Cloudinary: ", uploadedUrls);
          } catch (rollbackErr) {
            console.error("Failed to rollback images", rollbackErr);
          }
@@ -369,7 +396,16 @@ export default function AddProductModal({ isOpen, onClose, onAdd }: AddProductMo
                         </SWTFormItem>
                       </div>
 
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-x-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-4 gap-x-4">
+                        <SWTFormItem
+                          {...restField}
+                          name={[name, 'sku']}
+                          label="Mã SKU (Tự động)"
+                          className="!mb-0"
+                        >
+                          <SWTInput disabled placeholder="Tự động tạo..." className="dark:!bg-slate-900/50 dark:!border-slate-700 dark:!text-white" />
+                        </SWTFormItem>
+
                         <SWTFormItem
                           {...restField}
                           name={[name, 'price']}
@@ -388,8 +424,6 @@ export default function AddProductModal({ isOpen, onClose, onAdd }: AddProductMo
                         >
                           <SWTInputNumber min={0} max={1000000000} placeholder="0" style={{ width: "100%" }} className="dark:[&_.ant-input-number-input]:!text-white dark:!bg-slate-900/50 dark:!border-slate-700" />
                         </SWTFormItem>
-
-
                       </div>
                       
                       {/* Variant specific Image Upload */}

@@ -17,6 +17,31 @@ import { useCategories } from "@/src/services/admin/category.service";
 import { useProduct, updateProduct, PRODUCT_API_ENDPOINT } from "@/src/services/admin/product.service";
 import { mutate as globalMutate } from "swr";
 
+import { UpdateProductInput, ProductSpecificationInput, UpdateVariantInput } from "@/src/services/models/product/input.dto";
+
+interface EditProductFormValues {
+  name: string;
+  brandId: string;
+  categoryId: string;
+  short_description?: string;
+  long_description?: string;
+  status?: 'ACTIVE' | 'HIDDEN' | 'STOPPED';
+  price: number;
+  salePrice?: number;
+  specifications?: ProductSpecificationInput[];
+  variants?: Array<{
+    id?: string;
+    color?: string;
+    size?: string;
+    sku?: string;
+    price: number;
+    salePrice?: number;
+    statusName?: 'BEST_SELLING' | 'TRENDING' | 'NEW';
+    imageId?: string | null;
+    imageFile?: any[];
+  }>;
+}
+
 interface EditProductModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -34,9 +59,9 @@ export default function EditProductModal({ isOpen, onClose, productId, onUpdated
 
   const { brands, isLoading: isBrandsLoading } = useBrands();
   const { categories, isLoading: isCategoriesLoading } = useCategories();
-  const { product, isLoading: isProductLoading } = useProduct(productId && isOpen ? productId : undefined as any);
+  const { product, isLoading: isProductLoading } = useProduct(productId && isOpen ? productId : undefined);
   useEffect(() => {
-     if (!product || !isOpen || isInitialized) return;
+    if (!product || !isOpen || isInitialized) return;
     const imgs = product.images?.map((url: string, i: number) => ({
       uid: `existing-${i}`,
       name: `image-${i}`,
@@ -53,24 +78,23 @@ export default function EditProductModal({ isOpen, onClose, productId, onUpdated
       brandId: product.brandId,
       categoryId: product.categoryId,
       status: product.statusRaw || 'ACTIVE',
-      short_description: product.short_description || product.shortdescription,
-      long_description: product.long_description || product.description,
-      price: product.priceRange?.min || product.price,
+      short_description: product.short_description,
+      long_description: product.long_description,
       specifications: product.specifications || [],
-      variants: product.variants?.map((v: any) => ({
+      variants: product.variants?.map((v) => ({
         id: v.id,
         color: v.color,
         size: v.size,
         sku: v.sku,
         price: v.price || 0,
-        salePrice: v.salePrice,
+        salePrice: v.salePrice || null,
         statusName: v.statusName || 'NEW',
         imageId: v.imageId,
         imageFile: v.image ? [{
           uid: `-v-img-${v.id}`,
           name: 'variant-image',
           status: 'done',
-          url: v.image?.url || v.image,
+          url: typeof v.image === 'string' ? v.image : (v.image as any)?.url,
           imageId: v.imageId,
         }] : [],
       })) || [],
@@ -86,72 +110,92 @@ export default function EditProductModal({ isOpen, onClose, productId, onUpdated
     onClose();
   };
 
-  const handleFinish = async (values: any) => {
+  const handleFinish = async (values: EditProductFormValues) => {
     if (!productId) return;
     setIsSubmitting(true);
 
     try {
-      // 1. Upload new product gallery images to Cloudinary
+      // 1. Upload new product gallery images
       const newImages: string[] = [];
       for (const f of newFileList) {
         const rawFile = f.originFileObj || (f instanceof File ? f : null);
-        if (rawFile) {
+        if (rawFile instanceof File || rawFile instanceof Blob) {
           const url = await uploadFileToCloudinary(rawFile, "products");
           newImages.push(url);
-        } else if (f.url && f.url.startsWith("http")) {
-          newImages.push(f.url);
         }
       }
 
-      // 2. Prepare submission data (deep copy or clone values)
-      const submissionData = {
-        ...values,
+      // 2. Process variants
+      const variants: UpdateVariantInput[] = values.variants ? await Promise.all(
+        values.variants.map(async (v) => {
+          let imageUrl: string | null = null;
+          let imageId: string | null = v.imageId || null;
+
+          if (v.imageFile && v.imageFile.length > 0) {
+            const fileItem = v.imageFile[0];
+            const rawFile = fileItem.originFileObj || fileItem;
+
+            if (rawFile instanceof File || rawFile instanceof Blob) {
+              // New image uploaded for variant
+              imageUrl = await uploadFileToCloudinary(rawFile, "variants");
+              imageId = null; // Backend will create new record
+            } else if (fileItem.url) {
+              // Existing image kept
+              imageUrl = fileItem.url;
+              imageId = fileItem.imageId || v.imageId || null;
+            }
+          } else {
+            // Image removed
+            imageUrl = null;
+            imageId = null;
+          }
+
+          return {
+            id: v.id,
+            color: v.color,
+            size: v.size,
+            sku: v.sku,
+            price: v.price,
+            salePrice: v.salePrice || null,
+            statusName: v.statusName,
+            imageUrl,
+            imageId
+          };
+        })
+      ) : [];
+
+      // 3. Construct clean submission data
+      const submissionData: UpdateProductInput = {
+        name: values.name,
+        brandId: values.brandId,
+        categoryId: values.categoryId,
+        short_description: values.short_description,
+        long_description: values.long_description,
+        status: values.status,
+        price: values.price,
+        salePrice: values.salePrice || null,
         newImages,
         imageIdsToRemove,
+        specifications: values.specifications || [],
+        variants
       };
 
-      // 3. Match AddProductModal variant image logic perfectly
-      if (submissionData.variants && submissionData.variants.length > 0) {
-        for (let i = 0; i < submissionData.variants.length; i++) {
-          const variant = submissionData.variants[i];
-          
-          if (variant.imageFile && variant.imageFile.length > 0) {
-            const fileItem = variant.imageFile[0];
-            const rawFile = fileItem.originFileObj || fileItem;
-            
-            if (rawFile instanceof File || rawFile instanceof Blob) {
-              const url = await uploadFileToCloudinary(rawFile, "variants");
-              variant.imageUrl = url;
-              variant.imageId = null; // Backend will create new Image record
-            } else if (fileItem.url) {
-              variant.imageUrl = fileItem.url;
-              variant.imageId = fileItem.imageId; // Keep existing image link
-            } else if (fileItem.thumbUrl && fileItem.thumbUrl.startsWith("http")) {
-              variant.imageUrl = fileItem.thumbUrl;
-            }
-            // Cleanup: remove binary objects from payload to avoid submission errors
-            delete variant.imageFile;
-          } else {
-            // Explicitly set to null if no image is present/selected
-            variant.imageUrl = null;
-            variant.imageId = null;
-          }
-        }
-      }
+      console.log(">>> [Update Product] Submission Data:", submissionData);
 
       // 4. Call API
       await updateProduct(productId, submissionData);
       showNotificationSuccess("Cập nhật sản phẩm thành công!");
+
       globalMutate(
         (key) => typeof key === "string" && key.startsWith(PRODUCT_API_ENDPOINT),
         undefined,
         { revalidate: true }
       );
-      
+
       onUpdated?.();
       handleClose();
     } catch (err: any) {
-      console.error(err);
+      console.error("Update Product Error:", err);
       showNotificationError(err.message || "Lỗi khi cập nhật sản phẩm");
     } finally {
       setIsSubmitting(false);
@@ -371,12 +415,15 @@ export default function EditProductModal({ isOpen, onClose, productId, onUpdated
                         Biến thể {index + 1}
                       </h5>
 
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-x-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-4 gap-x-4">
                         <SWTFormItem {...restField} name={[name, 'color']} label="Màu sắc / Tên" className="!mb-4">
                           <SWTInput placeholder="Vd: Đỏ Ruby..." className="dark:!bg-slate-900/50 dark:!border-slate-700 dark:!text-white" />
                         </SWTFormItem>
                         <SWTFormItem {...restField} name={[name, 'size']} label="Kích cỡ" className="!mb-4">
                           <SWTInput placeholder="Vd: 30ml..." className="dark:!bg-slate-900/50 dark:!border-slate-700 dark:!text-white" />
+                        </SWTFormItem>
+                        <SWTFormItem {...restField} name={[name, 'sku']} label="Mã SKU (Tự động)" className="!mb-4">
+                          <SWTInput disabled placeholder="Mã SKU..." className="dark:!bg-slate-900/50 dark:!border-slate-700 dark:!text-white" />
                         </SWTFormItem>
                         <SWTFormItem {...restField} name={[name, 'statusName']} label="Nhãn sự kiện" className="!mb-4" initialValue="NEW">
                           <SWTSelect

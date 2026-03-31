@@ -17,7 +17,7 @@ export interface ProductListItemDto {
   stock: number;
 
   status: string;
-
+  createdAt: string;
   variantId?: string;
 }
 
@@ -31,37 +31,58 @@ export interface ProductListResponseDto {
 export interface ProductDetailDto {
   id: string;
   name: string;
+  slug: string;
   brandId: string;
   categoryId: string;
-
+  statusRaw: 'ACTIVE' | 'HIDDEN' | 'STOPPED';
   short_description?: string;
   long_description?: string;
-
   images: string[];
-
-  variants: {
-    id: string;
-    color?: string;
-    size?: string;
-    price: number;
-    salePrice?: number;
-    image?: string | null;
-  }[];
-
+  productImages: Array<{
+    productId: string;
+    imageId: string;
+    order: number;
+    image: {
+      url: string;
+    };
+  }>;
   specifications: {
     label: string;
     value: string;
+  }[];
+  variants: {
+    id: string;
+    sku?: string;
+    color?: string;
+    size?: string;
+    price: number;
+    salePrice?: number | null;
+    stock: number;
+    image?: string | null;
+    imageId?: string | null;
+    statusName?: 'BEST_SELLING' | 'TRENDING' | 'NEW';
+    soldCount: number;
   }[];
 }
 
 export interface ProductVariantDto {
   id: string;
   productId: string;
+  productName?: string;
   name: string;
+  sku?: string;
   color?: string;
   size?: string;
   price: number;
-  salePrice?: number;
+  salePrice?: number | null;
   image?: string | null;
   status: string;
+  statusName?: 'BEST_SELLING' | 'TRENDING' | 'NEW';
+  createdAt: string;
+}
+export interface VariantListResponseDto {
+  variants: ProductVariantDto[];
+  total: number;
+  page: number;
+  pageSize: number;
 }
