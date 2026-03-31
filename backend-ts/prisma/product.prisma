@@ -22,8 +22,13 @@ model Brand {
   bannerId    String?
   banner      Image?    @relation("BrandBanner", fields: [bannerId], references: [id], onDelete: SetNull)
   
+  email       String?
+  phone       String?
+  address     String?
+  
   description String?
   products    Product[]
+  purchaseOrders PurchaseOrder[]
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 }
@@ -93,9 +98,10 @@ model ProductVariant {
   imageId String?
   image   Image?  @relation(fields: [imageId], references: [id], onDelete: SetNull)
 
+  sku            String?  @unique
   price          Float
   salePrice      Float?
-  stock_quantity Int    @default(0)
+  costPrice      Float    @default(0)
 
   orderItems OrderItem[]
   cartItems  CartItem[]

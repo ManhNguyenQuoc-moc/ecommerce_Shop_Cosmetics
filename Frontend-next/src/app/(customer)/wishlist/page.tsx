@@ -22,7 +22,7 @@ export default function WishlistPage() {
 
       {products.length === 0 ? (
         <div className="text-center py-20 text-gray-500">
-          Chưa có sản phẩm yêu thích 💔
+          Chưa có sản phẩm yêu thích
         </div>
       ) : (
         <div className="grid grid-cols-[repeat(auto-fill,minmax(240px,1fr))] gap-6">

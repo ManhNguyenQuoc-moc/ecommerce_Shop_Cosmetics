@@ -5,7 +5,7 @@ import ProductFilters from "./components/ProductFilters";
 import ProductTable from "./components/ProductTable";
 import { Info, Package } from "lucide-react";
 import SWTButton from "@/src/@core/component/AntD/SWTButton";
-import { Tooltip } from "antd";
+import SWTTooltip from "@/src/@core/component/AntD/SWTTooltip";
 import SWTBreadcrumb from "@/src/@core/component/AntD/SWTBreadcrumb";
 import useSWTTitle from "@/src/@core/hooks/useSWTTitle";
 
@@ -32,15 +32,15 @@ export default function ProductsPage() {
           </p>
         </div>
 
-        <Tooltip
-          title={<span className="text-sm">Mọi thao tác thêm mới và tuỳ chỉnh được thực hiện bên trong Bảng Dữ Liệu.</span>}
+        <SWTTooltip
+          title={<span className="text-sm">Quản lý danh lục sản phẩm, giá bán và phân loại danh mục.</span>}
           placement="left"
-          color="white"
+          color="indigo"
         >
-          <div className="!h-11 !w-11 flex items-center justify-center bg-brand-50 hover:bg-brand-500/50 dark:bg-slate-800 dark:hover:bg-slate-700 text-brand-600 dark:text-cyan-400 rounded-xl cursor-help transition-all shadow-sm border border-brand-200 dark:border-slate-700 group">
+          <div className="!h-11 !w-11 flex items-center justify-center bg-indigo-50 hover:bg-indigo-500/10 dark:bg-slate-800 dark:hover:bg-slate-700 text-indigo-600 dark:text-indigo-400 rounded-xl cursor-help transition-all shadow-sm border border-indigo-200 dark:border-slate-700 group">
             <Info size={22} className="stroke-[2.5] group-hover:scale-110 transition-transform" />
           </div>
-        </Tooltip>
+        </SWTTooltip>
       </div>
 
       {/* Main Content */}

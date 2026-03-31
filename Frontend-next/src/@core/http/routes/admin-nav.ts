@@ -1,4 +1,4 @@
-import { LayoutDashboard, Package, ShoppingCart, Users, Settings, Ticket, Layers, Award } from "lucide-react";
+import { LayoutDashboard, Package, ShoppingCart, Users, Settings, Ticket, Layers, Award, Truck, PackageSearch } from "lucide-react";
 
 type NavItem = {
   name: string;
@@ -18,6 +18,26 @@ export const adminNavItems: NavItem[] = [
     icon: Package,
   },
   {
+    name: "Variants",
+    path: "/admin/variants",
+    icon: Layers,
+  },
+  {
+    name: "Purchases",
+    path: "/admin/purchases",
+    icon: Truck,
+  },
+  {
+    name: "Suppliers",
+    path: "/admin/suppliers",
+    icon: Users,
+  },
+  {
+    name: "Inventory",
+    path: "/admin/inventory",
+    icon: PackageSearch,
+  },
+  {
     name: "Orders",
     path: "/admin/orders",
     icon: ShoppingCart,
@@ -26,11 +46,6 @@ export const adminNavItems: NavItem[] = [
     name: "Users",
     path: "/admin/users",
     icon: Users,
-  },
-  {
-    name: "Variants",
-    path: "/admin/variants",
-    icon: Layers,
   },
   {
     name: "Rewards",

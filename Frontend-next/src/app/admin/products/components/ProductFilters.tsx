@@ -4,7 +4,8 @@ import { Filter, Plus, FileSpreadsheet } from "lucide-react";
 import SWTButton from "@/src/@core/component/AntD/SWTButton";
 import { SWTInputSearch } from "@/src/@core/component/AntD/SWTInput";
 import SWTSelect from "@/src/@core/component/AntD/SWTSelect";
-import { Tooltip, message } from "antd";
+import SWTTooltip from "@/src/@core/component/AntD/SWTTooltip";
+import { showMessageError, showMessageSuccess } from "@/src/@core/utils/message";
 import { useState } from "react";
 import AddProductModal from "./AddProductModal";
 import { mutate } from "swr";
@@ -52,20 +53,20 @@ export default function ProductFilters() {
 
           {/* Action Buttons */}
           <div className="flex items-center gap-2">
-            <Tooltip title="Nhập dữ liệu từ CSV/XLSX" placement="top" color="#10b981">
+            <SWTTooltip title="Nhập dữ liệu từ CSV/XLSX" placement="top">
               <div className="flex h-[35px] w-[35px] items-center justify-center bg-white dark:bg-slate-900/50 hover:bg-emerald-50 dark:hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-slate-200 dark:border-emerald-500/50 rounded-xl shadow-sm transition-all cursor-pointer group">
                 <FileSpreadsheet size={18} className="group-hover:scale-110 transition-transform duration-300" />
               </div>
-            </Tooltip>
+            </SWTTooltip>
             
-            <Tooltip title="Thêm Sản Phẩm Mới" placement="top" color="#ec4899">
+            <SWTTooltip title="Thêm Sản Phẩm Mới" placement="top" color="#6366f1">
               <div 
-                className="flex h-[35px] w-[35px] items-center justify-center bg-white dark:bg-brand-500/20 hover:bg-brand-50 dark:hover:bg-brand-500/30 text-brand-600 dark:text-brand-400 border border-slate-200 dark:border-brand-500 rounded-xl shadow-sm transition-all cursor-pointer group"
+                className="flex h-[35px] w-[35px] items-center justify-center bg-white dark:bg-indigo-500/20 hover:bg-indigo-50 dark:hover:bg-indigo-500/30 text-indigo-600 dark:text-indigo-400 border border-slate-200 dark:border-indigo-500 rounded-xl shadow-sm transition-all cursor-pointer group"
                 onClick={() => setIsAddModalOpen(true)}
               >
                 <Plus size={20} className="stroke-[2.5] group-hover:scale-110 group-hover:rotate-90 transition-transform duration-300" />
               </div>
-            </Tooltip>
+            </SWTTooltip>
           </div>
         </div>
       </div>
@@ -108,6 +109,19 @@ export default function ProductFilters() {
               { label: "Đã ẩn", value: "hidden" }
             ]}
           />
+
+          {/* Price */}
+          <SWTSelect
+            placeholder="Khoảng giá"
+            className="min-w-[160px] !h-10"
+            options={[
+              { label: "Tất cả mức giá", value: "all" },
+              { label: "Dưới 500.000đ", value: "under_500k" },
+              { label: "500.000đ - 1.000.000đ", value: "500k_1m" },
+              { label: "1.000.000đ - 2.000.000đ", value: "1m_2m" },
+              { label: "Trên 2.000.000đ", value: "above_2m" }
+            ]}
+          />
         </div>
         <div className="flex justify-end">
           <SWTButton
@@ -126,7 +140,7 @@ export default function ProductFilters() {
         onAdd={async (data) => {
           try {
             await createProduct(data);
-            message.success('Thêm sản phẩm thành công!');
+            showMessageSuccess('Thêm sản phẩm thành công!');
             // Tell SWR to re-fetch any product queries
             mutate(
               (key: any) => typeof key === 'string' && key.startsWith(PRODUCT_API_ENDPOINT),
@@ -136,7 +150,7 @@ export default function ProductFilters() {
             setIsAddModalOpen(false);
           } catch (err: any) {
             console.error("Create product error", err);
-            message.error(err.message || 'Có lỗi xảy ra khi thêm sản phẩm');
+            showMessageError(err.message || 'Có lỗi xảy ra khi thêm sản phẩm');
           }
         }}
       />

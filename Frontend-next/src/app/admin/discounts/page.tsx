@@ -3,7 +3,8 @@
 import React from 'react';
 import VoucherTable from "./components/VoucherTable";
 import VoucherFilters from "./components/VoucherFilters";
-import { Plus, Ticket } from "lucide-react";
+import { Ticket, Info } from "lucide-react";
+import SWTTooltip from "@/src/@core/component/AntD/SWTTooltip";
 import SWTButton from "@/src/@core/component/AntD/SWTButton";
 import SWTBreadcrumb from "@/src/@core/component/AntD/SWTBreadcrumb";
 import useSWTTitle from "@/src/@core/hooks/useSWTTitle";
@@ -30,13 +31,15 @@ export default function DiscountsPage() {
              Quản lý các mã giảm giá, voucher và ưu đãi khách hàng.
           </p>
         </div>
-        
-        <SWTButton 
-          type="primary" 
-          className="!h-11 !w-11 !p-0 flex items-center justify-center !bg-brand-500 hover:!bg-brand-600 !text-brand-900 rounded-xl shadow-[0_0_15px_rgba(236,72,153,0.4)] border-none shrink-0"
+        <SWTTooltip
+          title={<span className="text-sm">Quản lý các chương trình khuyến mãi, mã giảm giá và voucher.</span>}
+          placement="left"
+          color="pink"
         >
-          <Plus size={20} className="stroke-[3]" />
-        </SWTButton>
+          <div className="!h-11 !w-11 flex items-center justify-center bg-rose-50 hover:bg-rose-500/10 dark:bg-slate-800 dark:hover:bg-slate-700 text-rose-600 dark:text-pink-400 rounded-xl cursor-help transition-all shadow-sm border border-rose-200 dark:border-slate-700 group">
+            <Info size={22} className="stroke-[2.5] group-hover:scale-110 transition-transform" />
+          </div>
+        </SWTTooltip>
       </div>
 
       {/* Main Content */}

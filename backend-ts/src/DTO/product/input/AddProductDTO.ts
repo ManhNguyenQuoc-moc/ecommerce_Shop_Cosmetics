@@ -4,7 +4,6 @@ export interface CreateVariantDTO {
     size?: string;
     price: number;
     salePrice?: number;
-    stock_quantity: number;
     // For handling images mapped via Multer
     newImages?: Express.Multer.File[]; 
     // Fallback if frontend sends base64/URL instead

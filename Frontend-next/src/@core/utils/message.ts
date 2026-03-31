@@ -43,9 +43,31 @@ const showNotificationSuccess = (description?: string | React.ReactNode, options
   });
 };
 
+const showNotificationWarning = (description?: string | React.ReactNode, options?: ArgsProps) => {
+  return notification?.warning({
+    ...options,
+    title: options?.title ?? "Lưu ý",
+    description: description ?? "Vui lòng kiểm tra lại thông tin.",
+    placement: options?.placement ?? "topRight",
+    className: "whitespace-pre-line z-99999!",
+  });
+};
+
+const showNotificationInfo = (description?: string | React.ReactNode, options?: ArgsProps) => {
+  return notification?.info({
+    ...options,
+    title: options?.title ?? "Thông báo",
+    description: description ?? "Thông tin hệ thống.",
+    placement: options?.placement ?? "topRight",
+    className: "whitespace-pre-line z-99999!",
+  });
+};
+
 export {
     showMessageError,
     showMessageSuccess,
     showNotificationError,
     showNotificationSuccess,
+    showNotificationWarning,
+    showNotificationInfo,
 }

@@ -2,38 +2,20 @@
 import SWTBreadcrumb from "@/src/@core/component/AntD/SWTBreadcrumb";
 import SWTButton from "@/src/@core/component/AntD/SWTButton";
 import SWTInput from "@/src/@core/component/AntD/SWTInput";
-import SWTTabs from "@/src/@core/component/AntD/SWTTabs";
-import { Layers, Plus, Search } from "lucide-react";
+import { Layers, Info } from "lucide-react";
+import SWTTooltip from "@/src/@core/component/AntD/SWTTooltip";
 import VariantTable from "./components/VariantTable";
 import VariantFilters from "./components/VariantFilters";
-import InventoryTable from "./components/InventoryTable";
-import InventoryFilters from "./components/InventoryFilters";
 import useSWTTitle from "@/src/@core/hooks/useSWTTitle";
+import { useVariants } from "@/src/services/admin/product.service";
+import { useState } from "react";
 
 export default function AdminVariantsPage() {
-  useSWTTitle("Biến Thể & Tồn Kho | Admin");
-  const tabsItems = [
-    {
-      key: "variants",
-      label: "Cấu hình Biến Thể",
-      children: (
-        <div className="bg-white/90 dark:bg-slate-900/80 backdrop-blur-md rounded-b-3xl rounded-tr-3xl shadow-sm dark:shadow-[0_0_15px_rgba(0,0,0,0.5)] border border-slate-200 dark:border-pink-500/20 transition-colors p-6">
-          <VariantFilters />
-          <VariantTable />
-        </div>
-      ),
-    },
-    {
-      key: "inventory",
-      label: "Quản lý Tồn Kho",
-      children: (
-        <div className="bg-white/90 dark:bg-slate-900/80 backdrop-blur-md rounded-b-3xl rounded-tr-3xl shadow-sm dark:shadow-[0_0_15px_rgba(0,0,0,0.5)] border border-slate-200 dark:border-pink-500/20 transition-colors p-6 -mt-2">
-           <InventoryFilters />
-          <InventoryTable />
-        </div>
-      ),
-    }
-  ];
+  useSWTTitle("Quản lý Biến Thể | Admin");
+
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const { variants, total, isLoading, mutate } = useVariants(page, pageSize);
 
   return (
     <div className="space-y-6 animate-fade-in relative z-0">
@@ -43,32 +25,39 @@ export default function AdminVariantsPage() {
             { title: "Trang chủ", href: "/admin" },
             { title: "Variants" }
           ]} />
-          <div className="relative mt-2 overflow-hidden bg-gradient-to-r from-brand-500 to-rose-600 text-white px-5 py-2.5 rounded-tl-xl rounded-tr-3xl rounded-br-3xl rounded-bl-md shadow-lg shadow-brand-500/40 border border-white/20 flex items-center gap-3 w-fit group/title cursor-default mt-3 mb-2">
+          <div className="relative mt-2 overflow-hidden bg-gradient-to-r from-fuchsia-500 to-purple-600 text-white px-5 py-2.5 rounded-tl-xl rounded-tr-3xl rounded-br-3xl rounded-bl-md shadow-lg shadow-fuchsia-500/40 border border-white/20 flex items-center gap-3 w-fit group/title cursor-default mt-3 mb-2">
             <div className="absolute inset-0 bg-white/20 -skew-x-12 animate-sweep" />
             <Layers size={28} className="drop-shadow-[0_0_8px_rgba(255,255,255,0.5)] animate-pulse shrink-0" />
             <h2 className="!mb-0 text-2xl font-black tracking-tight drop-shadow-md whitespace-nowrap">
               Quản lý Biến thể
             </h2>
           </div>
-          <p className="text-brand-500 dark:text-cyan-400 text-sm font-semibold uppercase tracking-widest drop-shadow-sm dark:drop-shadow-[0_0_5px_rgba(0,240,255,0.3)]">
+          <p className="text-fuchsia-500 dark:text-purple-400 text-sm font-semibold uppercase tracking-widest drop-shadow-sm dark:drop-shadow-[0_0_5px_rgba(192,38,211,0.3)]">
              Phân loại thuộc tính màu sắc, kích thước và dung tích.
           </p>
         </div>
-        
-        <SWTButton 
-          type="primary" 
-          className="!h-11 !w-11 !p-0 flex items-center justify-center !bg-brand-500 hover:!bg-brand-600 !text-brand-900 rounded-xl shadow-[0_0_15px_rgba(236,72,153,0.4)] border-none shrink-0"
+        <SWTTooltip
+          title={<span className="text-sm">Quản lý kích thước, màu sắc và thuộc tính sản phẩm.</span>}
+          placement="left"
+          color="purple"
         >
-          <Plus size={20} className="stroke-[3]" />
-        </SWTButton>
+          <div className="!h-11 !w-11 flex items-center justify-center bg-fuchsia-50 hover:bg-fuchsia-500/10 dark:bg-slate-800 dark:hover:bg-slate-700 text-fuchsia-600 dark:text-purple-400 rounded-xl cursor-help transition-all shadow-sm border border-fuchsia-200 dark:border-slate-700 group">
+            <Info size={22} className="stroke-[2.5] group-hover:scale-110 transition-transform" />
+          </div>
+        </SWTTooltip>
       </div>
 
-      <div className="bg-transparent">
-        <SWTTabs 
-          items={tabsItems}
-          defaultActiveKey="variants"
-          size="large"
-          className="admin-dashboard-tabs"
+      <div className="bg-white/90 dark:bg-slate-900/80 backdrop-blur-md rounded-3xl shadow-sm dark:shadow-[0_0_15px_rgba(0,0,0,0.5)] border border-slate-200 dark:border-pink-500/20 transition-colors p-6">
+        <VariantFilters onUpdate={() => mutate()} />
+        <VariantTable 
+          variants={variants} 
+          total={total} 
+          isLoading={isLoading} 
+          page={page} 
+          pageSize={pageSize} 
+          setPage={setPage} 
+          setPageSize={setPageSize}
+          mutate={mutate}
         />
       </div>
     </div>
