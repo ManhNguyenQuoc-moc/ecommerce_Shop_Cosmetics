@@ -598,6 +598,8 @@ import homeRoute from "./routes/home.route";
 import authRoute from "./routes/auth.route";
 import uploadRoute from "./routes/upload.route";
 import brandRoute from "./routes/brand.route";
+import purchaseRoute from "./routes/purchase.route";
+import inventoryRoute from "./routes/inventory.route";
 
 const app = express();
 app.use(cors());
@@ -618,6 +620,8 @@ app.use("/home", homeRoute);
 app.use("/auth", authRoute);
 app.use("/upload", uploadRoute);
 app.use("/brands", brandRoute);
+app.use("/purchases", purchaseRoute);
+app.use("/inventory", inventoryRoute);
 
 const PORT = process.env.PORT || 3000;
 

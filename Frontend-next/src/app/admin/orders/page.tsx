@@ -3,7 +3,8 @@
 import React from 'react';
 import OrderFilters from "./components/OrderFilters";
 import OrderTable from "./components/OrderTable";
-import { Plus, ShoppingCart } from "lucide-react";
+import { ClipboardList, Info } from "lucide-react";
+import SWTTooltip from "@/src/@core/component/AntD/SWTTooltip";
 import SWTButton from "@/src/@core/component/AntD/SWTButton";
 import SWTBreadcrumb from "@/src/@core/component/AntD/SWTBreadcrumb";
 import useSWTTitle from "@/src/@core/hooks/useSWTTitle";
@@ -21,7 +22,7 @@ export default function OrdersPage() {
           ]} />
           <div className="relative mt-2 overflow-hidden bg-gradient-to-r from-brand-500 to-rose-600 text-white px-5 py-2.5 rounded-tl-xl rounded-tr-3xl rounded-br-3xl rounded-bl-md shadow-lg shadow-brand-500/40 border border-white/20 flex items-center gap-3 w-fit group/title cursor-default mt-3 mb-2">
             <div className="absolute inset-0 bg-white/20 -skew-x-12 animate-sweep" />
-            <ShoppingCart size={28} className="drop-shadow-[0_0_8px_rgba(255,255,255,0.5)] animate-pulse shrink-0" />
+            <ClipboardList size={28} className="drop-shadow-[0_0_8px_rgba(255,255,255,0.5)] animate-pulse shrink-0" />
             <h2 className="!mb-0 text-2xl font-black tracking-tight drop-shadow-md whitespace-nowrap">
               Quản lý Đơn hàng
             </h2>
@@ -30,13 +31,15 @@ export default function OrdersPage() {
             Theo dõi, xử lý và cập nhật trạng thái các đơn hàng của hệ thống.
           </p>
         </div>
-        
-        <SWTButton 
-          type="primary" 
-          className="!h-11 !w-11 !p-0 flex items-center justify-center !bg-brand-500 hover:!bg-brand-600 !text-brand-900 rounded-xl shadow-[0_0_15px_rgba(236,72,153,0.4)] border-none"
+        <SWTTooltip
+          title={<span className="text-sm">Theo dõi đơn hàng, trạng thái thanh toán và vận chuyển từ khách hàng.</span>}
+          placement="left"
+          color="blue"
         >
-          <Plus size={20} className="stroke-[3]" />
-        </SWTButton>
+          <div className="!h-11 !w-11 flex items-center justify-center bg-blue-50 hover:bg-blue-500/10 dark:bg-slate-800 dark:hover:bg-slate-700 text-blue-600 dark:text-blue-400 rounded-xl cursor-help transition-all shadow-sm border border-blue-200 dark:border-slate-700 group">
+            <Info size={22} className="stroke-[2.5] group-hover:scale-110 transition-transform" />
+          </div>
+        </SWTTooltip>
       </div>
 
       {/* Main Content */}

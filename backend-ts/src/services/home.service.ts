@@ -47,7 +47,7 @@ export class HomeService implements IHomeService {
              salePrice: v.salePrice || p.salePrice || null,
              rating: p.rating,
              sold: p.sold,
-             stock: v.stock_quantity || 0,
+             stock: 0, // TODO: Calculate from Batches
              image: v.image?.url || p.productImages?.[0]?.image?.url || null,
              status: v.statusName || "NEW"
           });

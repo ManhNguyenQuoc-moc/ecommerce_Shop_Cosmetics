@@ -205,6 +205,7 @@ const productsData: {
 
 async function main() {
   console.log("Start seeding...");
+  console.log("Prisma models found:", Object.keys(prisma).filter(k => !k.startsWith("$") && !k.startsWith("_")));
 
   const generateSlug = (str: string) => str.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
 
@@ -301,7 +302,6 @@ async function main() {
             productId: created.id,
             price: v.price || p.price,
             salePrice: v.salePrice || p.salePrice,
-            stock_quantity: v.stock || 100,
             color: v.color ?? null,
             size: v.size ?? null,
             imageId: varImageId,
@@ -349,6 +349,54 @@ async function main() {
     console.log(`Seeded test user and addresses: ${testEmail} / 123456`);
   } else {
     console.log(`Test user ${testEmail} already exists.`);
+  }
+
+  // === SEED PURCHASE ORDERS ===
+  console.log("Seeding Purchase Orders...");
+  const poCount = await prisma.purchaseOrder.count();
+  if (poCount === 0) {
+    const brands = await prisma.brand.findMany({ take: 2 });
+    const b1 = brands[0];
+    const b2 = brands[1] || b1;
+
+    const allVariants = await prisma.productVariant.findMany({ take: 5 });
+    if (allVariants.length >= 2 && b1) {
+      const v1 = allVariants[0];
+      const v2 = allVariants[1];
+
+      // DRAFT PO
+      await prisma.purchaseOrder.create({
+        data: {
+          code: `PO-${new Date().toISOString().slice(0,10).replace(/-/g,'')}-0001`,
+          brandId: b1.id,
+          totalAmount: 15000000,
+          status: "DRAFT",
+          note: "Nhập đợt mỹ phẩm tháng 10",
+          items: {
+            create: [
+              { variantId: v1.id, orderedQty: 50, costPrice: 200000 },
+              { variantId: v2.id, orderedQty: 25, costPrice: 200000 }
+            ]
+          }
+        }
+      });
+
+      // CONFIRMED PO (For testing Export)
+      await prisma.purchaseOrder.create({
+        data: {
+          code: `PO-${new Date().toISOString().slice(0,10).replace(/-/g,'')}-0002`,
+          brandId: b2.id,
+          status: "CONFIRMED",
+          totalAmount: 25000000,
+          items: {
+            create: [
+              { variantId: v2.id, orderedQty: 250, costPrice: 100000 }
+            ]
+          }
+        }
+      });
+      console.log("Seeded 2 Purchase Orders (1 DRAFT, 1 CONFIRMED).");
+    }
   }
 
   console.log("Seeding completed!");

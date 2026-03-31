@@ -39,6 +39,21 @@ const productsSoldData = [
   { name: 'Q4', products: 3100 },
 ];
 
+const inventoryCategoryData = [
+  { name: 'Chăm sóc da', stock: 3450 },
+  { name: 'Trang điểm', stock: 2100 },
+  { name: 'Nước hoa', stock: 850 },
+  { name: 'Body Care', stock: 1200 },
+  { name: 'Phụ kiện', stock: 540 },
+];
+
+const stockInTrendData = [
+  { name: 'Tuần 1', ordered: 1500, received: 1400 },
+  { name: 'Tuần 2', ordered: 2000, received: 1800 },
+  { name: 'Tuần 3', ordered: 1200, received: 1200 },
+  { name: 'Tuần 4', ordered: 3000, received: 1500 },
+];
+
 export default function AdvancedDashboard() {
   const [timeFilter, setTimeFilter] = useState("annually");
 
@@ -134,6 +149,46 @@ export default function AdvancedDashboard() {
               bars={[
                 { key: 'products', name: 'Số Sản Phẩm', color: '#ff007f' } // neon pink
               ]}
+              height={300}
+            />
+          </div>
+        </SWTCard>
+      </div>
+
+      {/* Tồn Kho & Nhập Hàng Charts */}
+      <h2 className="text-xl font-bold text-slate-800 dark:text-white mt-8 mb-4 flex items-center gap-2">
+        <PackageCheck className="text-emerald-500" />
+        Thống Kê Tồn Kho & Nhập Hàng
+      </h2>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <SWTCard className="!shadow-lg dark:!shadow-[0_0_15px_rgba(0,0,0,0.5)] !border !border-slate-100 dark:!border-emerald-500/20 !rounded-2xl flex flex-col h-full !bg-white/90 dark:!bg-slate-900/80 backdrop-blur-xl relative !overflow-hidden" bodyClassName="!p-6">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-200/50 dark:bg-emerald-500/10 blur-[30px] rounded-full pointer-events-none" />
+          <h3 className="!mb-0 text-lg font-black text-slate-800 dark:text-white mb-6 dark:drop-shadow-[0_0_5px_rgba(255,255,255,0.3)] z-10 tracking-wide uppercase">Tồn Kho Theo Danh Mục</h3>
+          <div className="flex-1 w-full min-h-[300px] z-10">
+            <RechartsBarChart 
+              data={inventoryCategoryData}
+              xAxisKey="name"
+              bars={[
+                { key: 'stock', name: 'Số Lượng Tồn Kho', color: '#10b981' } // emerald
+              ]}
+              height={300}
+            />
+          </div>
+        </SWTCard>
+
+        <SWTCard className="!shadow-lg dark:!shadow-[0_0_15px_rgba(0,0,0,0.5)] !border !border-slate-100 dark:!border-amber-500/20 !rounded-2xl flex flex-col h-full !bg-white/90 dark:!bg-slate-900/80 backdrop-blur-xl relative !overflow-hidden" bodyClassName="!p-6">
+          <div className="absolute bottom-0 left-0 w-32 h-32 bg-amber-200/50 dark:bg-amber-500/10 blur-[30px] rounded-full pointer-events-none" />
+          <h3 className="!mb-0 text-lg font-black text-slate-800 dark:text-white mb-6 dark:drop-shadow-[0_0_5px_rgba(255,255,255,0.3)] z-10 tracking-wide uppercase">Tiến Độ Nhập Hàng (Tháng Này)</h3>
+          <div className="flex-1 w-full min-h-[300px] z-10">
+            <RechartsComposedLineBar 
+              data={stockInTrendData}
+              xAxisKey="name"
+              barKey="ordered"
+              barName="SL Đặt Hàng"
+              barColor="#f59e0b" // amber
+              lineKey="received"
+              lineName="SL Thực Nhận"
+              lineColor="#10b981" // emerald
               height={300}
             />
           </div>

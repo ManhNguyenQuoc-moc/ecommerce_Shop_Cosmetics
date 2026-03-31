@@ -3,24 +3,49 @@ import { IProductRepository } from "../interfaces/IProductRepository";
 import { prisma } from "../config/prisma";
 
 export class ProductRepository implements IProductRepository {
-  async findAll(page: number = 1, limit: number = 10): Promise<{ products: Product[]; total: number }> {
+  async findAll(page: number = 1, limit: number = 10, brandId?: string): Promise<{ products: Product[]; total: number }> {
     const skip = (page - 1) * limit;
+    const where: any = {};
+    if (brandId) where.brandId = brandId;
+
     const [products, total] = await Promise.all([
       prisma.product.findMany({
+        where,
         skip,
         take: limit,
         include: {
           brand: true,
           category: true,
-          variants: { include: { image: true } },
+          variants: { include: { image: true, orderItems: true } },
           reviews: true,
           productImages: { include: { image: true }, orderBy: { order: 'asc' } },
         },
       }),
-      prisma.product.count(),
+      prisma.product.count({ where }),
     ]);
 
     return { products, total };
+  }
+
+  async getVariants(page: number = 1, limit: number = 10): Promise<{ variants: any[]; total: number }> {
+    const skip = (page - 1) * limit;
+    const [variants, total] = await Promise.all([
+      prisma.productVariant.findMany({
+        skip,
+        take: limit,
+        include: {
+          product: {
+            include: { brand: true, category: true }
+          },
+          image: true,
+          orderItems: true
+        },
+        orderBy: { createdAt: 'desc' }
+      }),
+      prisma.productVariant.count(),
+    ]);
+
+    return { variants, total };
   }
 
   async findAllUnpaginated(): Promise<Product[]> {
@@ -28,7 +53,7 @@ export class ProductRepository implements IProductRepository {
       include: {
         brand: true,
         category: true,
-        variants: { include: { image: true } },
+        variants: { include: { image: true, orderItems: true } },
         reviews: true,
         productImages: { include: { image: true }, orderBy: { order: 'asc' } },
       },
@@ -45,7 +70,7 @@ export class ProductRepository implements IProductRepository {
       include: {
         brand: true,
         category: true,
-        variants: { include: { image: true } },
+        variants: { include: { image: true, orderItems: true } },
         reviews: true,
         productImages: { include: { image: true }, orderBy: { order: 'asc' } },
       },
@@ -88,9 +113,10 @@ export class ProductRepository implements IProductRepository {
               productId: product.id,
               color: variant.color || null,
               size: variant.size || null,
+              sku: variant.sku || null,
               price: Number(variant.price),
               salePrice: variant.salePrice ? Number(variant.salePrice) : null,
-              stock_quantity: Number(variant.stock_quantity),
+              costPrice: variant.costPrice ? Number(variant.costPrice) : 0,
               imageId: variant.imageId || null,
               statusName: variant.statusName || 'NEW',
             }
@@ -109,8 +135,38 @@ export class ProductRepository implements IProductRepository {
   }
 
   async delete(id: string): Promise<void> {
-    await prisma.product.delete({
+    await prisma.product.delete({ where: { id } });
+  }
+
+  async createVariant(data: any): Promise<any> {
+    return prisma.productVariant.create({
+      data: {
+        productId: data.productId,
+        color: data.color || null,
+        size: data.size || null,
+        sku: data.sku || null,
+        price: Number(data.price),
+        salePrice: data.salePrice ? Number(data.salePrice) : null,
+        costPrice: data.costPrice ? Number(data.costPrice) : 0,
+        imageId: data.imageId || null,
+        statusName: data.statusName || 'NEW',
+      }
+    });
+  }
+
+  async updateVariant(id: string, data: any): Promise<any> {
+    return prisma.productVariant.update({
       where: { id },
+      data: {
+        color: data.color,
+        size: data.size,
+        sku: data.sku,
+        price: data.price !== undefined ? Number(data.price) : undefined,
+        salePrice: data.salePrice !== undefined ? (data.salePrice ? Number(data.salePrice) : null) : undefined,
+        costPrice: data.costPrice !== undefined ? Number(data.costPrice) : undefined,
+        imageId: data.imageId,
+        statusName: data.statusName,
+      }
     });
   }
 }

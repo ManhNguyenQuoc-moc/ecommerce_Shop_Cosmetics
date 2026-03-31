@@ -1,8 +1,9 @@
-import { Download, Filter } from "lucide-react";
+import { Download, Filter, Plus } from "lucide-react";
 import SWTButton from "@/src/@core/component/AntD/SWTButton";
 import { SWTInputSearch } from "@/src/@core/component/AntD/SWTInput";
 import SWTSelect from "@/src/@core/component/AntD/SWTSelect";
 import SWTDatePickerRange from "@/src/@core/component/AntD/SWTDatePickerRange";
+import SWTTooltip from "@/src/@core/component/AntD/SWTTooltip";
 
 export default function UserFilters() {
   return (
@@ -45,12 +46,13 @@ export default function UserFilters() {
         >
           <Filter size={18} />
         </SWTButton>
-        <SWTButton 
-          type="primary" 
-          className="!h-10 !w-10 !p-0 flex items-center justify-center bg-white text-brand-600 border border-brand-200 hover:bg-brand-50 hover:border-brand-300 ml-auto xl:ml-0"
-        >
-          <Download size={18} />
-        </SWTButton>
+        <SWTTooltip title="Thêm Người Dùng Mới" placement="top" color="#ec4899">
+          <div 
+            className="flex h-[35px] w-[35px] items-center justify-center bg-white dark:bg-brand-500/20 hover:bg-brand-50 dark:hover:bg-brand-500/30 text-brand-600 dark:text-cyan-400 border border-slate-200 dark:border-brand-500 rounded-xl shadow-sm transition-all cursor-pointer group"
+          >
+            <Plus size={20} className="stroke-[2.5] group-hover:scale-110 group-hover:rotate-90 transition-transform duration-300" />
+          </div>
+        </SWTTooltip>
       </div>
     </div>
   );

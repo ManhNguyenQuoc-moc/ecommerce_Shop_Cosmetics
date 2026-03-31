@@ -3,7 +3,7 @@
 import SWTTable from "@/src/@core/component/AntD/SWTTable";
 import { useState } from "react";
 import { Eye } from "lucide-react";
-import { Tooltip } from "antd";
+import SWTTooltip from "@/src/@core/component/AntD/SWTTooltip";
 
 const mockOrders = [
   { id: "ORD-9281", customer: "Nguyễn Văn A", phone: "0901234567", items: 3, total: "2.150.000đ", date: "22/10/2023 14:30", status: "Chờ xác nhận", payment: "COD" },
@@ -93,11 +93,11 @@ const columns = [
     key: 'actions',
     align: 'center' as const,
     render: () => (
-      <Tooltip title="Xem chi tiết" color="#3b82f6">
+      <SWTTooltip title="Xem chi tiết" color="#3b82f6">
         <button className="text-blue-500 hover:text-blue-700 transition-colors p-1.5 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-500/10 group relative border border-transparent hover:border-blue-100 dark:hover:border-blue-500/20 cursor-pointer">
           <Eye size={18} />
         </button>
-      </Tooltip>
+      </SWTTooltip>
     )
   }
 ];

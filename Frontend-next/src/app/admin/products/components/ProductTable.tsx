@@ -4,7 +4,8 @@ import SWTTable from "@/src/@core/component/AntD/SWTTable";
 import { Edit, UserSquare2, Eye } from "lucide-react";
 import SWTAvatar from "@/src/@core/component/AntD/SWTAvatar";
 import { useState } from "react";
-import { Tooltip } from "antd";
+import SWTTooltip from "@/src/@core/component/AntD/SWTTooltip";
+import Link from "next/link";
 
 import { useProducts } from "@/src/services/admin/product.service";
 
@@ -36,23 +37,18 @@ const columns = [
     render: (text: string) => <div className="text-slate-600 font-medium text-sm">{text}</div>,
   },
   {
-    title: 'Giá bán',
-    dataIndex: 'priceRange',
-    key: 'priceRange',
-    width: 220,
-    render: (text: string) => <div className="font-bold text-brand-600 text-sm whitespace-nowrap">{text || 'Liên hệ'}</div>,
+    title: 'Thương hiệu',
+    dataIndex: 'brand',
+    key: 'brand',
+    render: (brand: string) => <div className="font-semibold text-slate-700 dark:text-slate-300 text-sm">{brand || 'N/A'}</div>,
   },
   {
-    title: 'Tồn kho',
-    dataIndex: 'stock',
-    key: 'stock',
-    render: (stock: number) => (
-      <div className="text-sm font-semibold">
-        {stock > 0 ? (
-          <span className="text-slate-700">{stock}</span>
-        ) : (
-          <span className="text-red-500">0</span>
-        )}
+    title: 'Tổng đã bán',
+    dataIndex: 'sold',
+    key: 'sold',
+    render: (sold: number) => (
+      <div className="text-sm font-bold text-sky-600 dark:text-sky-400">
+        {sold || 0}
       </div>
     ),
   },
@@ -83,18 +79,20 @@ const columns = [
     title: 'Thao tác',
     key: 'actions',
     align: 'center' as const,
-    render: () => (
+    render: (_: any, record: any) => (
       <div className="flex items-center gap-2 justify-center">
-        <Tooltip title="Xem chi tiết" color="#3b82f6">
-          <button className="text-blue-500 hover:text-blue-700 transition-colors p-1.5 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-500/10 group relative border border-transparent hover:border-blue-100 dark:hover:border-blue-500/20 cursor-pointer">
-            <Eye size={18} />
-          </button>
-        </Tooltip>
-        <Tooltip title="Chỉnh sửa" color="#ec4899">
+        <SWTTooltip title="Xem chi tiết" color="#3b82f6">
+          <Link href={`/admin/products/${record.id || 'P001'}`}>
+            <button className="text-blue-500 hover:text-blue-700 transition-colors p-1.5 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-500/10 group relative border border-transparent hover:border-blue-100 dark:hover:border-blue-500/20 cursor-pointer">
+              <Eye size={18} />
+            </button>
+          </Link>
+        </SWTTooltip>
+        <SWTTooltip title="Chỉnh sửa" color="#ec4899">
           <button className="text-brand-600 hover:text-brand-800 transition-colors p-1.5 rounded-lg hover:bg-brand-50 dark:hover:bg-brand-500/10 group relative border border-transparent hover:border-brand-100 dark:hover:border-brand-500/20 cursor-pointer">
             <Edit size={18} />
           </button>
-        </Tooltip>
+        </SWTTooltip>
       </div>
     )
   }

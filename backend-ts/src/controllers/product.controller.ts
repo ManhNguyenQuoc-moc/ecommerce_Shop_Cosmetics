@@ -13,14 +13,37 @@ export class ProductController {
       const page = Number(req.query.page) || 1;
       const limit = Number(req.query.pageSize || req.query.limit) || 10;
       const flatten = req.query.flatten === 'true';
+      const brandId = req.query.brandId as string;
 
-      const result = await this.productService.getProducts(page, limit, flatten);
+      const result = await this.productService.getProducts(page, limit, flatten, brandId);
 
       res.status(200).json({
         success: true,
         message: "Get products successfully",
         data: {
           products: result.products,
+          total: result.total,
+          page,
+          pageSize: limit
+        },
+      });
+    } catch (error: any) {
+      res.status(500).json({ success: false, message: error.message || "Internal server error" });
+    }
+  };
+
+  getVariants = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const page = Number(req.query.page) || 1;
+      const limit = Number(req.query.pageSize || req.query.limit) || 10;
+
+      const result = await this.productService.getVariants(page, limit);
+
+      res.status(200).json({
+        success: true,
+        message: "Get variants successfully",
+        data: {
+          variants: result.variants,
           total: result.total,
           page,
           pageSize: limit
@@ -85,6 +108,33 @@ export class ProductController {
       res.status(200).json({
         success: true,
         message: "Product deleted successfully",
+      });
+    } catch (error: any) {
+      res.status(500).json({ success: false, message: error.message || "Internal server error" });
+    }
+  };
+
+  createVariant = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const variant = await this.productService.createVariant(req.body);
+      res.status(201).json({
+        success: true,
+        message: "Variant created successfully",
+        data: variant,
+      });
+    } catch (error: any) {
+      res.status(500).json({ success: false, message: error.message || "Internal server error" });
+    }
+  };
+
+  updateVariant = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const id = req.params.id as string;
+      const variant = await this.productService.updateVariant(id, req.body);
+      res.status(200).json({
+        success: true,
+        message: "Variant updated successfully",
+        data: variant,
       });
     } catch (error: any) {
       res.status(500).json({ success: false, message: error.message || "Internal server error" });

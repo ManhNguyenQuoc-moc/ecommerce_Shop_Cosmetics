@@ -8,9 +8,9 @@ import SWTForm from "@/src/@core/component/AntD/SWTForm";
 import SWTFormItem from "@/src/@core/component/AntD/SWTFormItem";
 import SWTModal from "@/src/@core/component/AntD/SWTModal";
 import SWTUpload from "@/src/@core/component/AntD/SWTUpload";
+import SWTTooltip from "@/src/@core/component/AntD/SWTTooltip";
 import { Plus, Inbox, Trash2 } from "lucide-react";
 import { useState } from "react";
-import { Form, Tooltip } from "antd";
 import { showNotificationSuccess, showNotificationError } from "@/src/@core/utils/message";
 import { uploadFileToCloudinary, deleteUploads } from "@/src/services/admin/upload.service";
 import { useBrands } from "@/src/services/admin/brand.service";
@@ -23,7 +23,7 @@ interface AddProductModalProps {
 }
 
 export default function AddProductModal({ isOpen, onClose, onAdd }: AddProductModalProps) {
-  const [form] = Form.useForm();
+  const [form] = SWTForm.useForm();
   const [fileList, setFileList] = useState<any[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -228,19 +228,19 @@ export default function AddProductModal({ isOpen, onClose, onAdd }: AddProductMo
         </SWTFormItem>
 
         <div className="mb-6 bg-slate-50 dark:bg-slate-900/40 p-4 rounded-xl border border-slate-100 dark:border-slate-800">
-          <Form.List name="specifications">
+          <SWTForm.List name="specifications">
             {(fields, { add, remove }) => (
               <div className="flex flex-col gap-3">
                 <div className="flex justify-between items-center mb-1">
                   <h4 className="font-semibold text-slate-700 dark:text-slate-300 mb-0">Thông số kỹ thuật (Specifications)</h4>
-                  <Tooltip title="Thêm thông số mới" color="#10b981" placement="top">
+                  <SWTTooltip title="Thêm thông số mới" color="#10b981" placement="top">
                     <div
                       onClick={() => add()}
                       className="flex items-center justify-center p-1.5 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 dark:bg-emerald-500/20 dark:text-emerald-400 dark:hover:bg-emerald-500/30 rounded-lg transition-colors cursor-pointer"
                     >
                       <Plus size={18} className="stroke-[2.5]" />
                     </div>
-                  </Tooltip>
+                  </SWTTooltip>
                 </div>
                 {fields.map(({ key, name, ...restField }) => (
                   <div key={key} className="flex gap-4 items-start">
@@ -264,7 +264,7 @@ export default function AddProductModal({ isOpen, onClose, onAdd }: AddProductMo
                         <SWTInput placeholder="Giá trị (Vd: Mọi loại da)" className="dark:!bg-slate-800/80 dark:!border-slate-700 dark:!text-white" />
                       </SWTFormItem>
                     </div>
-                    <Tooltip title="Xóa" color="#ef4444" placement="top">
+                    <SWTTooltip title="Xóa" color="#ef4444" placement="top">
                       <button
                         type="button"
                         onClick={() => remove(name)}
@@ -272,12 +272,12 @@ export default function AddProductModal({ isOpen, onClose, onAdd }: AddProductMo
                       >
                         <Trash2 size={20} />
                       </button>
-                    </Tooltip>
+                    </SWTTooltip>
                   </div>
                 ))}
               </div>
             )}
-          </Form.List>
+          </SWTForm.List>
         </div>
 
         <div className="flex flex-col gap-6">
@@ -309,18 +309,18 @@ export default function AddProductModal({ isOpen, onClose, onAdd }: AddProductMo
           <div className="bg-slate-50 dark:bg-slate-900/40 p-4 sm:p-5 rounded-xl border border-slate-100 dark:border-slate-800">
             <div className="flex justify-between items-center mb-4">
               <div>
-                <h4 className="font-semibold text-slate-700 dark:text-slate-300 text-lg mb-1">Các Biến Thể & Tồn Kho (Variants)</h4>
-                <p className="text-sm text-slate-500 dark:text-slate-400">Quản lý kích cỡ (Size), màu sắc (Shade) và số lượng tồn kho.</p>
+                <h4 className="font-semibold text-slate-700 dark:text-slate-300 text-lg mb-1">Các Phiên Bản Sản Phẩm (Variants)</h4>
+                <p className="text-sm text-slate-500 dark:text-slate-400">Quản lý kích cỡ (Size), màu sắc (Shade) tạo thành các phiên bản.</p>
               </div>
             </div>
 
-            <Form.List name="variants">
+            <SWTForm.List name="variants">
               {(fields, { add, remove }) => (
                 <div className="flex flex-col gap-4">
                   {fields.map(({ key, name, ...restField }, index) => (
                     <div key={key} className="relative bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
                       <div className="absolute top-4 right-4">
-                        <Tooltip title="Xóa biến thể này" color="#ef4444" placement="top">
+                        <SWTTooltip title="Xóa biến thể này" color="#ef4444" placement="top">
                           <button
                             type="button"
                             onClick={() => remove(name)}
@@ -328,7 +328,7 @@ export default function AddProductModal({ isOpen, onClose, onAdd }: AddProductMo
                           >
                             <Trash2 size={18} />
                           </button>
-                        </Tooltip>
+                        </SWTTooltip>
                       </div>
                       
                       <h5 className="font-medium text-slate-800 dark:text-slate-200 mb-4 pb-2 border-b border-slate-100 dark:border-slate-700/50">Biến thể {index + 1}</h5>
@@ -390,15 +390,7 @@ export default function AddProductModal({ isOpen, onClose, onAdd }: AddProductMo
                           <SWTInputNumber min={0} max={1000000000} placeholder="0" style={{ width: "100%" }} className="dark:[&_.ant-input-number-input]:!text-white dark:!bg-slate-900/50 dark:!border-slate-700" />
                         </SWTFormItem>
 
-                        <SWTFormItem
-                          {...restField}
-                          name={[name, 'stock_quantity']}
-                          label="Kho (Số lượng)"
-                          className="!mb-0"
-                          rules={[{ required: true, message: 'Nhập SL tồn kho' }]}
-                        >
-                          <SWTInputNumber min={0} max={1000000} placeholder="0" style={{ width: "100%" }} className="dark:[&_.ant-input-number-input]:!text-white dark:!bg-slate-900/50 dark:!border-slate-700" />
-                        </SWTFormItem>
+
                       </div>
                       
                       {/* Variant specific Image Upload */}
@@ -440,7 +432,7 @@ export default function AddProductModal({ isOpen, onClose, onAdd }: AddProductMo
                   </button>
                 </div>
               )}
-            </Form.List>
+            </SWTForm.List>
           </div>
         </div>
       </SWTForm>

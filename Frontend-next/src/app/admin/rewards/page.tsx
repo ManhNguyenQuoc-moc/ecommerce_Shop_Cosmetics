@@ -1,7 +1,8 @@
+"use client";
 import SWTBreadcrumb from "@/src/@core/component/AntD/SWTBreadcrumb";
-import SWTButton from "@/src/@core/component/AntD/SWTButton";
 import SWTInput from "@/src/@core/component/AntD/SWTInput";
-import { Award, Plus } from "lucide-react";
+import { Award, Info } from "lucide-react";
+import SWTTooltip from "@/src/@core/component/AntD/SWTTooltip";
 import RewardTable from "./components/RewardTable";
 import RewardFilters from "./components/RewardFilters";
 import useSWTTitle from "@/src/@core/hooks/useSWTTitle";
@@ -27,20 +28,22 @@ export default function AdminRewardsPage() {
              Theo dõi ví điểm thưởng, lịch sử quy đổi và xếp hạng thành viên.
           </p>
         </div>
-        
-        <SWTButton 
-          type="primary" 
-          className="!h-11 !w-11 !p-0 flex items-center justify-center !bg-brand-500 hover:!bg-brand-600 !text-brand-900 rounded-xl shadow-[0_0_15px_rgba(236,72,153,0.4)] border-none shrink-0"
+        <SWTTooltip
+          title={<span className="text-sm">Quản lý hệ thống điểm thưởng và ưu đãi dành cho khách hàng thân thiết.</span>}
+          placement="left"
+          color="gold"
         >
-          <Plus size={20} className="stroke-[3]" />
-        </SWTButton>
+          <div className="!h-11 !w-11 flex items-center justify-center bg-amber-50 hover:bg-amber-500/10 dark:bg-slate-800 dark:hover:bg-slate-700 text-amber-600 dark:text-orange-400 rounded-xl cursor-help transition-all shadow-sm border border-amber-200 dark:border-slate-700 group">
+            <Info size={22} className="stroke-[2.5] group-hover:scale-110 transition-transform" />
+          </div>
+        </SWTTooltip>
       </div>
 
       {/* Main Content */}
       <div className="bg-white/90 dark:bg-slate-900/80 backdrop-blur-md rounded-3xl shadow-sm dark:shadow-[0_0_15px_rgba(0,0,0,0.5)] border border-slate-200 dark:border-pink-500/20 transition-colors p-6">
         <RewardFilters />
         <RewardTable />
-      </div>
+        </div>
     </div>
   );
 }
