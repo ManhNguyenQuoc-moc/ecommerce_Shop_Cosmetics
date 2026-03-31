@@ -27,10 +27,23 @@ export default function RootLayout({
   };
 
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <title>SHOP COSMETICS</title>
         <link rel="icon" type="image/png" href="/images/main/logo-app.png"></link>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              try {
+                if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                  document.documentElement.classList.add('dark');
+                } else {
+                  document.documentElement.classList.remove('dark');
+                }
+              } catch (_) {}
+            `
+          }}
+        />
       </head>
       <body className={`${outfit.className}`}>
         {/* <Provider store={store}> */}

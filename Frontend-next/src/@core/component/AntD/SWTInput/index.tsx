@@ -23,7 +23,7 @@ const SWTInput = ({ label, placeholder, onChange, ...props }: SWTInputProps) => 
       {...props}
       placeholder={placeholder ?? (label ? `Nhập ${label.toLowerCase()}` : "Nhập dữ liệu")}
       allowClear={props.allowClear ?? true}
-      maxLength={props.maxLength ?? 250}
+      maxLength={props.maxLength ?? 1000}
       showCount={props.showCount ?? true}
       onChange={(e) => onChange?.(e)}
       className={`h-11 rounded-lg ${props.className ?? ""}`}
@@ -51,7 +51,7 @@ const SWTInputTextArea = ({ onChange, ...props }: SWTInputTextAreaProps) => {
   return (
     <TextArea
       {...props}
-      maxLength={props.maxLength ?? 500}
+      maxLength={props.maxLength ?? 5000}
       showCount={props.showCount ?? true}
       onChange={(e) => onChange?.(e)}
       className={`rounded-lg ${props.className ?? ""}`}

@@ -1,4 +1,10 @@
 -- CreateEnum
+CREATE TYPE "POStatus" AS ENUM ('DRAFT', 'CONFIRMED', 'PARTIALLY_RECEIVED', 'COMPLETED', 'CANCELLED');
+
+-- CreateEnum
+CREATE TYPE "TransactionType" AS ENUM ('IN', 'OUT', 'ADJUSTMENT');
+
+-- CreateEnum
 CREATE TYPE "OrderStatus" AS ENUM ('PENDING', 'CONFIRMED', 'SHIPPING', 'DELIVERED', 'CANCELLED');
 
 -- CreateEnum
@@ -43,6 +49,63 @@ CREATE TABLE "CartItem" (
     "quantity" INTEGER NOT NULL DEFAULT 1,
 
     CONSTRAINT "CartItem_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "PurchaseOrder" (
+    "id" TEXT NOT NULL,
+    "code" TEXT NOT NULL,
+    "brandId" TEXT NOT NULL,
+    "status" "POStatus" NOT NULL DEFAULT 'DRAFT',
+    "totalAmount" DOUBLE PRECISION NOT NULL DEFAULT 0,
+    "note" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "PurchaseOrder_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "PurchaseOrderItem" (
+    "id" TEXT NOT NULL,
+    "purchaseOrderId" TEXT NOT NULL,
+    "variantId" TEXT NOT NULL,
+    "orderedQty" INTEGER NOT NULL,
+    "receivedQty" INTEGER NOT NULL DEFAULT 0,
+    "costPrice" DOUBLE PRECISION NOT NULL DEFAULT 0,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "PurchaseOrderItem_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Batch" (
+    "id" TEXT NOT NULL,
+    "variantId" TEXT NOT NULL,
+    "batchNumber" TEXT NOT NULL,
+    "expiryDate" TIMESTAMP(3) NOT NULL,
+    "manufacturingDate" TIMESTAMP(3),
+    "quantity" INTEGER NOT NULL DEFAULT 0,
+    "costPrice" DOUBLE PRECISION NOT NULL DEFAULT 0,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Batch_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "StockTransaction" (
+    "id" TEXT NOT NULL,
+    "variantId" TEXT NOT NULL,
+    "batchId" TEXT NOT NULL,
+    "type" "TransactionType" NOT NULL,
+    "quantity" INTEGER NOT NULL,
+    "referenceId" TEXT,
+    "note" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "StockTransaction_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -115,6 +178,9 @@ CREATE TABLE "Brand" (
     "slug" TEXT NOT NULL,
     "logoId" TEXT,
     "bannerId" TEXT,
+    "email" TEXT,
+    "phone" TEXT,
+    "address" TEXT,
     "description" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -175,7 +241,6 @@ CREATE TABLE "ProductVariant" (
     "imageId" TEXT,
     "price" DOUBLE PRECISION NOT NULL,
     "salePrice" DOUBLE PRECISION,
-    "stock_quantity" INTEGER NOT NULL DEFAULT 0,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "statusName" "ProductStatus" NOT NULL DEFAULT 'NEW',
@@ -242,6 +307,15 @@ CREATE UNIQUE INDEX "Cart_userId_key" ON "Cart"("userId");
 CREATE UNIQUE INDEX "CartItem_cartId_variantId_key" ON "CartItem"("cartId", "variantId");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "PurchaseOrder_code_key" ON "PurchaseOrder"("code");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "PurchaseOrderItem_purchaseOrderId_variantId_key" ON "PurchaseOrderItem"("purchaseOrderId", "variantId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Batch_variantId_batchNumber_key" ON "Batch"("variantId", "batchNumber");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "DiscountCode_code_key" ON "DiscountCode"("code");
 
 -- CreateIndex
@@ -276,6 +350,15 @@ ALTER TABLE "CartItem" ADD CONSTRAINT "CartItem_cartId_fkey" FOREIGN KEY ("cartI
 
 -- AddForeignKey
 ALTER TABLE "CartItem" ADD CONSTRAINT "CartItem_variantId_fkey" FOREIGN KEY ("variantId") REFERENCES "ProductVariant"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "PurchaseOrder" ADD CONSTRAINT "PurchaseOrder_brandId_fkey" FOREIGN KEY ("brandId") REFERENCES "Brand"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "PurchaseOrderItem" ADD CONSTRAINT "PurchaseOrderItem_purchaseOrderId_fkey" FOREIGN KEY ("purchaseOrderId") REFERENCES "PurchaseOrder"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "StockTransaction" ADD CONSTRAINT "StockTransaction_batchId_fkey" FOREIGN KEY ("batchId") REFERENCES "Batch"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Order" ADD CONSTRAINT "Order_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

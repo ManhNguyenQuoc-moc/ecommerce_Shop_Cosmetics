@@ -8,23 +8,30 @@ export class ProductController {
     this.productService = productService;
   }
 
+
+  
   getProducts = async (req: Request, res: Response): Promise<void> => {
     try {
       const page = Number(req.query.page) || 1;
-      const limit = Number(req.query.pageSize || req.query.limit) || 10;
+      const pageSize = Number(req.query.pageSize || req.query.limit) || 10;
       const flatten = req.query.flatten === 'true';
-      const brandId = req.query.brandId as string;
-
-      const result = await this.productService.getProducts(page, limit, flatten, brandId);
-
+      const filters: any = {
+        searchTerm: req.query.search as string,
+        categoryId: req.query.categoryId as string,
+        status: req.query.status as string,
+        soldRange: req.query.soldRange as string,
+        sortBy: req.query.sortBy as string,
+        brandId: req.query.brandId as string
+      };
+      const result = await this.productService.getProducts(page, pageSize, flatten, filters);
       res.status(200).json({
         success: true,
         message: "Get products successfully",
         data: {
-          products: result.products,
+          products: result.data,
           total: result.total,
           page,
-          pageSize: limit
+          pageSize: pageSize
         },
       });
     } catch (error: any) {
@@ -32,12 +39,15 @@ export class ProductController {
     }
   };
 
+
+
   getVariants = async (req: Request, res: Response): Promise<void> => {
     try {
       const page = Number(req.query.page) || 1;
-      const limit = Number(req.query.pageSize || req.query.limit) || 10;
+      const pageSize = Number(req.query.pageSize || req.query.limit) || 10;
+      const status = req.query.status as string;
 
-      const result = await this.productService.getVariants(page, limit);
+      const result = await this.productService.getVariants(page, pageSize, status);
 
       res.status(200).json({
         success: true,
@@ -46,7 +56,7 @@ export class ProductController {
           variants: result.variants,
           total: result.total,
           page,
-          pageSize: limit
+          pageSize: pageSize
         },
       });
     } catch (error: any) {
@@ -114,6 +124,23 @@ export class ProductController {
     }
   };
 
+  softDeleteProducts = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { ids } = req.body;
+      if (!ids || !Array.isArray(ids) || ids.length === 0) {
+        res.status(400).json({ success: false, message: "ids array is required" });
+        return;
+      }
+      await this.productService.softDeleteProducts(ids);
+      res.status(200).json({
+        success: true,
+        message: `${ids.length} sản phẩm (và các biến thể của nó) đã được ẩn thành công`,
+      });
+    } catch (error: any) {
+      res.status(500).json({ success: false, message: error.message || "Internal server error" });
+    }
+  };
+
   createVariant = async (req: Request, res: Response): Promise<void> => {
     try {
       const variant = await this.productService.createVariant(req.body);
@@ -140,4 +167,56 @@ export class ProductController {
       res.status(500).json({ success: false, message: error.message || "Internal server error" });
     }
   };
+
+  softDeleteVariants = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { ids } = req.body;
+      if (!ids || !Array.isArray(ids) || ids.length === 0) {
+        res.status(400).json({ success: false, message: "ids array is required" });
+        return;
+      }
+      await this.productService.softDeleteVariants(ids);
+      res.status(200).json({
+        success: true,
+        message: `${ids.length} biến thể đã được ẩn thành công`,
+      });
+    } catch (error: any) {
+      res.status(500).json({ success: false, message: error.message || "Internal server error" });
+    }
+  };
+
+  bulkRestoreProducts = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { ids } = req.body;
+      if (!ids || !Array.isArray(ids) || ids.length === 0) {
+        res.status(400).json({ success: false, message: "ids array is required" });
+        return;
+      }
+      await this.productService.restoreProducts(ids);
+      res.status(200).json({
+        success: true,
+        message: `${ids.length} sản phẩm (và các biến thể của nó) đã được khôi phục thành công`,
+      });
+    } catch (error: any) {
+      res.status(500).json({ success: false, message: error.message || "Internal server error" });
+    }
+  };
+
+  restoreVariants = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { ids } = req.body;
+      if (!ids || !Array.isArray(ids) || ids.length === 0) {
+        res.status(400).json({ success: false, message: "ids array is required" });
+        return;
+      }
+      await this.productService.restoreVariants(ids);
+      res.status(200).json({
+        success: true,
+        message: `Biến thể đã được xử lý khôi phục (Chỉ các biến thể có sản phẩm cha đang hoạt động mới được khôi phục thành công)`,
+      });
+    } catch (error: any) {
+      res.status(500).json({ success: false, message: error.message || "Internal server error" });
+    }
+  };
 }
+

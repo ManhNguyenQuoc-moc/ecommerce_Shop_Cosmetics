@@ -1,13 +1,61 @@
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
+import { useTransition, useEffect, useState } from "react";
 import { FileSpreadsheet, Filter, Plus } from "lucide-react";
 import SWTButton from "@/src/@core/component/AntD/SWTButton";
 import { SWTInputSearch } from "@/src/@core/component/AntD/SWTInput";
 import SWTSelect from "@/src/@core/component/AntD/SWTSelect";
 import SWTTooltip from "@/src/@core/component/AntD/SWTTooltip";
-import { useState } from "react";
 import AddVariantModal from "./AddVariantModal";
 
 export default function VariantFilters({ onUpdate }: { onUpdate: () => void }) {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isPending, startTransition] = useTransition();
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const searchStr = searchParams.get("search") || "";
+  const [localSearch, setLocalSearch] = useState(searchStr);
+
+  useEffect(() => {
+    setLocalSearch(searchStr);
+  }, [searchStr]);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      if (localSearch !== searchStr) {
+        updateFilter("search", localSearch);
+      }
+    }, 500);
+    return () => clearTimeout(handler);
+  }, [localSearch]);
+
+  const sortByVal = searchParams.get("sortBy") || "newest";
+
+  const updateFilter = (key: string, value: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (value && value !== "" && value !== "all") {
+      params.set(key, value);
+    } else {
+      params.delete(key);
+    }
+    params.set("page", "1");
+    startTransition(() => {
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    });
+  };
+
+  const clearFilters = () => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("search");
+    params.delete("sortBy");
+    params.delete("classification");
+    params.delete("priceRange");
+    params.set("page", "1");
+    startTransition(() => {
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    });
+  };
 
   return (
     <>
@@ -17,6 +65,9 @@ export default function VariantFilters({ onUpdate }: { onUpdate: () => void }) {
             <SWTInputSearch 
               placeholder="Tìm kiếm tên biến thể, mã SKU..." 
               className="w-full !rounded-xl"
+              value={localSearch}
+              onChange={(e) => setLocalSearch(e.target.value)}
+              allowClear
             />
           </div>
 
@@ -34,7 +85,8 @@ export default function VariantFilters({ onUpdate }: { onUpdate: () => void }) {
                 [&_.ant-select-selector]:!bg-transparent 
                 [&_.ant-select-selector]:!border-none 
                 [&_.ant-select-selector]:!shadow-none"
-                defaultValue="newest"
+                value={sortByVal}
+                onChange={(v) => updateFilter("sortBy", v)}
                 options={[
                   { label: "Ngày tạo: Mới nhất", value: "newest" },
                   { label: "Ngày tạo: Cũ nhất", value: "oldest" },
@@ -83,6 +135,8 @@ export default function VariantFilters({ onUpdate }: { onUpdate: () => void }) {
             <SWTSelect
               placeholder="Phân loại"
               className="min-w-[150px] !h-10"
+              value={searchParams.get("classification") || "all"}
+              onChange={(v) => updateFilter("classification", v)}
               options={[
                 { label: "Tất cả", value: "all" },
                 { label: "Màu sắc", value: "color" },
@@ -91,21 +145,12 @@ export default function VariantFilters({ onUpdate }: { onUpdate: () => void }) {
               ]}
             />
 
-            {/* Status */}
-            <SWTSelect
-              placeholder="Trạng thái"
-              className="min-w-[150px] !h-10"
-              options={[
-                { label: "Tất cả trạng thái", value: "all" },
-                { label: "Đang bán", value: "active" },
-                { label: "Đã ẩn", value: "hidden" }
-              ]}
-            />
-
             {/* Price */}
             <SWTSelect
               placeholder="Khoảng giá"
               className="min-w-[160px] !h-10"
+              value={searchParams.get("priceRange") || "all"}
+              onChange={(v) => updateFilter("priceRange", v)}
               options={[
                 { label: "Tất cả mức giá", value: "all" },
                 { label: "Dưới 500.000đ", value: "under_500k" },
@@ -119,6 +164,7 @@ export default function VariantFilters({ onUpdate }: { onUpdate: () => void }) {
           <div className="flex justify-end">
             <SWTButton
               type="text"
+              onClick={clearFilters}
               className="!h-[35px] !px-3 !text-xs !rounded-md !w-auto whitespace-nowrap
               text-slate-400 hover:!text-red-500 hover:!bg-red-50 transition-colors"
             >

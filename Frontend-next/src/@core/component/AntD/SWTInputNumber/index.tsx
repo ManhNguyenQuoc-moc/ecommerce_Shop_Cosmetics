@@ -9,8 +9,8 @@ export type SWTInputNumberProps = InputNumberProps & {
 const SWTInputNumber = ({
   classNames,
   defaultValue = 0,
-  min = 1,
-  max = 1000,
+  min = 0,
+  max = 1000000000,
   size = "middle",
   variant = "outlined",
   style,

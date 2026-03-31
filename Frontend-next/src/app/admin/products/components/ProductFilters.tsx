@@ -5,23 +5,92 @@ import SWTButton from "@/src/@core/component/AntD/SWTButton";
 import { SWTInputSearch } from "@/src/@core/component/AntD/SWTInput";
 import SWTSelect from "@/src/@core/component/AntD/SWTSelect";
 import SWTTooltip from "@/src/@core/component/AntD/SWTTooltip";
+import AntSpin from "@/src/@core/component/AntD/AntSpin";
 import { showMessageError, showMessageSuccess } from "@/src/@core/utils/message";
-import { useState } from "react";
+import { useState, useEffect, useTransition } from "react";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
+import { useCategories } from "@/src/services/admin/category.service";
 import AddProductModal from "./AddProductModal";
 import { mutate } from "swr";
 import { PRODUCT_API_ENDPOINT, createProduct } from "@/src/services/admin/product.service";
 
 export default function ProductFilters() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isPending, startTransition] = useTransition();
+  
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+  const { categories } = useCategories();
+
+  // Parse current values
+  const searchStr = searchParams.get("search") || "";
+  const [localSearch, setLocalSearch] = useState(searchStr);
+
+  useEffect(() => {
+    setLocalSearch(searchStr);
+  }, [searchStr]);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      if (localSearch !== searchStr) {
+        updateFilter("search", localSearch);
+      }
+    }, 500);
+    return () => clearTimeout(handler);
+  }, [localSearch]);
+
+  const sortByVal = searchParams.get("sortBy") || "newest";
+  const categoryVal = searchParams.get("categoryId") || "all";
+  const statusVal = searchParams.get("status") || "all";
+  const soldRangeVal = searchParams.get("soldRange") || "all";
+
+  // Category mapping safely
+  const categoryList = categories?.data || categories || [];
+  const categoryOptions = [
+    { label: "Tất cả danh mục", value: "all" },
+    ...(Array.isArray(categoryList) ? categoryList.map((c: any) => ({ label: c.name, value: c.id })) : [])
+  ];
+
+  const updateFilter = (key: string, value: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (value && value !== "" && value !== "all") {
+      params.set(key, value);
+    } else {
+      params.delete(key);
+    }
+    // reset to page 1 on filter
+    params.set("page", "1");
+    startTransition(() => {
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    });
+  };
+
+  const clearFilters = () => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("search");
+    params.delete("categoryId");
+    params.delete("status");
+    params.delete("soldRange");
+    params.delete("sortBy");
+    params.set("page", "1");
+    startTransition(() => {
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    });
+  };
 
   return (
     <>
+    <AntSpin spinning={isPending}>
       <div className="flex flex-col gap-4 mb-6">
       <div className="flex flex-col xl:flex-row items-start xl:items-center justify-between gap-4">
         <div className="flex-1 w-full max-w-xl">
           <SWTInputSearch 
             placeholder="Tìm kiếm tên sản phẩm, mã SKU..." 
             className="w-full !rounded-xl"
+            value={localSearch}
+            onChange={(e) => setLocalSearch(e.target.value)}
+            allowClear
           />
         </div>
 
@@ -39,14 +108,15 @@ export default function ProductFilters() {
               [&_.ant-select-selector]:!bg-transparent 
               [&_.ant-select-selector]:!border-none 
               [&_.ant-select-selector]:!shadow-none"
-              defaultValue="newest"
+              value={sortByVal}
+              onChange={(v) => updateFilter("sortBy", v)}
               options={[
                 { label: "Ngày tạo: Mới nhất", value: "newest" },
                 { label: "Ngày tạo: Cũ nhất", value: "oldest" },
                 { label: "Giá: Thấp đến Cao", value: "price_asc" },
                 { label: "Giá: Cao đến Thấp", value: "price_desc" },
-                { label: "Tồn kho: Nhiều nhất", value: "stock_desc" },
-                { label: "Tồn kho: Ít nhất", value: "stock_asc" },
+                { label: "Đã bán: Nhiều nhất", value: "sold_desc" },
+                { label: "Đã bán: Ít nhất", value: "sold_asc" },
               ]}
             />
           </div>
@@ -90,18 +160,17 @@ export default function ProductFilters() {
           <SWTSelect
             placeholder="Danh mục"
             className="min-w-[150px] !h-10"
-            options={[
-              { label: "Tất cả danh mục", value: "all" },
-              { label: "Chăm sóc da", value: "skincare" },
-              { label: "Trang điểm", value: "makeup" },
-              { label: "Nước hoa", value: "fragrance" }
-            ]}
+            value={categoryVal}
+            onChange={(v) => updateFilter("categoryId", v)}
+            options={categoryOptions}
           />
 
           {/* Status */}
           <SWTSelect
             placeholder="Trạng thái"
             className="min-w-[150px] !h-10"
+            value={statusVal}
+            onChange={(v) => updateFilter("status", v)}
             options={[
               { label: "Tất cả trạng thái", value: "all" },
               { label: "Đang bán", value: "active" },
@@ -110,22 +179,25 @@ export default function ProductFilters() {
             ]}
           />
 
-          {/* Price */}
+          {/* Sold Range */}
           <SWTSelect
-            placeholder="Khoảng giá"
+            placeholder="Tổng đã bán"
             className="min-w-[160px] !h-10"
+            value={soldRangeVal}
+            onChange={(v) => updateFilter("soldRange", v)}
             options={[
-              { label: "Tất cả mức giá", value: "all" },
-              { label: "Dưới 500.000đ", value: "under_500k" },
-              { label: "500.000đ - 1.000.000đ", value: "500k_1m" },
-              { label: "1.000.000đ - 2.000.000đ", value: "1m_2m" },
-              { label: "Trên 2.000.000đ", value: "above_2m" }
+              { label: "Tất cả số lượng", value: "all" },
+              { label: "Dưới 50", value: "under_50" },
+              { label: "50 - 200", value: "50_200" },
+              { label: "200 - 500", value: "200_500" },
+              { label: "Trên 500", value: "above_500" }
             ]}
           />
         </div>
         <div className="flex justify-end">
           <SWTButton
             type="text"
+            onClick={clearFilters}
             className="!h-[35px] !px-3 !text-xs !rounded-md !w-auto whitespace-nowrap
             text-slate-400 hover:!text-red-500 hover:!bg-red-50 transition-colors"
           >
@@ -134,13 +206,13 @@ export default function ProductFilters() {
         </div>
       </div>
     </div>
+    </AntSpin>
       <AddProductModal 
         isOpen={isAddModalOpen} 
         onClose={() => setIsAddModalOpen(false)} 
         onAdd={async (data) => {
           try {
             await createProduct(data);
-            showMessageSuccess('Thêm sản phẩm thành công!');
             // Tell SWR to re-fetch any product queries
             mutate(
               (key: any) => typeof key === 'string' && key.startsWith(PRODUCT_API_ENDPOINT),
