@@ -1,4 +1,5 @@
-export interface CreateVariantDTO {
+export interface UpdateVariantDTO {
+    id: string;
     sku?: string;
     color?: string;
     size?: string;
@@ -10,7 +11,7 @@ export interface CreateVariantDTO {
     statusName?: 'BEST_SELLING' | 'TRENDING' | 'NEW';
 }
 
-export interface CreateProductDTO {
+export interface UpdateProductDTO {
     name: string;
     brandId?: string;
     categoryId?: string;
@@ -22,5 +23,5 @@ export interface CreateProductDTO {
     specifications?: any;
     newProductImages?: Express.Multer.File[];
     images?: string[];
-    variants?: CreateVariantDTO[];
+    variants?: UpdateVariantDTO[];
 }

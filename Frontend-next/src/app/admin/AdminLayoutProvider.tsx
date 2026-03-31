@@ -1,5 +1,6 @@
 "use client";
-import React from "react";
+import React, { useState, useEffect } from "react";
+import AdminLoading from "./loading";
 import { SidebarProvider, useSidebar } from "@/src/context/SidebarContext";
 import AdminHeader from "@/src/layout/admin/AdminAppHeader";
 import AdminAppSideBar from "@/src/layout/admin/AdminAppSideBar";
@@ -8,6 +9,18 @@ import { ConfigProvider, theme } from "antd";
 
 const AdminLayoutWrapper = ({ children }: { children: React.ReactNode }) => {
   const { isMobileOpen, toggleMobileSidebar } = useSidebar();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setMounted(true);
+    }, 300); // 300ms smooth splash delay for Admin panel
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (!mounted) {
+    return <AdminLoading />;
+  }
 
   return (
     <div className="flex h-screen overflow-hidden bg-slate-50 dark:bg-[radial-gradient(circle_at_50%_-20%,#1e1b4b_0%,#020617_80%)] relative transition-colors duration-500">
@@ -32,7 +45,7 @@ const AdminLayoutWrapper = ({ children }: { children: React.ReactNode }) => {
       <AdminAppSideBar />
       <div className="relative flex flex-1 flex-col overflow-y-auto overflow-x-hidden z-10">
         <AdminHeader />
-        <main className="flex-1 w-full mx-auto p-4 md:p-6 lg:p-8 max-w-7xl">
+        <main className="flex-1 w-full p-4 md:p-6 lg:px-20 lg:py-10">
           {children}
         </main>
       </div>

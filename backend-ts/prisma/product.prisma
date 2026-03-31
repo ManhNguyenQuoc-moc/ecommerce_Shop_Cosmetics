@@ -110,6 +110,7 @@ model ProductVariant {
   updatedAt DateTime @updatedAt
   
   statusName ProductStatus @default(NEW)
+  status     ItemStatus    @default(ACTIVE)
 }
 
 model Review {

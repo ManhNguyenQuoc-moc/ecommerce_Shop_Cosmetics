@@ -1,6 +1,5 @@
 "use client";
 
-import { Switch } from "antd";
 import SWTInput, { SWTInputTextArea } from "@/src/@core/component/AntD/SWTInput";
 import SWTInputNumber from "@/src/@core/component/AntD/SWTInputNumber";
 import SWTSelect from "@/src/@core/component/AntD/SWTSelect";
@@ -91,12 +90,11 @@ export default function AddProductModal({ isOpen, onClose, onAdd }: AddProductMo
       form.resetFields();
       setFileList([]);
       onClose();
-      showNotificationSuccess("Đã hoàn tất tải ảnh và thêm sản phẩm thành công!");
+      showNotificationSuccess("Thêm sản phẩm thành công!");
     } catch (err: any) {
       console.error(err);
       showNotificationError(err.message || 'Lỗi khi tải ảnh lên hệ thống');
       
-      // Rollback orphaned images
       if (uploadedUrls.length > 0) {
          try {
            await deleteUploads(uploadedUrls);
@@ -152,6 +150,7 @@ export default function AddProductModal({ isOpen, onClose, onAdd }: AddProductMo
         form={form}
         layout="vertical"
         onFinish={handleFinish}
+        loading={isSubmitting}
         className="mt-6 [&_.ant-form-item-label>label]:font-semibold [&_.ant-form-item-label>label]:text-slate-700 dark:[&_.ant-form-item-label>label]:!text-slate-300"
       >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6">

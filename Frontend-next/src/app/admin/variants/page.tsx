@@ -8,14 +8,79 @@ import VariantTable from "./components/VariantTable";
 import VariantFilters from "./components/VariantFilters";
 import useSWTTitle from "@/src/@core/hooks/useSWTTitle";
 import { useVariants } from "@/src/services/admin/product.service";
-import { useState } from "react";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
+import SWTTabs from "@/src/@core/component/AntD/SWTTabs";
 
 export default function AdminVariantsPage() {
   useSWTTitle("Quản lý Biến Thể | Admin");
 
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
-  const { variants, total, isLoading, mutate } = useVariants(page, pageSize);
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const activeTab = searchParams.get("status") === "hidden" ? "hidden" : "active";
+
+  const onTabChange = (key: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("status", key);
+    params.set("page", "1");
+    router.replace(`${pathname}?${params.toString()}`);
+  };
+
+  const page = Number(searchParams.get("page") ?? 1);
+  const pageSize = Number(searchParams.get("pageSize") ?? 6);
+  const { variants, total, isLoading, mutate } = useVariants(page, pageSize, activeTab);
+
+  const { total: activeTotal } = useVariants(1, 1, 'active');
+  const { total: hiddenTotal } = useVariants(1, 1, 'hidden');
+
+  const handlePaginationChange = (p: number, f: number) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("page", p.toString());
+    params.set("pageSize", f.toString());
+    router.replace(`${pathname}?${params.toString()}`);
+  };
+
+  const tabItems = [
+    {
+      key: "active",
+      label: "Đang hoạt động",
+      prefix: { value: activeTotal || 0, color: "primary" as any, variant: "light" as any },
+      children: (
+        <div className="bg-white/90 dark:bg-slate-900/80 backdrop-blur-md rounded-3xl shadow-sm dark:shadow-[0_0_15px_rgba(0,0,0,0.5)] border border-slate-200 dark:border-pink-500/20 transition-colors p-6 mt-4">
+          <VariantFilters onUpdate={() => mutate()} />
+          <VariantTable 
+            variants={variants} 
+            total={total} 
+            isLoading={isLoading} 
+            page={page} 
+            pageSize={pageSize} 
+            onPaginationChange={handlePaginationChange}
+            mutate={mutate}
+          />
+        </div>
+      )
+    },
+    {
+      key: "hidden",
+      label: "Đã ẩn",
+      prefix: { value: hiddenTotal || 0, color: "error" as any, variant: "light" as any },
+      children: (
+        <div className="bg-white/90 dark:bg-slate-900/80 backdrop-blur-md rounded-3xl shadow-sm dark:shadow-[0_0_15px_rgba(0,0,0,0.5)] border border-slate-200 dark:border-pink-500/20 transition-colors p-6 mt-4">
+          <VariantFilters onUpdate={() => mutate()} />
+          <VariantTable 
+            variants={variants} 
+            total={total} 
+            isLoading={isLoading} 
+            page={page} 
+            pageSize={pageSize} 
+            onPaginationChange={handlePaginationChange}
+            mutate={mutate}
+          />
+        </div>
+      )
+    }
+  ];
 
   return (
     <div className="space-y-6 animate-fade-in relative z-0">
@@ -47,17 +112,13 @@ export default function AdminVariantsPage() {
         </SWTTooltip>
       </div>
 
-      <div className="bg-white/90 dark:bg-slate-900/80 backdrop-blur-md rounded-3xl shadow-sm dark:shadow-[0_0_15px_rgba(0,0,0,0.5)] border border-slate-200 dark:border-pink-500/20 transition-colors p-6">
-        <VariantFilters onUpdate={() => mutate()} />
-        <VariantTable 
-          variants={variants} 
-          total={total} 
-          isLoading={isLoading} 
-          page={page} 
-          pageSize={pageSize} 
-          setPage={setPage} 
-          setPageSize={setPageSize}
-          mutate={mutate}
+      {/* Tabs Container */}
+      <div className="w-full">
+        <SWTTabs
+          activeKey={activeTab}
+          onChange={onTabChange}
+          items={tabItems}
+          className="[&_.ant-tabs-nav]:!mb-0 [&_.ant-tabs-nav]:after:!hidden [&_.ant-tabs-tab]:!px-6 [&_.ant-tabs-tab]:!py-3 [&_.ant-tabs-tab-active]:!bg-brand-500/10 [&_.ant-tabs-tab]:!rounded-t-2xl transition-all"
         />
       </div>
     </div>
