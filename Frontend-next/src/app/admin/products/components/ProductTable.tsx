@@ -1,18 +1,24 @@
 "use client";
 
 import SWTTable from "@/src/@core/component/AntD/SWTTable";
+import SWTStatusTag from "@/src/@core/component/SWTStatusTag";
+import SWTIconButton from "@/src/@core/component/SWTIconButton";
 import { showNotificationSuccess, showNotificationError } from "@/src/@core/utils/message";
 import { useProducts, softDeleteProducts, restoreProducts, PRODUCT_API_ENDPOINT } from "@/src/services/admin/product.service";
 import { mutate as globalMutate } from "swr";
-import { RotateCcw, Edit, UserSquare2, Eye, Trash2 } from "lucide-react";
+import { RotateCcw, Edit, Eye, Trash2, Layers } from "lucide-react";
 import EditProductModal from "./EditProductModal";
 import SWTConfirmModal from "@/src/@core/component/AntD/SWTConfirmModal";
 import SWTTooltip from "@/src/@core/component/AntD/SWTTooltip";
-import Link from "next/link";
+import Image from "next/image";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useState } from "react";
 
-export default function ProductTable() {
+interface ProductTableProps {
+  isPending?: boolean;
+}
+
+export default function ProductTable({ isPending }: ProductTableProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -34,7 +40,8 @@ export default function ProductTable() {
   const filters = {
     search: searchParams.get("search") || "",
     categoryId: searchParams.get("categoryId") || "all",
-    status: isHiddenTab ? "hidden" : "active", // Force filter based on tab
+    brandId: searchParams.get("brandId") || "all",
+    status: isHiddenTab ? "hidden" : (searchParams.get("status") || "active_tab"),
     soldRange: searchParams.get("soldRange") || "all",
     sortBy: searchParams.get("sortBy") || "newest",
   };
@@ -98,13 +105,20 @@ export default function ProductTable() {
       key: "name",
       render: (text: string, record: any) => (
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center border border-slate-200 shrink-0">
-            {record.image ? (
-              <img src={record.image} alt={text} className="w-full h-full object-cover rounded-lg" />
-            ) : (
-              <UserSquare2 size={20} className="text-slate-400" />
-            )}
-          </div>
+         <div className="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center border border-slate-200 shrink-0 overflow-hidden relative">
+  {record.image ? (
+    <Image
+      src={record.image}
+      alt={text}
+      fill
+      className="object-cover"
+      sizes="40px"
+      unoptimized
+    />
+  ) : (
+    <Layers size={20} className="text-slate-400" />
+  )}
+</div>
           <div className="flex flex-col gap-1">
             <div className="font-bold text-slate-800 dark:text-white dark:drop-shadow-[0_0_2px_rgba(255,255,255,0.5)]">{text}</div>
             <span className="text-slate-500 dark:text-slate-400 font-medium text-xs">{record.category}</span>
@@ -131,29 +145,20 @@ export default function ProductTable() {
       render: (sold: number) => <div className="text-sm font-bold text-sky-600 dark:text-sky-400">{sold || 0}</div>,
     },
     {
+      title: "Ngày tạo",
+      dataIndex: "createdAt",
+      key: "createdAt",
+      render: (date: string) => (
+        <div className="text-xs font-medium text-slate-500 dark:text-slate-400">
+          {new Date(date).toLocaleDateString("vi-VN")}
+        </div>
+      ),
+    },
+    {
       title: "Trạng thái",
       dataIndex: "status",
       key: "status",
-      render: (status: string) => {
-        let colorClass = "bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-800/80 dark:text-slate-300 dark:border-slate-700";
-        let dotClass = "bg-slate-500";
-        if (status === "ACTIVE") {
-          colorClass = "bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900/40 dark:text-emerald-400 dark:border-emerald-500/30";
-          dotClass = "bg-emerald-500";
-        } else if (status === "HIDDEN") {
-          colorClass = "bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/40 dark:text-amber-400";
-          dotClass = "bg-amber-500";
-        } else if (status === "STOPPED") {
-          colorClass = "bg-red-100 text-red-700 border-red-200 dark:bg-red-900/40 dark:text-red-500";
-          dotClass = "bg-red-500";
-        }
-        return (
-          <div className={`text-xs font-semibold px-2.5 py-1 rounded-full border flex items-center gap-1.5 w-max ${colorClass}`}>
-            <span className={`w-1.5 h-1.5 rounded-full ${dotClass}`} />
-            {status}
-          </div>
-        );
-      },
+      render: (status: string) => <SWTStatusTag status={status} />,
     },
     {
       title: "Thao tác",
@@ -161,29 +166,24 @@ export default function ProductTable() {
       align: "center" as const,
       render: (_: any, record: any) => (
         <div className="flex items-center gap-2 justify-center">
-          <SWTTooltip title="Xem chi tiết" color="#3b82f6">
-            <Link href={`/admin/products/${record.id}`}>
-              <button className="text-blue-500 hover:text-blue-700 transition-colors p-1.5 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-500/10 border border-transparent hover:border-blue-100 dark:hover:border-blue-500/20 cursor-pointer">
-                <Eye size={18} />
-              </button>
-            </Link>
-          </SWTTooltip>
-          <SWTTooltip title="Chỉnh sửa" color="#ec4899">
-            <button
-              onClick={() => setEditProductId(record.id)}
-              className="text-fuchsia-600 hover:text-fuchsia-800 transition-colors p-1.5 rounded-lg hover:bg-fuchsia-50 dark:hover:bg-fuchsia-500/10 border border-transparent hover:border-fuchsia-100 dark:hover:border-fuchsia-500/20 cursor-pointer"
-            >
-              <Edit size={18} />
-            </button>
-          </SWTTooltip>
-          <SWTTooltip title={isHiddenTab ? "Khôi phục" : "Ẩn sản phẩm"} color={isHiddenTab ? "#10b981" : "#f59e0b"}>
-            <button
-              onClick={() => setConfirmSingle({ open: true, record })}
-              className={`${isHiddenTab ? "text-emerald-500 hover:text-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 hover:border-emerald-100 dark:hover:border-emerald-500/20" : "text-amber-500 hover:text-amber-700 hover:bg-amber-50 dark:hover:bg-amber-500/10 hover:border-amber-100 dark:hover:border-amber-500/20"} transition-colors p-1.5 rounded-lg border border-transparent cursor-pointer`}
-            >
-              {isHiddenTab ? <RotateCcw size={18} /> : <Trash2 size={18} />}
-            </button>
-          </SWTTooltip>
+          <SWTIconButton
+            variant="view"
+            icon={<Eye size={18} />}
+            tooltip="Xem chi tiết"
+            href={`/admin/products/${record.id}`}
+          />
+          <SWTIconButton
+            variant="edit"
+            icon={<Edit size={18} />}
+            tooltip="Chỉnh sửa"
+            onClick={() => setEditProductId(record.id)}
+          />
+          <SWTIconButton
+            variant={isHiddenTab ? "restore" : "hide"}
+            icon={isHiddenTab ? <RotateCcw size={18} /> : <Trash2 size={18} />}
+            tooltip={isHiddenTab ? "Khôi phục" : "Ẩn sản phẩm"}
+            onClick={() => setConfirmSingle({ open: true, record })}
+          />
         </div>
       ),
     },
@@ -196,7 +196,7 @@ export default function ProductTable() {
           columns={columns}
           dataSource={products}
           rowKey="id"
-          loading={isLoading}
+          loading={isLoading || isPending}
           rowSelection={{
             selectedRowKeys,
             preserveSelectedRowKeys: true,

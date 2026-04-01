@@ -17,6 +17,6 @@ export interface ProductListItemDto {
   stock: number;
 
   status: string;
-
+  createdAt: Date;
   variantId?: string;
 }

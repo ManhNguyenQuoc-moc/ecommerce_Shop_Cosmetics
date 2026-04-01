@@ -1,187 +1,188 @@
 "use client";
 
 import SWTTable from "@/src/@core/component/AntD/SWTTable";
-import { Truck, CheckCircle2, PackageCheck, Eye, FileText, FileDown } from "lucide-react";
+import SWTIconButton from "@/src/@core/component/SWTIconButton";
+import SWTStatusTag from "@/src/@core/component/SWTStatusTag";
+import { showNotificationSuccess, showNotificationError } from "@/src/@core/utils/message";
+import {
+  usePurchaseOrders,
+  PURCHASE_API_ENDPOINT,
+} from "@/src/services/admin/purchase.service";
+import { Eye, Edit } from "lucide-react";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useState } from "react";
-import SWTButton from "@/src/@core/component/AntD/SWTButton";
-import { usePurchaseOrders, getPurchaseOrderById, useConfirmPurchaseOrder } from "@/src/services/admin/purchase.service";
-import { exportPOTopdf, exportPOToExcel } from "@/src/utils/exportPO";
-import { showNotificationError, showNotificationInfo, showNotificationSuccess, showNotificationWarning } from "@/src/@core/utils/message";
-import SWTTooltip from "@/src/@core/component/AntD/SWTTooltip";
+import { mutate as globalMutate } from "swr";
 import PODetailModal from "./PODetailModal";
-import ReceiveStockModal from "./ReceiveStockModal";
+import EditPOModal from "./EditPOModal";
+import { usePurchaseOrderById } from "@/src/services/admin/purchase.service";
+import { POListItemDto, POStatus, PO_STATUS_LABELS } from "@/src/services/models/purchase/output.dto";
+import { POQueryParams } from "@/src/services/models/purchase/input.dto";
 
-export default function POTable() {
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(5);
+interface POTableProps {
+  isPending?: boolean;
+}
+
+export default function POTable({ isPending }: POTableProps) {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+
   const [viewId, setViewId] = useState<string | null>(null);
-  const [receiveId, setReceiveId] = useState<string | null>(null);
-  const { orders, total, isLoading, mutate } = usePurchaseOrders(page, pageSize);
+  const [editId, setEditId] = useState<string | null>(null);
 
-  const handleExport = async (type: "pdf" | "excel", id: string) => {
-    try {
-      showNotificationInfo("Đang tải dữ liệu...", { key: "exportPO" });
-      const res = await getPurchaseOrderById(id) as any;
-      
-      if (res) {
-        if (type === "pdf") {
-          exportPOTopdf(res);
-          showNotificationSuccess("Xuất PDF thành công!", { key: "exportPO" });
-        } else {
-          exportPOToExcel(res);
-          showNotificationSuccess("Xuất Excel thành công!", { key: "exportPO" });
-        }
-      } else {
-        showNotificationError("Không tìm thấy dữ liệu PO", { key: "exportPO" });
-      }
-    } catch (e) {
-      console.error(e);
-      showNotificationError("Lỗi kết nối khi tải phiếu xuất", { key: "exportPO" });
-    }
+  const page = Number(searchParams.get("page") ?? 1);
+  const pageSize = Number(searchParams.get("pageSize") ?? 10);
+
+  const filters: POQueryParams = {
+    search: searchParams.get("search") || undefined,
+    status: searchParams.get("status") || undefined,
+    brandId: searchParams.get("brandId") || undefined,
+    sortBy: (searchParams.get("sortBy") || "newest") as POQueryParams["sortBy"],
   };
 
-  const { trigger: submitConfirm } = useConfirmPurchaseOrder();
+  const { orders, total, isLoading, mutate: refetch } = usePurchaseOrders(page, pageSize, filters);
 
-  const handleConfirm = async (id: string) => {
-    try {
-      showNotificationInfo("Đang duyệt phiếu nhập...", { key: "confirmPO" });
-      const res = await submitConfirm(id);
-      if (res) {
-        showNotificationSuccess("Đã duyệt phiếu nhập thành công!", { key: "confirmPO" });
-        mutate();
-      }
-    } catch (e: any) {
-      console.error(e);
-      showNotificationError("Lỗi kết nối khi duyệt phiếu nhập", { key: "confirmPO" });
-    }
+  const renderStatusTag = (status: POStatus) => {
+    const colorMap: Record<POStatus, string> = {
+      DRAFT: "bg-slate-100 text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700",
+      CONFIRMED: "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/40 dark:text-blue-400 dark:border-blue-800",
+      PARTIALLY_RECEIVED: "bg-orange-100 text-orange-700 border-orange-200 dark:bg-orange-900/40 dark:text-orange-400 dark:border-orange-800",
+      COMPLETED: "bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900/40 dark:text-emerald-400 dark:border-emerald-800",
+      CANCELLED: "bg-red-100 text-red-600 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800",
+    };
+    return (
+      <div
+        className={`text-xs font-bold px-2.5 py-1 rounded-full border flex items-center w-max whitespace-nowrap ${colorMap[status] ?? ""}`}
+      >
+        {PO_STATUS_LABELS[status] ?? status}
+      </div>
+    );
   };
 
   const columns = [
     {
-      title: 'Mã PO',
-      dataIndex: 'code',
-      key: 'code',
-      render: (text: string) => <div className="font-bold text-blue-600 dark:text-blue-400">{text}</div>,
+      title: "Mã PO",
+      dataIndex: "code",
+      key: "code",
+      render: (text: string) => (
+        <div className="font-bold text-amber-600 dark:text-amber-400 tracking-wide">{text}</div>
+      ),
     },
     {
-      title: 'Nhà Cung Cấp',
-      dataIndex: 'supplier',
-      key: 'supplier',
-      render: (_: any, record: any) => <div className="font-semibold text-slate-700 dark:text-slate-300">{record.supplier?.name || "N/A"}</div>,
-    },
-    {
-      title: 'Tổng tiền',
-      dataIndex: 'totalAmount',
-      key: 'totalAmount',
-      render: (amount: number) => <div className="font-semibold">{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount)}</div>,
-    },
-    {
-      title: 'Ngày tạo',
-      dataIndex: 'createdAt',
-      key: 'createdAt',
-      render: (dateStr: string) => <div>{new Date(dateStr).toLocaleDateString("vi-VN")}</div>
-    },
-    {
-      title: 'Trạng thái',
-      dataIndex: 'status',
-      key: 'status',
-      render: (status: string) => {
-        let colorClass = "";
-        let Title = status;
-        if (status === "DRAFT") colorClass = "bg-slate-100 text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-400";
-        if (status === "CONFIRMED" || status === "APPROVED") { colorClass = "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/40 dark:text-blue-400"; Title = "Đã duyệt"; }
-        if (status === "PARTIALLY_RECEIVED") { colorClass = "bg-orange-100 text-orange-700 border-orange-200 dark:bg-orange-900/40 dark:text-orange-400"; Title = "Nhận một phần"; }
-        if (status === "COMPLETED") { colorClass = "bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900/40 dark:text-emerald-400"; Title = "Hoàn tất"; }
-        
-        return (
-          <div className={`text-xs font-bold px-2.5 py-1 rounded-full border flex items-center justify-center gap-1.5 w-max ${colorClass}`}>
-            {Title}
-          </div>
-        );
-      }
-    },
-    {
-      title: 'Thao tác',
-      key: 'actions',
-      render: (_: any, record: any) => (
-        <div className="flex gap-2 items-center">
-          {record.status === "DRAFT" && (
-            <SWTTooltip title="Duyệt Phiếu Nhập">
-              <div 
-                className="flex h-[32px] w-[32px] cursor-pointer items-center justify-center rounded-xl border border-blue-200 bg-blue-50 text-blue-600 transition-all hover:scale-105 hover:bg-blue-100 hover:shadow-sm dark:border-blue-500/30 dark:bg-blue-500/10 dark:text-blue-400 dark:hover:bg-blue-500/20"
-                onClick={() => handleConfirm(record.id)}
-              >
-                <CheckCircle2 size={16} />
-              </div>
-            </SWTTooltip>
-          )}
-
-          {(record.status === "CONFIRMED" || record.status === "APPROVED" || record.status === "PARTIALLY_RECEIVED") && (
-            <SWTTooltip title="Nhập Kho Cập Nhật Lot">
-              <div 
-                className="flex h-[32px] w-[32px] cursor-pointer items-center justify-center rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-600 transition-all hover:scale-105 hover:bg-emerald-100 hover:shadow-sm dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-400 dark:hover:bg-emerald-500/20"
-                onClick={() => setReceiveId(record.id)}
-              >
-                <PackageCheck size={16} />
-              </div>
-            </SWTTooltip>
-          )}
-
-          <SWTTooltip title="Xem Chi Tiết">
-            <div 
-              className="flex h-[32px] w-[32px] cursor-pointer items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 transition-all hover:scale-105 hover:bg-slate-50 hover:shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700"
-              onClick={() => setViewId(record.id)}
-            >
-              <Eye size={16} />
-            </div>
-          </SWTTooltip>
-
-          {(record.status === "CONFIRMED" || record.status === "APPROVED" || record.status === "PARTIALLY_RECEIVED" || record.status === "COMPLETED") && (
-            <>
-              <SWTTooltip title="Xuất PDF">
-                <div 
-                  className="flex h-[32px] w-[32px] cursor-pointer items-center justify-center rounded-xl border border-red-200 bg-red-50 text-red-500 transition-all hover:scale-105 hover:bg-red-100 hover:shadow-sm dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-400 dark:hover:bg-red-500/20"
-                  onClick={() => handleExport("pdf", record.id)}
-                >
-                  <FileText size={16} />
-                </div>
-              </SWTTooltip>
-              <SWTTooltip title="Xuất Excel">
-                <div 
-                  className="flex h-[32px] w-[32px] cursor-pointer items-center justify-center rounded-xl border border-green-200 bg-green-50 text-green-600 transition-all hover:scale-105 hover:bg-green-100 hover:shadow-sm dark:border-green-500/30 dark:bg-green-500/10 dark:text-green-400 dark:hover:bg-green-500/20"
-                  onClick={() => handleExport("excel", record.id)}
-                >
-                  <FileDown size={16} />
-                </div>
-              </SWTTooltip>
-            </>
-          )}
+      title: "Thương hiệu",
+      dataIndex: "brand",
+      key: "brand",
+      render: (_: unknown, record: POListItemDto) => (
+        <div className="font-semibold text-slate-700 dark:text-slate-300">
+          {record.brand?.name ?? "N/A"}
         </div>
-      )
-    }
+      ),
+    },
+    {
+      title: "Tổng tiền",
+      dataIndex: "totalAmount",
+      key: "totalAmount",
+      render: (amount: number) => (
+        <div className="font-semibold text-slate-800 dark:text-slate-200">
+          {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(amount)}
+        </div>
+      ),
+    },
+    {
+      title: "Ngày tạo",
+      dataIndex: "createdAt",
+      key: "createdAt",
+      render: (dateStr: string) => (
+        <div className="text-xs font-medium text-slate-500 dark:text-slate-400">
+          {new Date(dateStr).toLocaleDateString("vi-VN")}
+        </div>
+      ),
+    },
+    {
+      title: "Trạng thái",
+      dataIndex: "status",
+      key: "status",
+      render: (status: POStatus) => renderStatusTag(status),
+    },
+    {
+      title: "Thao tác",
+      key: "actions",
+      align: "center" as const,
+      render: (_: unknown, record: POListItemDto) => (
+        <div className="flex items-center gap-2 justify-center">
+          <SWTIconButton
+            variant="view"
+            icon={<Eye size={18} />}
+            tooltip="Xem chi tiết"
+            onClick={() => setViewId(record.id)}
+          />
+          <SWTIconButton
+            variant="edit"
+            icon={<Edit size={18} />}
+            tooltip="Chỉnh sửa"
+            onClick={() => setEditId(record.id)}
+          />
+        </div>
+      ),
+    },
   ];
 
   return (
     <div className="w-full">
-      <div className="!bg-white/90 dark:!bg-slate-900/80 backdrop-blur-xl !rounded-xl overflow-hidden !border !border-slate-100 dark:!border-blue-500/20 !shadow-lg mt-4 transition-colors">
-        <SWTTable 
-          columns={columns} 
-          dataSource={orders} 
-          rowKey="id" 
-          loading={isLoading}
+      <div className="!bg-white/90 dark:!bg-slate-900/80 backdrop-blur-xl !rounded-xl overflow-hidden !border !border-slate-100 dark:!border-amber-500/20 !shadow-lg mt-4 transition-colors">
+        <SWTTable
+          columns={columns}
+          dataSource={orders}
+          rowKey="id"
+          loading={isLoading || isPending}
           pagination={{
             totalCount: total,
-            page: page,
+            page,
             fetch: pageSize,
             onChange: (p: number, f: number) => {
-              setPage(p);
-              setPageSize(f);
-            }
+              const params = new URLSearchParams(searchParams.toString());
+              params.set("page", p.toString());
+              params.set("pageSize", f.toString());
+              router.replace(`${pathname}?${params.toString()}`);
+            },
           }}
         />
       </div>
-      <PODetailModal isOpen={!!viewId} onClose={() => setViewId(null)} poId={viewId} />
-      <ReceiveStockModal isOpen={!!receiveId} onClose={() => setReceiveId(null)} poId={receiveId} onSuccess={() => mutate()} />
+
+      {/* View / Detail Modal — contains all action buttons */}
+      <PODetailModal
+        isOpen={!!viewId}
+        onClose={() => setViewId(null)}
+        poId={viewId}
+        onMutate={() => {
+          refetch();
+          globalMutate(
+            (key) => typeof key === "string" && key.startsWith(PURCHASE_API_ENDPOINT),
+            undefined,
+            { revalidate: true }
+          );
+        }}
+      />
+
+      {/* Edit Modal — load PO by id and open EditPOModal to prefill */}
+      {
+        (() => {
+          const { po: editPo } = usePurchaseOrderById(editId ? editId : null);
+          return (
+            editId && (
+              <EditPOModal
+                isOpen={!!editId}
+                onClose={() => setEditId(null)}
+                po={editPo ?? null}
+                onSuccess={() => {
+                  refetch();
+                  setEditId(null);
+                }}
+              />
+            )
+          );
+        })()
+      }
     </div>
   );
 }

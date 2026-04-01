@@ -1,5 +1,7 @@
 import { Request, Response } from "express";
 import { IProductService } from "../interfaces/IProductService";
+import { CreateProductDTO, CreateVariantDTO } from "../DTO/product/input/AddProductDTO";
+import { UpdateProductDTO, UpdateVariantDTO } from "../DTO/product/input/UpdateProductDTO";
 
 export class ProductController {
   private readonly productService: IProductService;
@@ -8,15 +10,13 @@ export class ProductController {
     this.productService = productService;
   }
 
-
-  
   getProducts = async (req: Request, res: Response): Promise<void> => {
     try {
       const page = Number(req.query.page) || 1;
       const pageSize = Number(req.query.pageSize || req.query.limit) || 10;
       const flatten = req.query.flatten === 'true';
-      const filters: any = {
-        searchTerm: req.query.search as string,
+      const filters = {
+        searchTerm: (req.query.search || req.query.searchTerm) as string,
         categoryId: req.query.categoryId as string,
         status: req.query.status as string,
         soldRange: req.query.soldRange as string,
@@ -39,15 +39,22 @@ export class ProductController {
     }
   };
 
-
-
   getVariants = async (req: Request, res: Response): Promise<void> => {
     try {
       const page = Number(req.query.page) || 1;
-      const pageSize = Number(req.query.pageSize || req.query.limit) || 10;
-      const status = req.query.status as string;
+      const pageSize = Number(req.query.pageSize || req.query.limit) || 12;
+      const filters = {
+        status: req.query.status as string,
+        searchTerm: (req.query.search || req.query.searchTerm) as string,
+        sortBy: req.query.sortBy as string,
+        classification: req.query.classification as string,
+        priceRange: req.query.priceRange as string,
+        statusName: req.query.statusName as string
+        ,
+        brandId: req.query.brandId as string
+      };
 
-      const result = await this.productService.getVariants(page, pageSize, status);
+      const result = await this.productService.getVariants(page, pageSize, filters);
 
       res.status(200).json({
         success: true,
@@ -86,21 +93,23 @@ export class ProductController {
 
   createProduct = async (req: Request, res: Response): Promise<void> => {
     try {
-      const product = await this.productService.createProduct(req.body);
+      const data = req.body as CreateProductDTO;
+      const product = await this.productService.createProduct(data);
       res.status(201).json({
         success: true,
         message: "Product created successfully",
         data: product,
       });
     } catch (error: any) {
-      res.status(500).json({ success: false, message: error.message || "Internal server error" });
+      res.status(400).json({ success: false, message: error.message || "Lỗi khi tạo sản phẩm" });
     }
   };
 
   updateProduct = async (req: Request, res: Response): Promise<void> => {
     try {
       const id = req.params.id as string;
-      const product = await this.productService.updateProduct(id, req.body);
+      const data = req.body as UpdateProductDTO;
+      const product = await this.productService.updateProduct(id, data);
       res.status(200).json({
         success: true,
         message: "Product updated successfully",
@@ -143,7 +152,8 @@ export class ProductController {
 
   createVariant = async (req: Request, res: Response): Promise<void> => {
     try {
-      const variant = await this.productService.createVariant(req.body);
+      const data = req.body as CreateVariantDTO & { productId: string };
+      const variant = await this.productService.createVariant(data);
       res.status(201).json({
         success: true,
         message: "Variant created successfully",
@@ -157,7 +167,8 @@ export class ProductController {
   updateVariant = async (req: Request, res: Response): Promise<void> => {
     try {
       const id = req.params.id as string;
-      const variant = await this.productService.updateVariant(id, req.body);
+      const data = req.body as UpdateVariantDTO;
+      const variant = await this.productService.updateVariant(id, data);
       res.status(200).json({
         success: true,
         message: "Variant updated successfully",
@@ -212,7 +223,7 @@ export class ProductController {
       await this.productService.restoreVariants(ids);
       res.status(200).json({
         success: true,
-        message: `Biến thể đã được xử lý khôi phục (Chỉ các biến thể có sản phẩm cha đang hoạt động mới được khôi phục thành công)`,
+        message: `Biến thể đã được khôi phục thành công.`,
       });
     } catch (error: any) {
       res.status(500).json({ success: false, message: error.message || "Internal server error" });

@@ -1,6 +1,6 @@
 import { get, post, put, del } from "../api";
 import { useFetchSWR } from "@/src/@core/hooks/useFetchSWR";
-import { ProductListResponseDto, ProductDetailDto, ProductVariantDto } from "../models/product/output.dto";
+import { ProductListResponseDto, ProductDetailDto, ProductVariantDto, VariantListResponseDto } from "../models/product/output.dto";
 import { CreateProductInput, ProductQueryParams, UpdateProductInput, CreateVariantInput, UpdateVariantInput } from "../models/product/input.dto";
 export const PRODUCT_API_ENDPOINT = "/products";
 
@@ -23,10 +23,6 @@ export const softDeleteProducts = (ids: string[]) => {
 export const restoreProducts = (ids: string[]) => {
   return post<void>(`${PRODUCT_API_ENDPOINT}/bulk-restore`, { ids });
 };
-
-/* =========================
-   VARIANT API
-========================= */
 
 export const createVariant = (data: CreateVariantInput) => {
   return post<ProductVariantDto>(`${PRODUCT_API_ENDPOINT}/variants`, data);
@@ -82,7 +78,7 @@ export const useProducts = (
   );
 
   return {
-    products: data?.products || [],   // ✅ chuẩn
+    products: data?.products || [],  
     total: data?.total || 0,
     page: data?.page || page,
     pageSize: data?.pageSize || pageSize,
@@ -95,33 +91,61 @@ export const useProducts = (
 export const useVariants = (
   page: number,
   pageSize: number,
-  status: string = "active"
+  filters?: ProductQueryParams
 ) => {
-  const url = `${PRODUCT_API_ENDPOINT}/variants/list?page=${page}&pageSize=${pageSize}&status=${status}`;
+  const queryParams = new URLSearchParams({
+    page: page.toString(),
+    pageSize: pageSize.toString(),
+  });
+
+  if (filters) {
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value && value !== "all") {
+        queryParams.append(key, String(value));
+      }
+    });
+  }
+
+  const queryString = queryParams.toString();
 
   const fetcher = () =>
-    get<PagedResult<ProductVariantDto>>(url);
+    get<VariantListResponseDto>(`${PRODUCT_API_ENDPOINT}/variants/list?${queryString}`);
 
   const { data, error, isLoading, isValidating, mutate } =
-    useFetchSWR<PagedResult<ProductVariantDto>>(url, fetcher);
+    useFetchSWR<VariantListResponseDto>(
+      `${PRODUCT_API_ENDPOINT}/variants/list?${queryString}`, 
+      fetcher,
+      {
+        revalidateOnFocus: false,
+        revalidateOnReconnect: false,
+        revalidateIfStale: false,
+      }
+    );
 
   return {
-    variants: data?.data || [],
+    variants: data?.variants || [],
     total: data?.total || 0,
+    page: data?.page || page,
+    pageSize: data?.pageSize || pageSize,
     isLoading: isLoading || isValidating,
     isError: error,
     mutate,
   };
 };
 
-export const useProduct = (id: string) => {
+export const useProduct = (id: string | undefined) => {
   const fetcher = () =>
-    get<ProductDetailDto>(`${PRODUCT_API_ENDPOINT}/${id}`);
+    id ? get<ProductDetailDto>(`${PRODUCT_API_ENDPOINT}/${id}`) : Promise.reject("No ID provided");
 
   const { data, error, isLoading, isValidating, mutate } =
     useFetchSWR<ProductDetailDto>(
       id ? `${PRODUCT_API_ENDPOINT}/${id}` : null,
-      fetcher
+      fetcher,
+      {
+        revalidateOnFocus: false,
+        revalidateOnReconnect: false,
+        revalidateIfStale: false,
+      }
     );
 
   return {

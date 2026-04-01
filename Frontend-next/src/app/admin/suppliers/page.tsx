@@ -1,11 +1,10 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Info, Truck, Plus } from "lucide-react";
+import { Info, Truck } from "lucide-react";
 import SWTTooltip from "@/src/@core/component/AntD/SWTTooltip";
 import SWTBreadcrumb from "@/src/@core/component/AntD/SWTBreadcrumb";
 import useSWTTitle from "@/src/@core/hooks/useSWTTitle";
-import SWTButton from "@/src/@core/component/AntD/SWTButton";
 import BrandTable from "./components/BrandTable";
 import BrandFilters from "./components/BrandFilters";
 import AddBrandModal from "./components/AddBrandModal";
@@ -23,14 +22,14 @@ export default function SuppliersPage() {
             { title: "Trang chủ", href: "/admin" },
             { title: "Nhà cung cấp" }
           ]} />
-          <div className="relative mt-2 overflow-hidden bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-5 py-2.5 rounded-tl-xl rounded-tr-3xl rounded-br-3xl rounded-bl-md shadow-lg shadow-emerald-500/40 border border-white/20 flex items-center gap-3 w-fit group/title cursor-default mt-3 mb-2">
+           <div className="relative mt-2 overflow-hidden bg-gradient-to-r from-brand-500 to-rose-600 text-white px-5 py-2.5 rounded-tl-xl rounded-tr-3xl rounded-br-3xl rounded-bl-md shadow-lg shadow-brand-500/40 border border-white/20 flex items-center gap-3 w-fit group/title cursor-default mt-3 mb-2">
             <div className="absolute inset-0 bg-white/20 -skew-x-12 animate-sweep" />
             <Truck size={28} className="drop-shadow-[0_0_8px_rgba(255,255,255,0.5)] animate-pulse shrink-0" />
             <h2 className="!mb-0 text-2xl font-black tracking-tight drop-shadow-md whitespace-nowrap">
               Quản lý Nhà cung cấp
             </h2>
           </div>
-          <p className="text-emerald-600 dark:text-emerald-400 text-sm font-semibold uppercase tracking-widest drop-shadow-sm">
+          <p className="text-brand-600 dark:text-cyan-400 text-sm font-semibold uppercase tracking-widest drop-shadow-sm">
             Danh sách các đối tác, thương hiệu cung cấp sản phẩm.
           </p>
         </div>
@@ -51,7 +50,6 @@ export default function SuppliersPage() {
         <BrandFilters />
         <BrandTable />
       </div>
-
       <AddBrandModal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} />
     </div>
   );

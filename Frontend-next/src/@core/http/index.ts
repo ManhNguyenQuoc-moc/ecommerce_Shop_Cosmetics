@@ -78,9 +78,8 @@ const onResponseInterceptor = async (error: AxiosError) => {
     error.response &&
     error.response.status === HttpStatusCode.InternalServerError
   ) {
-    // if (typeof window !== "undefined") window.location.href = `/500`;
-    showNotificationError("Hệ thống đang gặp sự cố, vui lòng thử lại sau.");
-    return Promise.reject(error.response.data);
+    showNotificationError(_response?.message || "Hệ thống đang gặp sự cố, vui lòng thử lại sau.");
+    return Promise.reject(error.response.data || error);
   }
 
   // Hiển thị thông báo lỗi cho các lỗi khác

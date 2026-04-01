@@ -14,7 +14,8 @@ export class ProductMapper {
         salePrice: p.salePrice || null,
         sold: p.sold || 0,
         stock: 0,
-        status: "NEW"
+        status: "NEW",
+        createdAt: p.createdAt
       }];
     }
 
@@ -30,7 +31,8 @@ export class ProductMapper {
       salePrice: v.salePrice || p.salePrice || null,
       sold: v.orderItems?.reduce((sum: number, i: any) => sum + i.quantity, 0) || 0,
       stock: 0,
-      status: v.statusName || "NEW"
+      status: v.statusName || "NEW",
+      createdAt: v.createdAt || p.createdAt
     }));
   }
 
@@ -62,7 +64,8 @@ export class ProductMapper {
       ),
 
       stock: 0,
-      status: p.status
+      status: p.status,
+      createdAt: p.createdAt
     };
   }
 }

@@ -1,56 +1,45 @@
-import { get, post } from "../api";
+import { get, post, put } from "../api";
 import { useFetchSWR } from "@/src/@core/hooks/useFetchSWR";
-import useSWRMutation from "swr/mutation";
+import { CreatePOInput, UpdatePOInput, POQueryParams } from "../models/purchase/input.dto";
+import { PODetailDto, POListItemDto, POListResponseDto } from "../models/purchase/output.dto";
 
 export const PURCHASE_API_ENDPOINT = "/purchases";
 
-export interface CreatePurchaseOrderDTO {
-  brandId: string;
-  note?: string;
-  totalAmount: number;
-  items: { variantId: string; orderedQty: number; costPrice: number }[];
-}
+// --- Raw fetchers ---
+export const getPurchaseOrders = (params?: POQueryParams) =>
+  get<POListResponseDto>(PURCHASE_API_ENDPOINT, params);
 
-export interface CreateSupplierDTO {
-  name: string;
-  email?: string;
-  phone?: string;
-  address?: string;
-}
+export const getPurchaseOrderById = (id: string) =>
+  get<PODetailDto>(`${PURCHASE_API_ENDPOINT}/${id}`);
 
-export const getPurchaseOrders = (params?: any) => get(PURCHASE_API_ENDPOINT, params);
-export const getPurchaseOrderById = (id: string) => get(`${PURCHASE_API_ENDPOINT}/${id}`);
-export const getSuppliers = () => get(`${PURCHASE_API_ENDPOINT}/suppliers`);
+// --- Mutation (plain) functions - follow product.service pattern (no useSWRMutation)
+export const createPurchaseOrder = (data: CreatePOInput) => post<PODetailDto>(PURCHASE_API_ENDPOINT, data);
 
-// Fetchers for SWR Mutation
-const postFetcher = (url: string, { arg }: { arg: any }) => post(url, arg);
-const confirmFetcher = (url: string, { arg }: { arg: string }) => post(`${url}/${arg}/confirm`, {});
+export const updatePurchaseOrder = (id: string, data: UpdatePOInput) =>
+  put<PODetailDto>(`${PURCHASE_API_ENDPOINT}/${id}`, data);
 
-// Custom Mutation Hooks using swr/mutation
-export const useCreatePurchaseOrder = () => {
-  return useSWRMutation<any, any, string, CreatePurchaseOrderDTO>(PURCHASE_API_ENDPOINT, postFetcher);
-};
+export const confirmPurchaseOrder = (id: string) =>
+  post(`${PURCHASE_API_ENDPOINT}/${id}/confirm`, {});
 
-export const useConfirmPurchaseOrder = () => {
-  return useSWRMutation<any, any, string, string>(PURCHASE_API_ENDPOINT, confirmFetcher);
-};
+export const cancelPurchaseOrder = (id: string) =>
+  post(`${PURCHASE_API_ENDPOINT}/${id}/cancel`, {});
 
-export const useCreateSupplier = () => {
-  return useSWRMutation<any, any, string, CreateSupplierDTO>(`${PURCHASE_API_ENDPOINT}/suppliers`, postFetcher);
-};
+export const receiveStock = (payload: any) =>
+  post(`${PURCHASE_API_ENDPOINT}/receive-stock`, payload);
 
+// --- Query Hooks ---
+export const usePurchaseOrders = (page: number, limit: number, filters?: POQueryParams) => {
+  const query: POQueryParams = { page, limit, ...filters };
+  // Build a stable cache key from params
+  const key = `${PURCHASE_API_ENDPOINT}?page=${page}&limit=${limit}&status=${filters?.status ?? ''}&search=${filters?.search ?? ''}&brandId=${filters?.brandId ?? ''}&sortBy=${filters?.sortBy ?? ''}`;
 
-// Custom Query Hooks
-export const usePurchaseOrders = (page: number, limit: number) => {
-  const fetcher = () => getPurchaseOrders({ page, limit });
-  const { data, error, isLoading, isValidating, mutate } = useFetchSWR(
-    `${PURCHASE_API_ENDPOINT}?page=${page}&limit=${limit}`,
-    fetcher
-  );
+  const fetcher = () => getPurchaseOrders(query);
+  const { data, error, isLoading, isValidating, mutate } = useFetchSWR<POListResponseDto>(key, fetcher);
 
+  // get<T> already returns res.data.data — so `data` IS the POListResponseDto directly
   return {
-    orders: (data as any)?.orders || (data as any)?.data?.orders || [],
-    total: (data as any)?.total || (data as any)?.data?.total || 0,
+    orders: (data?.orders ?? []) as POListItemDto[],
+    total: data?.total ?? 0,
     isLoading: isLoading || isValidating,
     isError: error,
     mutate,
@@ -58,29 +47,15 @@ export const usePurchaseOrders = (page: number, limit: number) => {
 };
 
 export const usePurchaseOrderById = (id: string | null) => {
-  const fetcher = () => id ? getPurchaseOrderById(id) : Promise.resolve(null);
-  const { data, error, isLoading, isValidating, mutate } = useFetchSWR(
+  const fetcher = () => (id ? getPurchaseOrderById(id) : Promise.resolve(null));
+  const { data, error, isLoading, isValidating, mutate } = useFetchSWR<PODetailDto | null>(
     id ? `${PURCHASE_API_ENDPOINT}/${id}` : null,
     fetcher
   );
 
+  // get<T> already returns res.data.data — so `data` IS the PODetailDto directly
   return {
-    po: data as any,
-    isLoading: isLoading || isValidating,
-    isError: error,
-    mutate,
-  };
-};
-
-export const useSuppliers = (shouldFetch: boolean = true) => {
-  const fetcher = () => getSuppliers();
-  const { data, error, isLoading, isValidating, mutate } = useFetchSWR(
-    shouldFetch ? `${PURCHASE_API_ENDPOINT}/suppliers` : null,
-    fetcher
-  );
-
-  return {
-    suppliers: data as any[] || [],
+    po: (data ?? null) as PODetailDto | null,
     isLoading: isLoading || isValidating,
     isError: error,
     mutate,

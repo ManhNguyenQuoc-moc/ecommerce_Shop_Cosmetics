@@ -6,31 +6,37 @@ import { SWTInputSearch } from "@/src/@core/component/AntD/SWTInput";
 import SWTSelect from "@/src/@core/component/AntD/SWTSelect";
 import SWTTooltip from "@/src/@core/component/AntD/SWTTooltip";
 import AddVariantModal from "./AddVariantModal";
+import { useDebounce } from "@/src/@core/hooks/useDebounce";
+import { TransitionStartFunction } from "react";
 
-export default function VariantFilters({ onUpdate }: { onUpdate: () => void }) {
+interface VariantFiltersProps {
+  onUpdate: () => void;
+  startTransition: TransitionStartFunction;
+}
+
+export default function VariantFilters({ onUpdate, startTransition }: VariantFiltersProps) {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [isPending, startTransition] = useTransition();
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
 
   const searchStr = searchParams.get("search") || "";
   const [localSearch, setLocalSearch] = useState(searchStr);
+  const debouncedSearch = useDebounce(localSearch, 500);
 
   useEffect(() => {
     setLocalSearch(searchStr);
   }, [searchStr]);
 
   useEffect(() => {
-    const handler = setTimeout(() => {
-      if (localSearch !== searchStr) {
-        updateFilter("search", localSearch);
-      }
-    }, 500);
-    return () => clearTimeout(handler);
-  }, [localSearch]);
+    if (debouncedSearch !== searchStr) {
+      updateFilter("search", debouncedSearch);
+    }
+  }, [debouncedSearch]);
 
   const sortByVal = searchParams.get("sortBy") || "newest";
+
+  const statusNameVal = searchParams.get("statusName") || "all";
 
   const updateFilter = (key: string, value: string) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -51,6 +57,8 @@ export default function VariantFilters({ onUpdate }: { onUpdate: () => void }) {
     params.delete("sortBy");
     params.delete("classification");
     params.delete("priceRange");
+    params.delete("status");
+    params.delete("statusName");
     params.set("page", "1");
     startTransition(() => {
       router.replace(`${pathname}?${params.toString()}`, { scroll: false });
@@ -92,6 +100,8 @@ export default function VariantFilters({ onUpdate }: { onUpdate: () => void }) {
                   { label: "Ngày tạo: Cũ nhất", value: "oldest" },
                   { label: "Giá bán: Thấp đến Cao", value: "price_asc" },
                   { label: "Giá bán: Cao đến Thấp", value: "price_desc" },
+                  { label: "Số lượng: Nhiều nhất", value: "stock_desc" },
+                  { label: "Số lượng: Ít nhất", value: "stock_asc" },
                 ]}
               />
             </div>
@@ -104,14 +114,14 @@ export default function VariantFilters({ onUpdate }: { onUpdate: () => void }) {
                 </div>
               </SWTTooltip>
               
-              <SWTTooltip title="Thêm Biến Thể Mới" placement="top" color="#d946ef">
-                <div 
-                  className="flex h-[35px] w-[35px] items-center justify-center bg-white dark:bg-fuchsia-500/20 hover:bg-fuchsia-50 dark:hover:bg-fuchsia-500/30 text-fuchsia-600 dark:text-fuchsia-400 border border-slate-200 dark:border-fuchsia-500 rounded-xl shadow-sm transition-all cursor-pointer group"
-                  onClick={() => setIsAddModalOpen(true)}
-                >
-                  <Plus size={20} className="stroke-[2.5] group-hover:scale-110 group-hover:rotate-90 transition-transform duration-300" />
-                </div>
-              </SWTTooltip>
+               <SWTTooltip title="Thêm Variant mới" placement="top" color="#6366f1">
+              <div 
+                className="flex h-[35px] w-[35px] items-center justify-center bg-white dark:bg-indigo-500/20 hover:bg-indigo-50 dark:hover:bg-indigo-500/30 text-indigo-600 dark:text-indigo-400 border border-slate-200 dark:border-indigo-500 rounded-xl shadow-sm transition-all cursor-pointer group"
+                onClick={() => setIsAddModalOpen(true)}
+              >
+                <Plus size={20} className="stroke-[2.5] group-hover:scale-110 group-hover:rotate-90 transition-transform duration-300" />
+              </div>
+            </SWTTooltip>
             </div>
           </div>
         </div>
@@ -125,11 +135,25 @@ export default function VariantFilters({ onUpdate }: { onUpdate: () => void }) {
           <div className="flex flex-wrap items-center gap-3 flex-1">
 
             {/* Title */}
-            <div className="flex items-center gap-2 text-fuchsia-600 dark:text-purple-400 
-            font-semibold pr-4 border-r border-slate-200 dark:border-slate-700">
-              <Filter size={16} />
-              <span className="text-xs uppercase tracking-wide">Bộ lọc</span>
-            </div>
+            <div className="flex items-center gap-2 text-brand-600 dark:text-cyan-400 
+          font-semibold pr-4 border-r border-slate-200 dark:border-slate-700">
+            <Filter size={16} />
+            <span className="text-xs uppercase tracking-wide">Bộ lọc</span>
+          </div>
+
+            {/* Status Name (Nhãn) */}
+            <SWTSelect
+              placeholder="Nhãn"
+              className="min-w-[150px] !h-10"
+              value={statusNameVal}
+              onChange={(v) => updateFilter("statusName", v)}
+              options={[
+                { label: "Tất cả nhãn", value: "all" },
+                { label: "Bán chạy", value: "BEST_SELLING" },
+                { label: "Xu hướng", value: "TRENDING" },
+                { label: "Mới ra mắt", value: "NEW" },
+              ]}
+            />
 
             {/* Classification */}
             <SWTSelect
@@ -140,8 +164,7 @@ export default function VariantFilters({ onUpdate }: { onUpdate: () => void }) {
               options={[
                 { label: "Tất cả", value: "all" },
                 { label: "Màu sắc", value: "color" },
-                { label: "Dung tích", value: "volume" },
-                { label: "Kích thước", value: "size" }
+                { label: "Dung tích", value: "size" }
               ]}
             />
 
