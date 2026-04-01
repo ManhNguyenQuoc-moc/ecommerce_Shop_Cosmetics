@@ -1,5 +1,6 @@
 import { prisma } from "../config/prisma";
 import { IInventoryRepository } from "../interfaces/IInventoryRepository";
+import { ReceiveStockItemDTO } from "../DTO/purchase/input/ReceiveStockDTO";
 
 export class InventoryRepository implements IInventoryRepository {
   async getBatches(skip: number, take: number): Promise<[any[], number]> {
@@ -31,7 +32,7 @@ export class InventoryRepository implements IInventoryRepository {
     });
   }
 
-  async receiveStockWithTransaction(poId: string, variantId: string, batchData: any, quantity: number, note?: string) {
+  async receiveStockWithTransaction(poId: string, variantId: string, batchData: ReceiveStockItemDTO, quantity: number, note?: string) {
     return prisma.$transaction(async (tx: any) => {
       const po = await tx.purchaseOrder.findUnique({ where: { id: poId }, include: { items: true } });
       if (!po) throw new Error("PO not found");

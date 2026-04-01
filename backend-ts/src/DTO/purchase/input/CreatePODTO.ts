@@ -1,0 +1,18 @@
+export interface CreatePOItemDTO {
+  variantId: string;
+  orderedQty: number;
+  costPrice: number;
+}
+
+export interface CreatePODTO {
+  brandId: string;
+  note?: string;
+  items: CreatePOItemDTO[];
+}
+
+export interface POQueryFiltersDTO {
+  search?: string;     // search by code OR brand name
+  status?: string;
+  brandId?: string;
+  sortBy?: 'newest' | 'oldest' | 'total_asc' | 'total_desc';
+}

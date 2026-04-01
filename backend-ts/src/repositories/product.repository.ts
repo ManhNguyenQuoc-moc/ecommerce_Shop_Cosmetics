@@ -30,7 +30,8 @@ export class ProductRepository implements IProductRepository {
       }
     }
     if (filters?.searchTerm && filters.searchTerm.trim() !== '') {
-      const search = `%${filters.searchTerm.trim().toLowerCase()}%`;
+      const formattedTerm = filters.searchTerm.trim().toLowerCase().replace(/\s+/g, '%');
+      const search = `%${formattedTerm}%`;
       conditions.push(Prisma.sql`(LOWER(p."name") LIKE ${search} OR LOWER(p."slug") LIKE ${search})`);
     }
     if (filters?.soldRange && filters.soldRange !== 'all') {
@@ -52,12 +53,20 @@ export class ProductRepository implements IProductRepository {
         case 'price_desc': orderBy = Prisma.sql`p."price" DESC`; break;
         case 'sold_desc': orderBy = Prisma.sql`p."sold" DESC`; break;
         case 'sold_asc': orderBy = Prisma.sql`p."sold" ASC`; break;
+        case 'stock_asc': orderBy = Prisma.sql`"totalStock" ASC`; break;
+        case 'stock_desc': orderBy = Prisma.sql`"totalStock" DESC`; break;
       }
     }
 
     const productsQuery = Prisma.sql`
       SELECT 
         p.*,
+        (
+          SELECT COALESCE(SUM(b.quantity), 0) 
+          FROM "ProductVariant" v_sum 
+          LEFT JOIN "Batch" b ON v_sum.id = b."variantId" 
+          WHERE v_sum."productId" = p.id
+        ) as "totalStock",
         (SELECT json_build_object('id', b.id, 'name', b.name, 'slug', b.slug) FROM "Brand" b WHERE b.id = p."brandId") as brand,
         (SELECT json_build_object('id', c.id, 'name', c.name, 'slug', c.slug) FROM "Category" c WHERE c.id = p."categoryId") as category,
         (
@@ -227,7 +236,8 @@ export class ProductRepository implements IProductRepository {
 
     // 2. Search Filter
     if (filters?.searchTerm && filters.searchTerm.trim() !== '') {
-      const search = `%${filters.searchTerm.trim().toLowerCase()}%`;
+      const formattedTerm = filters.searchTerm.trim().toLowerCase().replace(/\s+/g, '%');
+      const search = `%${formattedTerm}%`;
       conditions.push(Prisma.sql`(
         v."sku" ILIKE ${search} OR 
         v."color" ILIKE ${search} OR 
@@ -260,6 +270,11 @@ export class ProductRepository implements IProductRepository {
       conditions.push(Prisma.sql`v."statusName"::text = ${filters.statusName}`);
     }
 
+    // 6. Brand Filter (filter variants by product's brand)
+    if (filters?.brandId && filters.brandId !== 'all') {
+      conditions.push(Prisma.sql`p."brandId" = ${filters.brandId}`);
+    }
+
     const where = conditions.length > 0 ? Prisma.sql`WHERE ${Prisma.join(conditions, ' AND ')}` : Prisma.empty;
 
     let orderBy = Prisma.sql`v."createdAt" DESC`;
@@ -268,12 +283,19 @@ export class ProductRepository implements IProductRepository {
         case 'oldest': orderBy = Prisma.sql`v."createdAt" ASC`; break;
         case 'price_asc': orderBy = Prisma.sql`v."price" ASC`; break;
         case 'price_desc': orderBy = Prisma.sql`v."price" DESC`; break;
+        case 'stock_asc': orderBy = Prisma.sql`"stock" ASC`; break;
+        case 'stock_desc': orderBy = Prisma.sql`"stock" DESC`; break;
       }
     }
 
     const variantsQuery = Prisma.sql`
       SELECT 
         v.*,
+        (
+          SELECT COALESCE(SUM(b.quantity), 0) 
+          FROM "Batch" b 
+          WHERE b."variantId" = v.id
+        ) as "stock",
         (
           SELECT json_build_object(
             'id', p.id, 
@@ -362,7 +384,7 @@ export class ProductRepository implements IProductRepository {
           categoryId: data.categoryId,
           price: data.price,
           salePrice: data.salePrice,
-          status: data.status || 'ACTIVE',
+          status: data.status || 'HIDDEN',
           specifications: (data.specifications as unknown as Prisma.InputJsonValue) || [],
         }
       });
@@ -462,19 +484,21 @@ export class ProductRepository implements IProductRepository {
     const validVariants = await prisma.productVariant.findMany({
       where: {
         id: { in: ids },
-        product: { status: 'ACTIVE' }
+        product: { status: { not: 'HIDDEN' } }
       },
       select: { id: true }
     });
 
     const validIds = validVariants.map(v => v.id);
 
-    if (validIds.length > 0) {
-      await prisma.productVariant.updateMany({
-        where: { id: { in: validIds } },
-        data: { status: 'ACTIVE' },
-      });
+    if (validIds.length === 0) {
+      throw new Error("Không thể khôi phục vì sản phẩm gốc đang bị ẩn. Vui lòng khôi phục sản phẩm gốc trước.");
     }
+
+    await prisma.productVariant.updateMany({
+      where: { id: { in: validIds } },
+      data: { status: 'ACTIVE' },
+    });
   }
 
   private generateSKU(): string {

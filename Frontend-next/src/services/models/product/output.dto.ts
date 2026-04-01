@@ -77,6 +77,7 @@ export interface ProductVariantDto {
   salePrice?: number | null;
   image?: string | null;
   status: string;
+  productStatus?: string;
   statusName?: 'BEST_SELLING' | 'TRENDING' | 'NEW';
   createdAt: string;
 }

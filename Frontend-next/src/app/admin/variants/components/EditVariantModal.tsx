@@ -14,7 +14,7 @@ import { showNotificationError, showNotificationSuccess } from "@/src/@core/util
 import { uploadFileToCloudinary } from "@/src/services/admin/upload.service";
 import { UpdateVariantInput } from "@/src/services/models/product/input.dto";
 import { ProductVariantDto } from "@/src/services/models/product/output.dto";
-
+import Image from "next/image";
 interface EditVariantFormValues {
   color: string;
   size?: string;
@@ -100,7 +100,7 @@ export default function EditVariantModal({ isOpen, onClose, variant, onUpdate }:
       onClose();
     } catch (err: any) {
       console.error(err);
-      showNotificationError(err.message || "Lỗi khi cập nhật biến thể");
+      // Hiển thị ở http interceptor rồi
     } finally {
       setIsSubmitting(false);
     }
@@ -109,7 +109,7 @@ export default function EditVariantModal({ isOpen, onClose, variant, onUpdate }:
   return (
     <SWTModal
       title={
-        <span className="text-xl font-black bg-gradient-to-r from-fuchsia-500 to-purple-600 bg-clip-text text-transparent inline-block drop-shadow-sm pb-1">
+         <span className="text-xl font-black text-brand-500">
           Chỉnh Sửa Biến Thể
         </span>
       }
@@ -126,7 +126,7 @@ export default function EditVariantModal({ isOpen, onClose, variant, onUpdate }:
       cancelButtonProps={{
         className: "dark:!text-slate-300 dark:!bg-slate-800 dark:!border-slate-700 !rounded-xl",
       }}
-      className="[&_.ant-modal-header]:!px-6 [&_.ant-modal-body]:!px-6 sm:[&_.ant-modal-header]:!px-8 sm:[&_.ant-modal-body]:!px-8 dark:[&_.ant-modal-content]:!bg-slate-900/95 dark:[&_.ant-modal-content]:!border dark:[&_.ant-modal-content]:!border-fuchsia-500/20"
+      className="[&_.ant-modal-header]:!px-6 [&_.ant-modal-header]:!pt-6 [&_.ant-modal-body]:!px-6 [&_.ant-modal-footer]:!px-6 [&_.ant-modal-footer]:!pb-6 sm:[&_.ant-modal-header]:!px-8 sm:[&_.ant-modal-header]:!pt-8 sm:[&_.ant-modal-body]:!px-8 sm:[&_.ant-modal-footer]:!px-8 sm:[&_.ant-modal-footer]:!pb-8 dark:[&_.ant-modal-content]:!bg-slate-900/95 dark:[&_.ant-modal-content]:!border dark:[&_.ant-modal-content]:!border-fuchsia-500/20 dark:[&_.ant-modal-header]:!bg-transparent dark:[&_.ant-modal-title]:!bg-transparent"
     >
       <div className="mb-6 bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-100 dark:border-slate-800">
         <h4 className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-1 flex items-center gap-2">
@@ -139,6 +139,7 @@ export default function EditVariantModal({ isOpen, onClose, variant, onUpdate }:
         form={form}
         layout="vertical"
         onFinish={handleFinish}
+        loading={isSubmitting}
         className="mt-4 [&_.ant-form-item-label>label]:font-semibold [&_.ant-form-item-label>label]:text-slate-700 dark:[&_.ant-form-item-label>label]:!text-slate-300"
       >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6">
@@ -181,7 +182,7 @@ export default function EditVariantModal({ isOpen, onClose, variant, onUpdate }:
           </SWTFormItem>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6">
+       <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6">
           <SWTFormItem
             name="price"
             label="Giá Bán (VNĐ)"
@@ -206,7 +207,8 @@ export default function EditVariantModal({ isOpen, onClose, variant, onUpdate }:
               className="dark:[&_.ant-input-number-input]:!text-white dark:!bg-slate-800/80 dark:!border-slate-700"
             />
           </SWTFormItem>
-          <SWTFormItem
+        </div>
+         <SWTFormItem
             name="imageFile"
             label="Ảnh minh họa riêng cho biến thể"
             valuePropName="fileList"
@@ -219,17 +221,17 @@ export default function EditVariantModal({ isOpen, onClose, variant, onUpdate }:
               type="drag"
               limitFile={1}
               uploadType="image"
-              listType="picture-card"
               beforeUpload={() => false}
-              className="dark:[&_.ant-upload-drag]:!bg-slate-800/50 dark:[&_.ant-upload-drag]:!border-slate-700"
+              className="w-full dark:[&_.ant-upload-drag]:!bg-slate-800/50 dark:[&_.ant-upload-drag]:!border-slate-700"
             >
-               <div className="flex flex-col items-center justify-center py-4">
-                  <Plus size={24} className="text-slate-400 mb-2" />
-                  <span className="text-sm font-medium text-slate-600 dark:text-slate-300">Thay đổi ảnh</span>
-               </div>
+              <div className="flex flex-col items-center justify-center py-6">
+                <Plus size={24} className="text-slate-400 mb-2" />
+                <span className="text-sm font-medium text-slate-600 dark:text-slate-300">
+                  Thay đổi ảnh
+                </span>
+              </div>
             </SWTUpload>
           </SWTFormItem>
-        </div>
       </SWTForm>
     </SWTModal>
   );

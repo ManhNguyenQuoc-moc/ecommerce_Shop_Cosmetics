@@ -65,6 +65,9 @@ async getProducts(
   async getVariants(page: number, pageSize: number, filters?: VariantQueryFilters): Promise<{ variants: any[]; total: number }> {
     const { variants, total } = await this.productRepository.getVariants(page, pageSize, filters);
     const mappedVariants: any[] = [];
+    // collect variant ids and fetch stock map
+    const variantIds = variants.map((v: ProductVariantWithRelations) => v.id);
+    const stockMap = await this.inventoryService.getStockForVariants(variantIds);
 
     variants.forEach((v: ProductVariantWithRelations) => {
       const p = v.product;
@@ -83,9 +86,10 @@ async getProducts(
         color: v.color || "",
         size: v.size || "",
         soldCount: v.orderItems?.reduce((sum: number, item) => sum + item.quantity, 0) || 0,
-        stock: 0,
+        stock: stockMap[v.id] || 0,
         image: v.image?.url || p?.productImages?.[0]?.image?.url || null,
         status: v.status || "ACTIVE",
+        productStatus: p?.status || "ACTIVE",
         statusName: v.statusName || "NEW",
         createdAt: v.createdAt
       });
@@ -97,7 +101,6 @@ async getProducts(
   async getProductById(id: string): Promise<any | null> {
     const product = await this.productRepository.findById(id);
     if (!product) return null;
-
     const typedProduct = product as Prisma.ProductGetPayload<{
       include: {
         brand: true,
@@ -107,15 +110,12 @@ async getProducts(
         productImages: { include: { image: true } },
       }
     }>;
-
     const images = typedProduct.productImages?.map((pi) => pi.image?.url) || [];
     if (images.length === 0 && typedProduct.variants?.[0]?.image?.url) {
        images.push(typedProduct.variants[0].image.url);
     }
-
     const variantIds = typedProduct.variants?.map((v) => v.id) || [];
     const stockMap = await this.inventoryService.getStockForVariants(variantIds);
-
     const variants = typedProduct.variants?.map((v) => ({
       id: v.id,
       sku: v.sku || `SKU-${v.id.substring(0, 8)}`,
@@ -128,7 +128,6 @@ async getProducts(
       imageId: v.imageId || null,
       soldCount: v.orderItems?.reduce((sum: number, item) => sum + item.quantity, 0) || 0,
     })) || [];
-
     const prices = variants.map((v) => v.price);
     const salePrices = variants.map((v) => v.salePrice).filter((p): p is number => p != null);
     const allPrices = [...prices, ...salePrices];
@@ -185,11 +184,8 @@ async getProducts(
       const category = await prisma.category.findFirst({ where: { name: { equals: data.categoryId, mode: 'insensitive' } } });
       if (category) data.categoryId = category.id;
     }
-
     const existing = await prisma.product.findUnique({ where: { slug } });
     if (existing) throw new Error(`Product with slug ${slug} already exists`);
-
-    // Create Image records for gallery
     const imageIds: string[] = [];
     if (data.images && data.images.length > 0) {
       for (const url of data.images) {
@@ -197,8 +193,6 @@ async getProducts(
         imageIds.push(image.id);
       }
     }
-
-    // Create Image records for variants
     if (data.variants && data.variants.length > 0) {
       for (const variant of data.variants) {
         if (variant.imageUrl) {

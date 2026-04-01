@@ -125,6 +125,8 @@ export default function ProductFilters({ startTransition }: ProductFiltersProps)
                 { label: "Ngày tạo: Cũ nhất", value: "oldest" },
                 { label: "Đã bán: Nhiều nhất", value: "sold_desc" },
                 { label: "Đã bán: Ít nhất", value: "sold_asc" },
+                { label: "Tổng kho: Nhiều nhất", value: "stock_desc" },
+                { label: "Tổng kho: Ít nhất", value: "stock_asc" },
               ]}
             />
           </div>
@@ -136,7 +138,6 @@ export default function ProductFilters({ startTransition }: ProductFiltersProps)
                 <FileSpreadsheet size={18} className="group-hover:scale-110 transition-transform duration-300" />
               </div>
             </SWTTooltip>
-            
             <SWTTooltip title="Thêm Sản Phẩm Mới" placement="top" color="#6366f1">
               <div 
                 className="flex h-[35px] w-[35px] items-center justify-center bg-white dark:bg-indigo-500/20 hover:bg-indigo-50 dark:hover:bg-indigo-500/30 text-indigo-600 dark:text-indigo-400 border border-slate-200 dark:border-indigo-500 rounded-xl shadow-sm transition-all cursor-pointer group"
@@ -238,7 +239,7 @@ export default function ProductFilters({ startTransition }: ProductFiltersProps)
             setIsAddModalOpen(false);
           } catch (err: any) {
             console.error("Create product error", err);
-            showMessageError(err.message || 'Có lỗi xảy ra khi thêm sản phẩm');
+            throw err; // Re-throw để AddProductModal bắt được lỗi và không hiện Toast thành công
           }
         }}
       />

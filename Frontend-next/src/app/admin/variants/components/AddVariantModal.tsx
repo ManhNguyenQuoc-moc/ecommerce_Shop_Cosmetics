@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Plus, Tag, Search } from "lucide-react";
+import {useState } from "react";
+import { Plus, Tag } from "lucide-react";
 import SWTForm from "@/src/@core/component/AntD/SWTForm";
 import SWTFormItem from "@/src/@core/component/AntD/SWTFormItem";
 import SWTInput from "@/src/@core/component/AntD/SWTInput";
@@ -43,7 +43,6 @@ export default function AddVariantModal({ isOpen, onClose, onAdd }: AddVariantMo
     let imageUrl: string | null = null;
 
     try {
-      // 1. Upload image to Cloudinary if presents
       if (values.imageFile && values.imageFile.length > 0) {
         const fileItem = values.imageFile[0];
         const rawFile = fileItem.originFileObj || fileItem;
@@ -51,8 +50,6 @@ export default function AddVariantModal({ isOpen, onClose, onAdd }: AddVariantMo
           imageUrl = await uploadFileToCloudinary(rawFile, "variants");
         }
       }
-
-      // 2. Prepare clean DTO
       const submissionData: CreateVariantInput & { productId: string } = {
         productId: selectedProductId,
         color: values.color,
@@ -63,9 +60,7 @@ export default function AddVariantModal({ isOpen, onClose, onAdd }: AddVariantMo
         statusName: values.statusName,
         imageUrl: imageUrl,
       };
-
       console.log(">>> [Create Variant] Submission Data:", submissionData);
-
       await createVariant(submissionData);
       showNotificationSuccess("Tạo biến thể thành công");
       onAdd(submissionData);
@@ -74,20 +69,19 @@ export default function AddVariantModal({ isOpen, onClose, onAdd }: AddVariantMo
       onClose();
     } catch (err: any) {
       console.error(err);
-      showNotificationError(err.message || "Lỗi khi tạo biến thể");
+      // Hiển thị ở http interceptor rồi
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const selectedProduct = products.find((p: ProductListItemDto) => p.id === selectedProductId);
-
   const selectedProductVariants = (selectedProduct as any)?.variants || []; // Assuming nested variants if available
 
   return (
     <SWTModal
       title={
-        <span className="text-xl font-black bg-gradient-to-r from-fuchsia-500 to-purple-600 bg-clip-text text-transparent inline-block drop-shadow-sm pb-1">
+         <span className="text-xl font-black text-brand-500">
           Tạo Phiên Bản (Variant) Mới
         </span>
       }
@@ -104,7 +98,7 @@ export default function AddVariantModal({ isOpen, onClose, onAdd }: AddVariantMo
       cancelButtonProps={{
         className: "dark:!text-slate-300 dark:!bg-slate-800 dark:!border-slate-700 !rounded-xl",
       }}
-      className="[&_.ant-modal-header]:!px-6 [&_.ant-modal-body]:!px-6 sm:[&_.ant-modal-header]:!px-8 sm:[&_.ant-modal-body]:!px-8 dark:[&_.ant-modal-content]:!bg-slate-900/95 dark:[&_.ant-modal-content]:!border dark:[&_.ant-modal-content]:!border-fuchsia-500/20"
+      className="[&_.ant-modal-header]:!px-6 [&_.ant-modal-header]:!pt-6 [&_.ant-modal-body]:!px-6 [&_.ant-modal-footer]:!px-6 [&_.ant-modal-footer]:!pb-6 sm:[&_.ant-modal-header]:!px-8 sm:[&_.ant-modal-header]:!pt-8 sm:[&_.ant-modal-body]:!px-8 sm:[&_.ant-modal-footer]:!px-8 sm:[&_.ant-modal-footer]:!pb-8 dark:[&_.ant-modal-content]:!bg-slate-900/95 dark:[&_.ant-modal-content]:!border dark:[&_.ant-modal-content]:!border-fuchsia-500/20 dark:[&_.ant-modal-header]:!bg-transparent dark:[&_.ant-modal-title]:!bg-transparent"
     >
       <div className="mt-4 mb-6">
         <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
@@ -113,7 +107,9 @@ export default function AddVariantModal({ isOpen, onClose, onAdd }: AddVariantMo
         <SWTSelect
           placeholder="Tìm kiếm và chọn sản phẩm..."
           loading={isProductsLoading}
-          options={products?.map((p: any) => ({ label: p.name, value: p.id })) || []}
+          options={products
+            ?.filter((p: any) => p.status !== 'HIDDEN')
+            .map((p: any) => ({ label: p.name, value: p.id })) || []}
           showSearch
           filterOption={(input, option) =>
             (option?.label ?? '').toString().toLowerCase().includes(input.toLowerCase())
@@ -122,9 +118,12 @@ export default function AddVariantModal({ isOpen, onClose, onAdd }: AddVariantMo
           value={selectedProductId}
           onChange={(val) => setSelectedProductId(val)}
         />
-        <p className="text-xs text-slate-500 mt-1.5">
-          *Lưu ý: Chỉ được phép thêm biến thể cho các sản phẩm đã tồn tại trên hệ thống.
-        </p>
+        <div className="mt-3 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800 animate-fade-in rounded-xl">
+           <p className="text-xs text-amber-700 dark:text-amber-400 font-medium mb-0 leading-relaxed">
+            * Lưu ý: Chỉ được phép thêm biến thể cho các sản phẩm đã tồn tại trên hệ thống. 
+            Nếu muốn thêm biến thể cho các sản phẩm đang bị ẩn, vui lòng khôi phục sản phẩm đó trước.
+          </p>
+        </div>
       </div>
 
       {selectedProduct && selectedProductVariants.length > 0 && (
@@ -154,6 +153,7 @@ export default function AddVariantModal({ isOpen, onClose, onAdd }: AddVariantMo
           form={form}
           layout="vertical"
           onFinish={handleFinish}
+          loading={isSubmitting}
           className="animate-fade-in mt-4 border-t border-slate-100 dark:border-slate-800 pt-6 [&_.ant-form-item-label>label]:font-semibold [&_.ant-form-item-label>label]:text-slate-700 dark:[&_.ant-form-item-label>label]:!text-slate-300"
         >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6">
@@ -174,12 +174,7 @@ export default function AddVariantModal({ isOpen, onClose, onAdd }: AddVariantMo
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6">
-            <SWTFormItem
-              name="sku"
-              label="Mã SKU (Tự động)"
-            >
-               <SWTInput disabled placeholder="Mã SKU sẽ được tự động tạo..." className="dark:!bg-slate-800/80 dark:!border-slate-700 dark:!text-white" />
-            </SWTFormItem>
+         
 
             <SWTFormItem
               name="statusName"
@@ -237,9 +232,8 @@ export default function AddVariantModal({ isOpen, onClose, onAdd }: AddVariantMo
               type="drag"
               limitFile={1}
               uploadType="image"
-              listType="picture-card"
               beforeUpload={() => false}
-              className="dark:[&_.ant-upload-drag]:!bg-slate-800/50 dark:[&_.ant-upload-drag]:!border-slate-700"
+              className="dark:[&_.ant-upload-drag]:!bg-slate-800/50 dark:[&_.ant-upload-drag]:!border-slate-700 mt-4"
             >
                <div className="flex flex-col items-center justify-center py-4">
                   <Plus size={24} className="text-slate-400 mb-2" />

@@ -100,6 +100,8 @@ export default function VariantFilters({ onUpdate, startTransition }: VariantFil
                   { label: "Ngày tạo: Cũ nhất", value: "oldest" },
                   { label: "Giá bán: Thấp đến Cao", value: "price_asc" },
                   { label: "Giá bán: Cao đến Thấp", value: "price_desc" },
+                  { label: "Số lượng: Nhiều nhất", value: "stock_desc" },
+                  { label: "Số lượng: Ít nhất", value: "stock_asc" },
                 ]}
               />
             </div>
@@ -112,14 +114,14 @@ export default function VariantFilters({ onUpdate, startTransition }: VariantFil
                 </div>
               </SWTTooltip>
               
-              <SWTTooltip title="Thêm Biến Thể Mới" placement="top" color="#d946ef">
-                <div 
-                  className="flex h-[35px] w-[35px] items-center justify-center bg-white dark:bg-fuchsia-500/20 hover:bg-fuchsia-50 dark:hover:bg-fuchsia-500/30 text-fuchsia-600 dark:text-fuchsia-400 border border-slate-200 dark:border-fuchsia-500 rounded-xl shadow-sm transition-all cursor-pointer group"
-                  onClick={() => setIsAddModalOpen(true)}
-                >
-                  <Plus size={20} className="stroke-[2.5] group-hover:scale-110 group-hover:rotate-90 transition-transform duration-300" />
-                </div>
-              </SWTTooltip>
+               <SWTTooltip title="Thêm Variant mới" placement="top" color="#6366f1">
+              <div 
+                className="flex h-[35px] w-[35px] items-center justify-center bg-white dark:bg-indigo-500/20 hover:bg-indigo-50 dark:hover:bg-indigo-500/30 text-indigo-600 dark:text-indigo-400 border border-slate-200 dark:border-indigo-500 rounded-xl shadow-sm transition-all cursor-pointer group"
+                onClick={() => setIsAddModalOpen(true)}
+              >
+                <Plus size={20} className="stroke-[2.5] group-hover:scale-110 group-hover:rotate-90 transition-transform duration-300" />
+              </div>
+            </SWTTooltip>
             </div>
           </div>
         </div>
@@ -133,11 +135,11 @@ export default function VariantFilters({ onUpdate, startTransition }: VariantFil
           <div className="flex flex-wrap items-center gap-3 flex-1">
 
             {/* Title */}
-            <div className="flex items-center gap-2 text-fuchsia-600 dark:text-purple-400 
-            font-semibold pr-4 border-r border-slate-200 dark:border-slate-700">
-              <Filter size={16} />
-              <span className="text-xs uppercase tracking-wide">Bộ lọc</span>
-            </div>
+            <div className="flex items-center gap-2 text-brand-600 dark:text-cyan-400 
+          font-semibold pr-4 border-r border-slate-200 dark:border-slate-700">
+            <Filter size={16} />
+            <span className="text-xs uppercase tracking-wide">Bộ lọc</span>
+          </div>
 
             {/* Status Name (Nhãn) */}
             <SWTSelect
@@ -162,8 +164,7 @@ export default function VariantFilters({ onUpdate, startTransition }: VariantFil
               options={[
                 { label: "Tất cả", value: "all" },
                 { label: "Màu sắc", value: "color" },
-                { label: "Dung tích", value: "volume" },
-                { label: "Kích thước", value: "size" }
+                { label: "Dung tích", value: "size" }
               ]}
             />
 

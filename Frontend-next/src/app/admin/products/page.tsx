@@ -76,9 +76,9 @@ export default function ProductsPage() {
               Quản lý Sản phẩm
             </h2>
           </div>
-          <p className="text-brand-500 dark:text-cyan-400 text-sm font-semibold uppercase tracking-widest drop-shadow-sm dark:drop-shadow-[0_0_5px_rgba(0,240,255,0.3)]">
-            Xem, thêm mới và quản lý thông tin các sản phẩm trong kho.
-          </p>
+            <p className="text-brand-500 dark:text-cyan-400 text-sm font-semibold uppercase tracking-widest drop-shadow-sm dark:drop-shadow-[0_0_5px_rgba(0,240,255,0.3)]">
+              Xem, thêm mới và quản lý thông tin các sản phẩm trong kho.
+            </p>
         </div>
 
         <SWTTooltip

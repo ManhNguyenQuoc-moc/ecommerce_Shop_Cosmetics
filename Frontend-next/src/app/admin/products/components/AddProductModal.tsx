@@ -121,7 +121,6 @@ export default function AddProductModal({ isOpen, onClose, onAdd }: AddProductMo
       showNotificationSuccess("Thêm sản phẩm thành công!");
     } catch (err: any) {
       console.error("Add Product Error:", err);
-      showNotificationError(err.message || 'Lỗi khi tạo sản phẩm');
       
       if (uploadedUrls.length > 0) {
          try {
@@ -154,7 +153,7 @@ export default function AddProductModal({ isOpen, onClose, onAdd }: AddProductMo
   return (
     <SWTModal
       title={
-        <span className="text-xl font-black bg-gradient-to-r from-brand-600 to-rose-500 bg-clip-text text-transparent dark:from-brand-400 dark:to-cyan-400 inline-block drop-shadow-sm pb-1">
+        <span className="text-xl font-black text-brand-500">
           Thêm Sản Phẩm Mới
         </span>
       }
@@ -226,7 +225,7 @@ export default function AddProductModal({ isOpen, onClose, onAdd }: AddProductMo
           <SWTFormItem
             name="status"
             label="Trạng thái hiển thị"
-            initialValue="ACTIVE"
+            initialValue="HIDDEN"
           >
             <SWTSelect
               placeholder="Chọn trạng thái"
@@ -399,15 +398,6 @@ export default function AddProductModal({ isOpen, onClose, onAdd }: AddProductMo
                       <div className="grid grid-cols-1 sm:grid-cols-4 gap-x-4">
                         <SWTFormItem
                           {...restField}
-                          name={[name, 'sku']}
-                          label="Mã SKU (Tự động)"
-                          className="!mb-0"
-                        >
-                          <SWTInput disabled placeholder="Tự động tạo..." className="dark:!bg-slate-900/50 dark:!border-slate-700 dark:!text-white" />
-                        </SWTFormItem>
-
-                        <SWTFormItem
-                          {...restField}
                           name={[name, 'price']}
                           label="Giá bán (VNĐ)"
                           className="!mb-0"
@@ -442,7 +432,6 @@ export default function AddProductModal({ isOpen, onClose, onAdd }: AddProductMo
                           type="drag"
                           limitFile={1}
                           uploadType="image"
-                          listType="picture-card"
                           beforeUpload={() => false}
                           className="dark:[&_.ant-upload-drag]:!bg-slate-900/50 dark:[&_.ant-upload-drag]:!border-slate-700"
                         >

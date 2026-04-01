@@ -1,14 +1,16 @@
 "use client";
 
 import SWTTable from "@/src/@core/component/AntD/SWTTable";
+import SWTStatusTag from "@/src/@core/component/SWTStatusTag";
+import SWTIconButton from "@/src/@core/component/SWTIconButton";
 import { showNotificationSuccess, showNotificationError } from "@/src/@core/utils/message";
 import { useProducts, softDeleteProducts, restoreProducts, PRODUCT_API_ENDPOINT } from "@/src/services/admin/product.service";
 import { mutate as globalMutate } from "swr";
-import { RotateCcw, Edit, UserSquare2, Eye, Trash2 } from "lucide-react";
+import { RotateCcw, Edit, Eye, Trash2, Layers } from "lucide-react";
 import EditProductModal from "./EditProductModal";
 import SWTConfirmModal from "@/src/@core/component/AntD/SWTConfirmModal";
 import SWTTooltip from "@/src/@core/component/AntD/SWTTooltip";
-import Link from "next/link";
+import Image from "next/image";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useState } from "react";
 
@@ -36,7 +38,7 @@ export default function ProductTable({ isPending }: ProductTableProps) {
   const isHiddenTab = searchParams.get("status") === "hidden";
 
   const filters = {
-    searchTerm: searchParams.get("search") || "",
+    search: searchParams.get("search") || "",
     categoryId: searchParams.get("categoryId") || "all",
     brandId: searchParams.get("brandId") || "all",
     status: isHiddenTab ? "hidden" : (searchParams.get("status") || "active_tab"),
@@ -103,13 +105,20 @@ export default function ProductTable({ isPending }: ProductTableProps) {
       key: "name",
       render: (text: string, record: any) => (
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center border border-slate-200 shrink-0">
-            {record.image ? (
-              <img src={record.image} alt={text} className="w-full h-full object-cover rounded-lg" />
-            ) : (
-              <UserSquare2 size={20} className="text-slate-400" />
-            )}
-          </div>
+         <div className="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center border border-slate-200 shrink-0 overflow-hidden relative">
+  {record.image ? (
+    <Image
+      src={record.image}
+      alt={text}
+      fill
+      className="object-cover"
+      sizes="40px"
+      unoptimized
+    />
+  ) : (
+    <Layers size={20} className="text-slate-400" />
+  )}
+</div>
           <div className="flex flex-col gap-1">
             <div className="font-bold text-slate-800 dark:text-white dark:drop-shadow-[0_0_2px_rgba(255,255,255,0.5)]">{text}</div>
             <span className="text-slate-500 dark:text-slate-400 font-medium text-xs">{record.category}</span>
@@ -149,38 +158,7 @@ export default function ProductTable({ isPending }: ProductTableProps) {
       title: "Trạng thái",
       dataIndex: "status",
       key: "status",
-      render: (status: string) => {
-        const statusMap: Record<string, { label: string; color: string; dot: string }> = {
-          ACTIVE: {
-            label: "Đang kinh doanh",
-            color: "bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900/40 dark:text-emerald-400 dark:border-emerald-500/30",
-            dot: "bg-emerald-500",
-          },
-          HIDDEN: {
-            label: "Đang ẩn",
-            color: "bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/40 dark:text-amber-400",
-            dot: "bg-amber-500",
-          },
-          STOPPED: {
-            label: "Hết hàng",
-            color: "bg-red-100 text-red-700 border-red-200 dark:bg-red-900/40 dark:text-red-500",
-            dot: "bg-red-500",
-          },
-        };
-
-        const config = statusMap[status] || {
-          label: status,
-          color: "bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-800/80 dark:text-slate-300 dark:border-slate-700",
-          dot: "bg-slate-500",
-        };
-
-        return (
-          <div className={`text-[11px] uppercase tracking-wider font-bold px-2.5 py-1 rounded-lg border flex items-center gap-1.5 w-max shadow-sm ${config.color}`}>
-            <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${config.dot}`} />
-            {config.label}
-          </div>
-        );
-      },
+      render: (status: string) => <SWTStatusTag status={status} />,
     },
     {
       title: "Thao tác",
@@ -188,29 +166,24 @@ export default function ProductTable({ isPending }: ProductTableProps) {
       align: "center" as const,
       render: (_: any, record: any) => (
         <div className="flex items-center gap-2 justify-center">
-          <SWTTooltip title="Xem chi tiết" color="#3b82f6">
-            <Link href={`/admin/products/${record.id}`}>
-              <button className="text-blue-500 hover:text-blue-700 transition-colors p-1.5 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-500/10 border border-transparent hover:border-blue-100 dark:hover:border-blue-500/20 cursor-pointer">
-                <Eye size={18} />
-              </button>
-            </Link>
-          </SWTTooltip>
-          <SWTTooltip title="Chỉnh sửa" color="#ec4899">
-            <button
-              onClick={() => setEditProductId(record.id)}
-              className="text-fuchsia-600 hover:text-fuchsia-800 transition-colors p-1.5 rounded-lg hover:bg-fuchsia-50 dark:hover:bg-fuchsia-500/10 border border-transparent hover:border-fuchsia-100 dark:hover:border-fuchsia-500/20 cursor-pointer"
-            >
-              <Edit size={18} />
-            </button>
-          </SWTTooltip>
-          <SWTTooltip title={isHiddenTab ? "Khôi phục" : "Ẩn sản phẩm"} color={isHiddenTab ? "#10b981" : "#f59e0b"}>
-            <button
-              onClick={() => setConfirmSingle({ open: true, record })}
-              className={`${isHiddenTab ? "text-emerald-500 hover:text-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 hover:border-emerald-100 dark:hover:border-emerald-500/20" : "text-amber-500 hover:text-amber-700 hover:bg-amber-50 dark:hover:bg-amber-500/10 hover:border-amber-100 dark:hover:border-amber-500/20"} transition-colors p-1.5 rounded-lg border border-transparent cursor-pointer`}
-            >
-              {isHiddenTab ? <RotateCcw size={18} /> : <Trash2 size={18} />}
-            </button>
-          </SWTTooltip>
+          <SWTIconButton
+            variant="view"
+            icon={<Eye size={18} />}
+            tooltip="Xem chi tiết"
+            href={`/admin/products/${record.id}`}
+          />
+          <SWTIconButton
+            variant="edit"
+            icon={<Edit size={18} />}
+            tooltip="Chỉnh sửa"
+            onClick={() => setEditProductId(record.id)}
+          />
+          <SWTIconButton
+            variant={isHiddenTab ? "restore" : "hide"}
+            icon={isHiddenTab ? <RotateCcw size={18} /> : <Trash2 size={18} />}
+            tooltip={isHiddenTab ? "Khôi phục" : "Ẩn sản phẩm"}
+            onClick={() => setConfirmSingle({ open: true, record })}
+          />
         </div>
       ),
     },

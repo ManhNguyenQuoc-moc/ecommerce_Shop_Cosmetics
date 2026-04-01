@@ -133,9 +133,9 @@ export const useVariants = (
   };
 };
 
-export const useProduct = (id: string) => {
+export const useProduct = (id: string | undefined) => {
   const fetcher = () =>
-    get<ProductDetailDto>(`${PRODUCT_API_ENDPOINT}/${id}`);
+    id ? get<ProductDetailDto>(`${PRODUCT_API_ENDPOINT}/${id}`) : Promise.reject("No ID provided");
 
   const { data, error, isLoading, isValidating, mutate } =
     useFetchSWR<ProductDetailDto>(

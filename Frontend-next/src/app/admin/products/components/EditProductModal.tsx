@@ -196,7 +196,7 @@ export default function EditProductModal({ isOpen, onClose, productId, onUpdated
       handleClose();
     } catch (err: any) {
       console.error("Update Product Error:", err);
-      showNotificationError(err.message || "Lỗi khi cập nhật sản phẩm");
+      // Hiển thị ở http interceptor tồi nên ta không cần hiện 2 lần
     } finally {
       setIsSubmitting(false);
     }
@@ -220,7 +220,7 @@ export default function EditProductModal({ isOpen, onClose, productId, onUpdated
   return (
     <SWTModal
       title={
-        <span className="text-xl font-black bg-gradient-to-r from-fuchsia-600 to-pink-500 bg-clip-text text-transparent dark:from-fuchsia-400 dark:to-pink-400 inline-block drop-shadow-sm pb-1">
+         <span className="text-xl font-black text-brand-500">
           Chỉnh Sửa Sản Phẩm
         </span>
       }
@@ -422,9 +422,7 @@ export default function EditProductModal({ isOpen, onClose, productId, onUpdated
                         <SWTFormItem {...restField} name={[name, 'size']} label="Kích cỡ" className="!mb-4">
                           <SWTInput placeholder="Vd: 30ml..." className="dark:!bg-slate-900/50 dark:!border-slate-700 dark:!text-white" />
                         </SWTFormItem>
-                        <SWTFormItem {...restField} name={[name, 'sku']} label="Mã SKU (Tự động)" className="!mb-4">
-                          <SWTInput disabled placeholder="Mã SKU..." className="dark:!bg-slate-900/50 dark:!border-slate-700 dark:!text-white" />
-                        </SWTFormItem>
+                        
                         <SWTFormItem {...restField} name={[name, 'statusName']} label="Nhãn sự kiện" className="!mb-4" initialValue="NEW">
                           <SWTSelect
                             options={[
@@ -461,7 +459,6 @@ export default function EditProductModal({ isOpen, onClose, productId, onUpdated
                           type="drag"
                           limitFile={1}
                           uploadType="image"
-                          listType="picture-card"
                           beforeUpload={() => false}
                           className="dark:[&_.ant-upload-drag]:!bg-slate-900/50 dark:[&_.ant-upload-drag]:!border-slate-700"
                         >
