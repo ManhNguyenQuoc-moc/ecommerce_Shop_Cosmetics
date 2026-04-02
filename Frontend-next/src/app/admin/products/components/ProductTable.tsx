@@ -121,7 +121,7 @@ export default function ProductTable({ isPending }: ProductTableProps) {
 </div>
           <div className="flex flex-col gap-1">
             <div className="font-bold text-slate-800 dark:text-white dark:drop-shadow-[0_0_2px_rgba(255,255,255,0.5)]">{text}</div>
-            <span className="text-slate-500 dark:text-slate-400 font-medium text-xs">{record.category}</span>
+            <span className="text-slate-500 dark:text-slate-400 font-medium text-xs">{(record.category as any)?.name || "Chưa phân loại"}</span>
           </div>
         </div>
       ),
@@ -130,13 +130,13 @@ export default function ProductTable({ isPending }: ProductTableProps) {
       title: "Danh mục",
       dataIndex: "category",
       key: "category",
-      render: (text: string) => <div className="text-slate-600 font-medium text-sm">{text}</div>,
+      render: (category: any) => <div className="text-slate-600 font-medium text-sm">{category?.name || "Chưa phân loại"}</div>,
     },
     {
       title: "Thương hiệu",
       dataIndex: "brand",
       key: "brand",
-      render: (brand: string) => <div className="font-semibold text-slate-700 dark:text-slate-300 text-sm">{brand || "N/A"}</div>,
+      render: (brand: any) => <div className="font-semibold text-slate-700 dark:text-slate-300 text-sm">{brand?.name || "N/A"}</div>,
     },
     {
       title: "Tổng đã bán",

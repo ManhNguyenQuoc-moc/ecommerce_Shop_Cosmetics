@@ -3,14 +3,66 @@ import { IInventoryRepository } from "../interfaces/IInventoryRepository";
 import { ReceiveStockItemDTO } from "../DTO/purchase/input/ReceiveStockDTO";
 
 export class InventoryRepository implements IInventoryRepository {
-  async getBatches(skip: number, take: number): Promise<[any[], number]> {
+  async getBatches(skip: number, take: number, filters?: any): Promise<[any[], number]> {
+    const where: any = {};
+    
+    if (filters?.search) {
+      where.OR = [
+        { batchNumber: { contains: filters.search, mode: 'insensitive' } },
+        { variant: { sku: { contains: filters.search, mode: 'insensitive' } } },
+        { variant: { product: { name: { contains: filters.search, mode: 'insensitive' } } } }
+      ];
+    }
+
+    if (filters?.categoryId && filters.categoryId !== 'all') {
+      where.variant = { product: { categoryId: filters.categoryId } };
+    }
+
+    if (filters?.status && filters.status !== 'all') {
+      const now = new Date();
+      const nearExpiry = new Date();
+      nearExpiry.setMonth(nearExpiry.getMonth() + 3);
+
+      if (filters.status === 'EXPIRED') {
+        where.expiryDate = { lt: now };
+      } else if (filters.status === 'NEAR_EXPIRY') {
+        where.expiryDate = { gte: now, lte: nearExpiry };
+      } else if (filters.status === 'OUT_OF_STOCK') {
+        where.quantity = 0;
+      } else if (filters.status === 'GOOD') {
+        where.expiryDate = { gt: nearExpiry };
+        where.quantity = { gt: 0 };
+      }
+    }
+
+    const orderBy: any = {};
+    if (filters?.sortBy === 'expiry_asc') orderBy.expiryDate = 'asc';
+    else if (filters?.sortBy === 'expiry_desc') orderBy.expiryDate = 'desc';
+    else if (filters?.sortBy === 'qty_asc') orderBy.quantity = 'asc';
+    else if (filters?.sortBy === 'qty_desc') orderBy.quantity = 'desc';
+    else orderBy.createdAt = 'desc';
+
     return Promise.all([
       prisma.batch.findMany({
+        where,
         skip,
         take,
-        orderBy: { expiryDate: "asc" }
+        include: {
+          variant: {
+            include: {
+              product: {
+                include: {
+                  category: true
+                }
+              },
+              image: true
+            }
+          },
+          transactions: true
+        },
+        orderBy
       }),
-      prisma.batch.count()
+      prisma.batch.count({ where })
     ]);
   }
 

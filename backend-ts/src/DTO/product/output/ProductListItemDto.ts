@@ -3,8 +3,8 @@ export interface ProductListItemDto {
   id: string;
   slug: string;
   name: string;
-  brand: string | null;
-  category: string;
+  brand: { id: string; name: string } | null;
+  category: { id: string; name: string } | null;
   image: string | null;
 
   price: number;

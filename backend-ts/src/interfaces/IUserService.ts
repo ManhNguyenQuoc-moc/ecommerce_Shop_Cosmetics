@@ -5,4 +5,5 @@ export interface IUserService {
   getUserByEmail(email: string): Promise<User | null>;
   createUser(data: any): Promise<User>;
   updateUser(id: string, data: any): Promise<User>;
+  getUsers(page?: number, limit?: number, filters?: any): Promise<{ items: User[], total: number }>;
 }

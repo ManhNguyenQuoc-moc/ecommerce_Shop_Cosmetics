@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { X, LayoutGrid } from "lucide-react";
+import SWTIconButton from "@/src/@core/component/SWTIconButton";
 import { Category } from "@/src/@core/type/category";
 
 type Props = {
@@ -48,12 +49,11 @@ export default function AppSideBar({ open, onClose, categories }: Props) {
               </span>
             </div>
           </Link>
-          <button 
+          <SWTIconButton
             onClick={onClose}
+            icon={<X size={20} className="stroke-[2.5]" />}
             className="p-2 rounded-xl text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors"
-          >
-            <X size={20} className="stroke-[2.5]" />
-          </button>
+          />
         </div>
 
         {/* Categories Menu */}

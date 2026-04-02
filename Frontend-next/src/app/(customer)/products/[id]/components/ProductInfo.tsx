@@ -1,6 +1,13 @@
 import { Star } from "lucide-react";
+import { ProductDetail } from "@/src/@core/type/Product";
+
+type Props = {
+  product: ProductDetail;
+};
 
 export default function ProductInfo({ product }: Props) {
+  const brandName = typeof product.brand === 'object' ? product.brand?.name : product.brand;
+
   return (
     <div className="space-y-4">
       <h1 className="text-2xl font-semibold leading-snug text-gray-900">
@@ -9,7 +16,7 @@ export default function ProductInfo({ product }: Props) {
       <div className="flex items-center gap-2 text-xl mb-1.5">
         <span className="text-gray-500">Thương hiệu:</span>
        <span className="px-2 py-0.5 rounded bg-blue-100 text-gray-700 font-medium">
-          {product.brand?.name}
+          {brandName}
       </span>
       </div>
       <div className="flex flex-wrap items-center gap-3 text-md text-gray-600">
@@ -36,7 +43,7 @@ export default function ProductInfo({ product }: Props) {
       </div>
 
       <p className="text-md leading-relaxed text-gray-600 mt-1.5">
-        {product.shortdescription}
+        {product.short_description}
       </p>
 
     </div>

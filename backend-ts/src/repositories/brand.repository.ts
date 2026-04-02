@@ -2,11 +2,18 @@ import { prisma } from "../config/prisma";
 import { Brand } from "@prisma/client";
 
 export class BrandRepository {
-  async findAll(): Promise<Brand[]> {
-    return prisma.brand.findMany({
-      include: { logo: true, banner: true },
-      orderBy: { createdAt: 'desc' }
-    });
+  async findAll(skip?: number, take?: number): Promise<[Brand[], number]> {
+    const where = {};
+    return Promise.all([
+      prisma.brand.findMany({
+        where,
+        skip,
+        take,
+        include: { logo: true, banner: true },
+        orderBy: { createdAt: 'desc' }
+      }),
+      prisma.brand.count({ where })
+    ]);
   }
 
   async findById(id: string): Promise<Brand | null> {

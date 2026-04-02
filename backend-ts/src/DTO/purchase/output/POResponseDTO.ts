@@ -1,4 +1,5 @@
 export type POStatus = 'DRAFT' | 'CONFIRMED' | 'PARTIALLY_RECEIVED' | 'COMPLETED' | 'CANCELLED';
+export type POPriority = 'LOW' | 'NORMAL' | 'HIGH';
 
 export interface VariantInPODTO {
   id: string;
@@ -27,6 +28,8 @@ export interface BrandInPODTO {
   id: string;
   name: string;
   logoUrl?: string | null;
+  email?: string | null;
+  phone?: string | null;
 }
 
 export interface POListItemDTO {
@@ -35,14 +38,24 @@ export interface POListItemDTO {
   brandId: string;
   brand: BrandInPODTO;
   status: POStatus;
+  priority: POPriority;
   totalAmount: number;
   note?: string | null;
   createdAt: string;
   updatedAt: string;
 }
 
+export interface POReceiptItemDTO {
+  variantId: string;
+  quantity: number;
+  batchNumber: string;
+  expiryDate: string;
+  createdAt: string;
+}
+
 export interface PODetailDTO extends POListItemDTO {
   items: POItemResponseDTO[];
+  receipts?: POReceiptItemDTO[];
 }
 
 export interface POListResponseDTO {

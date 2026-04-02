@@ -1,6 +1,7 @@
 "use client";
 
 import { Bell, Menu, ChevronDown, User, LogOut, Sun, Moon } from "lucide-react";
+import SWTIconButton from "@/src/@core/component/SWTIconButton";
 import { usePathname, useRouter } from "next/navigation";
 import { adminNavItems } from "@/src/@core/http/routes/admin-nav";
 import { useSidebar } from "@/src/context/SidebarContext";
@@ -61,15 +62,14 @@ export default function AdminAppHeader() {
       
       {/* Left: Hamburger & Dynamic Title */}
       <div className="flex items-center gap-3 md:gap-4">
-        <button 
+        <SWTIconButton
           onClick={() => {
             if (window.innerWidth >= 1024) toggleSidebar();
             else toggleMobileSidebar();
           }}
+          icon={<Menu size={24} />}
           className="p-2 -ml-2 rounded-xl text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-white/5 dark:hover:text-white transition-colors"
-        >
-          <Menu size={24} />
-        </button>
+        />
         <h2 className="!mb-0 font-bold text-lg md:text-xl text-slate-800 dark:text-white tracking-tight hidden sm:block dark:drop-shadow-[0_0_5px_rgba(255,255,255,0.4)]">
           {title}
         </h2>
@@ -89,19 +89,19 @@ export default function AdminAppHeader() {
       <div className="flex items-center gap-2 md:gap-4">
         
         {/* Theme Toggle */}
-        <button 
+        <SWTIconButton
           onClick={toggleTheme}
+          icon={isDark ? <Sun size={20} className="text-brand-500" /> : <Moon size={20} className="text-slate-600" />}
           className="p-2.5 rounded-xl text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-white/5 dark:hover:text-white transition-colors"
-        >
-          {isDark ? <Sun size={20} className="text-brand-500" /> : <Moon size={20} className="text-slate-600" />}
-        </button>
+        />
 
         {/* Notifications */}
-        <button className="relative p-2.5 rounded-xl text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-white/5 dark:hover:text-white transition-colors">
-          <Bell size={20} />
-          {/* Red Ping Dot */}
-          <span className="absolute top-2 right-2.5 w-2.5 h-2.5 bg-brand-500 dark:bg-pink-500 rounded-full border-2 border-white dark:border-slate-900 animate-pulse shadow-sm dark:shadow-[0_0_8px_#ff007f]" />
-        </button>
+        <SWTIconButton
+          icon={<Bell size={20} />}
+          className="relative p-2.5 rounded-xl text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-white/5 dark:hover:text-white transition-colors"
+        />
+        {/* Red Ping Dot */}
+        <span className="absolute top-2 right-2.5 w-2.5 h-2.5 bg-brand-500 dark:bg-pink-500 rounded-full border-2 border-white dark:border-slate-900 animate-pulse shadow-sm dark:shadow-[0_0_8px_#ff007f]" />
 
         <div className="w-px h-8 bg-slate-200 dark:bg-slate-700 mx-1 md:mx-2" />
 

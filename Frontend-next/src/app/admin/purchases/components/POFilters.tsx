@@ -6,10 +6,10 @@ import { SWTInputSearch } from "@/src/@core/component/AntD/SWTInput";
 import SWTSelect from "@/src/@core/component/AntD/SWTSelect";
 import SWTTooltip from "@/src/@core/component/AntD/SWTTooltip";
 import { useState, useEffect, TransitionStartFunction } from "react";
-import { useSearchParams, useRouter, usePathname } from "next/navigation";
+import { useSearchParams, usePathname } from "next/navigation";
 import { useBrands } from "@/src/services/admin/brand.service";
 import { useDebounce } from "@/src/@core/hooks/useDebounce";
-import CreatePOModal from "./CreatePOModal";
+import { useRouter } from "next/navigation";
 
 interface POFiltersProps {
   startTransition: TransitionStartFunction;
@@ -112,7 +112,7 @@ export default function POFilters({ startTransition }: POFiltersProps) {
               <SWTTooltip title="Tạo Phiếu Nhập Mới" placement="top" color="#6366f1">
                 <div
                   className="flex h-[35px] w-[35px] items-center justify-center bg-white dark:bg-indigo-500/20 hover:bg-indigo-50 dark:hover:bg-indigo-500/30 text-indigo-600 dark:text-indigo-400 border border-slate-200 dark:border-indigo-500 rounded-xl shadow-sm transition-all cursor-pointer group"
-                  onClick={() => setIsAddModalOpen(true)}
+                  onClick={() => router.push('/admin/purchases/create')}
                 >
                   <Plus size={20} className="stroke-[2.5] group-hover:scale-110 group-hover:rotate-90 transition-transform duration-300" />
                 </div>
@@ -171,7 +171,7 @@ export default function POFilters({ startTransition }: POFiltersProps) {
         </div>
       </div>
 
-      <CreatePOModal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} />
+      {/* Create modal removed — navigation goes to create page */}
     </>
   );
 }

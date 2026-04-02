@@ -11,7 +11,7 @@ export class PurchaseController {
   async getPOs(req: Request, res: Response) {
     try {
       const page = parseInt(req.query.page as string) || 1;
-      const limit = parseInt(req.query.limit as string) || 10;
+      const limit = parseInt(req.query.limit as string) || 6;
 
       const filters: POQueryFiltersDTO = {
         search: req.query.search as string | undefined,
@@ -30,7 +30,7 @@ export class PurchaseController {
 
   async getPOById(req: Request, res: Response) {
     try {
-      const po = await purchaseService.getPurchaseOrderById(req.params.id);
+      const po = await purchaseService.getPurchaseOrderById(req.params.id as string);
       if (!po) return res.status(404).json({ success: false, message: "Không tìm thấy phiếu nhập" });
       res.json({ success: true, data: po });
     } catch (error: unknown) {
@@ -53,7 +53,7 @@ export class PurchaseController {
   async updatePO(req: Request, res: Response) {
     try {
       const dto = req.body as UpdatePODTO;
-      const po = await purchaseService.updatePurchaseOrder(req.params.id, dto);
+      const po = await purchaseService.updatePurchaseOrder(req.params.id as string, dto);
       res.json({ success: true, data: po, message: "Cập nhật phiếu nhập thành công" });
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : "Lỗi hệ thống";
@@ -63,7 +63,7 @@ export class PurchaseController {
 
   async confirmPO(req: Request, res: Response) {
     try {
-      const po = await purchaseService.confirmPurchaseOrder(req.params.id);
+      const po = await purchaseService.confirmPurchaseOrder(req.params.id as string);
       res.json({ success: true, data: po, message: "Phiếu nhập đã được duyệt" });
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : "Lỗi hệ thống";
@@ -73,7 +73,7 @@ export class PurchaseController {
 
   async cancelPO(req: Request, res: Response) {
     try {
-      const po = await purchaseService.cancelPurchaseOrder(req.params.id);
+      const po = await purchaseService.cancelPurchaseOrder(req.params.id as string);
       res.json({ success: true, data: po, message: "Phiếu nhập đã bị hủy" });
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : "Lỗi hệ thống";

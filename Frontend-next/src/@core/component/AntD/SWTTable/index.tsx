@@ -7,7 +7,7 @@ import SWTEmpty from "../SWTEmpty";
 type SWTTableProps = TableProps<any> & {
   columns: any[];
   dataSource: any[];
-  pagination?: SWTPaginationProps;
+  pagination?: SWTPaginationProps | false;
 };
 
 type SWTPaginationProps = {

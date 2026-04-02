@@ -1,7 +1,7 @@
 import { Batch, StockTransaction } from "@prisma/client";
 
 export interface IInventoryRepository {
-  getBatches(skip: number, take: number): Promise<[any[], number]>;
+  getBatches(skip: number, take: number, filters?: any): Promise<[any[], number]>;
   getTransactions(skip: number, take: number): Promise<[any[], number]>;
   
   findBatch(variantId: string, batchNumber: string): Promise<Batch | null>;

@@ -10,12 +10,28 @@ export class CategoryController {
 
   getCategories = async (req: Request, res: Response): Promise<void> => {
     try {
+      const page = req.query.page ? parseInt(req.query.page as string) : null;
+      const limit = (req.query.limit || req.query.pageSize) ? parseInt((req.query.limit || req.query.pageSize) as string) : null;
+      
       const categories = await this.categoryService.getCategories();
+      const total = categories.length;
+      
+      let paginatedCategories = categories;
+      if (page !== null || limit !== null) {
+        const pageNumber = page || 1;
+        const limitNumber = limit || 6;
+        paginatedCategories = categories.slice((pageNumber - 1) * limitNumber, pageNumber * limitNumber);
+      }
 
       res.status(200).json({
         success: true,
         message: "Get categories successfully",
-        data: categories,
+        data: {
+          items: paginatedCategories,
+          total,
+          page: page || 1,
+          pageSize: limit || total
+        },
       });
     } catch (error: any) {
       res.status(500).json({ success: false, message: error.message || "Internal server error" });

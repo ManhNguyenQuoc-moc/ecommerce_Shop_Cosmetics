@@ -13,9 +13,8 @@ import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useState } from "react";
 import { mutate as globalMutate } from "swr";
 import PODetailModal from "./PODetailModal";
-import EditPOModal from "./EditPOModal";
 import { usePurchaseOrderById } from "@/src/services/admin/purchase.service";
-import { POListItemDto, POStatus, PO_STATUS_LABELS } from "@/src/services/models/purchase/output.dto";
+import { POListItemDto, POStatus, PO_STATUS_LABELS, POPriority, PO_PRIORITY_LABELS } from "@/src/services/models/purchase/output.dto";
 import { POQueryParams } from "@/src/services/models/purchase/input.dto";
 
 interface POTableProps {
@@ -31,7 +30,7 @@ export default function POTable({ isPending }: POTableProps) {
   const [editId, setEditId] = useState<string | null>(null);
 
   const page = Number(searchParams.get("page") ?? 1);
-  const pageSize = Number(searchParams.get("pageSize") ?? 10);
+  const pageSize = Number(searchParams.get("pageSize") ?? 6);
 
   const filters: POQueryParams = {
     search: searchParams.get("search") || undefined,
@@ -55,6 +54,21 @@ export default function POTable({ isPending }: POTableProps) {
         className={`text-xs font-bold px-2.5 py-1 rounded-full border flex items-center w-max whitespace-nowrap ${colorMap[status] ?? ""}`}
       >
         {PO_STATUS_LABELS[status] ?? status}
+      </div>
+    );
+  };
+
+  const renderPriorityTag = (priority: POPriority) => {
+    const colorMap: Record<POPriority, string> = {
+      LOW: "bg-slate-50 text-slate-500 border-slate-200 dark:bg-slate-800/50 dark:text-slate-400 dark:border-slate-700",
+      NORMAL: "bg-blue-50 text-blue-600 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-800/50",
+      HIGH: "bg-red-50 text-red-600 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800/50",
+    };
+    return (
+      <div
+        className={`text-[10px] uppercase tracking-wider font-black px-2 py-0.5 rounded border flex items-center w-max whitespace-nowrap shadow-sm ${colorMap[priority] ?? ""}`}
+      >
+        {PO_PRIORITY_LABELS[priority] ?? priority}
       </div>
     );
   };
@@ -99,6 +113,12 @@ export default function POTable({ isPending }: POTableProps) {
       ),
     },
     {
+      title: "Ưu tiên",
+      dataIndex: "priority",
+      key: "priority",
+      render: (priority: POPriority) => renderPriorityTag(priority),
+    },
+    {
       title: "Trạng thái",
       dataIndex: "status",
       key: "status",
@@ -114,13 +134,13 @@ export default function POTable({ isPending }: POTableProps) {
             variant="view"
             icon={<Eye size={18} />}
             tooltip="Xem chi tiết"
-            onClick={() => setViewId(record.id)}
+            onClick={() => router.push(`/admin/purchases/${record.id}`)}
           />
           <SWTIconButton
             variant="edit"
             icon={<Edit size={18} />}
             tooltip="Chỉnh sửa"
-            onClick={() => setEditId(record.id)}
+            onClick={() => router.push(`/admin/purchases/${record.id}/edit`)}
           />
         </div>
       ),
@@ -148,41 +168,6 @@ export default function POTable({ isPending }: POTableProps) {
           }}
         />
       </div>
-
-      {/* View / Detail Modal — contains all action buttons */}
-      <PODetailModal
-        isOpen={!!viewId}
-        onClose={() => setViewId(null)}
-        poId={viewId}
-        onMutate={() => {
-          refetch();
-          globalMutate(
-            (key) => typeof key === "string" && key.startsWith(PURCHASE_API_ENDPOINT),
-            undefined,
-            { revalidate: true }
-          );
-        }}
-      />
-
-      {/* Edit Modal — load PO by id and open EditPOModal to prefill */}
-      {
-        (() => {
-          const { po: editPo } = usePurchaseOrderById(editId ? editId : null);
-          return (
-            editId && (
-              <EditPOModal
-                isOpen={!!editId}
-                onClose={() => setEditId(null)}
-                po={editPo ?? null}
-                onSuccess={() => {
-                  refetch();
-                  setEditId(null);
-                }}
-              />
-            )
-          );
-        })()
-      }
     </div>
   );
 }

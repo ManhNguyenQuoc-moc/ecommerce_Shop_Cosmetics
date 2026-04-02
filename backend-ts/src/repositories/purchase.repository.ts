@@ -3,7 +3,7 @@ import { prisma } from "../config/prisma";
 import { IPurchaseRepository } from "../interfaces/IPurchaseRepository";
 import { CreatePODTO, POQueryFiltersDTO } from "../DTO/purchase/input/CreatePODTO";
 import { UpdatePODTO } from "../DTO/purchase/input/UpdatePODTO";
-import { PODetailDTO, POListItemDTO, POStatus } from "../DTO/purchase/output/POResponseDTO";
+import { PODetailDTO, POListItemDTO, POStatus, POPriority, POReceiptItemDTO, POItemResponseDTO } from "../DTO/purchase/output/POResponseDTO";
 
 export class PurchaseRepository implements IPurchaseRepository {
 
@@ -54,36 +54,76 @@ export class PurchaseRepository implements IPurchaseRepository {
       where: { id },
       include: {
         brand: true,
-        items: true,
+        items: {
+          include: {
+            variant: {
+              include: {
+                product: true,
+              },
+            },
+          },
+        },
       },
     });
 
     if (!po) return null;
 
-    const variantIds = po.items.map((i) => i.variantId);
-    const variants = await prisma.productVariant.findMany({
-      where: { id: { in: variantIds } },
-      include: { product: { select: { id: true, name: true } } },
+    // Fetch Receipts (Transactions)
+    const transactions = await prisma.stockTransaction.findMany({
+      where: { referenceId: id, type: 'IN' },
+      include: { batch: true },
+      orderBy: { createdAt: 'desc' }
     });
 
-    const variantMap = new Map(variants.map((v) => [v.id, v]));
+    const receipts: POReceiptItemDTO[] = transactions.map(t => ({
+      variantId: t.variantId,
+      quantity: t.quantity,
+      batchNumber: t.batch.batchNumber,
+      expiryDate: t.batch.expiryDate.toISOString(),
+      createdAt: t.createdAt.toISOString()
+    }));
 
-    return {
-      ...po,
+    const items: POItemResponseDTO[] = po.items.map((item: any) => ({
+      id: item.id,
+      purchaseOrderId: item.purchaseOrderId,
+      variantId: item.variantId,
+      orderedQty: item.orderedQty,
+      receivedQty: item.receivedQty,
+      costPrice: item.costPrice,
+      createdAt: item.createdAt.toISOString(),
+      updatedAt: item.updatedAt.toISOString(),
+      variant: {
+        id: item.variant.id,
+        sku: item.variant.sku,
+        color: item.variant.color,
+        size: item.variant.size,
+        product: {
+          id: item.variant.product.id,
+          name: item.variant.product.name,
+        }
+      }
+    }));
+
+    const detail: PODetailDTO = {
+      id: po.id,
+      code: po.code,
+      brandId: po.brandId,
       status: po.status as POStatus,
-      createdAt: po.createdAt.toISOString(),
-      updatedAt: po.updatedAt.toISOString(),
+      priority: po.priority as POPriority,
+      totalAmount: po.totalAmount,
+      note: po.note,
       brand: {
         id: po.brand.id,
         name: po.brand.name,
+        logoUrl: po.brand.logoId, // Adjusted mapping
       },
-      items: po.items.map((item) => ({
-        ...item,
-        createdAt: item.createdAt.toISOString(),
-        updatedAt: item.updatedAt.toISOString(),
-        variant: variantMap.get(item.variantId) ?? null,
-      })),
-    } as PODetailDTO;
+      items,
+      receipts,
+      createdAt: po.createdAt.toISOString(),
+      updatedAt: po.updatedAt.toISOString(),
+    };
+
+    return detail;
   }
 
   async createPurchaseOrder(data: CreatePODTO): Promise<PurchaseOrder> {
@@ -102,9 +142,10 @@ export class PurchaseRepository implements IPurchaseRepository {
           code,
           brandId: data.brandId,
           note: data.note,
+          priority: data.priority || 'NORMAL',
           totalAmount,
           status: 'DRAFT',
-        },
+        } as any,
       });
 
       if (data.items && data.items.length > 0) {
@@ -136,8 +177,9 @@ export class PurchaseRepository implements IPurchaseRepository {
         data: {
           brandId: data.brandId,
           note: data.note,
+          priority: data.priority,
           totalAmount,
-        },
+        } as any,
       });
 
       // Delete existing items

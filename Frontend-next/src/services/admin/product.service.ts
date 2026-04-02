@@ -1,6 +1,29 @@
 import { get, post, put, del } from "../api";
 import { useFetchSWR } from "@/src/@core/hooks/useFetchSWR";
-import { ProductListResponseDto, ProductDetailDto, ProductVariantDto, VariantListResponseDto } from "../models/product/output.dto";
+import { ProductListResponseDto, ProductDetailDto, ProductVariantDto, VariantListResponseDto, VariantDetailDto } from "../models/product/output.dto";
+// ... existing code ...
+export const useVariant = (id: string | undefined) => {
+  const fetcher = () =>
+    id ? get<VariantDetailDto>(`${PRODUCT_API_ENDPOINT}/variants/${id}`) : Promise.reject("No ID provided");
+
+  const { data, error, isLoading, isValidating, mutate } =
+    useFetchSWR<VariantDetailDto>(
+      id ? `${PRODUCT_API_ENDPOINT}/variants/${id}` : null,
+      fetcher,
+      {
+        revalidateOnFocus: false,
+        revalidateOnReconnect: false,
+        revalidateIfStale: false,
+      }
+    );
+
+  return {
+    variant: data || null,
+    isLoading: isLoading || isValidating,
+    isError: error,
+    mutate,
+  };
+};
 import { CreateProductInput, ProductQueryParams, UpdateProductInput, CreateVariantInput, UpdateVariantInput } from "../models/product/input.dto";
 export const PRODUCT_API_ENDPOINT = "/products";
 

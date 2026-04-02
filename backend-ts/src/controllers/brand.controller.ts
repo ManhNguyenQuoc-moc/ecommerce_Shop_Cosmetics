@@ -6,8 +6,20 @@ export class BrandController {
 
   getAllBrands = async (req: Request, res: Response): Promise<void> => {
     try {
-      const brands = await this.brandService.getAllBrands();
-      res.status(200).json({ success: true, data: brands });
+      const page = req.query.page ? parseInt(req.query.page as string) : null;
+      const limit = (req.query.limit || req.query.pageSize) ? parseInt((req.query.limit || req.query.pageSize) as string) : null;
+      
+      const { items, total } = await this.brandService.getAllBrands(page || undefined, limit || undefined);
+      
+      res.status(200).json({ 
+        success: true, 
+        data: {
+          items,
+          total,
+          page: page || 1,
+          pageSize: limit || total
+        } 
+      });
     } catch (error: any) {
       res.status(500).json({ success: false, message: error.message });
     }

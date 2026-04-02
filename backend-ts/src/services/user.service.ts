@@ -24,4 +24,10 @@ export class UserService implements IUserService {
   async updateUser(id: string, data: any): Promise<User> {
     return this.userRepository.update(id, data);
   }
+
+  async getUsers(page?: number, limit?: number, filters?: any): Promise<{ items: User[], total: number }> {
+    const skip = page && limit ? (page - 1) * limit : undefined;
+    const [items, total] = await this.userRepository.findAll(skip, limit, filters);
+    return { items, total };
+  }
 }
