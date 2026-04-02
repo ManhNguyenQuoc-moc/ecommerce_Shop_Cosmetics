@@ -77,6 +77,7 @@ export default function SWTConfirmModal({
       mask={true}
       width={420}
       centered
+      zIndex={2000}
        className="
     [&_.ant-modal-content]:!p-0
     [&_.ant-modal-content]:!overflow-hidden

@@ -23,7 +23,6 @@ import SWTModal from "@/src/@core/component/AntD/SWTModal";
 import SWTButton from "@/src/@core/component/AntD/SWTButton";
 import SWTConfirmModal from "@/src/@core/component/AntD/SWTConfirmModal";
 import ReceiveStockModal from "./ReceiveStockModal";
-import EditPOModal from "./EditPOModal";
 import { showNotificationSuccess, showNotificationError } from "@/src/@core/utils/message";
 import { POItemDto, POStatus, PO_STATUS_LABELS } from "@/src/services/models/purchase/output.dto";
 
@@ -107,7 +106,7 @@ export default function PODetailModal({ isOpen, onClose, poId, onMutate }: Props
       <SWTModal
         title={
           <div className="text-xl font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
-            <Hash size={20} className="text-amber-500" />
+            <Hash size={20} className="text-blue-500" />
             Chi Tiết Phiếu Nhập
           </div>
         }
@@ -169,18 +168,22 @@ export default function PODetailModal({ isOpen, onClose, poId, onMutate }: Props
 
                 {po.status !== "DRAFT" && po.status !== "CANCELLED" && (
                   <>
-                    <button
+                    <SWTButton
                       onClick={() => handleExport("pdf")}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-red-200 bg-red-50 text-red-600 hover:bg-red-100 dark:bg-red-900/20 dark:border-red-500/30 dark:text-red-400 font-medium text-sm transition-colors"
+                      className="!w-auto !px-3 !py-1.5 !rounded-xl !border !border-red-200 !bg-red-50 !text-red-600 hover:!bg-red-100 dark:!bg-red-900/20 dark:!border-red-500/30 dark:!text-red-400 !font-medium !text-sm transition-colors inline-flex items-center gap-1.5"
+                      startIcon={<FileText size={15} />}
+                      size="sm"
                     >
-                      <FileText size={15} /> PDF
-                    </button>
-                    <button
+                      PDF
+                    </SWTButton>
+                    <SWTButton
                       onClick={() => handleExport("excel")}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 dark:bg-emerald-900/20 dark:border-emerald-500/30 dark:text-emerald-400 font-medium text-sm transition-colors"
+                      className="!w-auto !px-3 !py-1.5 !rounded-xl !border !border-emerald-200 !bg-emerald-50 !text-emerald-600 hover:!bg-emerald-100 dark:!bg-emerald-900/20 dark:!border-emerald-500/30 dark:!text-emerald-400 !font-medium !text-sm transition-colors inline-flex items-center gap-1.5"
+                      startIcon={<FileDown size={15} />}
+                      size="sm"
                     >
-                      <FileDown size={15} /> Excel
-                    </button>
+                      Excel
+                    </SWTButton>
                   </>
                 )}
 

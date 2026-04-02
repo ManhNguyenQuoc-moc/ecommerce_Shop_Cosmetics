@@ -6,7 +6,15 @@ export class OrderRepository implements IOrderRepository {
   async findAll(): Promise<Order[]> {
     return prisma.order.findMany({
       include: {
-        items: true,
+        items: {
+          include: {
+            variant: {
+              include: {
+                product: true
+              }
+            }
+          }
+        },
         user: true,
         status_history: true,
       },

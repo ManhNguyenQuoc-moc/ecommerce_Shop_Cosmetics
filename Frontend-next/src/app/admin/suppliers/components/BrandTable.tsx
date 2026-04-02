@@ -11,7 +11,9 @@ import SWTAvatar from "@/src/@core/component/AntD/SWTAvatar";
 import AddBrandModal from "./AddBrandModal";
 
 export default function BrandTable() {
-  const { brands, isLoading, mutate } = useBrands();
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(6);
+  const { brands, total, isLoading, mutate } = useBrands(page, pageSize);
   const { trigger: deleteBrand } = useDeleteBrand();
   const [editingBrand, setEditingBrand] = useState<any>(null);
 
@@ -129,10 +131,13 @@ export default function BrandTable() {
           rowKey="id"
           loading={isLoading}
           pagination={{
-            totalCount: brands.length,
-            page: 1,
-            fetch: 10,
-            onChange: () => {}
+            totalCount: total,
+            page: page,
+            fetch: pageSize,
+            onChange: (p: number, f: number) => {
+                setPage(p);
+                setPageSize(f);
+            }
           }}
         />
       </div>

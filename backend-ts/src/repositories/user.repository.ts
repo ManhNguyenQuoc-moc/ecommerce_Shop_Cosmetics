@@ -3,6 +3,31 @@ import { IUserRepository } from "../interfaces/IUserRepository";
 import { prisma } from "../config/prisma";
 
 export class UserRepository implements IUserRepository {
+  async findAll(skip?: number, take?: number, filters?: any): Promise<[User[], number]> {
+    const where: any = {};
+    if (filters?.search) {
+      where.OR = [
+        { full_name: { contains: filters.search, mode: 'insensitive' } },
+        { email: { contains: filters.search, mode: 'insensitive' } },
+        { phone: { contains: filters.search, mode: 'insensitive' } },
+      ];
+    }
+    if (filters?.role && filters.role !== 'all') {
+      where.role = filters.role;
+    }
+
+    return Promise.all([
+      prisma.user.findMany({
+        where,
+        skip,
+        take,
+        orderBy: { createdAt: 'desc' },
+        include: { addresses: true }
+      }),
+      prisma.user.count({ where })
+    ]);
+  }
+
   async findById(id: string): Promise<User | null> {
     return prisma.user.findUnique({
       where: { id },

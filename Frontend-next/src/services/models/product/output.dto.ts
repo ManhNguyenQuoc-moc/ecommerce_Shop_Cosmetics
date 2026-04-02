@@ -3,8 +3,8 @@ export interface ProductListItemDto {
   id: string;
   slug: string;
   name: string;
-  brand: string | null;
-  category: string;
+  brand: { id: string; name: string } | null;
+  category: { id: string; name: string } | null;
   image: string | null;
 
   price: number;
@@ -32,24 +32,45 @@ export interface ProductDetailDto {
   id: string;
   name: string;
   slug: string;
+
+  brand?: { id: string; name: string; slug?: string } | null;
+  category?: { id: string; name: string; slug?: string } | null;
+
   brandId: string;
   categoryId: string;
-  statusRaw: 'ACTIVE' | 'HIDDEN' | 'STOPPED';
+
+  status: string;
+  statusRaw: "ACTIVE" | "HIDDEN" | "STOPPED";
+
+  description?: string;
   short_description?: string;
   long_description?: string;
+
   images: string[];
-  productImages: Array<{
+
+  productImages: {
+    id: string;
     productId: string;
     imageId: string;
     order: number;
     image: {
+      id: string;
       url: string;
     };
-  }>;
-  specifications: {
-    label: string;
-    value: string;
   }[];
+
+  rating: number;
+  reviewCount: number;
+  commentCount: number;
+
+  sold: number;
+  totalStock: number;
+
+  priceRange: {
+    min: number;
+    max: number;
+  };
+
   variants: {
     id: string;
     sku?: string;
@@ -60,9 +81,16 @@ export interface ProductDetailDto {
     stock: number;
     image?: string | null;
     imageId?: string | null;
-    statusName?: 'BEST_SELLING' | 'TRENDING' | 'NEW';
     soldCount: number;
   }[];
+
+  specifications: {
+    label: string;
+    value: string;
+  }[];
+
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface ProductVariantDto {
@@ -76,9 +104,12 @@ export interface ProductVariantDto {
   price: number;
   salePrice?: number | null;
   image?: string | null;
+  brand: { id: string; name: string } | null;
+  category: { id: string; name: string } | null;
   status: string;
   productStatus?: string;
   statusName?: 'BEST_SELLING' | 'TRENDING' | 'NEW';
+  costPrice?: number;
   createdAt: string;
 }
 export interface VariantListResponseDto {
@@ -86,4 +117,39 @@ export interface VariantListResponseDto {
   total: number;
   page: number;
   pageSize: number;
+}
+export interface VariantDetailDto {
+  id: string;
+  productId: string;
+  product: {
+    id: string;
+    name: string;
+    slug: string;
+  };
+  color?: string | null;
+  size?: string | null;
+  sku?: string | null;
+  price: number;
+  salePrice?: number | null;
+  stock: number;
+  image?: string | null;
+  imageId?: string | null;
+  statusName: string;
+  status: string;
+  statusRaw: string;
+  
+  batches: {
+    id: string;
+    batchNumber: string;
+    expiryDate: string;
+    manufacturingDate?: string | null;
+    quantity: number;
+    costPrice: number;
+    totalIn: number;
+    totalOut: number;
+    createdAt: string;
+  }[];
+  
+  createdAt: string;
+  updatedAt: string;
 }

@@ -14,6 +14,7 @@ export interface IProductService {
 
   getVariants(page: number, pageSize: number, filters?: VariantQueryFilters): Promise<{ variants: any[]; total: number }>;
   getProductById(id: string): Promise<any | null>;
+  getVariantById(id: string): Promise<any | null>;
   createProduct(data: CreateProductDTO): Promise<Product>;
   updateProduct(id: string, data: UpdateProductDTO): Promise<any>;
   softDeleteProducts(ids: string[]): Promise<void>;

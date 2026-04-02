@@ -145,7 +145,7 @@ export default function VariantTable({
               {record.name}
             </div>
             <div className="flex items-center gap-2">
-               <span className="text-slate-500 dark:text-slate-400 font-medium text-xs">{record.category}</span>
+               <span className="text-slate-500 dark:text-slate-400 font-medium text-xs">{(record.category as any)?.name || "Chưa phân loại"}</span>
               {record.productStatus === 'HIDDEN' && (
              <SWTTooltip
                   title="Sản phẩm gốc đang bị ẩn"
@@ -273,37 +273,41 @@ export default function VariantTable({
           <span className="text-sm font-semibold text-amber-700 dark:text-amber-400 flex-1">
             Đã chọn {selectedRowKeys.length} biến thể
           </span>
-          <SWTTooltip 
+          <SWTTooltip
             title={
-              hasHiddenSelected 
-                ? "Có biến thể có sản phẩm gốc bị ẩn. Vui lòng bỏ chọn hoặc khôi phục SP gốc." 
-                : (isHiddenTab ? "Khôi phục các biến thể đã chọn" : "Ẩn các biến thể đã chọn")
-            } 
-            color={hasHiddenSelected ? "#f59e0b" : (isHiddenTab ? "#10b981" : "#f59e0b")} 
+              hasHiddenSelected
+                ? "Có biến thể có sản phẩm gốc bị ẩn. Vui lòng bỏ chọn hoặc khôi phục SP gốc."
+                : isHiddenTab
+                ? "Khôi phục các biến thể đã chọn"
+                : "Ẩn các biến thể đã chọn"
+            }
+            color={hasHiddenSelected ? "#f59e0b" : isHiddenTab ? "#10b981" : "#f59e0b"}
             placement="top"
           >
-            <button
+            <SWTButton
               onClick={() => setConfirmBulk(true)}
               disabled={isDeleting || hasHiddenSelected}
-              className={`flex items-center gap-1.5 h-8 px-3 text-xs font-semibold rounded-lg ${
-                hasHiddenSelected 
-                  ? "bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed" 
-                  : (isHiddenTab 
-                      ? "bg-emerald-100 hover:bg-emerald-200 text-emerald-700 dark:bg-emerald-500/20 dark:hover:bg-emerald-500/30 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/40" 
-                      : "bg-amber-100 hover:bg-amber-200 text-amber-700 dark:bg-amber-500/20 dark:hover:bg-amber-500/30 dark:text-amber-400 border-amber-200 dark:border-amber-500/40")
-              } transition-colors cursor-pointer border`}
+              className={`!w-auto !h-8 !px-3 !text-xs !font-semibold !rounded-lg ${
+                hasHiddenSelected
+                  ? "!bg-slate-100 !text-slate-400 !border-slate-200 !cursor-not-allowed"
+                  : isHiddenTab
+                  ? "!bg-emerald-100 hover:!bg-emerald-200 !text-emerald-700 dark:!bg-emerald-500/20 dark:hover:!bg-emerald-500/30 dark:!text-emerald-400 !border-emerald-200 dark:!border-emerald-500/40"
+                  : "!bg-amber-100 hover:!bg-amber-200 !text-amber-700 dark:!bg-amber-500/20 dark:hover:!bg-amber-500/30 dark:!text-amber-400 !border-amber-200 dark:!border-amber-500/40"
+              } transition-colors`}
+              startIcon={isHiddenTab ? <RotateCcw size={14} /> : <Trash2 size={14} />}
+              size="sm"
             >
-              {isHiddenTab ? <RotateCcw size={14} /> : <Trash2 size={14} />}
               {isHiddenTab ? "Khôi phục" : "Ẩn"}
-            </button>
+            </SWTButton>
           </SWTTooltip>
           <SWTTooltip title="Bỏ chọn tất cả" placement="top">
-            <button
+            <SWTButton
               onClick={() => setSelectedRowKeys([])}
-              className="flex items-center gap-1.5 h-8 px-3 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-400 border border-slate-200 dark:border-slate-700 transition-colors cursor-pointer"
+              className="!w-auto !h-8 !px-3 !text-xs !font-semibold !rounded-lg !bg-slate-100 hover:!bg-slate-200 !text-slate-600 dark:!bg-slate-800 dark:hover:!bg-slate-700 dark:!text-slate-400 !border !border-slate-200 dark:!border-slate-700 transition-colors"
+              size="sm"
             >
               Bỏ chọn
-            </button>
+            </SWTButton>
           </SWTTooltip>
         </div>
       )}

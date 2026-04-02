@@ -1,5 +1,5 @@
 import { get } from "../api";
-import useSWR from "swr";
+import { useFetchSWR } from "@/src/@core/hooks/useFetchSWR";
 
 export const CATEGORY_API_ENDPOINT = "/categories";
 
@@ -8,9 +8,13 @@ export const getCategories = () => {
 };
 
 export const useCategories = () => {
-  const { data, error, isLoading } = useSWR(CATEGORY_API_ENDPOINT, getCategories);
+  const { data, error, isLoading } = useFetchSWR(CATEGORY_API_ENDPOINT, getCategories);
+  
+  // Handle both raw array (old) and paginated object (new)
+  const categories = Array.isArray(data) ? data : (data as any)?.items || [];
+
   return {
-    categories: (data as any) || [],
+    categories,
     isLoading,
     isError: error,
   };

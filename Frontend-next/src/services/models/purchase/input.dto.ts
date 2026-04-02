@@ -7,12 +7,14 @@ export interface POItemInput {
 export interface CreatePOInput {
   brandId: string;
   note?: string;
+  priority?: 'LOW' | 'NORMAL' | 'HIGH';
   items: POItemInput[];
 }
 
 export interface UpdatePOInput {
   brandId: string;
   note?: string;
+  priority?: 'LOW' | 'NORMAL' | 'HIGH';
   items: POItemInput[];
 }
 

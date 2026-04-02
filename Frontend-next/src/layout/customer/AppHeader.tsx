@@ -11,6 +11,7 @@ import {
   Flower,
   Zap,
 } from "lucide-react";
+import SWTIconButton from "@/src/@core/component/SWTIconButton";
 
 import MenuCustomer from "../components/header/MenuCustomer"
 import AppSideBar from "./AppSideBar";
@@ -58,12 +59,11 @@ export default function CustomerHeader() {
         {/* Premium Top Accent Bar removed */}
 
         <div className="max-w-7xl mx-auto flex items-center justify-between px-4 sm:px-6 gap-3 sm:gap-4 md:gap-8 relative z-10 transition-all duration-700">
-          <button
-            className="lg:hidden p-1.5 sm:p-2 -ml-1 sm:-ml-2 hover:bg-brand-500/10 rounded-xl transition-colors group shrink-0"
+          <SWTIconButton
             onClick={() => setSidebarOpen(true)}
-          >
-            <Menu size={24} className="text-brand-900 group-hover:text-brand-600 transition-colors" />
-          </button>
+            icon={<Menu size={24} className="text-brand-900 group-hover:text-brand-600 transition-colors" />}
+            className="lg:hidden p-1.5 sm:p-2 -ml-1 sm:-ml-2 hover:bg-brand-500/10 rounded-xl transition-colors group shrink-0"
+          />
 
           <Link href="/" className="group flex items-center gap-2 sm:gap-3 shrink-0">
             <div className="relative overflow-hidden w-9 h-9 sm:w-10 sm:h-10 md:w-11 md:h-11 bg-brand-500 rounded-xl flex items-center justify-center transform rotate-12 group-hover:rotate-0 transition-all duration-500 shadow-xl shadow-brand-500/30 shrink-0">

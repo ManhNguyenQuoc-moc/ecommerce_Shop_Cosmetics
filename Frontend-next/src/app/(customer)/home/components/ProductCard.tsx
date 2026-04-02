@@ -104,7 +104,7 @@ export default function ProductCard({ product, loading }: Props) {
             <div className="p-3 space-y-2">
               <div className="space-y-0.5">
                 <p className="text-[9px] font-black text-brand-500 uppercase tracking-widest flex items-center gap-1 leading-none">
-                  {product.brand}
+                  {typeof product.brand === 'object' ? product.brand?.name : product.brand}
                 </p>
                 <h3 className="text-xs font-bold text-gray-800 line-clamp-2 min-h-[32px] leading-tight group-hover/card:text-brand-600 transition-colors">
                   {product.name}

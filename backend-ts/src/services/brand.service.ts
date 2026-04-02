@@ -4,8 +4,10 @@ import { Brand } from "@prisma/client";
 export class BrandService {
   constructor(private readonly brandRepository: BrandRepository = new BrandRepository()) {}
 
-  async getAllBrands(): Promise<Brand[]> {
-    return this.brandRepository.findAll();
+  async getAllBrands(page?: number, limit?: number): Promise<{ items: Brand[], total: number }> {
+    const skip = page && limit ? (page - 1) * limit : undefined;
+    const [items, total] = await this.brandRepository.findAll(skip, limit);
+    return { items, total };
   }
 
   async getBrandById(id: string): Promise<Brand | null> {

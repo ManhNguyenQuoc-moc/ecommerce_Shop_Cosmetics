@@ -7,6 +7,7 @@ export interface CreatePOItemDTO {
 export interface CreatePODTO {
   brandId: string;
   note?: string;
+  priority?: 'LOW' | 'NORMAL' | 'HIGH';
   items: CreatePOItemDTO[];
 }
 

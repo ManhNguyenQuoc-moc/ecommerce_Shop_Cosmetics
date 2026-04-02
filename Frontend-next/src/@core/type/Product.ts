@@ -2,7 +2,8 @@ export type Product = {
   id: string;
   variantId?: string;
   name: string;
-  brand: string;
+  brand: { id: string; name: string } | string;
+  category: { id: string; name: string } | string;
   price: number;
   salePrice?: number;
   image: string;
@@ -30,12 +31,14 @@ export type ProductVariant = {
 export type ProductDetail = {
   id: string;
   name: string;
-  brand: string;
-  description: string;
-  shortdescription: string
+  brand: { id: string; name: string } | string;
+  category: { id: string; name: string } | string;
+  long_description: string;
+  short_description: string;
   images: string[];
   rating: number;
   reviewCount: number;
+  commentCount: number;
   sold: number;
   priceRange: {
     min: number;

@@ -43,7 +43,7 @@ export default function ProductTabs({ product }: Props) {
       {/* Content */}
       {tab === "desc" && (
         <div className="space-y-4 text-sm text-gray-700 leading-relaxed">
-          <p>{product.description}</p>
+          <p>{product.long_description}</p>
           <div className="border rounded-lg overflow-hidden mt-4">
             {product.specifications.map((spec) => (
               <div

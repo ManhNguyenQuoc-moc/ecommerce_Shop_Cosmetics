@@ -1,8 +1,394 @@
 generator client {
-  provider        = "prisma-client-js"
-  previewFeatures = ["prismaSchemaFolder"]
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
+}
+
+// --- User Models ---
+model User {
+  id                     String    @id @default(uuid())
+  email                  String?   @unique
+  password_hash          String?
+  full_name              String?
+  phone                  String?   @unique
+  gender                 Gender?
+  birthday               DateTime?
+  role                   Role      @default(CUSTOMER)
+  loyalty_points         Int       @default(0)
+  provider               Provider  @default(LOCAL)
+  is_verified            Boolean   @default(false)
+  googleId               String?
+  facebookId             String?
+  refresh_token          String?
+  is_banned              Boolean   @default(false)
+  reset_password_token   String?
+  reset_password_expires DateTime?
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+
+  addresses Address[]
+  orders    Order[]
+  reviews   Review[]
+  cart      Cart?
+}
+
+model Address {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  address   String
+  lat       Float?
+  lon       Float?
+  isDefault Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum Role {
+  CUSTOMER
+  ADMIN
+}
+
+enum Provider {
+  LOCAL
+  GOOGLE
+  FACEBOOK
+}
+
+// --- Product Models ---
+model Image {
+  id        String   @id @default(uuid())
+  url       String
+  altText   String?
+  createdAt DateTime @default(now())
+
+  productImages   ProductImage[]
+  productVariants ProductVariant[]
+  categories      Category[]
+  brandsAsLogo    Brand[] @relation("BrandLogo")
+  brandsAsBanner  Brand[] @relation("BrandBanner")
+}
+
+model Brand {
+  id          String    @id @default(uuid())
+  name        String    @unique
+  slug        String    @unique
+  
+  logoId      String?
+  logo        Image?    @relation("BrandLogo", fields: [logoId], references: [id], onDelete: SetNull)
+  
+  bannerId    String?
+  banner      Image?    @relation("BrandBanner", fields: [bannerId], references: [id], onDelete: SetNull)
+  
+  email       String?
+  phone       String?
+  address     String?
+  
+  description String?
+  products    Product[]
+  purchaseOrders PurchaseOrder[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Category {
+  id          String    @id @default(uuid())
+  name        String    @unique
+  slug        String    @unique
+  description String?
+  
+  imageId     String?
+  image       Image?    @relation(fields: [imageId], references: [id], onDelete: SetNull)
+  
+  products    Product[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Product {
+  id                String        @id @default(uuid())
+  name              String
+  slug              String        @unique
+  short_description String?       @db.Text
+  long_description  String?       @db.Text
+  status            ItemStatus    @default(ACTIVE)
+  price             Float         @default(0)
+  salePrice         Float?
+  rating            Float         @default(0)
+  sold              Int           @default(0)
+  specifications    Json?
+
+  productImages     ProductImage[]
+
+  brandId String?
+  brand   Brand?  @relation(fields: [brandId], references: [id], onDelete: SetNull)
+
+  categoryId String?
+  category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  variants ProductVariant[]
+  reviews  Review[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ProductImage {
+  id        String  @id @default(uuid())
+  productId String
+  imageId   String
+  order     Int     @default(0)
+
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  image     Image   @relation(fields: [imageId], references: [id], onDelete: Cascade)
+
+  @@index([productId, imageId])
+}
+
+model ProductVariant {
+  id        String  @id @default(uuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  color String?
+  size  String?
+  
+  imageId String?
+  image   Image?  @relation(fields: [imageId], references: [id], onDelete: SetNull)
+
+  sku            String?  @unique
+  price          Float
+  salePrice      Float?
+  costPrice      Float    @default(0)
+
+  orderItems OrderItem[]
+  cartItems  CartItem[]
+  batches    Batch[]
+  purchaseOrderItems PurchaseOrderItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  statusName ProductStatus @default(NEW)
+  status     ItemStatus    @default(ACTIVE)
+}
+
+model Review {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  rating    Int
+  comment   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum ProductStatus {
+  BEST_SELLING
+  TRENDING
+  NEW
+}
+
+enum ItemStatus {
+  ACTIVE
+  HIDDEN
+  STOPPED
+}
+
+// --- Order Models ---
+model Order {
+  id        String  @id @default(uuid())
+  userId    String
+  user      User    @relation(fields: [userId], references: [id])
+  addressId String?
+
+  discountCodeId String?
+  discountCode   DiscountCode? @relation(fields: [discountCodeId], references: [id], onDelete: SetNull)
+
+  total_amount Float @default(0)
+  final_amount Float @default(0)
+
+  current_status OrderStatus   @default(PENDING)
+  payment_method PaymentMethod @default(COD)
+  payment_status PaymentStatus @default(UNPAID)
+
+  items          OrderItem[]
+  status_history OrderStatusHistory[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model OrderItem {
+  id      String @id @default(uuid())
+  orderId String
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  variantId String?
+  variant   ProductVariant? @relation(fields: [variantId], references: [id], onDelete: SetNull)
+
+  quantity          Int
+  price_at_purchase Float
+}
+
+model OrderStatusHistory {
+  id        String      @id @default(uuid())
+  orderId   String
+  order     Order       @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  status    OrderStatus
+  timestamp DateTime    @default(now())
+}
+
+model DiscountCode {
+  id          String       @id @default(uuid())
+  code        String       @unique
+  discount    Float
+  type        DiscountType
+  valid_from  DateTime
+  valid_until DateTime
+  usage_limit Int          @default(100)
+  used_count  Int          @default(0)
+  isActive    Boolean      @default(true)
+  orders      Order[]
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  SHIPPING
+  DELIVERED
+  CANCELLED
+}
+
+enum PaymentMethod {
+  COD
+  VNPAY
+}
+
+enum PaymentStatus {
+  UNPAID
+  PAID
+  REFUNDED
+}
+
+enum DiscountType {
+  PERCENTAGE
+  FLAT_AMOUNT
+}
+
+// --- Cart Models ---
+model Cart {
+  id        String     @id @default(uuid())
+  userId    String     @unique
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items     CartItem[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model CartItem {
+  id        String         @id @default(uuid())
+  cartId    String
+  cart      Cart           @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  variantId String
+  variant        ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  quantity  Int            @default(1)
+
+  @@unique([cartId, variantId])
+}
+
+// --- Inventory Models ---
+model PurchaseOrder {
+  id          String   @id @default(uuid())
+  code        String   @unique
+  brandId     String
+  brand       Brand    @relation(fields: [brandId], references: [id])
+  status      POStatus @default(DRAFT)
+  totalAmount Float    @default(0)
+  note        String?
+  priority    POPriority @default(NORMAL)
+
+  items       PurchaseOrderItem[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model PurchaseOrderItem {
+  id              String        @id @default(uuid())
+  purchaseOrderId String
+  purchaseOrder   PurchaseOrder @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)
+  variantId       String
+  variant         ProductVariant @relation(fields: [variantId], references: [id])
+  
+  orderedQty      Int
+  receivedQty     Int           @default(0)
+  costPrice       Float         @default(0)
+  
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  
+  @@unique([purchaseOrderId, variantId])
+}
+
+model Batch {
+  id                String   @id @default(uuid())
+  variantId         String
+  variant           ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  batchNumber       String
+  expiryDate        DateTime
+  manufacturingDate DateTime?
+  quantity          Int      @default(0)
+  costPrice         Float    @default(0)
+  
+  transactions      StockTransaction[]
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@unique([variantId, batchNumber])
+}
+
+model StockTransaction {
+  id          String   @id @default(uuid())
+  variantId   String
+  batchId     String
+  batch       Batch    @relation(fields: [batchId], references: [id])
+  
+  type        TransactionType
+  quantity    Int      // positive for IN, negative for OUT
+  referenceId String?  // ID of PurchaseOrder, Order, or Adjustment Note
+  note        String?
+
+  createdAt   DateTime @default(now())
+}
+
+enum POStatus {
+  DRAFT
+  CONFIRMED
+  PARTIALLY_RECEIVED
+  COMPLETED
+  CANCELLED
+}
+
+enum TransactionType {
+  IN
+  OUT
+  ADJUSTMENT
+}
+
+enum POPriority {
+  LOW
+  NORMAL
+  HIGH
 }

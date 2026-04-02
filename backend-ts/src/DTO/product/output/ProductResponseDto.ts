@@ -14,8 +14,12 @@ export interface ProductResponseDto {
 
   status: string;
 
-  shortDescription?: string;
-  longDescription?: string;
+  short_description?: string;
+  long_description?: string;
+
+  rating: number;
+  reviewCount: number;
+  commentCount: number;
 
   images: string[];
 

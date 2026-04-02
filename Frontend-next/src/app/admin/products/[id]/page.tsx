@@ -1,32 +1,77 @@
-"use client";
-
-import React, { useState, use } from 'react';
-import { Spin, Empty } from 'antd';
-import { TrendingUp, Users, ArrowLeft, Star, Layers, Activity, PencilLine, MessageSquare } from "lucide-react";
+"use client"
+import { useState, use, useEffect } from "react";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
+import { Empty } from "antd";
+import SWTLoading from "@/src/@core/component/AntD/SWTLoading";
+import Lightbox from "yet-another-react-lightbox";
+import "yet-another-react-lightbox/styles.css";
+import {
+  TrendingUp,
+  Users,
+  ArrowLeft,
+  Star,
+  Layers,
+  Activity,
+  PencilLine,
+  MessageSquare,
+} from "lucide-react";
 import SWTBreadcrumb from "@/src/@core/component/AntD/SWTBreadcrumb";
 import useSWTTitle from "@/src/@core/hooks/useSWTTitle";
-import Link from 'next/link';
+import Link from "next/link";
 import { useProduct } from "@/src/services/admin/product.service";
 import EditProductModal from "@/src/app/admin/products/components/EditProductModal";
 import Image from "next/image";
-
+import SWTCard from "@/src/@core/component/AntD/SWTCard";
+import SWTTable from "@/src/@core/component/AntD/SWTTable";
 const formatCurrency = (amount: number) => {
-  return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount || 0);
+  return new Intl.NumberFormat("vi-VN", {
+    style: "currency",
+    currency: "VND",
+  }).format(amount || 0);
 };
 
-export default function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
+const CARD_BASE =
+  "!bg-white/90 dark:!bg-slate-900/80 !backdrop-blur-md !rounded-3xl !shadow-sm !border !border-slate-200 dark:!border-pink-500/20";
+
+const statusMap: Record<string, string> = {
+  ACTIVE: "Đang bán",
+  HIDDEN: "Ẩn",
+  STOPPED: "Ngừng bán",
+};
+
+export default function ProductDetailPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
   useSWTTitle("Chi Tiết Sản Phẩm | Admin");
+
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const [activeImage, setActiveImage] = useState<string | null>(null);
+  const [openPreview, setOpenPreview] = useState(false);
+
   const { id } = use(params);
   const { product, isLoading, isError, mutate } = useProduct(id);
 
+  const galleryImages = Array.from(new Set([
+    ...(product?.images || []),
+    ...(product?.productImages?.map((pi: any) => pi.image?.url).filter(Boolean) || [])
+  ]));
+
+  useEffect(() => {
+    if (galleryImages.length > 0 && !activeImage) {
+      setActiveImage(galleryImages[0]);
+    }
+  }, [galleryImages, activeImage]);
 
   if (isLoading) {
-    return (
-      <div className="h-[60vh] flex items-center justify-center">
-        <Spin size="large" tip="Đang tải thông tin sản phẩm..." />
-      </div>
-    );
+    return <SWTLoading tip="Đang tải thông tin sản phẩm..." />;
   }
 
   if (isError || !product) {
@@ -36,218 +81,360 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
       </div>
     );
   }
+  const categoryName = product.category?.name;
+  const brandName = product.brand?.name;
+  const displayImage = activeImage || galleryImages[0] || "/images/placeholder.png";
 
-  // Prisma schema: brand & category are objects, images come from productImages relation
-  const brandName = typeof product.brand === 'object' ? product.brand?.name : product.brand;
-  const categoryName = typeof product.category === 'object' ? product.category?.name : product.category;
-  const mainImage = product.images?.[0] || product.productImages?.[0]?.image?.url || "/images/placeholder.png";
-
-  const totalRevenue = product.variants?.reduce((sum: number, v: any) => {
-    return sum + ((v.soldCount || 0) * (v.salePrice || v.price || 0));
-  }, 0) || 0;
+  const totalRevenue =
+    product.variants?.reduce((sum: number, v: any) => {
+      return sum + (v.soldCount || 0) * (v.salePrice || v.price || 0);
+    }, 0) || 0;
+  const totalSold =
+    product.variants?.reduce((sum: number, v: any) => {
+      return sum + (v.soldCount || 0);
+    }, 0) || 0;
 
   return (
     <div className="space-y-6 animate-fade-in relative z-0">
-      {/* Header */}
+      {/* HEADER */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <SWTBreadcrumb items={[
-            { title: "Trang chủ", href: "/admin" },
-            { title: "Products", href: "/admin/products" },
-            { title: "Chi tiết" }
-          ]} />
-          
-          <div className="flex items-center gap-4 mt-4">
-            <div>
-              <h2 className="text-2xl font-black tracking-tight text-slate-800 dark:text-white drop-shadow-md">
-                Chi tiết Sản Phẩm
-              </h2>
-              <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">
-                Mã SP: <span className="text-brand-600 font-bold">{product.id}</span>
-              </p>
+          <SWTBreadcrumb
+            items={[
+              { title: "Trang chủ", href: "/admin" },
+              { title: "Sản phẩm", href: "/admin/products" },
+              { title: "Chi tiết" },
+            ]}
+          />
+
+          <div className="mt-4">
+            <h2 className="text-2xl font-black text-slate-800 dark:text-white">
+              Chi tiết Sản Phẩm
+            </h2>
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-slate-500 text-xs text-[10px] font-bold uppercase tracking-wider">
+              <p>Mã SP: <span className="text-brand-600 font-black">{product.id}</span></p>
+              <span className="opacity-30">•</span>
+              <p>Ngày tạo: <span className="text-slate-700 dark:text-slate-300 font-bold">{new Date(product.createdAt).toLocaleDateString("vi-VN", { hour: '2-digit', minute: '2-digit' })}</span></p>
+              <span className="opacity-30">•</span>
+              <p>Cập nhật: <span className="text-slate-700 dark:text-slate-300 font-bold">{new Date(product.updatedAt).toLocaleDateString("vi-VN", { hour: '2-digit', minute: '2-digit' })}</span></p>
             </div>
           </div>
         </div>
 
-        <div className="flex gap-2">
+        <div className="flex gap-3">
           <Link href="/admin/products">
-            <button className="h-10 px-4 flex items-center gap-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 font-medium text-sm transition-colors">
+            <button className="h-10 px-5 flex items-center gap-2 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 transition-all shadow-sm font-bold text-sm">
               <ArrowLeft size={16} />
-              Quay lại
+              Danh sách
             </button>
           </Link>
           <button
             onClick={() => setIsEditOpen(true)}
-            className="h-10 px-4 flex items-center gap-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-semibold text-sm transition-colors shadow-md shadow-brand-500/30"
+            className="h-10 px-6 flex items-center gap-2 rounded-xl bg-brand-600 text-white hover:bg-brand-700 transition-all shadow-md shadow-brand-500/20 font-bold text-sm"
           >
             <PencilLine size={16} />
-            Sửa Sản Phẩm
+            Chỉnh sửa
           </button>
         </div>
       </div>
 
+      {/* CONTENT */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Main Info Card */}
-          <div className="bg-white/90 dark:bg-slate-900/80 backdrop-blur-md rounded-3xl p-6 shadow-sm border border-slate-200 dark:border-pink-500/20">
-            <div className="flex flex-col md:flex-row gap-6">
-              <div className="w-full md:w-1/3 aspect-square rounded-2xl bg-slate-100 flex items-center justify-center overflow-hidden border border-slate-200 relative group">
-                <Image
-                  src={mainImage}
-                  alt={product.name}
-                  fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-500"
-                  sizes="(max-width: 768px) 100vw, 33vw"
-                  unoptimized={mainImage.startsWith('http')}
-                />
-                <div className={`absolute top-3 left-3 text-white text-xs font-bold px-2.5 py-1 rounded-lg shadow-md ${
-                  product.status === "Đang bán" ? "bg-emerald-500" : "bg-slate-500"
-                }`}>
-                  {product.status}
+        {/* LEFT */}
+        <div className="lg:col-span-2 flex flex-col gap-6">
+          {/* MAIN INFO */}
+          <SWTCard className={CARD_BASE} bodyClassName="!p-6">
+            <div className="flex flex-col md:flex-row gap-8">
+              {/* IMAGE GALLERY SECTION */}
+              <div className="w-full md:w-2/5 flex flex-col gap-3">
+                <div 
+                  className="aspect-square rounded-2xl bg-slate-100 overflow-hidden relative border border-slate-200 cursor-zoom-in hover:shadow-xl transition-all duration-500 group"
+                  onClick={() => setOpenPreview(true)}
+                >
+                  <Image
+                    src={displayImage}
+                    alt={product.name}
+                    fill
+                    className="object-cover transition-transform duration-700 group-hover:scale-110"
+                    unoptimized={displayImage.startsWith("http")}
+                  />
+                  <div className="absolute top-3 left-3 text-white text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded bg-slate-900/60 backdrop-blur-md border border-white/10 shadow-lg">
+                    {statusMap[product.statusRaw]}
+                  </div>
                 </div>
+
+                {/* THUMBNAILS */}
+                {galleryImages.length > 1 && (
+                  <div className="flex gap-2 overflow-x-auto pb-2 custom-scrollbar">
+                    {galleryImages.map((img, idx) => (
+                      <div
+                        key={idx}
+                        onClick={() => setActiveImage(img)}
+                        className={`relative w-16 h-16 flex-shrink-0 cursor-pointer rounded-xl border-2 transition-all duration-300 overflow-hidden shadow-sm ${
+                          activeImage === img ? "border-brand-500 scale-95 shadow-brand-500/20" : "border-slate-100 hover:border-slate-300"
+                        }`}
+                      >
+                        <Image
+                          src={img}
+                          alt={`thumbnail-${idx}`}
+                          fill
+                          className="object-cover"
+                          unoptimized={img.startsWith("http")}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
-              <div className="w-full md:w-2/3 flex flex-col justify-center">
-                <div className="inline-flex items-center gap-2 mb-2">
-                  <span className="bg-brand-100 text-brand-700 text-xs font-bold px-2.5 py-1 rounded-md">{categoryName || 'Chưa phân loại'}</span>
-                  <span className="bg-slate-100 text-slate-600 text-xs font-bold px-2.5 py-1 rounded-md">{brandName || 'N/A'}</span>
+
+              <div className="flex-1 flex flex-col py-2">
+                <div className="flex gap-2 mb-4">
+                  <span className="bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400 text-[10px] uppercase font-black px-3 py-1.5 rounded-lg border border-brand-100 dark:border-brand-500/20">
+                    {categoryName || "Chưa phân loại"}
+                  </span>
+                  <span className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-[10px] uppercase font-black px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700">
+                    {brandName || "N/A"}
+                  </span>
                 </div>
-                <h3 className="text-2xl font-bold text-slate-800 dark:text-white mb-3">
+
+                <h3 className="text-3xl font-black text-slate-800 dark:text-white mb-4 leading-tight tracking-tight">
                   {product.name}
                 </h3>
-                <div className="flex flex-wrap items-center gap-4 mb-4">
-                  <div className="flex items-center gap-2">
-                    <div className="flex items-center text-yellow-400">
-                      <Star size={16} className="fill-current" />
+
+                <div className="flex items-center gap-6 mb-8">
+                  <div className="flex items-center gap-1.5 text-amber-500">
+                    <Star size={20} fill="currentColor" />
+                    <span className="font-black text-xl">{product.rating || 0}</span>
+                    <span className="text-slate-400 text-sm font-medium">({product.reviewCount || 0} đánh giá)</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-blue-500 border-l border-slate-100 dark:border-slate-800 pl-6">
+                    <MessageSquare size={20} />
+                    <span className="font-black text-xl">{product.commentCount || 0}</span>
+                    <span className="text-slate-400 text-sm font-medium">bình luận</span>
+                  </div>
+                </div>
+
+                <div className="space-y-4 mt-auto">
+                  <div className="bg-slate-50/50 dark:bg-slate-800/30 p-5 rounded-3xl border border-slate-100 dark:border-slate-800/50 relative overflow-hidden group">
+                    <div className="absolute top-0 left-0 w-1 h-full bg-slate-200 dark:bg-slate-700 group-hover:bg-brand-500 transition-colors" />
+                    <span className="font-black block mb-2 text-[10px] uppercase text-slate-400 tracking-widest">Mô tả ngắn</span>
+                    <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed font-medium italic">
+                      {product.short_description || "Chưa có mô tả ngắn"}
+                    </p>
+                  </div>
+                  <div className="bg-slate-50/50 dark:bg-slate-800/30 p-5 rounded-3xl border border-slate-100 dark:border-slate-800/50 relative overflow-hidden group">
+                    <div className="absolute top-0 left-0 w-1 h-full bg-slate-200 dark:bg-slate-700 group-hover:bg-brand-500 transition-colors" />
+                    <span className="font-black block mb-2 text-[10px] uppercase text-slate-400 tracking-widest">Chi tiết sản phẩm</span>
+                    <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed font-medium">
+                      {product.long_description || "Chưa có mô tả chi tiết"}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </SWTCard>
+           <SWTCard className={CARD_BASE} bodyClassName="!p-6">
+            <div className="flex items-center mb-6">
+              <h4 className="ml-3 !mb-0 font-bold text-lg">Thông số kỹ thuật</h4>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4">
+              {product.specifications.map((spec, idx) => (
+                <div key={idx} className="flex items-center justify-between py-2 border-b border-slate-100 last:border-0 hover:bg-slate-50/50 transition-colors px-2 rounded-lg">
+                  <span className="text-slate-500 text-sm font-medium">{spec.label}</span>
+                  <span className="text-slate-800 text-sm font-bold">{spec.value}</span>
+                </div>
+              ))}
+            </div>
+          </SWTCard>
+
+          <SWTCard className={CARD_BASE} bodyClassName="!p-6">
+            <div className="flex items-center mb-6">
+              <Layers size={20} className="text-brand-600" />
+              <h4 className="ml-2 !mb-0 font-bold text-lg">Biến thể sản phẩm</h4>
+              <span className="ml-auto bg-brand-50 text-brand-600 px-3 py-1 rounded-full text-xs font-bold">
+                {product.variants?.length || 0} Phân loại
+              </span>
+            </div>
+
+            <SWTTable
+              dataSource={product.variants || []}
+              rowKey="id"
+              pagination={false}
+              columns={[
+                {
+                  title: "Hình ảnh",
+                  dataIndex: "image",
+                  key: "image",
+                  width: 80,
+                  render: (img: string) => (
+                    <div className="w-12 h-12 rounded-xl bg-slate-100 overflow-hidden relative border border-slate-200">
+                      <Image
+                        src={img || "/images/placeholder.png"}
+                        alt="variant"
+                        fill
+                        className="object-cover"
+                        unoptimized={img?.startsWith("http")}
+                      />
                     </div>
-                    <span className="text-slate-600 dark:text-slate-400 text-sm font-semibold">
-                      {product.rating} ({product.reviewCount || 0} đánh giá)
+                  ),
+                },
+                {
+                  title: "Phân loại",
+                  key: "variant_name",
+                  render: (_: any, record: any) => (
+                    <Link 
+                      href={`/admin/variants/${record.id}?from=product&productId=${id}`}
+                      className="flex flex-col group transition-all"
+                    >
+                      <span className="font-bold text-slate-700 group-hover:text-brand-600 transition-colors">
+                        {[record.size, record.color].filter(Boolean).join(" - ") || "Tiêu chuẩn"}
+                      </span>
+                      <span className="text-[10px] text-slate-400 font-medium tracking-wider uppercase">SKU: {record.sku}</span>
+                    </Link>
+                  ),
+                },
+                {
+                  title: "Giá bán",
+                  dataIndex: "price",
+                  key: "price",
+                  align: "right",
+                  render: (_: number, record: any) => (
+                    <div className="flex flex-col items-end">
+                      <span className="font-bold text-brand-600">
+                        {formatCurrency(record.salePrice || record.price)}
+                      </span>
+                      {record.salePrice && (
+                        <span className="text-[10px] text-slate-400 line-through">
+                          {formatCurrency(record.price)}
+                        </span>
+                      )}
+                    </div>
+                  ),
+                },
+                {
+                  title: "Tồn kho",
+                  dataIndex: "stock",
+                  key: "stock",
+                  align: "center",
+                  render: (stock: number) => (
+                    <span >
+                      {stock}
                     </span>
-                  </div>
-                  <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 border-l border-slate-200 dark:border-slate-700 pl-4">
-                    <MessageSquare size={16} />
-                    <span className="text-sm font-semibold">{product.commentCount || 0} bình luận</span>
-                  </div>
-                </div>
-                <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl">
-                  {product.shortdescription || product.description || 'Chưa có mô tả'}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Variants List */}
-          <div className="bg-white/90 dark:bg-slate-900/80 backdrop-blur-md rounded-3xl p-6 shadow-sm border border-slate-200 dark:border-pink-500/20">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="p-2.5 rounded-xl bg-fuchsia-100 text-fuchsia-600 dark:bg-fuchsia-900/40 dark:text-fuchsia-400">
-                <Layers size={22} className="stroke-[2.5]" />
-              </div>
-              <h4 className="text-xl font-bold text-slate-800 dark:text-white">Các Phiên Bản (Variants)</h4>
-              <span className="ml-auto text-sm text-slate-400 font-medium">{product.variants?.length || 0} biến thể</span>
-            </div>
-
-            <div className="space-y-3">
-              {product.variants?.length > 0 ? product.variants.map((v: any) => (
-                <div key={v.id} className="flex items-center justify-between p-4 rounded-2xl border border-slate-100 dark:border-slate-800 hover:border-fuchsia-300 dark:hover:border-fuchsia-500/40 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all">
-                  <div>
-                    <h5 className="font-bold text-slate-800 dark:text-slate-200">
-                      {[v.size, v.color].filter(Boolean).join(" - ") || "Bản chuẩn"}
-                    </h5>
-                    <p className="text-sm font-semibold text-slate-500">Mã SKU: <span className="text-slate-700 dark:text-slate-400">{v.sku || 'N/A'}</span></p>
-                  </div>
-                  <div className="flex items-center gap-6 text-right">
-                    <div className="min-w-[80px]">
-                      <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Đã bán</p>
-                      <p className="font-bold text-sky-600">{v.soldCount || 0}</p>
-                    </div>
-                    <div className="min-w-[100px]">
-                      <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Giá bán</p>
-                      <p className="font-bold text-brand-600 dark:text-brand-400">{formatCurrency(v.salePrice || v.price)}</p>
-                    </div>
-                    <div className="min-w-[80px]">
-                      <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Tồn kho</p>
-                      <p className={`font-bold ${(v.stock || 0) > 0 ? 'text-emerald-600' : 'text-red-500'}`}>{v.stock || 0}</p>
-                    </div>
-                  </div>
-                </div>
-              )) : (
-                <p className="text-slate-400 text-center py-6">Chưa có biến thể nào</p>
-              )}
-            </div>
-          </div>
+                  ),
+                },
+                {
+                  title: "Đã bán",
+                  dataIndex: "soldCount",
+                  key: "soldCount",
+                  align: "center",
+                  render: (sold: number) => (
+                    <span className="font-bold text-slate-600">{sold || 0}</span>
+                  ),
+                },
+              ]}
+            />
+          </SWTCard>
+         
         </div>
+        {/* RIGHT */}
+        <div className="flex flex-col gap-6">
+          <SWTCard
+            className="!bg-gradient-to-br !from-brand-500 !to-brand-600 !rounded-3xl !text-white"
+            bodyClassName="!p-6"
+          >
+            <div className="flex items-center gap-2 mb-2">
+              <Activity size={18} />
+              <span className="text-xl font-bold">Doanh thu</span>
+            </div>
+            <div className="text-4xl font-bold text-center">
+              {formatCurrency(totalRevenue)}
+            </div>
+            <div className="text-md text-brand-100 flex items-center gap-1 mt-2">
+              <TrendingUp size={14} />
+              Dựa trên tổng số lượng bán
+            </div>
+          </SWTCard>
 
-        {/* Right Column: Analytics */}
-        <div className="space-y-6">
-          <div className="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-3xl p-6 text-white shadow-lg shadow-indigo-500/30 relative overflow-hidden">
-            <div className="absolute -right-6 -top-6 w-32 h-32 bg-white/10 rounded-full blur-2xl pointer-events-none" />
-            <div className="flex items-center gap-3 mb-2">
-              <Activity size={20} className="text-indigo-200" />
-              <h4 className="font-bold text-indigo-100">Doanh thu ước tính</h4>
+          {/* PERFORMANCE + CHART */}
+          <SWTCard className={CARD_BASE} bodyClassName="!p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <Users size={20} />
+              <h4 className="!m-0 font-bold">Hiệu suất bán hàng</h4>
             </div>
-            <div className="text-3xl font-black tracking-tight mb-1">{formatCurrency(totalRevenue)}</div>
-            <div className="text-sm font-medium text-indigo-200 flex items-center gap-1">
-              <TrendingUp size={16} className="text-emerald-300" />
-              <span className="text-emerald-300">Dựa trên số lượng đã bán</span>
-            </div>
-          </div>
 
-          <div className="bg-white/90 dark:bg-slate-900/80 backdrop-blur-md rounded-3xl p-6 shadow-sm border border-slate-200 dark:border-pink-500/20">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="p-2.5 rounded-xl bg-orange-100 text-orange-600 dark:bg-orange-900/40 dark:text-orange-400">
-                <Users size={22} className="stroke-[2.5]" />
+            {/* SUMMARY */}
+            <div className="flex justify-between mb-6">
+              <div>
+                <p className="text-xs">Đã bán</p>
+                <p className="text-2xl font-bold">{totalSold}</p>
               </div>
-              <h4 className="text-lg font-bold text-slate-800 dark:text-white">Hiệu suất bán hàng</h4>
             </div>
-            
-            <div className="space-y-6 mt-6">
-              <div className="flex justify-between items-end">
-                <div>
-                  <p className="text-slate-500 text-xs font-bold uppercase mb-1">Tổng sản phẩm đã bán</p>
-                  <p className="text-3xl font-black text-slate-800 dark:text-white">{product.sold || 0}</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-slate-500 text-xs font-bold uppercase mb-1">Tổng tồn kho</p>
-                  <p className="text-2xl font-black text-emerald-600">{product.totalStock || 0}</p>
-                </div>
+
+            {/* PIE CHART */}
+            {product.variants?.length > 0 && totalSold > 0 && (
+              <div className="w-full h-[240px]">
+                <ResponsiveContainer>
+                  <PieChart>
+                    <Pie
+                      data={product.variants.map((v: any) => ({
+                        name:
+                          [v.size, v.color].filter(Boolean).join(" - ") ||
+                          "Tiêu chuẩn",
+                        value: v.soldCount,
+                      }))}
+                      dataKey="value"
+                      nameKey="name"
+                      outerRadius={80}
+                      label={({ percent }) =>
+                        `${(percent * 100).toFixed(0)}%`
+                      }
+                    >
+                      {product.variants.map((_: any, index: number) => (
+                        <Cell
+                          key={index}
+                          fill={
+                            [
+                              "#6366f1", // brand
+                              "#a855f7",
+                              "#3b82f6",
+                              "#f59e0b",
+                            ][index % 4]
+                          }
+                        />
+                      ))}
+                    </Pie>
+
+                    <Tooltip
+                      formatter={(value: any) =>
+                        `${value} sản phẩm`
+                      }
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
               </div>
-              
-              {product.variants?.length > 0 && (
-                <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
-                  <h4 className="text-sm font-bold text-slate-800 dark:text-white mb-4 uppercase tracking-wider">Tỷ trọng doanh số theo Variant</h4>
-                  <div className="space-y-4">
-                    {product.variants.map((v: any, i: number) => {
-                      const totalSold = product.sold || 1;
-                      const pct = totalSold > 0 ? Math.round(((v.soldCount || 0) / totalSold) * 100) : 0;
-                      return (
-                        <div key={v.id}>
-                          <div className="flex justify-between text-xs mb-1 font-bold">
-                            <span className="text-slate-500 truncate mr-2">{v.size || v.color || "Tiêu chuẩn"}</span>
-                            <span className="text-brand-600">{pct}%</span>
-                          </div>
-                          <div className="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                            <div 
-                              className={`h-full rounded-full ${['bg-brand-500', 'bg-purple-500', 'bg-blue-500', 'bg-amber-500'][i % 4]}`} 
-                              style={{ width: `${pct}%` }} 
-                            />
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
+            )}
+
+            {/* EMPTY STATE */}
+            {totalSold === 0 && (
+              <p className="text-center text-slate-400 text-sm">
+                Chưa có dữ liệu bán hàng
+              </p>
+            )}
+          </SWTCard>
         </div>
       </div>
 
-      {/* Edit Modal */}
       <EditProductModal
         isOpen={isEditOpen}
         onClose={() => setIsEditOpen(false)}
         productId={id}
         onUpdated={() => mutate()}
+      />
+
+      <Lightbox
+        open={openPreview}
+        close={() => setOpenPreview(false)}
+        slides={galleryImages.map((img) => ({ src: img }))}
       />
     </div>
   );

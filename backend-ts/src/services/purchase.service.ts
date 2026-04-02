@@ -41,7 +41,12 @@ export class PurchaseService {
     if (!data.items || data.items.length === 0) {
       throw new Error("Phiếu nhập phải có ít nhất 1 mặt hàng");
     }
-    return this.purchaseRepo.updatePurchaseOrder(id, data);
+    // Enforce brand immutability: do not allow changing brand on edit
+    if (data.brandId && data.brandId !== po.brandId) {
+      throw new Error("Không được thay đổi thương hiệu của phiếu nhập");
+    }
+    const safeData = { ...data, brandId: po.brandId };
+    return this.purchaseRepo.updatePurchaseOrder(id, safeData);
   }
 
   async confirmPurchaseOrder(id: string) {

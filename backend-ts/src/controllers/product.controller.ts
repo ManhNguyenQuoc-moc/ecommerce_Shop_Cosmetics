@@ -13,7 +13,7 @@ export class ProductController {
   getProducts = async (req: Request, res: Response): Promise<void> => {
     try {
       const page = Number(req.query.page) || 1;
-      const pageSize = Number(req.query.pageSize || req.query.limit) || 10;
+      const pageSize = Number(req.query.pageSize || req.query.limit) || 6;
       const flatten = req.query.flatten === 'true';
       const filters = {
         searchTerm: (req.query.search || req.query.searchTerm) as string,
@@ -42,7 +42,7 @@ export class ProductController {
   getVariants = async (req: Request, res: Response): Promise<void> => {
     try {
       const page = Number(req.query.page) || 1;
-      const pageSize = Number(req.query.pageSize || req.query.limit) || 12;
+      const pageSize = Number(req.query.pageSize || req.query.limit) || 6;
       const filters = {
         status: req.query.status as string,
         searchTerm: (req.query.search || req.query.searchTerm) as string,
@@ -85,6 +85,26 @@ export class ProductController {
         success: true,
         message: "Get product successfully",
         data: product,
+      });
+    } catch (error: any) {
+      res.status(500).json({ success: false, message: error.message || "Internal server error" });
+    }
+  };
+
+  getVariantById = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const id = req.params.id as string;
+      const variant = await this.productService.getVariantById(id);
+
+      if (!variant) {
+        res.status(404).json({ success: false, message: "Variant not found" });
+        return;
+      }
+
+      res.status(200).json({
+        success: true,
+        message: "Get variant successfully",
+        data: variant,
       });
     } catch (error: any) {
       res.status(500).json({ success: false, message: error.message || "Internal server error" });

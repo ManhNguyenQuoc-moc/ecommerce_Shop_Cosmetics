@@ -7,9 +7,88 @@ import { CreateProductDTO, CreateVariantDTO } from "../DTO/product/input/AddProd
 import { UpdateProductDTO, UpdateVariantDTO } from "../DTO/product/input/UpdateProductDTO";
 import { ProductMapper } from "../mapper/product.mapper";
 import { ProductListItemDto } from "../DTO/product/output/ProductListItemDto";
+import { VariantDetailDto } from "../DTO/product/output/VariantDetailDto";
 import { PagedResult } from "../common/paged-result";
 
 export class ProductService implements IProductService {
+// ... existing code ...
+  async getVariantById(id: string): Promise<VariantDetailDto | null> {
+    const variant = await prisma.productVariant.findUnique({
+      where: { id },
+      include: {
+        product: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+            productImages: {
+               include: {
+                 image: true
+               }
+            }
+          }
+        },
+        image: true
+      }
+    });
+
+    if (!variant) return null;
+
+    const batches = await prisma.batch.findMany({
+      where: { variantId: id },
+      include: {
+        transactions: true
+      },
+      orderBy: { expiryDate: 'asc' }
+    });
+
+    const statusMap: Record<string, string> = { ACTIVE: "Đang bán", HIDDEN: "Đã ẩn", STOPPED: "Ngừng bán" };
+    const images = variant.product.productImages?.map((pi: any) => pi.image?.url) || [];
+    
+    return {
+      id: variant.id,
+      productId: variant.productId,
+      product: {
+        id: variant.product.id,
+        name: variant.product.name,
+        slug: variant.product.slug
+      },
+      color: variant.color,
+      size: variant.size,
+      sku: variant.sku,
+      price: variant.price,
+      salePrice: variant.salePrice,
+      stock: batches.reduce((sum: number, b: any) => sum + b.quantity, 0),
+      image: variant.image?.url || images[0] || null,
+      imageId: variant.imageId,
+      statusName: variant.statusName,
+      status: statusMap[variant.status] || "Đang bán",
+      statusRaw: variant.status,
+      batches: batches.map((b: any) => {
+        const totalIn = b.transactions
+          .filter((t: any) => t.type === 'IN')
+          .reduce((sum: number, t: any) => sum + t.quantity, 0);
+        
+        const totalOut = b.transactions
+          .filter((t: any) => t.type === 'OUT')
+          .reduce((sum: number, t: any) => sum + Math.abs(t.quantity), 0);
+
+        return {
+          id: b.id,
+          batchNumber: b.batchNumber,
+          expiryDate: b.expiryDate,
+          manufacturingDate: b.manufacturingDate,
+          quantity: b.quantity,
+          costPrice: b.costPrice,
+          totalIn,
+          totalOut,
+          createdAt: b.createdAt
+        };
+      }),
+      createdAt: variant.createdAt,
+      updatedAt: variant.updatedAt
+    };
+  }
 
   private readonly productRepository: IProductRepository;
 
@@ -78,8 +157,8 @@ async getProducts(
         productId: p?.id || "",
         productName: p?.name || "",
         name: variantName,
-        brand: p?.brand?.name || null,
-        category: p?.category?.name || "Chưa phân loại",
+        brand: p.brand ? { id: p.brand.id, name: p.brand.name, slug: p.brand.slug } : null,
+        category: p.category ? { id: p.category.id, name: p.category.name, slug: p.category.slug } : null,
         price: v.price,
         salePrice: v.salePrice || null,
         sku: v.sku || "",
@@ -124,7 +203,7 @@ async getProducts(
       price: v.price,
       salePrice: v.salePrice,
       stock: stockMap[v.id] || 0,
-      image: v.image?.url || null,
+      image: v.image?.url || images[0] || null,
       imageId: v.imageId || null,
       soldCount: v.orderItems?.reduce((sum: number, item) => sum + item.quantity, 0) || 0,
     })) || [];
@@ -144,14 +223,14 @@ async getProducts(
       id: product.id,
       name: product.name,
       slug: product.slug,
-      brand: typedProduct.brand?.name || "Unknown",
+      brand: typedProduct.brand ? { id: typedProduct.brand.id, name: typedProduct.brand.name, slug: typedProduct.brand.slug } : null,
       brandId: product.brandId,
-      category: typedProduct.category?.name || "Chưa phân loại",
+      category: typedProduct.category ? { id: typedProduct.category.id, name: typedProduct.category.name, slug: typedProduct.category.slug } : null,
       categoryId: product.categoryId,
       status: statusMap[product.status] || "Đang bán",
       statusRaw: product.status, 
-      description: product.long_description || "",
-      shortdescription: product.short_description || "",
+      long_description: product.long_description || "",
+      short_description: product.short_description || "",
       images,
       productImages: typedProduct.productImages || [],
       rating: product.rating,

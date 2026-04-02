@@ -1,9 +1,12 @@
 export type POStatus = 'DRAFT' | 'CONFIRMED' | 'PARTIALLY_RECEIVED' | 'COMPLETED' | 'CANCELLED';
+export type POPriority = 'LOW' | 'NORMAL' | 'HIGH';
 
 export interface BrandInPODto {
   id: string;
   name: string;
   logoUrl?: string | null;
+  email?: string | null;
+  phone?: string | null;
 }
 
 export interface VariantInPODto {
@@ -35,14 +38,24 @@ export interface POListItemDto {
   brandId: string;
   brand: BrandInPODto;
   status: POStatus;
+  priority: POPriority;
   totalAmount: number;
   note?: string | null;
   createdAt: string;
   updatedAt: string;
 }
 
+export interface POReceiptItemDto {
+  variantId: string;
+  quantity: number;
+  batchNumber: string;
+  expiryDate: string;
+  createdAt: string;
+}
+
 export interface PODetailDto extends POListItemDto {
   items: POItemDto[];
+  receipts?: POReceiptItemDto[];
 }
 
 export interface POListResponseDto {
@@ -59,4 +72,10 @@ export const PO_STATUS_LABELS: Record<POStatus, string> = {
   PARTIALLY_RECEIVED: 'Nhận một phần',
   COMPLETED: 'Hoàn tất',
   CANCELLED: 'Đã hủy',
+};
+
+export const PO_PRIORITY_LABELS: Record<POPriority, string> = {
+  LOW: 'Thấp',
+  NORMAL: 'Thường',
+  HIGH: 'Cao',
 };

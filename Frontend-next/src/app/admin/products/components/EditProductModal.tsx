@@ -9,6 +9,8 @@ import SWTModal from "@/src/@core/component/AntD/SWTModal";
 import SWTUpload from "@/src/@core/component/AntD/SWTUpload";
 import SWTTooltip from "@/src/@core/component/AntD/SWTTooltip";
 import { Plus, Inbox, Trash2 } from "lucide-react";
+import SWTButton from "@/src/@core/component/AntD/SWTButton";
+import SWTIconButton from "@/src/@core/component/SWTIconButton";
 import { useState, useEffect } from "react";
 import { showNotificationSuccess, showNotificationError } from "@/src/@core/utils/message";
 import { uploadFileToCloudinary } from "@/src/services/admin/upload.service";
@@ -309,13 +311,11 @@ export default function EditProductModal({ isOpen, onClose, productId, onUpdated
                   <div key={img.uid} className="relative group w-24 h-24 rounded-xl overflow-hidden border-2 border-slate-200 dark:border-slate-700">
                     <img src={img.url} alt="" className="w-full h-full object-cover" />
                     <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <button
-                        type="button"
+                      <SWTIconButton
                         onClick={() => handleRemoveExisting(img)}
+                        icon={<Trash2 size={14} />}
                         className="text-white bg-red-500/80 rounded-lg p-1 hover:bg-red-600"
-                      >
-                        <Trash2 size={14} />
-                      </button>
+                      />
                     </div>
                   </div>
                 ))}
@@ -370,9 +370,11 @@ export default function EditProductModal({ isOpen, onClose, productId, onUpdated
                         </SWTFormItem>
                       </div>
                       <SWTTooltip title="Xóa" color="#ef4444" placement="top">
-                        <button type="button" onClick={() => remove(name)} className="h-11 px-3 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-colors shrink-0">
-                          <Trash2 size={20} />
-                        </button>
+                        <SWTIconButton
+                          onClick={() => remove(name)}
+                          icon={<Trash2 size={20} />}
+                          className="h-11 px-3 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-colors shrink-0"
+                        />
                       </SWTTooltip>
                     </div>
                   ))}
@@ -397,9 +399,11 @@ export default function EditProductModal({ isOpen, onClose, productId, onUpdated
                     <div key={key} className="relative bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
                       <div className="absolute top-4 right-4 flex gap-2">
                         <SWTTooltip title="Xóa biến thể này (ẩn trong DB)" color="#ef4444" placement="top">
-                          <button type="button" onClick={() => remove(name)} className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors">
-                            <Trash2 size={18} />
-                          </button>
+                          <SWTIconButton
+                            onClick={() => remove(name)}
+                            icon={<Trash2 size={18} />}
+                            className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors"
+                          />
                         </SWTTooltip>
                       </div>
 
@@ -470,13 +474,13 @@ export default function EditProductModal({ isOpen, onClose, productId, onUpdated
                       </SWTFormItem>
                     </div>
                   ))}
-                  <button
-                    type="button"
+                  <SWTButton
                     onClick={() => add()}
-                    className="flex justify-center items-center gap-2 h-12 mt-2 w-full border-2 border-dashed border-fuchsia-300 dark:border-fuchsia-500/50 text-fuchsia-600 dark:text-fuchsia-400 font-semibold hover:bg-fuchsia-50 text-base dark:hover:bg-fuchsia-500/10 rounded-xl transition-all shadow-sm"
+                    className="!h-12 mt-2 !w-full !border-2 !border-dashed !border-fuchsia-300 dark:!border-fuchsia-500/50 !text-fuchsia-600 dark:!text-fuchsia-400 !font-semibold hover:!bg-fuchsia-50 text-base dark:hover:!bg-fuchsia-500/10 !rounded-xl transition-all shadow-sm"
+                    startIcon={<Plus size={20} className="stroke-[2.5]" />}
                   >
-                    <Plus size={20} className="stroke-[2.5]" /> Thêm Biến Thể Mới
-                  </button>
+                    Thêm Biến Thể Mới
+                  </SWTButton>
                 </div>
               )}
             </SWTForm.List>

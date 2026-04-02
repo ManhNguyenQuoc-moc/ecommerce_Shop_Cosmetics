@@ -9,6 +9,8 @@ import SWTModal from "@/src/@core/component/AntD/SWTModal";
 import SWTUpload from "@/src/@core/component/AntD/SWTUpload";
 import SWTTooltip from "@/src/@core/component/AntD/SWTTooltip";
 import { Plus, Inbox, Trash2 } from "lucide-react";
+import SWTButton from "@/src/@core/component/AntD/SWTButton";
+import SWTIconButton from "@/src/@core/component/SWTIconButton";
 import { useState } from "react";
 import { showNotificationSuccess, showNotificationError } from "@/src/@core/utils/message";
 import { uploadFileToCloudinary, deleteUploads } from "@/src/services/admin/upload.service";
@@ -74,11 +76,11 @@ export default function AddProductModal({ isOpen, onClose, onAdd }: AddProductMo
       const variants = values.variants ? await Promise.all(
         values.variants.map(async (v) => {
           let imageUrl: string | undefined = undefined;
-          
+
           if (v.imageFile && v.imageFile.length > 0) {
             const fileItem = v.imageFile[0];
             const rawFile = fileItem.originFileObj || fileItem;
-            
+
             if (rawFile instanceof File || rawFile instanceof Blob) {
               imageUrl = await uploadFileToCloudinary(rawFile, "variants");
               uploadedUrls.push(imageUrl);
@@ -104,7 +106,7 @@ export default function AddProductModal({ isOpen, onClose, onAdd }: AddProductMo
         categoryId: values.categoryId,
         short_description: values.short_description,
         long_description: values.long_description,
-        status: values.status,
+        status: "ACTIVE",
         price: values.price,
         salePrice: values.salePrice || null,
         images: images.filter((url): url is string => url !== null),
@@ -121,13 +123,13 @@ export default function AddProductModal({ isOpen, onClose, onAdd }: AddProductMo
       showNotificationSuccess("Thêm sản phẩm thành công!");
     } catch (err: any) {
       console.error("Add Product Error:", err);
-      
+
       if (uploadedUrls.length > 0) {
-         try {
-           await deleteUploads(uploadedUrls);
-         } catch (rollbackErr) {
-           console.error("Failed to rollback images", rollbackErr);
-         }
+        try {
+          await deleteUploads(uploadedUrls);
+        } catch (rollbackErr) {
+          console.error("Failed to rollback images", rollbackErr);
+        }
       }
     } finally {
       setIsSubmitting(false);
@@ -205,6 +207,7 @@ export default function AddProductModal({ isOpen, onClose, onAdd }: AddProductMo
             />
           </SWTFormItem>
         </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6">
           <SWTFormItem
             name="categoryId"
@@ -222,22 +225,8 @@ export default function AddProductModal({ isOpen, onClose, onAdd }: AddProductMo
               className="w-full dark:[&_.ant-select-selector]:!bg-slate-800/80 dark:[&_.ant-select-selector]:!border-slate-700 dark:[&_.ant-select-selection-item]:!text-white"
             />
           </SWTFormItem>
-          <SWTFormItem
-            name="status"
-            label="Trạng thái hiển thị"
-            initialValue="HIDDEN"
-          >
-            <SWTSelect
-              placeholder="Chọn trạng thái"
-              options={[
-                { label: "Đang bán (ACTIVE)", value: "ACTIVE" },
-                { label: "Đã ẩn (HIDDEN)", value: "HIDDEN" },
-                { label: "Ngừng bán (STOPPED)", value: "STOPPED" },
-              ]}
-              className="w-full dark:[&_.ant-select-selector]:!bg-slate-800/80 dark:[&_.ant-select-selector]:!border-slate-700 dark:[&_.ant-select-selection-item]:!text-white"
-            />
-          </SWTFormItem>
         </div>
+
         <SWTFormItem
           name="short_description"
           label="Mô tả ngắn gọn"
@@ -289,15 +278,13 @@ export default function AddProductModal({ isOpen, onClose, onAdd }: AddProductMo
                         <SWTInput placeholder="Giá trị (Vd: Mọi loại da)" className="dark:!bg-slate-800/80 dark:!border-slate-700 dark:!text-white" />
                       </SWTFormItem>
                     </div>
-                    <SWTTooltip title="Xóa" color="#ef4444" placement="top">
-                      <button
-                        type="button"
-                        onClick={() => remove(name)}
-                        className="h-11 px-3 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-colors shrink-0"
-                      >
-                        <Trash2 size={20} />
-                      </button>
-                    </SWTTooltip>
+                      <SWTTooltip title="Xóa" color="#ef4444" placement="top">
+                        <SWTIconButton
+                          onClick={() => remove(name)}
+                          icon={<Trash2 size={20} />}
+                          className="h-11 px-3 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-colors shrink-0"
+                        />
+                      </SWTTooltip>
                   </div>
                 ))}
               </div>
@@ -346,18 +333,16 @@ export default function AddProductModal({ isOpen, onClose, onAdd }: AddProductMo
                     <div key={key} className="relative bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
                       <div className="absolute top-4 right-4">
                         <SWTTooltip title="Xóa biến thể này" color="#ef4444" placement="top">
-                          <button
-                            type="button"
+                          <SWTIconButton
                             onClick={() => remove(name)}
+                            icon={<Trash2 size={18} />}
                             className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors"
-                          >
-                            <Trash2 size={18} />
-                          </button>
+                          />
                         </SWTTooltip>
                       </div>
-                      
+
                       <h5 className="font-medium text-slate-800 dark:text-slate-200 mb-4 pb-2 border-b border-slate-100 dark:border-slate-700/50">Biến thể {index + 1}</h5>
-                      
+
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-x-4">
                         <SWTFormItem
                           {...restField}
@@ -415,7 +400,7 @@ export default function AddProductModal({ isOpen, onClose, onAdd }: AddProductMo
                           <SWTInputNumber min={0} max={1000000000} placeholder="0" style={{ width: "100%" }} className="dark:[&_.ant-input-number-input]:!text-white dark:!bg-slate-900/50 dark:!border-slate-700" />
                         </SWTFormItem>
                       </div>
-                      
+
                       {/* Variant specific Image Upload */}
                       <SWTFormItem
                         {...restField}
@@ -444,14 +429,14 @@ export default function AddProductModal({ isOpen, onClose, onAdd }: AddProductMo
 
                     </div>
                   ))}
-                  
-                  <button
-                    type="button"
+
+                  <SWTButton
                     onClick={() => add()}
-                    className="flex justify-center items-center gap-2 h-12 mt-2 w-full border-2 border-dashed border-brand-300 dark:border-brand-500/50 text-brand-600 dark:text-brand-400 font-semibold hover:bg-brand-50 text-base dark:hover:bg-brand-500/10 rounded-xl transition-all shadow-sm"
+                    className="!h-12 mt-2 !w-full !border-2 !border-dashed !border-brand-300 dark:!border-brand-500/50 !text-brand-600 dark:!text-brand-400 !font-semibold hover:!bg-brand-50 text-base dark:hover:!bg-brand-500/10 !rounded-xl transition-all shadow-sm"
+                    startIcon={<Plus size={20} className="stroke-[2.5]" />}
                   >
-                    <Plus size={20} className="stroke-[2.5]" /> Thêm Phiên Bản Sản Phẩm Mới (Variant)
-                  </button>
+                    Thêm Phiên Bản Sản Phẩm Mới (Variant)
+                  </SWTButton>
                 </div>
               )}
             </SWTForm.List>
