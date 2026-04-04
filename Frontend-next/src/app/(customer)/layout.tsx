@@ -1,7 +1,11 @@
 import CustomerHeader from "@/src/layout/customer/AppHeader";
 import AppFooter from "@/src/layout/customer/AppFooter";
 import BackgroundDecor from "@/src/layout/customer/BackgroundDecor";
-
+import type { Metadata } from "next";
+export const metadata: Metadata = {
+  title: "Cosmetics Shop - Trang chủ", 
+  description: "Chuyên cung cấp các dòng mỹ phẩm chính hãng, chăm sóc da và làm đẹp với giá tốt nhất. Khám phá bộ sưu tập đa dạng từ các thương hiệu nổi tiếng, đảm bảo chất lượng và an toàn cho làn da của bạn. Mua sắm dễ dàng, giao hàng nhanh chóng và dịch vụ khách hàng tận tâm tại Cosmetics Shop.",
+};
 export default function CustomerLayout({
   children,
 }: {
