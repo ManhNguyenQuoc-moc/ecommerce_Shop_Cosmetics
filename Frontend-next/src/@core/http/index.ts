@@ -90,8 +90,10 @@ const onResponseInterceptor = async (error: AxiosError) => {
   return Promise.reject(error);
 };
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+
 const http = axios.create({
-  baseURL: `${process.env.NEXT_PUBLIC_API_URL}`,
+  baseURL: API_BASE_URL, // Dùng biến đã được bảo vệ
   timeout: 3 * 60 * 1000,
   headers: {
     "Content-Type": "application/json",
