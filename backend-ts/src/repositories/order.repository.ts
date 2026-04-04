@@ -3,23 +3,29 @@ import { IOrderRepository } from "../interfaces/IOrderRepository";
 import { prisma } from "../config/prisma";
 
 export class OrderRepository implements IOrderRepository {
-  async findAll(): Promise<Order[]> {
-    return prisma.order.findMany({
-      include: {
-        items: {
-          include: {
-            variant: {
-              include: {
-                product: true
+  async findAll(skip?: number, take?: number): Promise<[Order[], number]> {
+    const [orders, total] = await Promise.all([
+      prisma.order.findMany({
+        skip,
+        take,
+        include: {
+          items: {
+            include: {
+              variant: {
+                include: {
+                  product: true
+                }
               }
             }
-          }
+          },
+          user: true,
+          status_history: true,
         },
-        user: true,
-        status_history: true,
-      },
-      orderBy: { createdAt: "desc" },
-    });
+        orderBy: { createdAt: "desc" },
+      }),
+      prisma.order.count({ where: {} }) // Note: Usually we should have filters here too
+    ]);
+    return [orders, total];
   }
 
   async findById(id: string): Promise<Order | null> {

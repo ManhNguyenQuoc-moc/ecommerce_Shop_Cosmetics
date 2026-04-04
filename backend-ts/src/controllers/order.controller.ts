@@ -11,12 +11,20 @@ export class OrderController {
 
   getOrders = async (req: Request, res: Response): Promise<void> => {
     try {
-      const orders = await this.orderService.getOrders();
+      const page = parseInt(req.query.page as string || "1");
+      const pageSize = parseInt(req.query.pageSize as string || req.query.limit as string || "10");
+      
+      const { items, total } = await this.orderService.getOrders(page, pageSize);
 
       res.status(200).json({
         success: true,
         message: "Get orders successfully",
-        data: orders,
+        data: {
+          data: items,
+          total,
+          page,
+          pageSize
+        },
       });
     } catch (error: any) {
       res.status(500).json({ success: false, message: error.message || "Internal server error" });
@@ -50,7 +58,7 @@ export class OrderController {
       
       if (paymentMethod === "vnpay") {
         const paymentUrl = createPaymentUrl({
-          amount: total || order.total,
+          amount: total || (order as any).total_amount,
           orderId: order.id,
         });
         res.status(200).json({

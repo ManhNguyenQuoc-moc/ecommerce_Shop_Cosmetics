@@ -21,30 +21,29 @@ export default function UsersPage() {
             { title: "Trang chủ", href: "/admin" },
             { title: "Users" }
           ]} />
-          <div className="relative mt-2 overflow-hidden bg-gradient-to-r from-brand-500 to-rose-600 text-white px-5 py-2.5 rounded-tl-xl rounded-tr-3xl rounded-br-3xl rounded-bl-md shadow-lg shadow-brand-500/40 border border-white/20 flex items-center gap-3 w-fit group/title cursor-default mt-3 mb-2">
-            <div className="absolute inset-0 bg-white/20 -skew-x-12 animate-sweep" />
-            <Users size={28} className="drop-shadow-[0_0_8px_rgba(255,255,255,0.5)] animate-pulse shrink-0" />
-            <h2 className="!mb-0 text-2xl font-black tracking-tight drop-shadow-md whitespace-nowrap">
+          <div className="flex items-center gap-3.5 mt-4 mb-2">
+            <Users size={32} className="text-brand-500 shrink-0" />
+            <h2 className="!mb-0 text-3xl font-black tracking-tight text-brand-600 dark:text-admin-accent whitespace-nowrap">
               Người dùng hệ thống
             </h2>
           </div>
-          <p className="text-brand-500 dark:text-cyan-400 text-sm font-semibold uppercase tracking-widest drop-shadow-sm dark:drop-shadow-[0_0_5px_rgba(0,240,255,0.3)]">
+          <p className="text-slate-500 dark:text-slate-400 text-sm font-semibold uppercase tracking-widest">
             Quản trị viên, nhân sự và danh sách khách hàng.
           </p>
         </div>
         <SWTTooltip
           title={<span className="text-sm">Quản lý danh sách người dùng, phân quyền và thông tin khách hàng.</span>}
           placement="left"
-          color="blue"
+          color="pink"
         >
-          <div className="!h-11 !w-11 flex items-center justify-center bg-brand-50 hover:bg-brand-500/10 dark:bg-slate-800 dark:hover:bg-slate-700 text-brand-600 dark:text-cyan-400 rounded-xl cursor-help transition-all shadow-sm border border-brand-200 dark:border-slate-700 group">
+          <div className="!h-11 !w-11 flex items-center justify-center bg-brand-50 hover:bg-brand-500/10 dark:bg-slate-800 dark:hover:bg-slate-700 text-brand-600 dark:text-admin-accent rounded-xl cursor-help transition-all shadow-sm border border-brand-200 dark:border-slate-700 group">
             <Info size={22} className="stroke-[2.5] group-hover:scale-110 transition-transform" />
           </div>
         </SWTTooltip>
       </div>
 
       {/* Main Content */}
-      <div className="p-6 bg-white/90 dark:bg-slate-900/80 backdrop-blur-md rounded-3xl shadow-sm dark:shadow-[0_0_15px_rgba(0,0,0,0.5)] border border-slate-200 dark:border-pink-500/20 transition-colors">
+      <div className="p-6 bg-white/80 dark:bg-slate-900/50 backdrop-blur-md rounded-2xl shadow-sm border border-slate-200 dark:border-admin-sidebar-border transition-colors">
         
         <UserFilters />
 

@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { CartItem } from "./CartTable";
+import { CartItem } from "@/src/stores/useCartStore";
 import { Heart, Trash2 } from "lucide-react";
 
 type Props = {
@@ -27,7 +27,7 @@ export default function CartItemProduct({ item, onRemove }: Props) {
       <div className="flex flex-col flex-1 min-w-0">
         <div className="mb-1">
           <p className="text-xs font-medium text-gray-400 uppercase tracking-wider">
-            {item.brand}
+            {typeof item.brand === "object" ? (item.brand as any).name : item.brand}
           </p>
           <h3 className="text-sm font-semibold text-gray-800 truncate leading-tight">
             {item.productName}

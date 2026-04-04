@@ -5,6 +5,7 @@ export interface CreatePOItemDTO {
 }
 
 export interface CreatePODTO {
+  username: string;
   brandId: string;
   note?: string;
   priority?: 'LOW' | 'NORMAL' | 'HIGH';

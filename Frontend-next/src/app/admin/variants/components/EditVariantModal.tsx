@@ -21,8 +21,10 @@ interface EditVariantFormValues {
   sku?: string;
   price: number;
   salePrice?: number;
+  costPrice?: number;
   statusName?: 'BEST_SELLING' | 'TRENDING' | 'NEW';
   imageFile?: any[]; // AntD Upload file list
+  
 }
 
 interface EditVariantModalProps {
@@ -44,6 +46,7 @@ export default function EditVariantModal({ isOpen, onClose, variant, onUpdate }:
         sku: variant.sku,
         price: variant.price,
         salePrice: variant.salePrice,
+        costPrice : variant.costPrice,
         statusName: variant.statusName || 'NEW',
         imageFile: variant.image ? [{
           uid: `-v-img-${variant.id}`,
@@ -87,6 +90,7 @@ export default function EditVariantModal({ isOpen, onClose, variant, onUpdate }:
         sku: values.sku,
         price: values.price,
         salePrice: values.salePrice || null,
+        costPrice: values.costPrice || null,
         statusName: values.statusName,
         imageUrl,
         imageId
@@ -183,6 +187,18 @@ export default function EditVariantModal({ isOpen, onClose, variant, onUpdate }:
         </div>
 
        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6">
+         <SWTFormItem
+            name="costPrice"
+            label="Giá nhập (VNĐ)"
+            rules={[{required:true, message:'Nhập giá nhập kho'}]}
+          >
+            <SWTInputNumber
+              min={0}
+              placeholder="0"
+              style={{ width: "100%" }}
+              className="dark:[&_.ant-input-number-input]:!text-white dark:!bg-slate-800/80 dark:!border-slate-700"
+            />
+          </SWTFormItem>
           <SWTFormItem
             name="price"
             label="Giá Bán (VNĐ)"

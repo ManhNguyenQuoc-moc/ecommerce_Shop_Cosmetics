@@ -11,7 +11,7 @@ export const useCategories = () => {
   const { data, error, isLoading } = useFetchSWR(CATEGORY_API_ENDPOINT, getCategories);
   
   // Handle both raw array (old) and paginated object (new)
-  const categories = Array.isArray(data) ? data : (data as any)?.items || [];
+  const categories = Array.isArray(data) ? data : (data as any)?.data || [];
 
   return {
     categories,

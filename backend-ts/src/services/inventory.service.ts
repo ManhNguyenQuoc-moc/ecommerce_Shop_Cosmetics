@@ -48,6 +48,7 @@ export class InventoryService {
       return {
         id: b.id,
         batchNumber: b.batchNumber,
+        purchaseOrderCode: b.purchaseOrder?.code || null,
         quantity: b.quantity,
         costPrice: b.costPrice,
         expiryDate: b.expiryDate,

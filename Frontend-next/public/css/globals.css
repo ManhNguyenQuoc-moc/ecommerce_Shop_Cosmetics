@@ -259,13 +259,22 @@
     }
   }
 
-  /* --- Admin Cyber Pink Theme --- */
-  --color-admin-bg: #09090b; /* zinc-950 */
-  --color-admin-sidebar-bg: rgba(9, 9, 11, 0.85);
-  --color-admin-sidebar-border: rgba(255, 0, 127, 0.3); /* Neon Pink */
-  --color-admin-sidebar-hover: rgba(255, 0, 128, 0.1); /* Neon pink hover */
-  --color-admin-active-text: #ff007f; /* Magenta/Pink */
-  --color-admin-text-secondary: #a1a1aa; /* zinc-400 */
+  /* --- Admin Unified Pink Theme (Premium & Radiant) --- */
+  --color-admin-bg: #030712; /* Neutral deep slate */
+  --color-admin-sidebar-bg: rgba(3, 7, 18, 0.9);
+  --color-admin-sidebar-border: rgba(255, 77, 148, 0.15); /* Soft Brand Pink */
+  --color-admin-sidebar-active: rgba(255, 77, 148, 0.1); 
+  --color-admin-sidebar-hover: rgba(255, 77, 148, 0.05);
+
+  --color-admin-accent: #ff4d94; /* Primary Brand Pink */
+  --color-admin-accent-hover: #f02d7d;
+  --color-admin-accent-soft: rgba(255, 77, 148, 0.2);
+
+  --color-admin-card-bg: rgba(15, 23, 42, 0.8);
+  --color-admin-card-border: rgba(255, 77, 148, 0.1);
+
+  --color-admin-text-primary: #f8fafc;
+  --color-admin-text-secondary: #94a3b8; /* slate-400 */
 
   --animate-gradient-flow: gradientFlow 15s ease infinite;
 

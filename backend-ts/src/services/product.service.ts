@@ -37,7 +37,10 @@ export class ProductService implements IProductService {
     const batches = await prisma.batch.findMany({
       where: { variantId: id },
       include: {
-        transactions: true
+        transactions: true,
+        purchaseOrder: {
+          select: { code: true }
+        }
       },
       orderBy: { expiryDate: 'asc' }
     });
@@ -76,6 +79,7 @@ export class ProductService implements IProductService {
         return {
           id: b.id,
           batchNumber: b.batchNumber,
+          purchaseOrderCode: b.purchaseOrder?.code || null,
           expiryDate: b.expiryDate,
           manufacturingDate: b.manufacturingDate,
           quantity: b.quantity,
@@ -87,6 +91,53 @@ export class ProductService implements IProductService {
       }),
       createdAt: variant.createdAt,
       updatedAt: variant.updatedAt
+    };
+  }
+
+  async getVariantBatches(variantId: string, page: number, pageSize: number): Promise<PagedResult<any>> {
+    const skip = (page - 1) * pageSize;
+    const [batches, total] = await Promise.all([
+      prisma.batch.findMany({
+        where: { variantId },
+        include: { 
+          transactions: true,
+          purchaseOrder: {
+            select: { code: true }
+          }
+        },
+        orderBy: { expiryDate: 'asc' },
+        skip,
+        take: pageSize
+      }),
+      prisma.batch.count({ where: { variantId } })
+    ]);
+
+    return {
+      data: batches.map((b: any) => {
+        const totalIn = b.transactions
+          .filter((t: any) => t.type === 'IN')
+          .reduce((sum: number, t: any) => sum + t.quantity, 0);
+        
+        const totalOut = b.transactions
+          .filter((t: any) => t.type === 'OUT')
+          .reduce((sum: number, t: any) => sum + Math.abs(t.quantity), 0);
+
+        return {
+          id: b.id,
+          batchNumber: b.batchNumber,
+          purchaseOrderCode: b.purchaseOrder?.code || null,
+          expiryDate: b.expiryDate,
+          manufacturingDate: b.manufacturingDate,
+          quantity: b.quantity,
+          costPrice: b.costPrice,
+          totalIn,
+          totalOut,
+          createdAt: b.createdAt
+        };
+      }),
+      total,
+      page,
+      pageSize
     };
   }
 
@@ -141,7 +192,7 @@ async getProducts(
   };
 }
 
-  async getVariants(page: number, pageSize: number, filters?: VariantQueryFilters): Promise<{ variants: any[]; total: number }> {
+  async getVariants(page: number, pageSize: number, filters?: VariantQueryFilters): Promise<PagedResult<any>> {
     const { variants, total } = await this.productRepository.getVariants(page, pageSize, filters);
     const mappedVariants: any[] = [];
     // collect variant ids and fetch stock map
@@ -161,6 +212,7 @@ async getProducts(
         category: p.category ? { id: p.category.id, name: p.category.name, slug: p.category.slug } : null,
         price: v.price,
         salePrice: v.salePrice || null,
+        costPrice: v.costPrice || null,
         sku: v.sku || "",
         color: v.color || "",
         size: v.size || "",
@@ -174,7 +226,12 @@ async getProducts(
       });
     });
 
-    return { variants: mappedVariants, total };
+    return {
+      data: mappedVariants,
+      total,
+      page,
+      pageSize
+    };
   }
 
   async getProductById(id: string): Promise<any | null> {
@@ -243,6 +300,16 @@ async getProducts(
       },
       totalStock,
       variants,
+      reviews: typedProduct.reviews?.map(r => ({
+        id: r.id,
+        rating: r.rating,
+        comment: r.comment,
+        createdAt: r.createdAt,
+        user: {
+          id: (r as any).user?.id,
+          full_name: (r as any).user?.full_name
+        }
+      })) || [],
       specifications: product.specifications || [],
       createdAt: product.createdAt,
       updatedAt: product.updatedAt,

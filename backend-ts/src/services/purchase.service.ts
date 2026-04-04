@@ -4,8 +4,9 @@ import { InventoryRepository } from "../repositories/inventory.repository";
 import { CreatePODTO, POQueryFiltersDTO } from "../DTO/purchase/input/CreatePODTO";
 import { UpdatePODTO } from "../DTO/purchase/input/UpdatePODTO";
 import { ReceiveStockDTO } from "../DTO/purchase/input/ReceiveStockDTO";
-import { POListResponseDTO, POStatus } from "../DTO/purchase/output/POResponseDTO";
+import { POListItemDTO, POStatus } from "../DTO/purchase/output/POResponseDTO";
 
+import { PagedResult } from "../common/paged-result";
 const inventoryRepo = new InventoryRepository();
 
 export class PurchaseService {
@@ -17,10 +18,22 @@ export class PurchaseService {
     page: number = 1,
     limit: number = 10,
     filters?: POQueryFiltersDTO
-  ): Promise<POListResponseDTO> {
+  ): Promise<PagedResult<POListItemDTO>> {
     const skip = (page - 1) * limit;
     const [orders, total] = await this.purchaseRepo.getPurchaseOrders(skip, limit, filters);
-    return { orders, total, page, limit };
+    return { data: orders, total, page, pageSize: limit };
+  }
+
+  async getPurchaseOrderItems(id: string, page: number, limit: number): Promise<PagedResult<any>> {
+    const skip = (page - 1) * limit;
+    const [items, total] = await this.purchaseRepo.getPurchaseOrderItems(id, skip, limit);
+    return { data: items, total, page, pageSize: limit };
+  }
+
+  async getPurchaseOrderReceipts(id: string, page: number, limit: number): Promise<PagedResult<any>> {
+    const skip = (page - 1) * limit;
+    const [receipts, total] = await this.purchaseRepo.getPurchaseOrderReceipts(id, skip, limit);
+    return { data: receipts, total, page, pageSize: limit };
   }
 
   async getPurchaseOrderById(id: string) {
@@ -41,7 +54,6 @@ export class PurchaseService {
     if (!data.items || data.items.length === 0) {
       throw new Error("Phiếu nhập phải có ít nhất 1 mặt hàng");
     }
-    // Enforce brand immutability: do not allow changing brand on edit
     if (data.brandId && data.brandId !== po.brandId) {
       throw new Error("Không được thay đổi thương hiệu của phiếu nhập");
     }

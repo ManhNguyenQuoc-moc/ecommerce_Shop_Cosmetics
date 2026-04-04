@@ -3,6 +3,7 @@
 import SWTTable from "@/src/@core/component/AntD/SWTTable";
 import SWTStatusTag from "@/src/@core/component/SWTStatusTag";
 import SWTIconButton from "@/src/@core/component/SWTIconButton";
+import SWTButton from "@/src/@core/component/AntD/SWTButton";
 import SWTTooltip from "@/src/@core/component/AntD/SWTTooltip";
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";

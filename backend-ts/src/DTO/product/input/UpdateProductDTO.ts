@@ -7,6 +7,7 @@ export interface UpdateVariantDTO {
     size?: string;
     price: number;
     salePrice?: number | null;
+    costPrice?: number;
     imageUrl?: string | null;
     imageId?: string | null;
     statusName?: 'BEST_SELLING' | 'TRENDING' | 'NEW';

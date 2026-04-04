@@ -12,6 +12,7 @@ const productController = new ProductController(productService);
 
 router.get("/", productController.getProducts);
 router.get("/variants/list", productController.getVariants);
+router.get("/variants/:id/batches", productController.getVariantBatches);
 router.get("/variants/:id", productController.getVariantById);
 router.get("/:id", productController.getProductById);
 router.post("/", productController.createProduct);

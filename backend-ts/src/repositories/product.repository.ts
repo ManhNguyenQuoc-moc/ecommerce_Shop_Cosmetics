@@ -275,6 +275,11 @@ export class ProductRepository implements IProductRepository {
       conditions.push(Prisma.sql`p."brandId" = ${filters.brandId}`);
     }
 
+    // 7. Product ID Filter
+    if (filters?.productId && filters.productId !== 'all') {
+      conditions.push(Prisma.sql`v."productId" = ${filters.productId}`);
+    }
+
     const where = conditions.length > 0 ? Prisma.sql`WHERE ${Prisma.join(conditions, ' AND ')}` : Prisma.empty;
 
     let orderBy = Prisma.sql`v."createdAt" DESC`;
@@ -362,7 +367,7 @@ export class ProductRepository implements IProductRepository {
         brand: true,
         category: true,
         variants: { include: { image: true, orderItems: true } },
-        reviews: true,
+        reviews: { include: { user: true } },
         productImages: { include: { image: true }, orderBy: { order: 'asc' } },
       },
     });
@@ -407,7 +412,7 @@ export class ProductRepository implements IProductRepository {
               sku: variant.sku || this.generateSKU(),
               price: Number(variant.price),
               salePrice: variant.salePrice ? Number(variant.salePrice) : null,
-              costPrice: 0,
+              costPrice: variant.costPrice ? Number(variant.costPrice) : 0,
               imageId: variant.imageId || null,
               statusName: variant.statusName || 'NEW',
             }
@@ -438,7 +443,7 @@ export class ProductRepository implements IProductRepository {
         sku: data.sku || this.generateSKU(),
         price: Number(data.price),
         salePrice: data.salePrice ? Number(data.salePrice) : null,
-        costPrice: 0,
+        costPrice: data.costPrice ? Number(data.costPrice) : 0,
         imageId: data.imageId || null,
         statusName: data.statusName || 'NEW',
       }

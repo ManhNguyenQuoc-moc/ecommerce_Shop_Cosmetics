@@ -28,7 +28,7 @@ import SWTBreadcrumb from "@/src/@core/component/AntD/SWTBreadcrumb";
 import useSWTTitle from "@/src/@core/hooks/useSWTTitle";
 import Link from "next/link";
 import SWTButton from "@/src/@core/component/AntD/SWTButton";
-import { useVariant } from "@/src/services/admin/product.service";
+import { useVariant, useVariantBatches } from "@/src/services/admin/product.service";
 import Image from "next/image";
 import SWTCard from "@/src/@core/component/AntD/SWTCard";
 import SWTTable from "@/src/@core/component/AntD/SWTTable";
@@ -56,7 +56,21 @@ export default function VariantDetailPage({
   const productId = searchParams.get("productId");
 
   const { id } = use(params);
-  const { variant, isLoading, isError, mutate } = useVariant(id);
+  const { variant, isLoading: isVariantLoading, isError: isVariantError, mutate: mutateVariant } = useVariant(id);
+
+  const [currentBatchPage, setCurrentBatchPage] = useState(1);
+  const batchPageSize = 6;
+  const { 
+    batches: paginatedBatches, 
+    total: batchesTotal, 
+    isLoading: isBatchesLoading 
+  } = useVariantBatches(id, currentBatchPage, batchPageSize);
+
+  const isLoading = isVariantLoading || isBatchesLoading;
+  const isError = isVariantError;
+  const mutate = () => {
+    mutateVariant();
+  };
 
   if (isLoading) {
     return <SWTLoading tip="Đang tải thông tin biến thể..." />;
@@ -163,12 +177,12 @@ export default function VariantDetailPage({
                 </div>
 
                 <div className="mt-auto grid grid-cols-2 gap-4">
-                  <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl border border-slate-100 dark:border-slate-800">
-                    <p className="text-[10px] uppercase font-bold text-slate-400 mb-1 flex items-center gap-1">
+                  <div className="bg-brand-50/50 dark:bg-brand-500/10 p-4 rounded-2xl border border-brand-100 dark:border-brand-500/20 shadow-sm">
+                    <p className="text-[10px] uppercase font-black text-brand-600/60 dark:text-brand-400 mb-1 flex items-center gap-1 tracking-widest">
                       <Tag size={10} /> Giá bán hiện tại
                     </p>
                     <div className="flex flex-col">
-                      <span className="text-2xl font-black text-brand-600">
+                      <span className="text-2xl font-black text-brand-600 dark:text-brand-400">
                         {formatCurrency(variant.salePrice || variant.price)}
                       </span>
                       {variant.salePrice && (
@@ -208,26 +222,45 @@ export default function VariantDetailPage({
                 </div>
               </div>
               <span className="bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border border-orange-100 dark:border-orange-500/20">
-                {variant.batches?.length || 0} Lô hàng
+                {batchesTotal} Lô hàng
               </span>
             </div>
 
             <SWTTable
-              dataSource={variant.batches || []}
+              dataSource={paginatedBatches}
               rowKey="id"
-              pagination={false}
+              pagination={{
+                totalCount: batchesTotal,
+                page: currentBatchPage,
+                fetch: batchPageSize,
+                onChange: (p) => setCurrentBatchPage(p)
+              }}
               className="mt-2"
               columns={[
                 {
                   title: "SỐ LÔ (BATCH NO.)",
                   dataIndex: "batchNumber",
                   key: "batchNumber",
-                  render: (val: string) => (
-                    <div className="flex items-center gap-2">
-                       <div className="w-2 h-2 rounded-full bg-orange-400 shadow-[0_0_8px_rgba(251,146,60,0.5)]" />
-                       <span className="font-bold text-slate-700 dark:text-slate-200">{val}</span>
+                  render: (val: string, record: any) => (
+                    <div className="flex flex-col gap-1 w-max">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-orange-400 shadow-[0_0_8px_rgba(251,146,60,0.5)]" />
+                        <span className="font-bold text-slate-700 dark:text-slate-200">{val}</span>
+                      </div>
+                      {record.purchaseOrderCode && (
+                        <div className="text-[10px] text-slate-500 font-medium ml-4">
+                          PO: {record.purchaseOrderCode}
+                        </div>
+                      )}
                     </div>
                   )
+                },
+                {
+                  title: "NGÀY SẢN XUẤT",
+                  dataIndex: "manufacturingDate",
+                  key: "manufacturingDate",
+                  align: "center",
+                  render: (date: string) => date ? moment(date).format("DD/MM/YYYY") : "N/A"
                 },
                 {
                   title: "HẠN SỬ DỤNG",
@@ -247,13 +280,6 @@ export default function VariantDetailPage({
                       </div>
                     );
                   }
-                },
-                {
-                  title: "NGÀY SẢN XUẤT",
-                  dataIndex: "manufacturingDate",
-                  key: "manufacturingDate",
-                  align: "center",
-                  render: (date: string) => date ? moment(date).format("DD/MM/YYYY") : "N/A"
                 },
                 {
                   title: "SỐ LƯỢNG",
@@ -286,10 +312,10 @@ export default function VariantDetailPage({
         <div className="flex flex-col gap-6">
            {/* QUICK STATS */}
            <SWTCard
-            className="!bg-gradient-to-br !from-orange-500 !to-orange-600 !rounded-3xl !text-white !border-none shadow-xl shadow-orange-500/20"
+            className="!bg-brand-500/10 !backdrop-blur-md !rounded-3xl !text-brand-600 dark:!text-brand-400 !border !border-brand-500/20 shadow-lg shadow-brand-500/5"
             bodyClassName="!p-6"
           >
-            <div className="flex items-center gap-2 mb-2 opacity-80">
+            <div className="flex items-center gap-2 mb-2 opacity-80 font-bold">
               <TrendingUp size={18} />
               <span className="text-xs uppercase font-black tracking-widest">Giá trị tồn kho lô</span>
             </div>

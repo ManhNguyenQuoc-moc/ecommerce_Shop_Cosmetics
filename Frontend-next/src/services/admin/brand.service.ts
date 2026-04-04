@@ -1,6 +1,7 @@
 import { get, post, put, del } from "../api";
 import { useFetchSWR } from "@/src/@core/hooks/useFetchSWR";
 import useSWRMutation from "swr/mutation";
+import { PaginationResponse } from "../models/common/PaginationResponse";
 
 export const BRAND_API_ENDPOINT = "/brands";
 
@@ -18,7 +19,7 @@ export const useBrands = (page: number | null = null, pageSize: number | null = 
     () => get(`${BRAND_API_ENDPOINT}?${query.toString()}`)
   );
 
-  const brands = Array.isArray(data) ? data : (data as any)?.items || [];
+  const brands = Array.isArray(data) ? data : (data as any)?.data || [];
   const total = Array.isArray(data) ? data.length : (data as any)?.total || 0;
 
   return {

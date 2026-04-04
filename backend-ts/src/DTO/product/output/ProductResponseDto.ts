@@ -42,7 +42,8 @@ export interface VariantResponseDto {
 
   price: number;
   salePrice?: number;
-
+  costPrice?: number;
+  
   statusName?: string;
 
   imageUrl?: string;

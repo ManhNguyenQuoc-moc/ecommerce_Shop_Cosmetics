@@ -1,19 +1,19 @@
 export type POStatus = 'DRAFT' | 'CONFIRMED' | 'PARTIALLY_RECEIVED' | 'COMPLETED' | 'CANCELLED';
 export type POPriority = 'LOW' | 'NORMAL' | 'HIGH';
-
 export interface BrandInPODto {
   id: string;
   name: string;
   logoUrl?: string | null;
   email?: string | null;
   phone?: string | null;
+  address?: string | null;
 }
-
 export interface VariantInPODto {
   id: string;
   sku?: string | null;
   color?: string | null;
   size?: string | null;
+  image?: string | null;
   product?: {
     id: string;
     name: string;
@@ -50,7 +50,9 @@ export interface POReceiptItemDto {
   quantity: number;
   batchNumber: string;
   expiryDate: string;
+  manufacturingDate?: string;
   createdAt: string;
+  variant?: VariantInPODto | null;
 }
 
 export interface PODetailDto extends POListItemDto {

@@ -15,26 +15,27 @@ export default function AdminAppSideBar() {
     <aside 
       onMouseEnter={() => !isExpanded && setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className={`h-screen bg-white/90 dark:bg-slate-950/85 backdrop-blur-xl border-r border-slate-200 dark:border-pink-500/20 flex flex-col shadow-xl z-50 fixed lg:relative transition-all duration-300 ease-in-out
-        ${showLabel ? "w-[280px]" : "w-[88px]"}
+      className={`h-screen bg-white/90 dark:bg-slate-950/85 backdrop-blur-xl border-r border-slate-200 dark:border-admin-sidebar-border flex flex-col shadow-xl z-50 fixed lg:relative transition-all duration-300 ease-in-out
+        ${showLabel ? "w-[320px]" : "w-[105px]"}
         ${!isExpanded && isHovered ? "absolute h-screen shadow-2xl" : ""}
         ${isMobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
       `}
     >
       
       {/* Brand Logo */}
-      <div className={`h-[90px] flex items-center border-b border-slate-200 dark:border-cyan-500/20 ${showLabel ? "px-6" : "px-0 justify-center"}`}>
-        <Link href="/admin" className="flex items-center gap-3 w-full group overflow-hidden">
-          <div className={`relative overflow-hidden flex-shrink-0 bg-gradient-to-br from-brand-400 to-rose-600 dark:from-cyan-400 dark:to-fuchsia-600 rounded-xl flex items-center justify-center shadow-xl shadow-brand-500/30 dark:shadow-[0_0_15px_rgba(0,240,255,0.4)] transform rotate-12 group-hover:rotate-0 transition-all duration-500 ${showLabel ? "w-10 h-10" : "w-11 h-11 mx-auto"}`}>
-            <div className="absolute inset-0 bg-white/40 animate-sweep z-0 pointer-events-none mix-blend-overlay" />
-            <span className={`relative z-10 text-white font-black italic leading-none drop-shadow-md ${showLabel ? "text-xl" : "text-2xl"}`}>C</span>
+      <div className={`h-[90px] flex items-center border-b border-slate-200 dark:border-admin-sidebar-border ${showLabel ? "px-6" : "px-0 justify-center"}`}>
+        <Link href="/admin" className={`group flex items-center shrink-0 ${showLabel ? "gap-3" : ""}`}>
+          <div className={`relative overflow-hidden flex-shrink-0 bg-brand-500 rounded-xl flex items-center justify-center shadow-xl shadow-brand-500/30 transform rotate-12 group-hover:rotate-0 transition-all duration-500 ${showLabel ? "w-10 h-10" : "w-11 h-11"}`}>
+            {/* Hiệu ứng quét sáng */}
+            <div className="absolute inset-0 bg-white/40 animate-sweep z-0 pointer-events-none mix-blend-overlay rounded-xl" />
+            <span className={`relative z-10 text-white font-black italic leading-none drop-shadow-sm select-none ${showLabel ? "text-xl" : "text-2xl"}`}>C</span>
           </div>
           {showLabel && (
-            <div className="flex flex-col whitespace-nowrap animate-fade-in">
-              <span className="font-black text-[16px] tracking-tight leading-none text-slate-800 dark:text-cyan-50 dark:drop-shadow-[0_0_5px_rgba(0,240,255,0.5)]">
+            <div className="flex flex-col whitespace-nowrap animate-fade-in transition-all duration-700">
+              <span className="font-black text-xl md:text-2xl text-brand-900 dark:text-white tracking-tight leading-none uppercase">
                 COSMETICS
               </span>
-              <span className="font-bold text-[9px] text-brand-600 dark:text-fuchsia-400 tracking-[0.2em] leading-none mt-1.5 uppercase dark:drop-shadow-[0_0_5px_rgba(255,0,128,0.5)]">
+              <span className="font-bold text-[10px] md:text-[11px] text-brand-600 dark:text-admin-accent tracking-[0.3em] leading-none mt-1.5 uppercase">
                 Admin Panel
               </span>
             </div>
@@ -43,9 +44,9 @@ export default function AdminAppSideBar() {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 p-4 space-y-1.5 overflow-y-auto custom-scrollbar">
+      <nav className="flex-1 p-4 space-y-1.5 overflow-y-auto !scrollbar-none" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
         {showLabel && (
-          <div className="text-xs font-bold text-slate-400 dark:text-cyan-600/80 uppercase tracking-widest mb-4 px-2 mt-2 whitespace-nowrap animate-fade-in">
+          <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 px-2 mt-2 whitespace-nowrap animate-fade-in">
             Hệ thống
           </div>
         )}
@@ -57,26 +58,25 @@ export default function AdminAppSideBar() {
             <Link
               key={item.path}
               href={item.path}
-              className={`group flex items-center px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 border border-transparent
-              ${showLabel ? "gap-3.5" : "justify-center"}
-              ${active ? "bg-gradient-to-r from-brand-500 to-rose-600 dark:bg-none dark:bg-cyan-500/10 !text-white dark:text-cyan-300 border-transparent dark:border-cyan-500/30 shadow-md shadow-brand-500/30 dark:shadow-[0_0_15px_rgba(0,240,255,0.15)]" : "text-slate-500 dark:text-slate-400 hover:text-brand-600 dark:hover:text-fuchsia-300 hover:bg-slate-100 dark:hover:bg-fuchsia-500/10 dark:hover:border-fuchsia-500/20"}`}
+              className={`group flex items-center px-4 py-3 rounded-2xl text-sm transition-all duration-300 border border-transparent
+              ${showLabel ? "gap-4" : "justify-center"}
+              ${active ? "bg-gradient-to-r from-brand-500 to-rose-600 dark:bg-none dark:bg-brand-500/10 !text-white dark:text-admin-accent border-transparent dark:border-admin-sidebar-border shadow-md shadow-brand-500/30" : "text-slate-500 dark:text-slate-400 hover:text-brand-600 dark:hover:text-admin-accent hover:bg-slate-100 dark:hover:bg-brand-500/5 dark:hover:border-admin-sidebar-border/20"}`}
             >
-              <div className={`p-2 rounded-lg transition-all duration-300 flex-shrink-0 ${active ? "bg-white/20 dark:bg-gradient-to-br dark:from-cyan-400 dark:to-fuchsia-600 text-white shadow-sm dark:shadow-[0_0_10px_rgba(0,240,255,0.4)]" : "bg-transparent text-slate-400 dark:text-slate-500 group-hover:text-brand-500 dark:group-hover:text-fuchsia-400"}`}>
-                <item.icon size={20} strokeWidth={active ? 2.5 : 2} />
+              <div className={`p-2.5 rounded-xl transition-all duration-300 flex-shrink-0 ${active ? "bg-white/20 dark:bg-brand-500 text-white shadow-sm" : "bg-transparent text-slate-400 dark:text-slate-500 group-hover:text-brand-500 dark:group-hover:text-admin-accent"}`}>
+                <item.icon size={24} strokeWidth={active ? 2.5 : 2} />
               </div>
-              {showLabel && <span className="whitespace-nowrap animate-fade-in drop-shadow-sm">{item.name}</span>}
+              {showLabel && <span className="whitespace-nowrap animate-fade-in drop-shadow-sm text-[17px] font-bold tracking-tight">{item.name}</span>}
             </Link>
           );
         })}
       </nav>
 
-      {/* Sidebar Footer Details */}
       <div className={`overflow-hidden transition-all duration-500 ease-in-out ${showLabel ? "max-h-[150px] opacity-100" : "max-h-0 opacity-0"}`}>
-        <div className="w-[280px] p-4 border-t border-slate-200 dark:border-cyan-500/20 whitespace-nowrap">
-          <div className="bg-slate-50 dark:bg-slate-900/60 rounded-xl p-4 border border-slate-200 dark:border-cyan-500/20 relative overflow-hidden shadow-sm dark:shadow-[0_0_10px_rgba(0,240,255,0.05)]">
-            <div className="absolute top-0 right-0 w-16 h-16 bg-brand-500/10 dark:bg-fuchsia-500/20 blur-xl rounded-full translate-x-1/2 -translate-y-1/2 pointer-events-none" />
+        <div className="w-[320px] p-4 border-t border-slate-200 dark:border-admin-sidebar-border whitespace-nowrap">
+          <div className="bg-slate-50 dark:bg-slate-900/60 rounded-xl p-4 border border-slate-200 dark:border-admin-sidebar-border relative overflow-hidden shadow-sm">
+            <div className="absolute top-0 right-0 w-16 h-16 bg-brand-500/10 blur-xl rounded-full translate-x-1/2 -translate-y-1/2 pointer-events-none" />
             <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed relative z-10">
-              Hệ thống Quản trị <span className="text-brand-500 dark:text-cyan-400 font-bold flex-shrink-0 dark:drop-shadow-[0_0_2px_rgba(0,240,255,0.8)]">C Cosmetics</span> <br/>
+              Hệ thống Quản trị <span className="text-brand-500 dark:text-admin-accent font-bold flex-shrink-0">C Cosmetics</span> <br/>
               Phiên bản 2.0.1
             </p>
           </div>

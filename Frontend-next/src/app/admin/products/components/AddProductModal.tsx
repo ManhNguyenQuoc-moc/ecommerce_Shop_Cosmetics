@@ -17,7 +17,7 @@ import { uploadFileToCloudinary, deleteUploads } from "@/src/services/admin/uplo
 import { useBrands } from "@/src/services/admin/brand.service";
 import { useCategories } from "@/src/services/admin/category.service";
 
-import { CreateProductInput, ProductSpecificationInput } from "@/src/services/models/product/input.dto";
+import { CreateProductInput, ProductSpecificationInput ,CreateVariantInput } from "@/src/services/models/product/input.dto";
 
 interface AddProductFormValues {
   name: string;
@@ -26,13 +26,12 @@ interface AddProductFormValues {
   short_description?: string;
   long_description?: string;
   status?: 'ACTIVE' | 'HIDDEN' | 'STOPPED';
-  price: number;
-  salePrice?: number;
   specifications?: ProductSpecificationInput[];
   variants?: Array<{
     color?: string;
     size?: string;
     sku?: string;
+    costPrice?: number;
     price: number;
     salePrice?: number;
     statusName?: 'BEST_SELLING' | 'TRENDING' | 'NEW';
@@ -91,6 +90,7 @@ export default function AddProductModal({ isOpen, onClose, onAdd }: AddProductMo
             color: v.color,
             size: v.size,
             sku: v.sku,
+            costPrice: v.costPrice || null, 
             price: v.price,
             salePrice: v.salePrice || null,
             statusName: v.statusName,
@@ -106,12 +106,10 @@ export default function AddProductModal({ isOpen, onClose, onAdd }: AddProductMo
         categoryId: values.categoryId,
         short_description: values.short_description,
         long_description: values.long_description,
-        status: "ACTIVE",
-        price: values.price,
-        salePrice: values.salePrice || null,
+        status: values.status || "HIDDEN",
         images: images.filter((url): url is string => url !== null),
         specifications: values.specifications || [],
-        variants: variants
+        variants: variants as CreateVariantInput[]
       };
 
       console.log(">>> [Create Product] Submission Data:", submissionData);
@@ -212,6 +210,7 @@ export default function AddProductModal({ isOpen, onClose, onAdd }: AddProductMo
           <SWTFormItem
             name="categoryId"
             label="Danh mục"
+            className="md:col-span-1"
             rules={[{ required: true, message: 'Vui lòng chọn danh mục' }]}
           >
             <SWTSelect
@@ -222,6 +221,24 @@ export default function AddProductModal({ isOpen, onClose, onAdd }: AddProductMo
               filterOption={(input, option) =>
                 (option?.label ?? '').toString().toLowerCase().includes(input.toLowerCase())
               }
+              className="w-full dark:[&_.ant-select-selector]:!bg-slate-800/80 dark:[&_.ant-select-selector]:!border-slate-700 dark:[&_.ant-select-selection-item]:!text-white"
+            />
+          </SWTFormItem>
+
+          <SWTFormItem
+            name="status"
+            label="Trạng thái hiển thị"
+            initialValue="HIDDEN"
+            className="md:col-span-1"
+          >
+            <SWTSelect
+              placeholder="Chọn trạng thái"
+              disabled={true}
+              options={[
+                { label: "Đang bán (ACTIVE)", value: "ACTIVE" },
+                { label: "Đã ẩn (HIDDEN)", value: "HIDDEN" },
+                { label: "Ngừng bán (STOPPED)", value: "STOPPED" },
+              ]}
               className="w-full dark:[&_.ant-select-selector]:!bg-slate-800/80 dark:[&_.ant-select-selector]:!border-slate-700 dark:[&_.ant-select-selection-item]:!text-white"
             />
           </SWTFormItem>
@@ -278,13 +295,13 @@ export default function AddProductModal({ isOpen, onClose, onAdd }: AddProductMo
                         <SWTInput placeholder="Giá trị (Vd: Mọi loại da)" className="dark:!bg-slate-800/80 dark:!border-slate-700 dark:!text-white" />
                       </SWTFormItem>
                     </div>
-                      <SWTTooltip title="Xóa" color="#ef4444" placement="top">
-                        <SWTIconButton
-                          onClick={() => remove(name)}
-                          icon={<Trash2 size={20} />}
-                          className="h-11 px-3 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-colors shrink-0"
-                        />
-                      </SWTTooltip>
+                    <SWTTooltip title="Xóa" color="#ef4444" placement="top">
+                      <SWTIconButton
+                        onClick={() => remove(name)}
+                        icon={<Trash2 size={20} />}
+                        className="h-11 px-3 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-colors shrink-0"
+                      />
+                    </SWTTooltip>
                   </div>
                 ))}
               </div>
@@ -380,22 +397,45 @@ export default function AddProductModal({ isOpen, onClose, onAdd }: AddProductMo
                         </SWTFormItem>
                       </div>
 
-                      <div className="grid grid-cols-1 sm:grid-cols-4 gap-x-4">
+                      {/* Đã sửa thành sm:grid-cols-3 để chứa đủ 3 cột giá */}
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-x-4">
                         <SWTFormItem
                           {...restField}
-                          name={[name, 'price']}
-                          label="Giá bán (VNĐ)"
+                          name={[name, 'costPrice']}
+                          label="Giá nhập (VNĐ)"
                           className="!mb-0"
-                          rules={[{ required: true, message: 'Nhập giá' }]}
+                          rules={[{ required: true, message: 'Nhập giá nhập' }]}
                         >
                           <SWTInputNumber min={0} max={1000000000} placeholder="0" style={{ width: "100%" }} className="dark:[&_.ant-input-number-input]:!text-white dark:!bg-slate-900/50 dark:!border-slate-700" />
                         </SWTFormItem>
 
                         <SWTFormItem
                           {...restField}
+                          name={[name, 'price']}
+                          label="Giá bán (VNĐ)"
+                          className="!mb-0"
+                          rules={[{ required: true, message: 'Nhập giá bán' }]}
+                        >
+                          <SWTInputNumber min={0} max={1000000000} placeholder="0" style={{ width: "100%" }} className="dark:[&_.ant-input-number-input]:!text-white dark:!bg-slate-900/50 dark:!border-slate-700" />
+                        </SWTFormItem>
+                        
+                        <SWTFormItem
+                          {...restField}
                           name={[name, 'salePrice']}
                           label="Giá khuyến mãi"
                           className="!mb-0"
+                          dependencies={[['variants', index, 'price']]}
+                          rules={[
+                            ({ getFieldValue }) => ({
+                              validator(_, value) {
+                                const originalPrice = getFieldValue(['variants', index, 'price']);
+                                if (!value || !originalPrice || value <= originalPrice) {
+                                  return Promise.resolve();
+                                }
+                                return Promise.reject(new Error('Giá khuyến mãi không được cao hơn giá gốc'));
+                              },
+                            }),
+                          ]}
                         >
                           <SWTInputNumber min={0} max={1000000000} placeholder="0" style={{ width: "100%" }} className="dark:[&_.ant-input-number-input]:!text-white dark:!bg-slate-900/50 dark:!border-slate-700" />
                         </SWTFormItem>

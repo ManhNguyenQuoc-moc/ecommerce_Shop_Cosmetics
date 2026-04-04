@@ -47,7 +47,7 @@ export default function ProductActions({ qty, product, variant }: Props) {
       productId: product.id,
       variantId: currentVariantId,
       productName: currentProductName,
-      brand: product.brand || "Đang cập nhật",
+      brand: typeof product.brand === "object" ? product.brand.name : (product.brand || "Đang cập nhật"),
       image: currentImage,
       price: currentPrice,
       originalPrice: currentPriceOrigin,

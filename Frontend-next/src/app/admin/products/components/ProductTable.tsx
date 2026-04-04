@@ -120,7 +120,7 @@ export default function ProductTable({ isPending }: ProductTableProps) {
   )}
 </div>
           <div className="flex flex-col gap-1">
-            <div className="font-bold text-slate-800 dark:text-white dark:drop-shadow-[0_0_2px_rgba(255,255,255,0.5)]">{text}</div>
+            <div className="font-bold text-slate-800 dark:text-white">{text}</div>
             <span className="text-slate-500 dark:text-slate-400 font-medium text-xs">{(record.category as any)?.name || "Chưa phân loại"}</span>
           </div>
         </div>
@@ -191,7 +191,7 @@ export default function ProductTable({ isPending }: ProductTableProps) {
 
   return (
     <div className="w-full">
-      <div className="!bg-white/90 dark:!bg-slate-900/80 backdrop-blur-xl !rounded-xl overflow-hidden !border !border-slate-100 dark:!border-fuchsia-500/20 !shadow-lg dark:!shadow-[0_0_15px_rgba(0,0,0,0.5)] mt-4 transition-colors">
+      <div className="bg-white/80 dark:bg-slate-900/50 backdrop-blur-md rounded-2xl overflow-hidden border border-slate-200 dark:border-admin-sidebar-border shadow-sm mt-4 transition-colors">
         <SWTTable
           columns={columns}
           dataSource={products}
@@ -218,8 +218,8 @@ export default function ProductTable({ isPending }: ProductTableProps) {
 
       {/* Bulk action bar */}
       {selectedRowKeys.length > 0 && (
-        <div className="flex items-center gap-3 mt-4 px-4 py-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-500/30 rounded-xl">
-          <span className="text-sm font-semibold text-amber-700 dark:text-amber-400 flex-1">
+        <div className="flex items-center gap-3 mt-4 px-4 py-3 bg-brand-50/50 dark:bg-brand-500/5 border border-brand-100 dark:border-admin-sidebar-border rounded-xl">
+          <span className="text-sm font-semibold text-brand-700 dark:text-admin-accent flex-1">
             Đã chọn {selectedRowKeys.length} sản phẩm
           </span>
           <SWTTooltip title={isHiddenTab ? "Khôi phục các sản phẩm đã chọn" : "Ẩn các sản phẩm đã chọn"} color={isHiddenTab ? "#10b981" : "#f59e0b"} placement="top">

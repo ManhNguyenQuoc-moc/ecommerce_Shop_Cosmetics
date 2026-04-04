@@ -4,6 +4,7 @@ import { Spin } from "antd";
 import { useEffect, useState } from "react";
 import { usePurchaseOrderById } from "@/src/services/admin/purchase.service";
 import { receiveStock } from "@/src/services/admin/inventory.service";
+import { revalidateAllInventory } from "@/src/services/admin/product.service";
 import { PackageCheck, Save } from "lucide-react";
 import dayjs from "dayjs";
 
@@ -119,6 +120,7 @@ export default function ReceiveStockModal({ isOpen, onClose, poId, onSuccess }: 
       await submitReceiveStock(payload);
 
       showNotificationSuccess(`Đã nhập thành công ${items.length} mặt hàng vào kho!`);
+      revalidateAllInventory();
       onSuccess();
     } catch {
       showNotificationError("Lỗi khi nhập kho. Vui lòng thử lại!");

@@ -12,9 +12,10 @@ export interface IProductService {
   filters?: ProductQueryFilters
 ): Promise<PagedResult<ProductListItemDto>>;
 
-  getVariants(page: number, pageSize: number, filters?: VariantQueryFilters): Promise<{ variants: any[]; total: number }>;
+  getVariants(page: number, pageSize: number, filters?: VariantQueryFilters): Promise<PagedResult<any>>;
   getProductById(id: string): Promise<any | null>;
   getVariantById(id: string): Promise<any | null>;
+  getVariantBatches(variantId: string, page: number, pageSize: number): Promise<PagedResult<any>>;
   createProduct(data: CreateProductDTO): Promise<Product>;
   updateProduct(id: string, data: UpdateProductDTO): Promise<any>;
   softDeleteProducts(ids: string[]): Promise<void>;

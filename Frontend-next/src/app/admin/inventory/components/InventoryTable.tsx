@@ -71,9 +71,16 @@ export default function InventoryTable({ isPending }: InventoryTableProps) {
       title: "Số Lô (Batch)",
       dataIndex: "batchNumber",
       key: "batchNumber",
-      render: (text: string) => (
-        <div className="font-mono text-xs font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-2 py-1 rounded-lg border border-blue-100 dark:border-blue-800/50 w-max shadow-sm">
-          #{text}
+      render: (text: string, record: any) => (
+        <div className="flex flex-col gap-1 w-max">
+          <div className="font-mono text-xs font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-2 py-1 rounded-lg border border-blue-100 dark:border-blue-800/50 w-max shadow-sm">
+            #{text}
+          </div>
+          {record.purchaseOrderCode && (
+            <div className="text-[10px] text-slate-500 font-medium px-1">
+              PO: {record.purchaseOrderCode}
+            </div>
+          )}
         </div>
       ),
     },

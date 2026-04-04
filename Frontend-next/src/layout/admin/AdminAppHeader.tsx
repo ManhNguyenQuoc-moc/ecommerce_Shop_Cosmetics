@@ -58,7 +58,7 @@ export default function AdminAppHeader() {
   };
 
   return (
-    <header className="h-[90px] shrink-0 bg-white/90 dark:bg-slate-900/80 backdrop-blur-xl border-b border-slate-200 dark:border-pink-500/20 flex items-center justify-between px-4 md:px-8 sticky top-0 z-40 shadow-sm dark:shadow-[0_4px_20px_rgba(0,0,0,0.5)] transition-colors duration-300">
+    <header className="h-[90px] shrink-0 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md border-b border-slate-200 dark:border-admin-sidebar-border flex items-center justify-between px-4 md:px-8 sticky top-0 z-40 shadow-sm transition-colors duration-300">
       
       {/* Left: Hamburger & Dynamic Title */}
       <div className="flex items-center gap-3 md:gap-4">
@@ -70,7 +70,7 @@ export default function AdminAppHeader() {
           icon={<Menu size={24} />}
           className="p-2 -ml-2 rounded-xl text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-white/5 dark:hover:text-white transition-colors"
         />
-        <h2 className="!mb-0 font-bold text-lg md:text-xl text-slate-800 dark:text-white tracking-tight hidden sm:block dark:drop-shadow-[0_0_5px_rgba(255,255,255,0.4)]">
+        <h2 className="!mb-0 font-bold text-lg md:text-xl text-slate-800 dark:text-white tracking-tight hidden sm:block">
           {title}
         </h2>
       </div>
@@ -101,23 +101,23 @@ export default function AdminAppHeader() {
           className="relative p-2.5 rounded-xl text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-white/5 dark:hover:text-white transition-colors"
         />
         {/* Red Ping Dot */}
-        <span className="absolute top-2 right-2.5 w-2.5 h-2.5 bg-brand-500 dark:bg-pink-500 rounded-full border-2 border-white dark:border-slate-900 animate-pulse shadow-sm dark:shadow-[0_0_8px_#ff007f]" />
+        <span className="absolute top-2 right-2.5 w-2.5 h-2.5 bg-brand-500 rounded-full border-2 border-white dark:border-slate-900 shadow-sm" />
 
         <div className="w-px h-8 bg-slate-200 dark:bg-slate-700 mx-1 md:mx-2" />
 
         {/* Profile Dropdown Trigger */}
         <Dropdown menu={accountMenu} trigger={['click']} placement="bottomRight">
-          <div className="flex items-center gap-3 cursor-pointer p-1.5 pr-2 md:pr-3 rounded-xl hover:bg-slate-100 dark:hover:bg-white/5 border border-transparent dark:hover:border-pink-500/30 transition-all group">
+          <div className="flex items-center gap-3 cursor-pointer p-1.5 pr-2 md:pr-3 rounded-xl hover:bg-slate-100 dark:hover:bg-white/5 border border-transparent dark:hover:border-admin-sidebar-border transition-all group">
             <SWTAvatar 
               size={36} 
               src={currentUser?.avatar} 
-              className="border-slate-200 dark:border-pink-500/50 shadow-sm dark:shadow-[0_0_10px_rgba(255,0,128,0.3)] group-hover:scale-105"
+              className="border-slate-200 dark:border-admin-sidebar-border shadow-sm"
             />
             <div className="hidden sm:flex flex-col">
-              <span className="text-sm font-bold text-slate-800 dark:text-white leading-none dark:drop-shadow-sm">{currentUser?.name || "Quản trị viên"}</span>
-              <span className="text-[10px] uppercase font-bold text-brand-600 dark:text-pink-400 tracking-widest mt-1">Super Admin</span>
+              <span className="text-sm font-bold text-slate-800 dark:text-white leading-none">{currentUser?.name || "Quản trị viên"}</span>
+              <span className="text-[10px] uppercase font-bold text-brand-600 dark:text-admin-accent tracking-widest mt-1">Super Admin</span>
             </div>
-            <ChevronDown size={16} className="text-slate-400 dark:text-pink-400 ml-1 group-hover:translate-y-0.5 transition-transform hidden sm:block" />
+            <ChevronDown size={16} className="text-slate-400 dark:text-admin-accent ml-1 group-hover:translate-y-0.5 transition-transform hidden sm:block" />
           </div>
         </Dropdown>
 

@@ -1,8 +1,7 @@
 "use client";
 
-import { Plus, Trash2 } from "lucide-react";
-import SWTIconButton from "@/src/@core/component/SWTIconButton";
-import { useState, useRef, useEffect } from "react";
+import { Plus } from "lucide-react";
+import { useState, useRef } from "react";
 import { createPurchaseOrder, PURCHASE_API_ENDPOINT } from "@/src/services/admin/purchase.service";
 import { useBrands } from "@/src/services/admin/brand.service";
 import { useVariants } from "@/src/services/admin/product.service";
@@ -17,6 +16,21 @@ import SWTInputNumber from "@/src/@core/component/AntD/SWTInputNumber";
 import SWTSelect from "@/src/@core/component/AntD/SWTSelect";
 import { showNotificationError, showNotificationSuccess, showNotificationWarning } from "@/src/@core/utils/message";
 import { CreatePOInput, POItemInput } from "@/src/services/models/purchase/input.dto";
+import SWTCheckbox from "@/src/@core/component/AntD/SWTCheckbox";
+import { useAuth} from "@/src/context/AuthContext";
+
+
+
+const COLUMN_WIDTH = {
+  product: 220,
+  checkbox: 60,
+  variant: 160,
+  sku: 140,
+  stock: 90,
+  sold: 90,
+  qty: 180, // = stock + sold
+  price: 130, // Dùng chung cho Giá bán, Giá nhập, Thành tiền
+};
 
 interface FormValues {
   brandId: string;
@@ -24,14 +38,11 @@ interface FormValues {
   priority: 'LOW' | 'NORMAL' | 'HIGH';
 }
 
-interface VariantOption {
-  label: string;
-  value: string;
-  costPrice: number;
-}
-
 interface SelectedPOItem extends POItemInput {
   name: string;
+  sku?: string;
+  color?: string;
+  size?: string;
 }
 
 type Props = {
@@ -39,37 +50,25 @@ type Props = {
 };
 
 export default function CreatePOForm({ onSuccess }: Props) {
+  const { currentUser } = useAuth();
+
   const [form] = SWTForm.useForm<FormValues>();
   const [selectedItems, setSelectedItems] = useState<SelectedPOItem[]>([]);
   const [selectedBrandId, setSelectedBrandId] = useState<string | null>(null);
+  
+  const [savedByBrand, setSavedByBrand] = useState<Record<string, { selectedItems: SelectedPOItem[] }>>({});
+  
   const [saving, setSaving] = useState(false);
   const submitCreatePO = createPurchaseOrder;
-  const { variants } = useVariants(1, 1000, selectedBrandId ? { brandId: selectedBrandId } : undefined);
+  const [page, setPage] = useState(1);
+  const pageSize = 6;
+  const { variants, total } = useVariants(page, pageSize, selectedBrandId ? { brandId: selectedBrandId } : undefined);
   const { brands } = useBrands();
 
   const brandList: Array<{ id: string; name: string }> = brands?.data || brands || [];
 
-  const variantOptions: VariantOption[] = (variants ?? []).map((v: any) => ({
-    label: `[${v.sku ?? "N/A"}] ${v.productName || v.product?.name || ""} — ${[v.color, v.size].filter(Boolean).join(" / ") || "Tiêu chuẩn"}`,
-    value: v.id,
-    costPrice: v.costPrice ?? v.price ?? 0,
-  }));
-
-  // Selected variants in the brand-variant table before adding to PO
-  const [selectedVariantState, setSelectedVariantState] = useState<Record<string, { qty: number; costPrice: number; name: string }>>({});
-  const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
   const selectedItemsRef = useRef<HTMLDivElement | null>(null);
   const [newlyAddedIds, setNewlyAddedIds] = useState<string[]>([]);
-
-  // Live-sync: when top picker edits change, update already-added items
-  useEffect(() => {
-    setSelectedItems((prev) =>
-      prev.map((item) => {
-        const s = selectedVariantState[item.variantId];
-        return s ? { ...item, orderedQty: s.qty, costPrice: s.costPrice } : item;
-      })
-    );
-  }, [selectedVariantState]);
 
   const isAdded = (vid: string) => selectedItems.some((i) => i.variantId === vid);
 
@@ -79,10 +78,6 @@ export default function CreatePOForm({ onSuccess }: Props) {
       updated[index] = { ...updated[index], [field]: value };
       return updated;
     });
-  };
-
-  const removeItem = (idx: number) => {
-    setSelectedItems((prev) => prev.filter((_, i) => i !== idx));
   };
 
   const totalAmount = selectedItems.reduce((acc, curr) => acc + curr.orderedQty * curr.costPrice, 0);
@@ -96,6 +91,7 @@ export default function CreatePOForm({ onSuccess }: Props) {
       }
 
       const payload: CreatePOInput = {
+        username: currentUser?.username || "admin",
         brandId: values.brandId,
         note: values.note,
         priority: values.priority,
@@ -144,8 +140,19 @@ export default function CreatePOForm({ onSuccess }: Props) {
               options={brandList.map((b) => ({ label: b.name, value: b.id }))}
               className="w-full dark:[&_.ant-select-selector]:!bg-slate-800/80 dark:[&_.ant-select-selector]:!border-slate-700 dark:[&_.ant-select-selection-item]:!text-white"
               onChange={(val) => {
-                setSelectedBrandId(val as string);
-                setSelectedItems([]);
+                const nextBrand = val as string;
+                if (selectedBrandId) {
+                  setSavedByBrand((prev) => ({ ...prev, [selectedBrandId]: { selectedItems } }));
+                }
+
+                const restored = savedByBrand[nextBrand];
+                setSelectedBrandId(nextBrand);
+                if (restored) {
+                  setSelectedItems(restored.selectedItems || []);
+                } else {
+                  setSelectedItems([]);
+                }
+                setPage(1);
               }}
             />
           </SWTFormItem>
@@ -176,66 +183,75 @@ export default function CreatePOForm({ onSuccess }: Props) {
 
       {/* Item Selection */}
       <div className="bg-slate-50 dark:bg-slate-900/40 rounded-xl border border-slate-100 dark:border-slate-800 overflow-hidden">
-        <div className="bg-white dark:bg-slate-800 p-4 border-b border-slate-200 dark:border-slate-700">
-          <h4 className="font-semibold text-slate-800 dark:text-slate-200 mb-3 flex items-center gap-2">
-            Thêm Hàng Hóa Vào Phiếu
-          </h4>
-          <div className="flex items-center gap-3">
-            <div className="flex-1 text-sm text-slate-500">Chọn biến thể từ danh sách biến thể của thương hiệu đã chọn. Hiển thị tồn kho và số đã bán để quyết định SL đặt.</div>
-              <div className="flex items-center gap-2">
-                <SWTButton
-                  onClick={() => {
-                    const toAdd = Object.entries(selectedVariantState).filter(([, v]) => v.qty > 0);
-                    if (toAdd.length === 0) {
-                      showNotificationWarning("Vui lòng chọn ít nhất 1 biến thể để thêm vào phiếu");
-                      return;
-                    }
-
-                    const addedItems = toAdd.map(([variantId, v]) => ({
-                      variantId,
-                      name: v.name,
-                      orderedQty: v.qty,
-                      costPrice: v.costPrice,
-                    }));
-
-                    const existingIdsSet = new Set(selectedItems.map((p) => p.variantId));
-                    const toActuallyAdd = addedItems.filter((i) => !existingIdsSet.has(i.variantId));
-                    const addedIds = toActuallyAdd.map((a) => a.variantId);
-
-                    if (toActuallyAdd.length === 0) {
-                      showNotificationWarning("Các biến thể đã được thêm trước đó");
-                    } else {
-                      setSelectedItems((prev) => [...prev, ...toActuallyAdd]);
-                      setNewlyAddedIds(addedIds);
-                      setSelectedRowKeys((prev) => Array.from(new Set([...prev, ...addedIds])));
-                      setTimeout(() => selectedItemsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 120);
-                      setTimeout(() => setNewlyAddedIds([]), 2700);
-                    }
-
-                    setSelectedVariantState({});
-                  }}
-                  className="!rounded-xl px-3 py-1 !bg-brand-500 !text-white text-sm hover:opacity-90"
-                >
-                  Thêm biến thể đã chọn
-                </SWTButton>
-              </div>
+        <div className="bg-white dark:bg-slate-900 px-6 py-5 border-b border-slate-200 dark:border-slate-800">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            <div className="flex flex-col gap-1.5">
+              <h4 className="font-bold text-lg text-slate-800 dark:text-slate-100 flex items-center gap-2 uppercase tracking-wide">
+                <Plus size={20} className="text-brand-500" />
+                Thêm Hàng Hóa Vào Phiếu
+              </h4>
+              <p className="text-sm text-slate-500 dark:text-slate-400">
+                Tick chọn vào biến thể từ danh sách để thêm trực tiếp vào phiếu đặt hàng.
+              </p>
+            </div>
           </div>
         </div>
+        
         <div className="p-4">
+          {/* BẢNG 1: Danh sách sản phẩm */}
           {selectedBrandId && (variants ?? []).length > 0 && (
             <div className="mb-4">
               <SWTTable
                 rowKey={(r: any) => r.variant.id}
                 columns={[
                   {
+                    title: "",
+                    key: "checkbox",
+                    width: COLUMN_WIDTH.checkbox,
+                    render: (_: any, record: any) => (
+                      <div className="flex justify-center">
+                        <SWTCheckbox
+                          checked={isAdded(record.variant.id)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              const newItem: SelectedPOItem = {
+                                variantId: record.variant.id,
+                                name: record.product.name,
+                                sku: record.variant.sku,
+                                color: record.variant.color,
+                                size: record.variant.size,
+                                orderedQty: 1,
+                                costPrice: record.variant.costPrice ?? record.variant.price ?? 0,
+                              };
+                              setSelectedItems((prev) => [...prev, newItem]);
+                              setNewlyAddedIds([record.variant.id]);
+                              
+                              setTimeout(() => selectedItemsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 150);
+                              setTimeout(() => setNewlyAddedIds([]), 2700);
+                            } else {
+                              setSelectedItems((prev) => prev.filter((p) => p.variantId !== record.variant.id));
+                            }
+                          }}
+                        />
+                      </div>
+                    ),
+                  },
+                  {
                     title: "Sản phẩm",
                     dataIndex: ["product", "name"],
                     key: "product",
+                    width: COLUMN_WIDTH.product,
+                    ellipsis: true, // Cắt chữ nếu quá dài
                     render: (text: string, record: any) => (
-                      <div className="font-medium">
-                        {record.product.name}
+                      <div 
+                        className="flex items-center min-h-[40px] font-medium text-slate-700 dark:text-slate-200"
+                        title={record.product.name} // Hover để xem full tên
+                      >
+                        <span className="truncate">{record.product.name}</span>
                         {isAdded(record.variant.id) && (
-                          <span className="ml-2 inline-block text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">Đã thêm</span>
+                          <span className="ml-2 shrink-0 text-[10px] font-bold text-brand-500 px-2 py-0.5 rounded-full border border-brand-500/20">
+                            Đã thêm
+                          </span>
                         )}
                       </div>
                     ),
@@ -243,146 +259,162 @@ export default function CreatePOForm({ onSuccess }: Props) {
                   {
                     title: "Biến thể",
                     key: "variantDesc",
-                    render: (_: any, record: any) => ([record.variant.color, record.variant.size].filter(Boolean).join(' - ') || 'Tiêu chuẩn'),
+                    width: COLUMN_WIDTH.variant,
+                    render: (_: any, record: any) => (
+                      <div className="text-slate-600 dark:text-slate-400">
+                        {[record.variant.color, record.variant.size].join(" ") || "Tiêu chuẩn"}
+                      </div>
+                    ),
                   },
-                  { title: "SKU", dataIndex: ["variant", "sku"], key: "sku" },
-                  { title: "Tồn", dataIndex: ["variant", "stock"], key: "stock", align: 'right' as const },
-                  { title: "Đã bán", dataIndex: ["variant", "soldCount"], key: "sold", align: 'right' as const },
                   {
-                    title: "SL đặt",
-                    key: "qty",
-                    align: 'right' as const,
-                    render: (_: any, record: any) => {
-                      const vid = record.variant.id;
-                      const sel = selectedVariantState[vid];
-                      return (
-                        <SWTInputNumber
-                          min={1}
-                          value={sel?.qty ?? 0}
-                          onChange={(v) => setSelectedVariantState((s) => ({ ...s, [vid]: { ...(s[vid] || { qty: 0, costPrice: record.variant.costPrice ?? 0, name: `[${record.variant.sku ?? 'N/A'}] ${record.product.name}` }), qty: typeof v === 'number' ? v : 0 } }))}
-                          disabled={!selectedRowKeys.includes(vid) || isAdded(vid)}
-                          className="w-full"
-                        />
-                      );
-                    },
+                    title: "SKU",
+                    dataIndex: ["variant", "sku"],
+                    key: "sku",
+                    width: COLUMN_WIDTH.sku,
+                    ellipsis: true, 
+                    render: (text: string) => (
+                      <div 
+                        className="truncate text-slate-600 dark:text-slate-400" 
+                        title={text} // Hover vào sẽ hiện full text
+                      >
+                        {text || "-"}
+                      </div>
+                    ),
+                  },
+                  {
+                    title: "Tồn",
+                    dataIndex: ["variant", "stock"],
+                    width: COLUMN_WIDTH.stock,
+                    align: "right",
+                  },
+                  {
+                    title: "Đã bán",
+                    dataIndex: ["variant", "soldCount"],
+                    width: COLUMN_WIDTH.sold,
+                    align: "right",
+                  },
+                  {
+                    title: "Giá bán",
+                    width: COLUMN_WIDTH.price,
+                    align: "right",
+                    render: (_: any, r: any) =>
+                      new Intl.NumberFormat("vi-VN").format(r.variant.price ?? 0),
                   },
                   {
                     title: "Giá nhập",
-                    key: "cost",
-                    align: 'right' as const,
-                    render: (_: any, record: any) => {
-                      const vid = record.variant.id;
-                      const sel = selectedVariantState[vid];
-                      return (
-                        <SWTInputNumber
-                          min={0}
-                          value={sel?.costPrice ?? record.variant.costPrice ?? 0}
-                          onChange={(v) => setSelectedVariantState((s) => ({ ...s, [vid]: { ...(s[vid] || { qty: 1, costPrice: 0, name: `[${record.variant.sku ?? 'N/A'}] ${record.product.name}` }), costPrice: typeof v === 'number' ? v : 0 } }))}
-                          disabled={!selectedRowKeys.includes(vid) || isAdded(vid)}
-                          className="w-full"
-                          formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
-                        />
-                      );
-                    },
+                    width: COLUMN_WIDTH.price,
+                    align: "right",
+                    render: (_: any, r: any) =>
+                      new Intl.NumberFormat("vi-VN").format(r.variant.costPrice ?? r.variant.price ?? 0),
                   },
                 ]}
                 dataSource={(variants ?? []).map((v: any) => ({ product: { name: v.productName, id: v.productId }, variant: { ...v, id: v.id } }))}
-                pagination={false}
-                rowSelection={{
-                  selectedRowKeys,
-                  getCheckboxProps: (record: any) => ({ disabled: isAdded(record.variant.id) }),
-                  onChange: (keys: any) => {
-                    const newKeys = keys as string[];
-                    const added = newKeys.filter((k) => !selectedRowKeys.includes(k));
-                    const removed = selectedRowKeys.filter((k) => !newKeys.includes(k));
-                    setSelectedRowKeys(newKeys);
-                    setSelectedVariantState((s) => {
-                      const next = { ...s };
-                      removed.forEach((k) => { delete next[k]; });
-                      added.forEach((k) => {
-                        const row = (variants ?? []).find((v: any) => v.id === k);
-                        if (row) {
-                          const mappedRow = { product: { name: row.productName, id: row.productId }, variant: row };
-                          const name = `[${mappedRow.variant.sku ?? 'N/A'}] ${mappedRow.product.name} — ${[mappedRow.variant.color, mappedRow.variant.size].filter(Boolean).join(' / ') || 'Tiêu chuẩn'}`;
-                          next[k] = { 
-                            qty: 1, 
-                            costPrice: mappedRow.variant.costPrice ?? mappedRow.variant.price ?? 0, 
-                            name 
-                          };
-                        }
-                      });
-                      return next;
-                    });
-                  },
+                pagination={{
+                  current: page,
+                  pageSize,
+                  total: total || 0,
+                  onChange: (p: number) => setPage(p),
                 }}
+                className="dark:[&_.ant-table]:!bg-slate-900/40 dark:[&_.ant-table-thead_th]:!bg-slate-800/80 dark:[&_.ant-table-tbody_tr:hover_td]:!bg-brand-500/10"
               />
             </div>
           )}
+          
           {selectedItems.length === 0 ? (
             <div className="text-center py-8 text-slate-400 dark:text-slate-600 italic text-sm">
               Chưa có sản phẩm nào được thêm vào phiếu.
             </div>
           ) : (
             <div ref={selectedItemsRef}>
+              {/* BẢNG 2: Sản phẩm đã chọn */}
               <SWTTable
-                rowKey={(r: any, idx?: number) => r.variantId ?? String(idx)}
-                rowClassName={(record: any) => (newlyAddedIds.includes(record.variantId) ? 'bg-blue-50/60 animate-fade-in' : '')}
+                rowClassName={(record: any) => (newlyAddedIds.includes(record.variantId) ? 'bg-brand-500/10 animate-fade-in' : '')}
+                className="dark:[&_.ant-table]:!bg-slate-900/40 dark:[&_.ant-table-thead_th]:!bg-slate-800/80 dark:[&_.ant-table-tbody_tr:hover_td]:!bg-brand-500/10 mt-4"
                 columns={[
+                  {
+                    title: "",
+                    key: "checkbox",
+                    width: COLUMN_WIDTH.checkbox,
+                    render: (_: any, record: any) => (
+                      <div className="flex justify-center">
+                        <SWTCheckbox
+                          checked
+                          onChange={(e) => {
+                            if (!e.target.checked) {
+                              setSelectedItems((prev) =>
+                                prev.filter((p) => p.variantId !== record.variantId)
+                              );
+                            }
+                          }}
+                        />
+                      </div>
+                    ),
+                  },
                   {
                     title: "Sản phẩm",
                     dataIndex: "name",
-                    key: "name",
-                    render: (text: string) => <div className="font-medium text-xs leading-snug">{text}</div>,
+                    width: COLUMN_WIDTH.product,
+                    ellipsis: true, // Cắt chữ nếu quá dài
+                    render: (text: string) => (
+                      <div 
+                        className="font-medium text-slate-700 dark:text-slate-200 truncate" 
+                        title={text} // Hover để xem full tên
+                      >
+                        {text}
+                      </div>
+                    ),
                   },
                   {
-                    title: "Giá nhập (Cost)",
-                    key: "cost",
-                    render: (_: any, record: any, idx: number) => (
-                      <SWTInputNumber
-                        min={0}
-                        value={record.costPrice}
-                        onChange={(v) => updateItem(idx, "costPrice", typeof v === "number" ? v : 0)}
-                        className="w-full dark:[&_.ant-input-number-input]:!text-white dark:!bg-slate-800 dark:!border-slate-700"
-                        formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
-                      />
+                    title: "Biến thể",
+                    width: COLUMN_WIDTH.variant,
+                    render: (_: any, record: any) => (
+                      <div className="text-slate-600 dark:text-slate-400">
+                        {[record.color, record.size].join(" ") || "Tiêu chuẩn"}
+                      </div>
                     ),
-                    width: 140,
+                  },
+                  {
+                    title: "SKU",
+                    dataIndex: "sku",
+                    width: COLUMN_WIDTH.sku,
+                    ellipsis: true, // Ép AntD xử lý cắt chữ cho cột này
+                    render: (text: string) => (
+                      <div 
+                        className="truncate text-slate-600 dark:text-slate-400" 
+                        title={text} // Hover vào sẽ hiện full text
+                      >
+                        {text || "-"}
+                      </div>
+                    ),
                   },
                   {
                     title: "Số lượng",
-                    key: "qty",
+                    width: COLUMN_WIDTH.qty, // Bằng tổng width của Tồn + Đã bán ở bảng 1
+                    align: "right",
                     render: (_: any, record: any, idx: number) => (
                       <SWTInputNumber
                         min={1}
                         value={record.orderedQty}
-                        onChange={(v) => updateItem(idx, "orderedQty", typeof v === "number" ? v : 1)}
-                        className="w-full dark:[&_.ant-input-number-input]:!text-white dark:!bg-slate-800 dark:!border-slate-700"
+                        onChange={(v) =>
+                          updateItem(idx, "orderedQty", typeof v === "number" ? v : 1)
+                        }
+                        className="w-full max-w-[120px]"
                       />
                     ),
-                    width: 120,
+                  },
+                  {
+                    title: "Giá nhập",
+                    width: COLUMN_WIDTH.price,
+                    align: "right",
+                    render: (_: any, r: any) =>
+                      new Intl.NumberFormat("vi-VN").format(r.costPrice),
                   },
                   {
                     title: "Thành tiền",
-                    key: "total",
-                    align: 'right' as const,
-                    render: (_: any, record: any) => (
-                      <div className="font-semibold text-blue-600 dark:text-blue-400">{new Intl.NumberFormat("vi-VN").format(record.orderedQty * record.costPrice)}</div>
-                    ),
-                    width: 140,
-                  },
-                  {
-                    title: "",
-                    key: "actions",
-                    render: (_: any, _record: any, idx: number) => (
-                      <div className="text-center">
-                        <SWTIconButton
-                          onClick={() => removeItem(idx)}
-                          icon={<Trash2 size={15} />}
-                          className="text-red-400 hover:text-red-600 transition-colors bg-red-50 dark:bg-red-500/10 p-1.5 rounded-lg"
-                        />
-                      </div>
-                    ),
-                    width: 80,
+                    width: COLUMN_WIDTH.price,
+                    align: "right",
+                    render: (_: any, r: any) =>
+                      new Intl.NumberFormat("vi-VN").format(r.costPrice * r.orderedQty),
                   },
                 ]}
                 dataSource={selectedItems}
@@ -392,12 +424,12 @@ export default function CreatePOForm({ onSuccess }: Props) {
           )}
 
           {selectedItems.length > 0 && (
-            <div className="flex justify-end pt-4 mt-2 border-t border-slate-200 dark:border-slate-700">
-              <div className="text-right">
-                <div className="text-slate-500 text-sm mb-1">Tổng cộng hóa đơn:</div>
-                <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+            <div className="p-5 bg-blue-50/30 dark:bg-brand-500/5 border-t border-slate-200 dark:border-slate-800 flex justify-end rounded-b-xl">
+              <div className="flex items-center gap-4">
+                <span className="text-slate-500 font-medium uppercase tracking-widest text-[10px]">Tổng thanh toán:</span>
+                <span className="text-2xl font-black text-brand-600 dark:text-brand-400">
                   {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(totalAmount)}
-                </div>
+                </span>
               </div>
             </div>
           )}
@@ -413,8 +445,9 @@ export default function CreatePOForm({ onSuccess }: Props) {
 
             <SWTButton
               size="md"
+              loading={saving}
               onClick={handleSubmit}
-              className="!rounded-xl !w-auto px-4 py-2 !bg-brand-500 !text-white"
+              className="!rounded-xl !w-auto px-4 py-2 !bg-brand-500/10 !border-brand-500/20 !text-brand-500 hover:!bg-brand-500/20 shadow-sm font-bold"
             >
               Lưu Phiếu (DRAFT)
             </SWTButton>

@@ -16,5 +16,7 @@ export interface IPurchaseRepository {
 
   updatePurchaseOrder(id: string, data: UpdatePODTO): Promise<PurchaseOrder>;
 
+  getPurchaseOrderItems(id: string, skip: number, take: number): Promise<[any[], number]>;
+  getPurchaseOrderReceipts(id: string, skip: number, take: number): Promise<[any[], number]>;
   updatePurchaseOrderStatus(id: string, status: POStatus): Promise<PurchaseOrder>;
 }
