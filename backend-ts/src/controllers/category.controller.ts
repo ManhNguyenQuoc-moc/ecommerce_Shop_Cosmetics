@@ -27,7 +27,7 @@ export class CategoryController {
         success: true,
         message: "Get categories successfully",
         data: {
-          items: paginatedCategories,
+          data: paginatedCategories,
           total,
           page: page || 1,
           pageSize: limit || total

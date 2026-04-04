@@ -24,11 +24,12 @@ import {
 import SWTBreadcrumb from "@/src/@core/component/AntD/SWTBreadcrumb";
 import useSWTTitle from "@/src/@core/hooks/useSWTTitle";
 import Link from "next/link";
-import { useProduct } from "@/src/services/admin/product.service";
+import { useProduct, useVariants } from "@/src/services/admin/product.service";
 import EditProductModal from "@/src/app/admin/products/components/EditProductModal";
 import Image from "next/image";
 import SWTCard from "@/src/@core/component/AntD/SWTCard";
 import SWTTable from "@/src/@core/component/AntD/SWTTable";
+import SWTTabs from "@/src/@core/component/AntD/SWTTabs";
 const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat("vi-VN", {
     style: "currency",
@@ -57,7 +58,22 @@ export default function ProductDetailPage({
   const [openPreview, setOpenPreview] = useState(false);
 
   const { id } = use(params);
-  const { product, isLoading, isError, mutate } = useProduct(id);
+  const { product, isLoading: isProductLoading, isError: isProductError, mutate: mutateProduct } = useProduct(id);
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 6;
+
+  const { 
+    variants: paginatedVariants, 
+    total: variantsTotal, 
+    isLoading: isVariantsLoading 
+  } = useVariants(currentPage, pageSize, { productId: id });
+
+  const isLoading = isProductLoading || isVariantsLoading;
+  const isError = isProductError;
+  const mutate = () => {
+    mutateProduct();
+  };
+
 
   const galleryImages = Array.from(new Set([
     ...(product?.images || []),
@@ -147,7 +163,7 @@ export default function ProductDetailPage({
             <div className="flex flex-col md:flex-row gap-8">
               {/* IMAGE GALLERY SECTION */}
               <div className="w-full md:w-2/5 flex flex-col gap-3">
-                <div 
+                <div
                   className="aspect-square rounded-2xl bg-slate-100 overflow-hidden relative border border-slate-200 cursor-zoom-in hover:shadow-xl transition-all duration-500 group"
                   onClick={() => setOpenPreview(true)}
                 >
@@ -170,9 +186,8 @@ export default function ProductDetailPage({
                       <div
                         key={idx}
                         onClick={() => setActiveImage(img)}
-                        className={`relative w-16 h-16 flex-shrink-0 cursor-pointer rounded-xl border-2 transition-all duration-300 overflow-hidden shadow-sm ${
-                          activeImage === img ? "border-brand-500 scale-95 shadow-brand-500/20" : "border-slate-100 hover:border-slate-300"
-                        }`}
+                        className={`relative w-16 h-16 flex-shrink-0 cursor-pointer rounded-xl border-2 transition-all duration-300 overflow-hidden shadow-sm ${activeImage === img ? "border-brand-500 scale-95 shadow-brand-500/20" : "border-slate-100 hover:border-slate-300"
+                          }`}
                       >
                         <Image
                           src={img}
@@ -214,37 +229,121 @@ export default function ProductDetailPage({
                   </div>
                 </div>
 
-                <div className="space-y-4 mt-auto">
-                  <div className="bg-slate-50/50 dark:bg-slate-800/30 p-5 rounded-3xl border border-slate-100 dark:border-slate-800/50 relative overflow-hidden group">
-                    <div className="absolute top-0 left-0 w-1 h-full bg-slate-200 dark:bg-slate-700 group-hover:bg-brand-500 transition-colors" />
-                    <span className="font-black block mb-2 text-[10px] uppercase text-slate-400 tracking-widest">Mô tả ngắn</span>
-                    <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed font-medium italic">
-                      {product.short_description || "Chưa có mô tả ngắn"}
-                    </p>
-                  </div>
-                  <div className="bg-slate-50/50 dark:bg-slate-800/30 p-5 rounded-3xl border border-slate-100 dark:border-slate-800/50 relative overflow-hidden group">
-                    <div className="absolute top-0 left-0 w-1 h-full bg-slate-200 dark:bg-slate-700 group-hover:bg-brand-500 transition-colors" />
-                    <span className="font-black block mb-2 text-[10px] uppercase text-slate-400 tracking-widest">Chi tiết sản phẩm</span>
-                    <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed font-medium">
-                      {product.long_description || "Chưa có mô tả chi tiết"}
-                    </p>
-                  </div>
+                <div className="bg-slate-50/50 dark:bg-slate-800/30 p-5 rounded-3xl border border-slate-100 dark:border-slate-800/50 relative overflow-hidden group">
+                  <div className="absolute top-0 left-0 w-1 h-full bg-slate-200 dark:bg-slate-700 group-hover:bg-brand-500 transition-colors" />
+                  <span className="font-black block mb-2 text-[10px] uppercase text-slate-400 tracking-widest">Ghi chú nhanh</span>
+                  <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed font-medium italic">
+                    {product.short_description || "Sản phẩm chính hãng chất lượng cao."}
+                  </p>
                 </div>
               </div>
             </div>
           </SWTCard>
-           <SWTCard className={CARD_BASE} bodyClassName="!p-6">
-            <div className="flex items-center mb-6">
-              <h4 className="ml-3 !mb-0 font-bold text-lg">Thông số kỹ thuật</h4>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4">
-              {product.specifications.map((spec, idx) => (
-                <div key={idx} className="flex items-center justify-between py-2 border-b border-slate-100 last:border-0 hover:bg-slate-50/50 transition-colors px-2 rounded-lg">
-                  <span className="text-slate-500 text-sm font-medium">{spec.label}</span>
-                  <span className="text-slate-800 text-sm font-bold">{spec.value}</span>
-                </div>
-              ))}
-            </div>
+
+          {/* TABS SECTION */}
+          <SWTCard className={CARD_BASE} bodyClassName="!p-6">
+            <SWTTabs
+              defaultActiveKey="description"
+              className="dark:[&_.ant-tabs-nav]:!border-slate-800 dark:[&_.ant-tabs-tab]:!text-slate-400 [&_.ant-tabs-tab-active_.ant-tabs-tab-btn]:!text-brand-500"
+              items={[
+                {
+                  key: "description",
+                  label: "Mô tả",
+                  children: (
+                    <div className="space-y-6 pt-2">
+                      {product.short_description && (
+                         <div className="bg-slate-50 dark:bg-slate-900/40 p-4 rounded-2xl border border-slate-100 dark:border-slate-800">
+                            <h5 className="text-[10px] uppercase font-black text-slate-400 tracking-widest mb-3 flex items-center gap-2">
+                               <Activity size={14} className="text-brand-500" /> Mô tả ngắn
+                            </h5>
+                            <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">{product.short_description}</p>
+                         </div>
+                      )}
+                      <div className="p-4">
+                         <h5 className="text-[10px] uppercase font-black text-slate-400 tracking-widest mb-4 flex items-center gap-2">
+                            <Layers size={14} className="text-brand-500" /> Chi tiết sản phẩm
+                         </h5>
+                         <div className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed whitespace-pre-wrap space-y-4">
+                            {product.long_description || "Chưa có mô tả chi tiết cho sản phẩm này."}
+                         </div>
+                      </div>
+                    </div>
+                  )
+                },
+                {
+                  key: "specs",
+                  label: "Thông số",
+                  prefix: { value: product.specifications?.length || 0, color: "info" },
+                  children: (
+                    <div className="pt-4">
+                       <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-2">
+                          {product.specifications?.map((spec: any, idx: number) => (
+                            <div key={idx} className="flex items-center justify-between py-3 border-b border-slate-100 dark:border-slate-800/60 last:border-0 hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-colors px-3 rounded-xl">
+                              <span className="text-slate-500 dark:text-slate-400 text-xs font-medium uppercase tracking-tight">{spec.label}</span>
+                              <span className="text-slate-800 dark:text-slate-200 text-sm font-bold">{spec.value}</span>
+                            </div>
+                          ))}
+                       </div>
+                       {(!product.specifications || product.specifications.length === 0) && (
+                          <div className="text-center py-10 text-slate-400 italic text-sm">Chưa có thông số kỹ thuật</div>
+                       )}
+                    </div>
+                  )
+                },
+                {
+                  key: "reviews",
+                  label: "Đánh giá",
+                  prefix: { value: product.reviewCount || 0, color: "warning" },
+                  children: (
+                     <div className="space-y-4 pt-4">
+                        {product.reviews && product.reviews.length > 0 ? (
+                           product.reviews.map((review: any) => (
+                              <div key={review.id} className="p-5 rounded-2xl bg-white dark:bg-slate-900 shadow-sm border border-slate-100 dark:border-slate-800 hover:border-brand-500/30 transition-all">
+                                 <div className="flex justify-between items-start mb-3">
+                                    <div className="flex items-center gap-3">
+                                       <div className="w-10 h-10 rounded-full bg-brand-500/10 flex items-center justify-center text-brand-500 font-black text-sm border border-brand-500/20 shadow-inner">
+                                          {review.user?.full_name?.charAt(0) || "U"}
+                                       </div>
+                                       <div>
+                                          <p className="text-sm font-black text-slate-800 dark:text-slate-200">{review.user?.full_name || "Người dùng ẩn danh"}</p>
+                                          <div className="flex items-center gap-0.5 text-amber-500">
+                                             {[...Array(5)].map((_, i) => (
+                                                <Star key={i} size={12} fill={i < review.rating ? "currentColor" : "none"} strokeWidth={i < review.rating ? 0 : 2} />
+                                             ))}
+                                          </div>
+                                       </div>
+                                    </div>
+                                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest bg-slate-50 dark:bg-slate-800 px-2 py-1 rounded-md">
+                                       {new Date(review.createdAt).toLocaleDateString("vi-VN")}
+                                    </span>
+                                 </div>
+                                 <div className="pl-[52px]">
+                                    <p className="text-sm text-slate-600 dark:text-slate-400 font-medium leading-relaxed italic">"{review.comment || "Không có nhận xét bổ sung."}"</p>
+                                 </div>
+                              </div>
+                           ))
+                        ) : (
+                           <div className="py-12 text-center text-slate-400 italic">Sản phẩm này chưa có lượt đánh giá nào.</div>
+                        )}
+                     </div>
+                  )
+                },
+                {
+                   key: "qa",
+                   label: "Hỏi đáp",
+                   prefix: { value: product.commentCount || 0, color: "primary" },
+                   children: (
+                      <div className="py-16 text-center bg-slate-50/50 dark:bg-slate-900/40 rounded-3xl border-2 border-dashed border-slate-200 dark:border-slate-800 mt-4">
+                         <div className="w-16 h-16 bg-white dark:bg-slate-800 rounded-2xl shadow-xl flex items-center justify-center mx-auto mb-6">
+                            <MessageSquare size={32} className="text-brand-500/50 animate-pulse" />
+                         </div>
+                         <h5 className="font-bold text-slate-800 dark:text-white uppercase tracking-widest text-sm mb-2">Trung tâm Hỏi đáp</h5>
+                         <p className="text-xs text-slate-400 max-w-xs mx-auto leading-relaxed">Tính năng tương tác trực tiếp qua WebSocket đang được phát triển để phục vụ cho các phiên bản tiếp theo.</p>
+                      </div>
+                   )
+                }
+              ]}
+            />
           </SWTCard>
 
           <SWTCard className={CARD_BASE} bodyClassName="!p-6">
@@ -257,9 +356,14 @@ export default function ProductDetailPage({
             </div>
 
             <SWTTable
-              dataSource={product.variants || []}
+              dataSource={paginatedVariants}
               rowKey="id"
-              pagination={false}
+              pagination={{
+                totalCount: variantsTotal,
+                page: currentPage,
+                fetch: pageSize,
+                onChange: (p) => setCurrentPage(p)
+              }}
               columns={[
                 {
                   title: "Hình ảnh",
@@ -282,7 +386,7 @@ export default function ProductDetailPage({
                   title: "Phân loại",
                   key: "variant_name",
                   render: (_: any, record: any) => (
-                    <Link 
+                    <Link
                       href={`/admin/variants/${record.id}?from=product&productId=${id}`}
                       className="flex flex-col group transition-all"
                     >
@@ -334,23 +438,23 @@ export default function ProductDetailPage({
               ]}
             />
           </SWTCard>
-         
+
         </div>
         {/* RIGHT */}
         <div className="flex flex-col gap-6">
           <SWTCard
-            className="!bg-gradient-to-br !from-brand-500 !to-brand-600 !rounded-3xl !text-white"
+            className="!bg-brand-500/10 !backdrop-blur-md !rounded-3xl !text-brand-600 dark:!text-brand-400 !border !border-brand-500/20 shadow-lg shadow-brand-500/5"
             bodyClassName="!p-6"
           >
-            <div className="flex items-center gap-2 mb-2">
+            <div className="flex items-center gap-2 mb-2 opacity-80 font-bold">
               <Activity size={18} />
-              <span className="text-xl font-bold">Doanh thu</span>
+              <span className="text-sm uppercase tracking-widest">Doanh thu</span>
             </div>
-            <div className="text-4xl font-bold text-center">
+            <div className="text-4xl font-black text-center break-all">
               {formatCurrency(totalRevenue)}
             </div>
-            <div className="text-md text-brand-100 flex items-center gap-1 mt-2">
-              <TrendingUp size={14} />
+            <div className="text-xs text-brand-600/70 dark:text-brand-400/70 flex items-center justify-center gap-1 mt-3 font-bold uppercase tracking-tighter">
+              <TrendingUp size={12} />
               Dựa trên tổng số lượng bán
             </div>
           </SWTCard>

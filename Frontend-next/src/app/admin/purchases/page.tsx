@@ -20,7 +20,7 @@ export default function PurchasesPage() {
           { title: "Quản lý Nhập hàng" },
         ]}
       />
-      <div className="p-6 bg-white/90 dark:bg-slate-900/80 backdrop-blur-md rounded-3xl shadow-sm dark:shadow-[0_0_15px_rgba(0,0,0,0.5)] border border-slate-200 dark:border-amber-500/20 transition-colors">
+      <div className="p-6 bg-white/80 dark:bg-slate-900/50 backdrop-blur-md rounded-2xl shadow-sm border border-slate-200 dark:border-admin-sidebar-border transition-colors">
         <Suspense>
           <POFilters startTransition={startTransition} />
           <POTable isPending={isPending} />

@@ -1,6 +1,6 @@
 "use client";
 
-import {useState } from "react";
+import { useState } from "react";
 import { Plus, Tag } from "lucide-react";
 import SWTForm from "@/src/@core/component/AntD/SWTForm";
 import SWTFormItem from "@/src/@core/component/AntD/SWTFormItem";
@@ -19,6 +19,7 @@ interface AddVariantFormValues {
   color: string;
   size?: string;
   sku?: string;
+  costPrice?: number; 
   price: number;
   salePrice?: number;
   statusName?: 'BEST_SELLING' | 'TRENDING' | 'NEW';
@@ -55,6 +56,7 @@ export default function AddVariantModal({ isOpen, onClose, onAdd }: AddVariantMo
         color: values.color,
         size: values.size,
         sku: values.sku,
+        costPrice: values.costPrice || null,
         price: values.price,
         salePrice: values.salePrice || null,
         statusName: values.statusName,
@@ -63,21 +65,19 @@ export default function AddVariantModal({ isOpen, onClose, onAdd }: AddVariantMo
       console.log(">>> [Create Variant] Submission Data:", submissionData);
       await createVariant(submissionData);
       showNotificationSuccess("Tạo biến thể thành công");
+
       onAdd(submissionData);
       form.resetFields();
       setSelectedProductId(null);
       onClose();
     } catch (err: any) {
       console.error(err);
-      // Hiển thị ở http interceptor rồi
     } finally {
       setIsSubmitting(false);
     }
   };
-
   const selectedProduct = products.find((p: ProductListItemDto) => p.id === selectedProductId);
   const selectedProductVariants = (selectedProduct as any)?.variants || []; // Assuming nested variants if available
-
   return (
     <SWTModal
       title={
@@ -174,8 +174,6 @@ export default function AddVariantModal({ isOpen, onClose, onAdd }: AddVariantMo
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6">
-         
-
             <SWTFormItem
               name="statusName"
               label="Nhãn sự kiện"
@@ -192,10 +190,24 @@ export default function AddVariantModal({ isOpen, onClose, onAdd }: AddVariantMo
             </SWTFormItem>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6">
+          {/* Đã gộp 3 ô Giá vào cùng 1 hàng */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-x-6">
+            <SWTFormItem
+              name="costPrice"
+              label="Giá nhập (VNĐ)"
+              rules={[{ required: true, message: 'Nhập giá nhập' }]}
+            >
+              <SWTInputNumber
+                min={0}
+                placeholder="0"
+                style={{ width: "100%" }}
+                className="dark:[&_.ant-input-number-input]:!text-white dark:!bg-slate-800/80 dark:!border-slate-700"
+              />
+            </SWTFormItem>
+
             <SWTFormItem
               name="price"
-              label="Giá Bán (VNĐ)"
+              label="Giá bán (VNĐ)"
               rules={[{ required: true, message: 'Nhập giá bán' }]}
             >
               <SWTInputNumber
@@ -208,7 +220,19 @@ export default function AddVariantModal({ isOpen, onClose, onAdd }: AddVariantMo
 
             <SWTFormItem
               name="salePrice"
-              label="Giá khuyến mãi (VNĐ)"
+              label="Giá khuyến mãi"
+              dependencies={['price']}
+              rules={[
+                ({ getFieldValue }) => ({
+                  validator(_, value) {
+                    const originalPrice = getFieldValue('price');
+                    if (!value || !originalPrice || value <= originalPrice) {
+                      return Promise.resolve();
+                    }
+                    return Promise.reject(new Error('Giá khuyến mãi không được lớn hơn giá gốc'));
+                  },
+                }),
+              ]}
             >
               <SWTInputNumber
                 min={0}

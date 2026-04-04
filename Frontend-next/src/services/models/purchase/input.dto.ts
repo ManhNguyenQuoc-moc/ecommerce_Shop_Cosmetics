@@ -5,6 +5,7 @@ export interface POItemInput {
 }
 
 export interface CreatePOInput {
+  username: string;
   brandId: string;
   note?: string;
   priority?: 'LOW' | 'NORMAL' | 'HIGH';

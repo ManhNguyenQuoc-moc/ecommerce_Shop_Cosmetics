@@ -1,7 +1,28 @@
 import { get, post, put, del } from "../api";
 import { useFetchSWR } from "@/src/@core/hooks/useFetchSWR";
+import { mutate as globalMutate } from "swr";
 import { ProductListResponseDto, ProductDetailDto, ProductVariantDto, VariantListResponseDto, VariantDetailDto } from "../models/product/output.dto";
-// ... existing code ...
+import { PaginationResponse } from "../models/common/PaginationResponse";
+
+/**
+ * Call this after any stock receipt to revalidate all related SWR caches:
+ * - All variant lists
+ * - All variant details  
+ * - All batch lists
+ * - All inventory batches
+ * - All products
+ */
+export const revalidateAllInventory = () => {
+  // Revalidate all keys that start with product/variant/inventory endpoints
+  globalMutate(
+    (key: string) =>
+      typeof key === "string" &&
+      (key.startsWith("/products") ||
+        key.startsWith("/inventory")),
+    undefined,
+    { revalidate: true }
+  );
+};
 export const useVariant = (id: string | undefined) => {
   const fetcher = () =>
     id ? get<VariantDetailDto>(`${PRODUCT_API_ENDPOINT}/variants/${id}`) : Promise.reject("No ID provided");
@@ -13,12 +34,46 @@ export const useVariant = (id: string | undefined) => {
       {
         revalidateOnFocus: false,
         revalidateOnReconnect: false,
-        revalidateIfStale: false,
+        revalidateIfStale: true,
       }
     );
 
   return {
     variant: data || null,
+    isLoading: isLoading || isValidating,
+    isError: error,
+    mutate,
+  };
+};
+
+export const useVariantBatches = (
+  variantId: string | undefined,
+  page: number,
+  pageSize: number
+) => {
+  const fetcher = () =>
+    variantId
+      ? get<PaginationResponse<any>>(
+        `${PRODUCT_API_ENDPOINT}/variants/${variantId}/batches`,
+        { page, pageSize }
+      )
+      : Promise.reject("No ID provided");
+
+  const { data, error, isLoading, isValidating, mutate } = useFetchSWR<PaginationResponse<any>>(
+    variantId
+      ? `${PRODUCT_API_ENDPOINT}/variants/${variantId}/batches?page=${page}&pageSize=${pageSize}`
+      : null,
+    fetcher,
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      revalidateIfStale: true,
+    }
+  );
+
+  return {
+    batches: data?.data || [],
+    total: data?.total || 0,
     isLoading: isLoading || isValidating,
     isError: error,
     mutate,
@@ -89,19 +144,19 @@ export const useProducts = (
   const queryString = queryParams.toString();
 
   const fetcher = () =>
-    get<ProductListResponseDto>(PRODUCT_API_ENDPOINT, {
+    get<PaginationResponse<any>>(PRODUCT_API_ENDPOINT, {
       page,
       pageSize,
       ...filters,
     });
 
-  const { data, error, isLoading, isValidating, mutate } = useFetchSWR<ProductListResponseDto>(
+  const { data, error, isLoading, isValidating, mutate } = useFetchSWR<PaginationResponse<any>>(
     `${PRODUCT_API_ENDPOINT}?${queryString}`,
     fetcher
   );
 
   return {
-    products: data?.products || [],  
+    products: data?.data || [],
     total: data?.total || 0,
     page: data?.page || page,
     pageSize: data?.pageSize || pageSize,
@@ -132,21 +187,21 @@ export const useVariants = (
   const queryString = queryParams.toString();
 
   const fetcher = () =>
-    get<VariantListResponseDto>(`${PRODUCT_API_ENDPOINT}/variants/list?${queryString}`);
+    get<PaginationResponse<VariantDetailDto>>(`${PRODUCT_API_ENDPOINT}/variants/list?${queryString}`);
 
   const { data, error, isLoading, isValidating, mutate } =
-    useFetchSWR<VariantListResponseDto>(
-      `${PRODUCT_API_ENDPOINT}/variants/list?${queryString}`, 
+    useFetchSWR<PaginationResponse<VariantDetailDto>>(
+      `${PRODUCT_API_ENDPOINT}/variants/list?${queryString}`,
       fetcher,
       {
         revalidateOnFocus: false,
         revalidateOnReconnect: false,
-        revalidateIfStale: false,
+        revalidateIfStale: true,
       }
     );
-
+  console.log("Fetching variants with filters:", filters, "Data received:", data);
   return {
-    variants: data?.variants || [],
+    variants: data?.data || [],
     total: data?.total || 0,
     page: data?.page || page,
     pageSize: data?.pageSize || pageSize,
@@ -167,7 +222,7 @@ export const useProduct = (id: string | undefined) => {
       {
         revalidateOnFocus: false,
         revalidateOnReconnect: false,
-        revalidateIfStale: false,
+        revalidateIfStale: true,
       }
     );
 

@@ -28,6 +28,8 @@ export interface VariantQueryFilters {
   classification?: string;
   priceRange?: string;
   statusName?: string;
+  productId?: string;
+  brandId?: string;
 }
 
 export interface IProductRepository {

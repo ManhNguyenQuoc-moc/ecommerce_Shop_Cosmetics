@@ -6,6 +6,7 @@ export interface VariantInPODTO {
   sku?: string | null;
   color?: string | null;
   size?: string | null;
+  image?: string | null;
   product?: {
     id: string;
     name: string;

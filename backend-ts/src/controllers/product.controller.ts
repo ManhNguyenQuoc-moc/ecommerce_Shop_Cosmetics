@@ -27,12 +27,7 @@ export class ProductController {
       res.status(200).json({
         success: true,
         message: "Get products successfully",
-        data: {
-          products: result.data,
-          total: result.total,
-          page,
-          pageSize: pageSize
-        },
+        data: result,
       });
     } catch (error: any) {
       res.status(500).json({ success: false, message: error.message || "Internal server error" });
@@ -49,9 +44,9 @@ export class ProductController {
         sortBy: req.query.sortBy as string,
         classification: req.query.classification as string,
         priceRange: req.query.priceRange as string,
-        statusName: req.query.statusName as string
-        ,
-        brandId: req.query.brandId as string
+        statusName: req.query.statusName as string,
+        brandId: req.query.brandId as string,
+        productId: req.query.productId as string
       };
 
       const result = await this.productService.getVariants(page, pageSize, filters);
@@ -59,12 +54,7 @@ export class ProductController {
       res.status(200).json({
         success: true,
         message: "Get variants successfully",
-        data: {
-          variants: result.variants,
-          total: result.total,
-          page,
-          pageSize: pageSize
-        },
+        data: result,
       });
     } catch (error: any) {
       res.status(500).json({ success: false, message: error.message || "Internal server error" });
@@ -105,6 +95,24 @@ export class ProductController {
         success: true,
         message: "Get variant successfully",
         data: variant,
+      });
+    } catch (error: any) {
+      res.status(500).json({ success: false, message: error.message || "Internal server error" });
+    }
+  };
+
+  getVariantBatches = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const id = req.params.id as string;
+      const page = parseInt(req.query.page as string) || 1;
+      const pageSize = parseInt(req.query.pageSize as string) || 6;
+
+      const result = await this.productService.getVariantBatches(id, page, pageSize);
+
+      res.status(200).json({
+        success: true,
+        message: "Get variant batches successfully",
+        data: result
       });
     } catch (error: any) {
       res.status(500).json({ success: false, message: error.message || "Internal server error" });

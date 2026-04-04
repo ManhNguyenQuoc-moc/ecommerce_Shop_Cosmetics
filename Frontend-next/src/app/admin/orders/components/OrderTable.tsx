@@ -4,6 +4,7 @@ import SWTTable from "@/src/@core/component/AntD/SWTTable";
 import { useState } from "react";
 import { Eye } from "lucide-react";
 import SWTTooltip from "@/src/@core/component/AntD/SWTTooltip";
+import SWTIconButton from "@/src/@core/component/SWTIconButton";
 
 const mockOrders = [
   { id: "ORD-9281", customer: "Nguyễn Văn A", phone: "0901234567", items: 3, total: "2.150.000đ", date: "22/10/2023 14:30", status: "Chờ xác nhận", payment: "COD" },
@@ -26,7 +27,7 @@ const columns = [
     key: 'customer',
     render: (text: string, record: any) => (
       <div className="flex flex-col">
-        <div className="font-bold text-slate-800 dark:text-white dark:drop-shadow-[0_0_2px_rgba(255,255,255,0.5)]">{record.customerName}</div>
+        <div className="font-bold text-slate-800 dark:text-white">{record.customerName}</div>
         <div className="text-slate-500 text-xs mt-0.5">{record.phone}</div>
       </div>
     ),
@@ -93,11 +94,14 @@ const columns = [
     key: 'actions',
     align: 'center' as const,
     render: () => (
-      <SWTTooltip title="Xem chi tiết" color="#3b82f6">
-        <button className="text-blue-500 hover:text-blue-700 transition-colors p-1.5 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-500/10 group relative border border-transparent hover:border-blue-100 dark:hover:border-blue-500/20 cursor-pointer">
-          <Eye size={18} />
-        </button>
-      </SWTTooltip>
+      <div className="flex justify-center">
+        <SWTIconButton 
+          variant="view"
+          icon={<Eye size={18} />}
+          tooltip="Xem chi tiết"
+          href="#"
+        />
+      </div>
     )
   }
 ];
@@ -110,7 +114,7 @@ export default function OrderTable() {
 
   return (
     <div className="w-full">
-      <div className="!bg-white/90 dark:!bg-slate-900/80 backdrop-blur-xl !rounded-xl overflow-hidden !border !border-slate-100 dark:!border-cyan-500/20 !shadow-lg dark:!shadow-[0_0_15px_rgba(0,0,0,0.5)] mt-4 transition-colors">
+      <div className="bg-white/80 dark:bg-slate-900/50 backdrop-blur-md rounded-2xl overflow-hidden border border-slate-200 dark:border-admin-sidebar-border shadow-sm mt-4 transition-colors">
         <SWTTable 
           columns={columns} 
           dataSource={paginatedData} 

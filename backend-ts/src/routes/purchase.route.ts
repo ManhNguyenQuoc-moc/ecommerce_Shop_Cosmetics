@@ -9,6 +9,8 @@ router.get("/", controller.getPOs.bind(controller));
 router.post("/", controller.createPO.bind(controller));
 router.post("/receive-stock", controller.receiveStock.bind(controller));
 router.get("/:id", controller.getPOById.bind(controller));
+router.get("/:id/items", controller.getPOItems.bind(controller));
+router.get("/:id/receipts", controller.getPOReceipts.bind(controller));
 router.put("/:id", controller.updatePO.bind(controller));
 router.post("/:id/confirm", controller.confirmPO.bind(controller));
 router.post("/:id/cancel", controller.cancelPO.bind(controller));

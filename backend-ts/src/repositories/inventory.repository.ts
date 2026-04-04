@@ -58,6 +58,9 @@ export class InventoryRepository implements IInventoryRepository {
               image: true
             }
           },
+          purchaseOrder: {
+            select: { code: true }
+          },
           transactions: true
         },
         orderBy
@@ -79,8 +82,8 @@ export class InventoryRepository implements IInventoryRepository {
   }
 
   async findBatch(variantId: string, batchNumber: string) {
-    return prisma.batch.findUnique({
-      where: { variantId_batchNumber: { variantId, batchNumber } }
+    return prisma.batch.findFirst({
+      where: { variantId, batchNumber }
     });
   }
 
@@ -98,14 +101,15 @@ export class InventoryRepository implements IInventoryRepository {
         throw new Error("Cannot receive more than ordered");
       }
 
-      let batch = await tx.batch.findUnique({
-        where: { variantId_batchNumber: { variantId, batchNumber: batchData.batchNumber } }
+      let batch = await tx.batch.findFirst({
+        where: { variantId: variantId, batchNumber: batchData.batchNumber, purchaseOrderId: poId }
       });
 
       if (!batch) {
         batch = await tx.batch.create({
           data: {
             variantId: variantId,
+            purchaseOrderId: poId,
             batchNumber: batchData.batchNumber,
             expiryDate: batchData.expiryDate,
             manufacturingDate: batchData.manufacturingDate || null,

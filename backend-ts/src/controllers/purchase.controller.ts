@@ -28,6 +28,32 @@ export class PurchaseController {
     }
   }
 
+  async getPOItems(req: Request, res: Response) {
+    try {
+      const id = req.params.id as string;
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 10;
+      const result = await purchaseService.getPurchaseOrderItems(id, page, limit);
+      res.json({ success: true, data: result });
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Lỗi hệ thống";
+      res.status(500).json({ success: false, message });
+    }
+  }
+
+  async getPOReceipts(req: Request, res: Response) {
+    try {
+      const id = req.params.id as string;
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 10;
+      const result = await purchaseService.getPurchaseOrderReceipts(id, page, limit);
+      res.json({ success: true, data: result });
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Lỗi hệ thống";
+      res.status(500).json({ success: false, message });
+    }
+  }
+
   async getPOById(req: Request, res: Response) {
     try {
       const po = await purchaseService.getPurchaseOrderById(req.params.id as string);

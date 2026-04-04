@@ -14,7 +14,7 @@ export class BrandController {
       res.status(200).json({ 
         success: true, 
         data: {
-          items,
+          data: items,
           total,
           page: page || 1,
           pageSize: limit || total

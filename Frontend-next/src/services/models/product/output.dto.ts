@@ -41,6 +41,8 @@ export interface ProductDetailDto {
 
   status: string;
   statusRaw: "ACTIVE" | "HIDDEN" | "STOPPED";
+  price: number;
+  salePrice: number | null;
 
   description?: string;
   short_description?: string;
@@ -78,15 +80,27 @@ export interface ProductDetailDto {
     size?: string;
     price: number;
     salePrice?: number | null;
+    costPrice?: number;
     stock: number;
     image?: string | null;
     imageId?: string | null;
     soldCount: number;
+    statusName?: 'BEST_SELLING' | 'TRENDING' | 'NEW';
   }[];
 
   specifications: {
     label: string;
     value: string;
+  }[];
+  reviews: {
+    id: string;
+    rating: number;
+    comment: string | null;
+    createdAt: string;
+    user: {
+      id: string;
+      full_name: string;
+    };
   }[];
 
   createdAt: string;
@@ -103,6 +117,7 @@ export interface ProductVariantDto {
   size?: string;
   price: number;
   salePrice?: number | null;
+  stock: number;
   image?: string | null;
   brand: { id: string; name: string } | null;
   category: { id: string; name: string } | null;
@@ -131,6 +146,7 @@ export interface VariantDetailDto {
   sku?: string | null;
   price: number;
   salePrice?: number | null;
+  costPrice?: number;
   stock: number;
   image?: string | null;
   imageId?: string | null;

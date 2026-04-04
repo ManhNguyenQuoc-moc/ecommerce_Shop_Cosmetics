@@ -1,7 +1,7 @@
 import { Order } from "@prisma/client";
 
 export interface IOrderRepository {
-  findAll(): Promise<Order[]>;
+  findAll(skip?: number, take?: number): Promise<[Order[], number]>;
   findById(id: string): Promise<Order | null>;
   create(data: any): Promise<Order>;
   update(id: string, data: any): Promise<Order>;

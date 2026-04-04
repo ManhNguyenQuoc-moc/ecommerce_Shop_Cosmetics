@@ -55,10 +55,12 @@ export class PurchaseRepository implements IPurchaseRepository {
       include: {
         brand: true,
         items: {
+          take: 50, // Initial load limit for performance
           include: {
             variant: {
               include: {
                 product: true,
+                image: true,
               },
             },
           },
@@ -71,16 +73,40 @@ export class PurchaseRepository implements IPurchaseRepository {
     // Fetch Receipts (Transactions)
     const transactions = await prisma.stockTransaction.findMany({
       where: { referenceId: id, type: 'IN' },
-      include: { batch: true },
-      orderBy: { createdAt: 'desc' }
+      include: { 
+        batch: {
+          include: {
+            variant: {
+              include: {
+                product: true,
+                image: true,
+              }
+            }
+          }
+        } 
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 50, // Initial load limit for performance
     });
 
-    const receipts: POReceiptItemDTO[] = transactions.map(t => ({
+    const receipts: POReceiptItemDTO[] = transactions.map((t: any) => ({
       variantId: t.variantId,
       quantity: t.quantity,
       batchNumber: t.batch.batchNumber,
       expiryDate: t.batch.expiryDate.toISOString(),
-      createdAt: t.createdAt.toISOString()
+      manufacturingDate: t.batch.manufacturingDate?.toISOString(),
+      createdAt: t.createdAt.toISOString(),
+      variant: {
+        id: t.batch.variant.id,
+        sku: t.batch.variant.sku,
+        color: t.batch.variant.color,
+        size: t.batch.variant.size,
+        image: t.batch.variant.image?.url,
+        product: {
+          id: t.batch.variant.product.id,
+          name: t.batch.variant.product.name,
+        }
+      }
     }));
 
     const items: POItemResponseDTO[] = po.items.map((item: any) => ({
@@ -97,6 +123,7 @@ export class PurchaseRepository implements IPurchaseRepository {
         sku: item.variant.sku,
         color: item.variant.color,
         size: item.variant.size,
+        image: item.variant.image?.url,
         product: {
           id: item.variant.product.id,
           name: item.variant.product.name,
@@ -201,6 +228,95 @@ export class PurchaseRepository implements IPurchaseRepository {
 
       return po;
     });
+  }
+
+  async getPurchaseOrderItems(id: string, skip: number, take: number): Promise<[any[], number]> {
+    const [items, total] = await Promise.all([
+      prisma.purchaseOrderItem.findMany({
+        where: { purchaseOrderId: id },
+        skip,
+        take,
+        include: {
+          variant: {
+            include: {
+              product: true,
+              image: true,
+            },
+          },
+        },
+      }),
+      prisma.purchaseOrderItem.count({ where: { purchaseOrderId: id } }),
+    ]);
+
+    const mappedItems = items.map((item: any) => ({
+      id: item.id,
+      purchaseOrderId: item.purchaseOrderId,
+      variantId: item.variantId,
+      orderedQty: item.orderedQty,
+      receivedQty: item.receivedQty,
+      costPrice: item.costPrice,
+      createdAt: item.createdAt.toISOString(),
+      updatedAt: item.updatedAt.toISOString(),
+      variant: {
+        id: item.variant.id,
+        sku: item.variant.sku,
+        color: item.variant.color,
+        size: item.variant.size,
+        image: item.variant.image?.url,
+        product: {
+          id: item.variant.product.id,
+          name: item.variant.product.name,
+        }
+      }
+    }));
+
+    return [mappedItems, total];
+  }
+
+  async getPurchaseOrderReceipts(id: string, skip: number, take: number): Promise<[any[], number]> {
+    const [transactions, total] = await Promise.all([
+      prisma.stockTransaction.findMany({
+        where: { referenceId: id, type: 'IN' },
+        include: { 
+          batch: {
+            include: {
+              variant: {
+                include: {
+                  product: true,
+                  image: true
+                }
+              }
+            }
+          }
+        },
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take,
+      }),
+      prisma.stockTransaction.count({ where: { referenceId: id, type: 'IN' } }),
+    ]);
+
+    const receipts = transactions.map((t: any) => ({
+      variantId: t.variantId,
+      quantity: t.quantity,
+      batchNumber: t.batch.batchNumber,
+      manufacturingDate: t.batch.manufacturingDate?.toISOString(),
+      expiryDate: t.batch.expiryDate.toISOString(),
+      createdAt: t.createdAt.toISOString(),
+      variant: {
+        id: t.batch.variant.id,
+        sku: t.batch.variant.sku,
+        color: t.batch.variant.color,
+        size: t.batch.variant.size,
+        image: t.batch.variant.image?.url,
+        product: {
+          id: t.batch.variant.product.id,
+          name: t.batch.variant.product.name,
+        }
+      }
+    }));
+
+    return [receipts, total];
   }
 
   async updatePurchaseOrderStatus(id: string, status: POStatus): Promise<PurchaseOrder> {

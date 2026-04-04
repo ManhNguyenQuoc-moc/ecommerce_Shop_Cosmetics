@@ -1,6 +1,7 @@
 export interface InventoryBatchDto {
   id: string;
   batchNumber: string;
+  purchaseOrderCode?: string | null;
   quantity: number;
   costPrice: number;
   expiryDate: string;

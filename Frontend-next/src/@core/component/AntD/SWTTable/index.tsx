@@ -49,15 +49,15 @@ const SWTTable = ({
           emptyText: <SWTRenderIf condition={(dataSource ?? [])?.length === 0}><SWTEmpty /></SWTRenderIf>,
         }}
       />
-      <SWTRenderIf condition={pagination != null && pagination != undefined}>
+      {pagination && typeof pagination === 'object' && (
         <SWTPagination
           className="!m-2 flex justify-end rounded-xl"
-          total={pagination?.totalCount}
-          current={pagination?.page}
-          pageSize={pagination?.fetch}
-          onChange={pagination?.onChange}
+          total={pagination.totalCount}
+          current={pagination.page}
+          pageSize={pagination.fetch}
+          onChange={pagination.onChange}
         />
-      </SWTRenderIf>
+      )}
     </>
   );
 };

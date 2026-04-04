@@ -9,8 +9,11 @@ export class OrderService implements IOrderService {
     this.orderRepository = orderRepository;
   }
 
-  async getOrders(): Promise<Order[]> {
-    return this.orderRepository.findAll();
+  async getOrders(page?: number, pageSize?: number): Promise<{ items: Order[], total: number }> {
+    const skip = page && pageSize ? (page - 1) * pageSize : undefined;
+    const take = pageSize || undefined;
+    const [items, total] = await this.orderRepository.findAll(skip, take);
+    return { items, total };
   }
 
   async getOrderById(id: string): Promise<Order | null> {

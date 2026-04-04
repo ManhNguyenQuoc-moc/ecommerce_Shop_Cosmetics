@@ -23,6 +23,7 @@ export interface VariantDetailDto {
   sku?: string | null;
   price: number;
   salePrice?: number | null;
+  costPrice?: number;
   stock: number;
   image?: string | null;
   imageId?: string | null;

@@ -79,11 +79,12 @@ export default function EditProductModal({ isOpen, onClose, productId, onUpdated
       name: product.name,
       brandId: product.brandId,
       categoryId: product.categoryId,
-      status: product.statusRaw || 'ACTIVE',
+      price: product.price || 0,
+      salePrice: product.salePrice || null,
       short_description: product.short_description,
       long_description: product.long_description,
       specifications: product.specifications || [],
-      variants: product.variants?.map((v) => ({
+      variants: product.variants?.map((v, index) => ({
         id: v.id,
         color: v.color,
         size: v.size,
@@ -294,6 +295,47 @@ export default function EditProductModal({ isOpen, onClose, productId, onUpdated
             </SWTFormItem>
           </div>
 
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6">
+            <SWTFormItem
+              name="price"
+              label="Giá niêm yết (VNĐ)"
+              rules={[{ required: true, message: 'Nhập giá gốc' }]}
+            >
+              <SWTInputNumber
+                min={0}
+                max={1000000000}
+                placeholder="0"
+                style={{ width: "100%" }}
+                className="dark:[&_.ant-input-number-input]:!text-white dark:!bg-slate-800/80 dark:!border-slate-700"
+              />
+            </SWTFormItem>
+
+            <SWTFormItem
+              name="salePrice"
+              label="Giá khuyến mãi"
+              dependencies={['price']}
+              rules={[
+                ({ getFieldValue }) => ({
+                  validator(_, value) {
+                    const originalPrice = getFieldValue('price');
+                    if (!value || !originalPrice || value <= originalPrice) {
+                      return Promise.resolve();
+                    }
+                    return Promise.reject(new Error('Giá khuyến mãi không được cao hơn giá gốc'));
+                  },
+                }),
+              ]}
+            >
+              <SWTInputNumber
+                min={0}
+                max={1000000000}
+                placeholder="0"
+                style={{ width: "100%" }}
+                className="dark:[&_.ant-input-number-input]:!text-white dark:!bg-slate-800/80 dark:!border-slate-700"
+              />
+            </SWTFormItem>
+          </div>
+
           <SWTFormItem name="short_description" label="Mô tả ngắn gọn">
             <SWTInput placeholder="Mô tả nổi bật..." className="dark:!bg-slate-800/80 dark:!border-slate-700 dark:!text-white" />
           </SWTFormItem>
@@ -443,7 +485,26 @@ export default function EditProductModal({ isOpen, onClose, productId, onUpdated
                         <SWTFormItem {...restField} name={[name, 'price']} label="Giá bán (VNĐ)" className="!mb-0" rules={[{ required: true, message: 'Nhập giá' }]}>
                           <SWTInputNumber min={0} placeholder="0" style={{ width: "100%" }} className="dark:[&_.ant-input-number-input]:!text-white dark:!bg-slate-900/50 dark:!border-slate-700" />
                         </SWTFormItem>
-                        <SWTFormItem {...restField} name={[name, 'salePrice']} label="Giá khuyến mãi" className="!mb-0">
+[diff_block_end]
+[diff_block_start]
+                        <SWTFormItem
+                          {...restField}
+                          name={[name, 'salePrice']}
+                          label="Giá khuyến mãi"
+                          className="!mb-0"
+                          dependencies={[['variants', index, 'price']]}
+                          rules={[
+                            ({ getFieldValue }) => ({
+                              validator(_, value) {
+                                const originalPrice = getFieldValue(['variants', index, 'price']);
+                                if (!value || !originalPrice || value <= originalPrice) {
+                                  return Promise.resolve();
+                                }
+                                return Promise.reject(new Error('Giá khuyến mãi không được cao hơn giá gốc'));
+                              },
+                            }),
+                          ]}
+                        >
                           <SWTInputNumber min={0} placeholder="0" style={{ width: "100%" }} className="dark:[&_.ant-input-number-input]:!text-white dark:!bg-slate-900/50 dark:!border-slate-700" />
                         </SWTFormItem>
                       </div>

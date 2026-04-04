@@ -8,7 +8,8 @@ export interface CreateVariantInput {
   color?: string;
   size?: string;
   price: number;
-  salePrice?: number | null;
+  salePrice?: number;
+  costPrice?: number;
   imageUrl?: string | null;
   statusName?: 'BEST_SELLING' | 'TRENDING' | 'NEW';
 }
@@ -20,6 +21,7 @@ export interface UpdateVariantInput {
   size?: string;
   price: number;
   salePrice?: number | null;
+  costPrice?: number | null;
   imageUrl?: string | null;
   imageId?: string | null;
   statusName?: 'BEST_SELLING' | 'TRENDING' | 'NEW';
@@ -32,8 +34,6 @@ export interface CreateProductInput {
   short_description?: string;
   long_description?: string;
   status?: 'ACTIVE' | 'HIDDEN' | 'STOPPED';
-  price: number;
-  salePrice?: number | null;
   images: string[]; // gallery URLs
   specifications?: ProductSpecificationInput[];
   variants: CreateVariantInput[];
@@ -46,8 +46,6 @@ export interface UpdateProductInput {
   short_description?: string;
   long_description?: string;
   status?: 'ACTIVE' | 'HIDDEN' | 'STOPPED';
-  price: number;
-  salePrice?: number | null;
   newImages?: string[];
   imageIdsToRemove?: string[];
   specifications?: ProductSpecificationInput[];
@@ -71,4 +69,5 @@ export interface ProductQueryParams {
   classification?: string;
   priceRange?: string;
   statusName?: string;
+  productId?: string;
 }
