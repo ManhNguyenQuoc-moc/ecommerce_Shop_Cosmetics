@@ -2,7 +2,7 @@ import { Button, ButtonProps } from "antd";
 
 type SWTButtonProps = Omit<ButtonProps, "size"> & {
   children?: React.ReactNode;
-  size?: "sm" | "md" | "lg";
+  size?: "sm" | "md" | "lg" | "xl";
   intent?: "primary" | "outline" | "ghost";
   startIcon?: React.ReactNode;
   endIcon?: React.ReactNode;
