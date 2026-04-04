@@ -47,7 +47,7 @@ export default function RegisterForm() {
                     Gia nhập cộng đồng làm đẹp của chúng tôi
                 </p>
             </div>
-            
+
             <SWTForm onFinish={handleSubmit} loading={isLoading} layout="vertical">
                 <SWTFormItem
                     name="fullName"
