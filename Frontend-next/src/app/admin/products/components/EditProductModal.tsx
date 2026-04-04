@@ -175,8 +175,6 @@ export default function EditProductModal({ isOpen, onClose, productId, onUpdated
         short_description: values.short_description,
         long_description: values.long_description,
         status: values.status,
-        price: values.price,
-        salePrice: values.salePrice || null,
         newImages,
         imageIdsToRemove,
         specifications: values.specifications || [],

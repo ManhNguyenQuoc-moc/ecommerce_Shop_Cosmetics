@@ -89,8 +89,8 @@ export default function EditVariantModal({ isOpen, onClose, variant, onUpdate }:
         size: values.size,
         sku: values.sku,
         price: values.price,
-        salePrice: values.salePrice || null,
-        costPrice: values.costPrice || null,
+        salePrice: values.salePrice || 0,
+        costPrice: values.costPrice || 0,
         statusName: values.statusName,
         imageUrl,
         imageId

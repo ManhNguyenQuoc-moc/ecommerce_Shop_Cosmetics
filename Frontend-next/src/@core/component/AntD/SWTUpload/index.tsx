@@ -15,7 +15,6 @@ import {
 export type SWTUploadProps = UploadProps & {
     uploadType?: "avatar" | "image";
     limitFile: number;
-    variantbutton?: "primary" | "outline";
     isShowlistFile?: boolean;
     label?: string;
     crop?: boolean;
@@ -87,7 +86,7 @@ const SWTUpload = ({
     const uploadButton = (
 
         <SWTButton
-            variant={props.variantbutton || "primary"}
+            variant="solid"
             startIcon={loading ? <LoadingOutlined /> : icon}
             disabled={props.disabled}
         >{label}

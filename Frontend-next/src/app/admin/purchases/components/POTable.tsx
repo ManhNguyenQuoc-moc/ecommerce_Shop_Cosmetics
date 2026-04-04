@@ -12,7 +12,6 @@ import { Eye, Edit } from "lucide-react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useState } from "react";
 import { mutate as globalMutate } from "swr";
-import PODetailModal from "./PODetailModal";
 import { usePurchaseOrderById } from "@/src/services/admin/purchase.service";
 import { POListItemDto, POStatus, PO_STATUS_LABELS, POPriority, PO_PRIORITY_LABELS } from "@/src/services/models/purchase/output.dto";
 import { POQueryParams } from "@/src/services/models/purchase/input.dto";

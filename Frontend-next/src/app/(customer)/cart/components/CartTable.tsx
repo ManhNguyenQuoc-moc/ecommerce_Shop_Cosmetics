@@ -48,9 +48,10 @@ export default function CartTable() {
       render: (_, record) => (
         <CartQuantity
           quantity={record.quantity}
-          onChange={(val) =>
-            updateQuantity(record.id, val)
-          }
+          onChange={(val) => {
+          const quantity = Number(val) || 1; 
+          updateQuantity(record.id, quantity);
+          }}
         />
       ),
     },

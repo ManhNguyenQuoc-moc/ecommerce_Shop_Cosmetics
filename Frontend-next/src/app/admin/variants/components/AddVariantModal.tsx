@@ -56,9 +56,9 @@ export default function AddVariantModal({ isOpen, onClose, onAdd }: AddVariantMo
         color: values.color,
         size: values.size,
         sku: values.sku,
-        costPrice: values.costPrice || null,
+        costPrice: values.costPrice || 0,
         price: values.price,
-        salePrice: values.salePrice || null,
+        salePrice: values.salePrice || 0,
         statusName: values.statusName,
         imageUrl: imageUrl,
       };

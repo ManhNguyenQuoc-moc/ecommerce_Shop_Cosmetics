@@ -310,9 +310,9 @@ export default function CreatePOForm({ onSuccess }: Props) {
                 ]}
                 dataSource={(variants ?? []).map((v: any) => ({ product: { name: v.productName, id: v.productId }, variant: { ...v, id: v.id } }))}
                 pagination={{
-                  current: page,
-                  pageSize,
-                  total: total || 0,
+                  fetch: page,
+                  page,
+                  totalCount: total || 0,
                   onChange: (p: number) => setPage(p),
                 }}
                 className="dark:[&_.ant-table]:!bg-slate-900/40 dark:[&_.ant-table-thead_th]:!bg-slate-800/80 dark:[&_.ant-table-tbody_tr:hover_td]:!bg-brand-500/10"

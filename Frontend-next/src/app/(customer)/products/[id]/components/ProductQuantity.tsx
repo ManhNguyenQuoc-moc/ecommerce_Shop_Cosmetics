@@ -16,7 +16,7 @@ export default function ProductQuantity({ qty, setQty }: Props) {
         mode ="spinner"
         min={1}
         max={100}
-        onChange={(v) => setQty(v)}
+        onChange={(v) => setQty(Number(v) || 1)}
         className="!w-[120px]"
         size="middle"
       />

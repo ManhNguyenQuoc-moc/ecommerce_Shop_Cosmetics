@@ -1,3 +1,4 @@
+"use client";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useTransition, useEffect, useState } from "react";
 import { FileSpreadsheet, Filter, Plus } from "lucide-react";
