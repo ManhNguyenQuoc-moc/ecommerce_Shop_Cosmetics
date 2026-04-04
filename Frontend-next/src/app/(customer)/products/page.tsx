@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import ProductsClient from "./ProductsClient/page";
 import { getProducts } from "@/src/services/customer/product.service";
 
@@ -17,8 +18,10 @@ export default async function ProductsPage({ searchParams }: Props) {
   const pageSize = Number(params.pageSize ?? 9);
   const initialData = await getProducts({ page, pageSize });
   return (
-    <ProductsClient
-      initialData={initialData}
-    />
+    <Suspense fallback={<div className="animate-pulse flex items-center justify-center p-20 text-brand-500 font-bold">Đang tải danh sách sản phẩm...</div>}>
+      <ProductsClient
+        initialData={initialData}
+      />
+    </Suspense>
   );
 }

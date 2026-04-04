@@ -14,7 +14,7 @@ import { mutate as globalMutate } from "swr";
 import { RotateCcw, Layers, Edit, Eye, Trash2 } from "lucide-react";
 import EditVariantModal from "./EditVariantModal";
 import SWTConfirmModal from "@/src/@core/component/AntD/SWTConfirmModal";
-import { ProductVariantDto } from "@/src/services/models/product/output.dto";
+import { ProductVariantDto} from "@/src/services/models/product/output.dto";
 import { AlertCircle } from "lucide-react";
 interface TableRecord extends ProductVariantDto {
   onEdit: (record: ProductVariantDto) => void;
@@ -143,10 +143,10 @@ export default function VariantTable({
         </div>
           <div className="flex flex-col gap-1">
             <div className="font-bold text-slate-800 dark:text-white dark:drop-shadow-[0_0_2px_rgba(255,255,255,0.5)]">
-              {record.name}
+              {record.productName} - {record.color || "Không màu"} - {record.size || "Không kích thước"}
             </div>
             <div className="flex items-center gap-2">
-               <span className="text-slate-500 dark:text-slate-400 font-medium text-xs">{(record.category as any)?.name || "Chưa phân loại"}</span>
+               <span className="text-slate-500 dark:text-slate-400 font-medium text-xs"></span>
               {record.productStatus === 'HIDDEN' && (
              <SWTTooltip
                   title="Sản phẩm gốc đang bị ẩn"

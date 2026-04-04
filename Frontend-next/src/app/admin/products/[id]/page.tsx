@@ -490,7 +490,7 @@ export default function ProductDetailPage({
                       nameKey="name"
                       outerRadius={80}
                       label={({ percent }) =>
-                        `${(percent * 100).toFixed(0)}%`
+                        `${(Number(percent) * 100).toFixed(0)}%`
                       }
                     >
                       {product.variants.map((_: any, index: number) => (

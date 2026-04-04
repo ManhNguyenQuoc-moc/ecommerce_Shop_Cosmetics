@@ -106,8 +106,8 @@ export default function EditPOForm({ po, onCancel, onSuccess }: Props) {
         receivedQty: item.receivedQty,
         name: item.variant?.product?.name ?? "Không xác định",
         sku: item.variant?.sku ?? "N/A",
-        color: item.variant?.color,
-        size: item.variant?.size,
+        color: item.variant?.color ?? "",
+        size: item.variant?.size ?? "",
       };
     });
     setSelectedItems(items);
@@ -357,7 +357,7 @@ export default function EditPOForm({ po, onCancel, onSuccess }: Props) {
                     },
                   ]}
                   dataSource={(variants ?? []).map((v: any) => ({ product: { name: v.productName, id: v.productId }, variant: { ...v, id: v.id } }))}
-                  pagination={{ current: page, pageSize, total: total || 0, onChange: (p: number) => setPage(p) }}
+                  pagination={{ fetch: page, page, totalCount: total || 0, onChange: (p: number) => setPage(p) }}
                   className="dark:[&_.ant-table]:!bg-slate-900/40 dark:[&_.ant-table-thead_th]:!bg-slate-800/80 dark:[&_.ant-table-tbody_tr:hover_td]:!bg-brand-500/5"
                 />
               </div>

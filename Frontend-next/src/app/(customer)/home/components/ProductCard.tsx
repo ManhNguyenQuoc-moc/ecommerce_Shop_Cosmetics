@@ -19,19 +19,16 @@ export default function ProductCard({ product, loading }: Props) {
     product ? s.isInWishlist(product.id) : false
   );
 
-  // Kiểm tra xem sản phẩm có đang sale không
   const isSale = !!product?.salePrice;
   
-  // Tính toán % giảm giá (nếu có sale)
   const discountPercent = isSale && product 
-    ? Math.round(((product.price - product.salePrice) / product.price) * 100) 
+    ? Math.round(((product.price - product.salePrice!) / product.price) * 100) 
     : 0;
 
   return (
     <SWTCard
       loading={loading}
       height={loading ? 420 : "auto"}
-      // Thêm viền màu brand và bóng đổ shadow nổi bật nếu là sản phẩm Sale
       className={`!overflow-hidden !shadow-sm hover:!shadow-xl transition-all duration-500 group/card !rounded-2xl ${
         isSale 
           ? "!border-2 !border-brand-500 shadow-brand-100/50" 

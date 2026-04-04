@@ -187,10 +187,10 @@ export const useVariants = (
   const queryString = queryParams.toString();
 
   const fetcher = () =>
-    get<PaginationResponse<VariantDetailDto>>(`${PRODUCT_API_ENDPOINT}/variants/list?${queryString}`);
+    get<PaginationResponse<ProductVariantDto>>(`${PRODUCT_API_ENDPOINT}/variants/list?${queryString}`);
 
   const { data, error, isLoading, isValidating, mutate } =
-    useFetchSWR<PaginationResponse<VariantDetailDto>>(
+    useFetchSWR<PaginationResponse<ProductVariantDto>>(
       `${PRODUCT_API_ENDPOINT}/variants/list?${queryString}`,
       fetcher,
       {

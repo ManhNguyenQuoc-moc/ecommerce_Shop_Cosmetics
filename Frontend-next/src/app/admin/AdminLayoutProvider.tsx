@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import AdminLoading from "./loading";
 import { SidebarProvider, useSidebar } from "@/src/context/SidebarContext";
 import AdminHeader from "@/src/layout/admin/AdminAppHeader";
@@ -41,7 +41,9 @@ const AdminLayoutWrapper = ({ children }: { children: React.ReactNode }) => {
       <div className="relative flex flex-1 flex-col overflow-y-auto overflow-x-hidden z-10">
         <AdminHeader />
         <main className="flex-1 w-full p-4 md:p-6 lg:px-20 lg:py-10">
-          {children}
+          <Suspense fallback={<div className="animate-pulse bg-slate-100 dark:bg-slate-900 rounded-2xl w-full h-full" />}>
+            {children}
+          </Suspense>
         </main>
       </div>
     </div>

@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import UserDropdown from "../components/header/UserDropDown";
 import Cart from "../components/header/Cart"
 import {
@@ -130,7 +130,9 @@ export default function CustomerHeader() {
         <div className={`hidden lg:block overflow-hidden transition-all duration-[250ms] ease-out origin-top ${scrolled ? "max-h-0 opacity-0 -translate-y-2" : "max-h-[76px] opacity-100 translate-y-0"}`}>
           <div className="pt-5 border-t border-brand-200/50 mt-2">
             <div className="max-w-7xl mx-auto h-[48px] flex items-center justify-center">
-              <MenuCustomer categories={customerCategories} />
+              <Suspense fallback={<div className="h-10 w-full animate-pulse bg-brand-50/50 rounded-lg" />}>
+                <MenuCustomer categories={customerCategories} />
+              </Suspense>
             </div>
           </div>
         </div>
