@@ -197,6 +197,7 @@ enum ProductStatus {
   BEST_SELLING
   TRENDING
   NEW
+  SALE
 }
 
 enum ItemStatus {

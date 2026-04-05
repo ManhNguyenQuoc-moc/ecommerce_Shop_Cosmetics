@@ -28,7 +28,8 @@ export class ProductService implements IProductService {
             }
           }
         },
-        image: true
+        image: true,
+        orderItems: true
       }
     });
 
@@ -47,6 +48,7 @@ export class ProductService implements IProductService {
 
     const statusMap: Record<string, string> = { ACTIVE: "Đang bán", HIDDEN: "Đã ẩn", STOPPED: "Ngừng bán" };
     const images = variant.product.productImages?.map((pi: any) => pi.image?.url) || [];
+    const soldCount = variant.orderItems?.reduce((sum: number, item: any) => sum + item.quantity, 0) || 0;
     
     return {
       id: variant.id,
@@ -64,6 +66,7 @@ export class ProductService implements IProductService {
       stock: batches.reduce((sum: number, b: any) => sum + b.quantity, 0),
       image: variant.image?.url || images[0] || null,
       imageId: variant.imageId,
+      soldCount,
       statusName: variant.statusName,
       status: statusMap[variant.status] || "Đang bán",
       statusRaw: variant.status,
@@ -216,13 +219,14 @@ async getProducts(
         sku: v.sku || "",
         color: v.color || "",
         size: v.size || "",
-        soldCount: v.orderItems?.reduce((sum: number, item) => sum + item.quantity, 0) || 0,
+        soldCount: v.orderItems?.reduce((sum: number, item: any) => sum + item.quantity, 0) || 0,
         stock: stockMap[v.id] || 0,
         image: v.image?.url || p?.productImages?.[0]?.image?.url || null,
         status: v.status || "ACTIVE",
         productStatus: p?.status || "ACTIVE",
         statusName: v.statusName || "NEW",
-        createdAt: v.createdAt
+        createdAt: v.createdAt,
+        updatedAt: v.updatedAt
       });
     });
 
@@ -262,7 +266,10 @@ async getProducts(
       stock: stockMap[v.id] || 0,
       image: v.image?.url || images[0] || null,
       imageId: v.imageId || null,
-      soldCount: v.orderItems?.reduce((sum: number, item) => sum + item.quantity, 0) || 0,
+      soldCount: v.orderItems?.reduce((sum: number, item: any) => sum + item.quantity, 0) || 0,
+      statusName: v.statusName,
+      createdAt: v.createdAt,
+      updatedAt: v.updatedAt
     })) || [];
     const prices = variants.map((v) => v.price);
     const salePrices = variants.map((v) => v.salePrice).filter((p): p is number => p != null);

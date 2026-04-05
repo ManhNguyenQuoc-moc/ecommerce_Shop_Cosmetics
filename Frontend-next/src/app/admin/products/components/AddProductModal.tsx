@@ -233,7 +233,6 @@ export default function AddProductModal({ isOpen, onClose, onAdd }: AddProductMo
           >
             <SWTSelect
               placeholder="Chọn trạng thái"
-              disabled={true}
               options={[
                 { label: "Đang bán (ACTIVE)", value: "ACTIVE" },
                 { label: "Đã ẩn (HIDDEN)", value: "HIDDEN" },
@@ -391,6 +390,7 @@ export default function AddProductModal({ isOpen, onClose, onAdd }: AddProductMo
                               { label: "Mới ra mắt (NEW)", value: "NEW" },
                               { label: "Bán chạy (BEST)", value: "BEST_SELLING" },
                               { label: "Xu hướng (HOTS)", value: "TRENDING" },
+                              { label: "Giảm giá (SALE)", value: "SALE" },
                             ]}
                             className="w-full dark:[&_.ant-select-selector]:!bg-slate-900/50 dark:[&_.ant-select-selector]:!border-slate-700"
                           />

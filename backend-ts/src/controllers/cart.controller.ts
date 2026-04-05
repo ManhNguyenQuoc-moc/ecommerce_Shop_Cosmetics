@@ -39,7 +39,7 @@ export class CartController {
     try {
       const { cartItemId } = req.params;
       const { quantity } = req.body;
-      const item = await this.cartService.updateItemQuantity(cartItemId, quantity);
+      const item = await this.cartService.updateItemQuantity(cartItemId as string, quantity);
       res.status(200).json({ success: true, data: item });
     } catch (error: any) {
       res.status(500).json({ success: false, message: error.message });
@@ -49,7 +49,7 @@ export class CartController {
   removeItem = async (req: Request, res: Response): Promise<void> => {
     try {
       const { cartItemId } = req.params;
-      await this.cartService.removeItemFromCart(cartItemId);
+      await this.cartService.removeItemFromCart(cartItemId as string);
       res.status(200).json({ success: true, message: "Item removed" });
     } catch (error: any) {
       res.status(500).json({ success: false, message: error.message });

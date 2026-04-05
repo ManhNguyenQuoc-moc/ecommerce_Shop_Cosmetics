@@ -3,7 +3,7 @@ import RelatedProducts from "./RelatedProducts";
 import BrandProducts from "./BrandProducts";
 import ShippingInfo from "../ShippingInfo";
 type Props = {
-  brand: { id: string; name: string } | string;
+  brand: { id: string; name: string };
 };
 export default function ProductSidebar({ brand }: Props) {
   return (

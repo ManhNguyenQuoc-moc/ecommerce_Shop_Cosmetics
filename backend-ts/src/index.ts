@@ -602,17 +602,16 @@ import purchaseRoute from "./routes/purchase.route";
 import inventoryRoute from "./routes/inventory.route";
 
 const app = express();
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 app.use(
   cors({
     origin: [
       "http://localhost:3000",
-      "https://ecommerce-shop-cosmetics.vercel.app/",
+      "https://ecommerce-shop-cosmetics.vercel.app", // Removed trailing slash
     ],
     credentials: true,
   })
 );
+
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 

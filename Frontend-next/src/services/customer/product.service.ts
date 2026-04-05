@@ -1,17 +1,15 @@
-
 import { getServer } from "../apiServer";
-import { ProductPagination, ProductDetail} from "@/src/@core/type/Product";
-
-
+import { PaginationResponse } from "../models/common/PaginationResponse";
+import { ProductListItemDto, ProductDetailDto } from "../models/product/output.dto";
 
 export const getProducts = (params: {
   page: number;
   pageSize: number;
   [key: string]: any;
 }) => {
-  return getServer<ProductPagination>("/products", { ...params, flatten: true });
+  return getServer<PaginationResponse<ProductListItemDto>>("/products", { ...params, flatten: true });
 };
 
 export const getProductDetail = (id: string) => {
-  return getServer<ProductDetail>(`/products/${id}`);
+  return getServer<ProductDetailDto>(`/products/${id}`);
 };

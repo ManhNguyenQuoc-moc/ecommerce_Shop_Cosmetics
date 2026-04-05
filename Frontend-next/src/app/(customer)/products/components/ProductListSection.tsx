@@ -5,11 +5,11 @@ import { useRouter, useSearchParams} from "next/navigation";
 import SWTSelect from "@/src/@core/component/AntD/SWTSelect";
 import SWTPagination from "@/src/@core/component/AntD/SWTPagination";
 import ProductCard from "../../home/components/ProductCard";
-import {Product} from "@/src/@core/type/Product"
+import { ProductListItemDto } from "@/src/services/models/product/output.dto";
 import SWTEmpty from "@/src/@core/component/AntD/SWTEmpty";
 
 type Props = {
-  products: Product[];
+  products: ProductListItemDto[];
   total: number;
   loading: boolean;
 };
@@ -21,15 +21,9 @@ export default function ProductListSection({products , total ,loading }:Props){
   const page = Number(searchParams.get("page") ?? 1);
   const pageSize = Number(searchParams.get("pageSize") ?? 9);
 
-  const start = (page - 1) * pageSize + 1;
-  const end = Math.min(page * pageSize, total);
-
   return (
         <section className="col-span-12 md:col-span-9">
-          <div className="flex justify-between items-center mb-4">
-           <p className="text-sm text-gray-500">
-              Hiển thị {start}–{end} trong {total} sản phẩm
-          </p>
+          <div className="flex justify-end items-center mb-4">
             <SWTSelect
               defaultValue="newest"
               style={{ width: 200 }}
@@ -54,7 +48,7 @@ export default function ProductListSection({products , total ,loading }:Props){
         </div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-3">
-          {products.map((product: Product) => (
+          {products.map((product: ProductListItemDto) => (
             <ProductCard
               key={product.variantId || product.id}
               product={product}

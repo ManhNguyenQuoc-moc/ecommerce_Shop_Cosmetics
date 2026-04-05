@@ -3,7 +3,7 @@ import SWTCard from "@/src/@core/component/AntD/SWTCard";
 import SWTButton from "@/src/@core/component/AntD/SWTButton";
 
 type Props = {
-  brand: { id: string; name: string } | string;
+  brand: { id: string; name: string };
   logo?: string;
   followers?: number;
   loading?: boolean;
@@ -15,8 +15,8 @@ export default function BrandCard({
   followers = 7950,
   loading = false,
 }: Props) {
-  const brandName = typeof brand === 'object' ? brand.name : brand;
-  const brandId = typeof brand === 'object' ? brand.id : brand;
+  const brandName = brand.name;
+  const brandId = brand.id;
 
   return (
     <SWTCard loading={loading} className="overflow-hidden">

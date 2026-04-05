@@ -22,7 +22,7 @@ interface AddVariantFormValues {
   costPrice?: number; 
   price: number;
   salePrice?: number;
-  statusName?: 'BEST_SELLING' | 'TRENDING' | 'NEW';
+  statusName?: 'BEST_SELLING' | 'TRENDING' | 'NEW' | 'SALE';
   imageFile?: any[];
 }
 
@@ -184,6 +184,7 @@ export default function AddVariantModal({ isOpen, onClose, onAdd }: AddVariantMo
                   { label: "Mới ra mắt (NEW)", value: "NEW" },
                   { label: "Bán chạy (BEST)", value: "BEST_SELLING" },
                   { label: "Xu hướng (HOTS)", value: "TRENDING" },
+                  { label: "Giảm giá (SALE)", value: "SALE" },
                 ]}
                 className="w-full dark:[&_.ant-select-selector]:!bg-slate-800/80 dark:[&_.ant-select-selector]:!border-slate-700 dark:[&_.ant-select-selection-item]:!text-white"
               />

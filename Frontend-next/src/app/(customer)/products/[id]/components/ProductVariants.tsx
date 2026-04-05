@@ -1,10 +1,10 @@
-import { ProductVariant } from "@/src/@core/type/Product";
+import { ProductDetailVariantDto } from "@/src/services/models/product/output.dto";
 
 type Props = {
-  variants: ProductVariant[];
-  variant: ProductVariant | null;
-  setVariant: (v: ProductVariant) => void;
-  priceRange: { min: number; max: number }; // Thêm prop này
+  variants: ProductDetailVariantDto[];
+  variant: ProductDetailVariantDto | null;
+  setVariant: (v: ProductDetailVariantDto) => void;
+  priceRange: { min: number; max: number };
 };
 
 export default function ProductVariants({

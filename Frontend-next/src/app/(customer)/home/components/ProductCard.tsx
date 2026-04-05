@@ -5,11 +5,11 @@ import Link from "next/link";
 import { Heart, Star, Zap } from "lucide-react";
 
 import SWTCard from "@/src/@core/component/AntD/SWTCard";
-import type { Product } from "@/src/@core/type/Product";
+import { ProductListItemDto } from "@/src/services/models/product/output.dto";
 import { useWishlistStore } from "@/src/stores/useWishlistStore";
 
 type Props = {
-  product?: Product;
+  product?: ProductListItemDto;
   loading?: boolean;
 };
 
@@ -101,7 +101,7 @@ export default function ProductCard({ product, loading }: Props) {
             <div className="p-3 space-y-2">
               <div className="space-y-0.5">
                 <p className="text-[9px] font-black text-brand-500 uppercase tracking-widest flex items-center gap-1 leading-none">
-                  {typeof product.brand === 'object' ? product.brand?.name : product.brand}
+                  {product.brand?.name}
                 </p>
                 <h3 className="text-xs font-bold text-gray-800 line-clamp-2 min-h-[32px] leading-tight group-hover/card:text-brand-600 transition-colors">
                   {product.name}
@@ -126,15 +126,7 @@ export default function ProductCard({ product, loading }: Props) {
                   )}
                 </div>
                 
-                {product.rating && (
-                  <div className="flex items-center gap-0.5 bg-brand-50 px-1.5 py-0.5 rounded-full">
-                    <Star
-                      size={8}
-                      className="text-brand-100 fill-brand-100"
-                    />
-                    <span className="text-[9px] font-black text-brand-700">{product.rating}</span>
-                  </div>
-                )}
+
               </div>
               
               {product.sold && (

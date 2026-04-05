@@ -1,16 +1,17 @@
 "use client";
 
 import SWTButton from "@/src/@core/component/AntD/SWTButton";
-import { ProductDetail, ProductVariant } from "@/src/@core/type/Product"; // Nhớ import đúng type
+import { ProductDetailDto, ProductDetailVariantDto } from "@/src/services/models/product/output.dto";
 import { useCheckoutStore } from "@/src/stores/useCheckoutStore";
 import { useCartStore } from "@/src/stores/useCartStore";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Loading from "@/src/@core/component/Loading";
+
 type Props = {
   qty: number;
-  product: ProductDetail;
-  variant: ProductVariant | null;
+  product: ProductDetailDto;
+  variant: ProductDetailVariantDto | null;
 };
 
 export default function ProductActions({ qty, product, variant }: Props) {
@@ -47,7 +48,7 @@ export default function ProductActions({ qty, product, variant }: Props) {
       productId: product.id,
       variantId: currentVariantId,
       productName: currentProductName,
-      brand: typeof product.brand === "object" ? product.brand.name : (product.brand || "Đang cập nhật"),
+      brand: product.brand?.name || "Đang cập nhật",
       image: currentImage,
       price: currentPrice,
       originalPrice: currentPriceOrigin,

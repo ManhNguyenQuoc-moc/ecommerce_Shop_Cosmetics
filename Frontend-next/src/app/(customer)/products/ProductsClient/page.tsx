@@ -8,12 +8,13 @@ import { useFetchSWR } from "@/src/@core/hooks/useFetchSWR";
 import SWTBreadcrumb from "@/src/@core/component/AntD/SWTBreadcrumb";
 import ProductListSection from "../components/ProductListSection";
 
-import { ProductPagination } from "@/src/@core/type/Product";
+import { PaginationResponse } from "@/src/services/models/common/PaginationResponse";
+import { ProductListItemDto } from "@/src/services/models/product/output.dto";
 import { customerCategories } from "@/src/@core/http/routes/customer-categories";
 import { getProducts } from "@/src/services/customer/product.service";
 
 type Props = {
-  initialData: ProductPagination;
+  initialData: PaginationResponse<ProductListItemDto>;
 };
 
 export default function ProductsClient({ initialData }: Props) {
@@ -26,7 +27,7 @@ export default function ProductsClient({ initialData }: Props) {
   const page = Number(searchParams.get("page") ?? 1);
   const pageSize = Number(searchParams.get("pageSize") ?? 9);
 
-  const { data, isLoading, isValidating } = useFetchSWR<ProductPagination>(
+  const { data, isLoading, isValidating } = useFetchSWR<PaginationResponse<ProductListItemDto>>(
     ["products", page, pageSize],
     () => getProducts({ page, pageSize }),
     {
@@ -36,7 +37,7 @@ export default function ProductsClient({ initialData }: Props) {
 
   const loading = isLoading || isValidating;
 
-  const productsdata = data?.products ?? [];
+  const productsdata = data?.data ?? [];
   const total = data?.total ?? 0;
 
   const parentCategory = customerCategories.find(

@@ -1,18 +1,26 @@
 export interface ProductResponseDto {
   id: string;
   name: string;
+  slug: string;
 
   brand: {
     id: string;
     name: string;
-  };
+    slug: string;
+  } | null;
+
+  brandId: string;
 
   category: {
     id: string;
     name: string;
-  };
+    slug: string;
+  } | null;
+
+  categoryId: string;
 
   status: string;
+  statusRaw: string;
 
   short_description?: string;
   long_description?: string;
@@ -22,6 +30,7 @@ export interface ProductResponseDto {
   commentCount: number;
 
   images: string[];
+  productImages: any[];
 
   specifications: {
     label: string;
@@ -30,24 +39,32 @@ export interface ProductResponseDto {
 
   variants: VariantResponseDto[];
 
+  priceRange: {
+    min: number;
+    max: number;
+  };
+  totalStock: number;
+  sold: number;
+
+  reviews: any[];
+
   createdAt: Date;
   updatedAt: Date;
 }
+
 export interface VariantResponseDto {
   id: string;
-
+  sku?: string;
   color?: string;
   size?: string;
-  sku?: string;
-
   price: number;
-  salePrice?: number;
+  salePrice?: number | null;
   costPrice?: number;
-  
+  stock: number;
+  image?: string | null;
+  imageId?: string | null;
+  soldCount: number;
   statusName?: string;
-
-  imageUrl?: string;
-
   createdAt: Date;
   updatedAt: Date;
 }

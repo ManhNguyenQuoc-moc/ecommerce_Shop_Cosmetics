@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { generateCloudinarySignature } from "../utils/fileHandler";
+import cloudinary from "../config/cloudinary";
 
 export class UploadController {
   getSignature = (req: Request, res: Response): void => {
@@ -26,7 +27,6 @@ export class UploadController {
         return;
       }
 
-      const { cloudinary } = require("../config/cloudinary");
       const deletePromises = publicIds.map((id: string) => cloudinary.uploader.destroy(id));
       await Promise.all(deletePromises);
 

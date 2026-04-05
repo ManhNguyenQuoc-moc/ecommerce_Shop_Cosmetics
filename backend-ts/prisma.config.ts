@@ -9,7 +9,6 @@ export default defineConfig({
     seed: "npx tsx src/scripts/seed.ts",
   },
   datasource: {
-    url: process.env.DATABASE_URL!,
-    directUrl: process.env.DIRECT_URL,
+    url: process.env.DIRECT_URL!,
   },
 });
