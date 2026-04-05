@@ -1,83 +1,73 @@
-name: 🚀 Full CI/CD Monorepo
+name:  CI Monorepo
 
 on:
   push:
     branches: ["main"]
+  pull_request:
 
 jobs:
   ci:
-    name: 🧪 Build & Test
     runs-on: ubuntu-latest
 
     steps:
-      - name: 📥 Checkout code
+      - name:  Checkout code
         uses: actions/checkout@v4
 
-      - name: 🟢 Setup Node
+      - name:  Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 18
-
-      - name: ⚡ Cache npm
-        uses: actions/cache@v3
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          cache: "npm"
 
       # ===== BACKEND =====
-      - name: 📦 Install backend
-        run: |
-          cd backend-ts
-          npm install
+      - name:  Install backend
+        working-directory: backend-ts
+        run: npm ci
 
-      - name: 🧪 Test backend
-        run: |
-          cd backend-ts
-          npm run test --if-present
+      - name:  Test backend
+        working-directory: backend-ts
+        run: npm run test --if-present
 
       - name: 🏗 Build backend
-        run: |
-          cd backend-ts
-          npm run build
+        working-directory: backend-ts
+        run: npm run build
 
       # ===== FRONTEND =====
-      - name: 📦 Install frontend
-        run: |
-          cd Frontend-next
-          npm install
+      - name:  Install frontend
+        working-directory: Frontend-next
+        run: npm ci
 
       - name: 🏗 Build frontend
-        run: |
-          cd Frontend-next
-          npm run build
+        working-directory: Frontend-next
+        run: npm run build
 
-  cd:
-    name: 🚀 Deploy VPS
-    needs: ci
-    runs-on: ubuntu-latest
+  # cd:
+  #   name: 🚀 Deploy VPS
+  #   needs: ci
+  #   runs-on: ubuntu-latest
 
-    steps:
-      - name: 🚀 Deploy via SSH
-        uses: appleboy/ssh-action@v1
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          script: |
-            cd /var/www/my-app
+  #   steps:
+  #     - name: 🚀 Deploy via SSH
+  #       uses: appleboy/ssh-action@v1
+  #       with:
+  #         host: ${{ secrets.SERVER_HOST }}
+  #         username: ${{ secrets.SERVER_USER }}
+  #         key: ${{ secrets.SERVER_SSH_KEY }}
+  #         script: |
+  #           cd /var/www/my-app
 
-            echo "📥 Pull code"
-            git pull origin main
+  #           echo "📥 Pull code"
+  #           git pull origin main
 
-            echo "📦 Backend setup"
-            cd backend-ts
-            npm install
-            npm run build
+  #           echo "📦 Backend setup"
+  #           cd backend-ts
+  #           npm install
+  #           npm run build
 
-            echo "📦 Frontend setup"
-            cd ../Frontend-next
-            npm install
-            npm run build
+  #           echo "📦 Frontend setup"
+  #           cd ../Frontend-next
+  #           npm install
+  #           npm run build
 
-            echo "♻️ Restart app"
-            pm2 restart all
+  #           echo "♻️ Restart app"
+  #           pm2 restart all
