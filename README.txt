@@ -146,3 +146,101 @@ Database (Supabase)
 ========================
 END
 ===
+1️⃣ Cấu trúc môi trường
+
+Local / Dev
+.env.local
+DATABASE_URL="postgresql://postgres:localpassword@localhost:5432/devdb"
+NODE_ENV=development
+Production (Render / Supabase)
+.env.production
+DATABASE_URL="postgresql://postgres:<prod-password>@aws-1-ap-southeast-1.pooler.supabase.com:5432/postgres"
+NODE_ENV=production
+Trên Render, thêm environment variables tương ứng (DATABASE_URL, NODE_ENV).
+
+2️⃣ Prisma config
+Với Prisma 7, không dùng directUrl trong schema. Thay vào đó dùng prisma.config.ts.
+import { defineConfig } from "prisma/config";
+
+export default defineConfig({
+  schema: "prisma/schema.prisma",
+  migrations: {
+    path: "prisma/migrations",
+    seed: "npx tsx src/scripts/seed.ts",
+  },
+  datasource: {
+    url: process.env.DATABASE_URL!,
+  },
+});
+Schema Prisma chỉ cần provider:
+datasource db {
+  provider = "postgresql"
+}
+generator client {
+  provider = "prisma-client-js"
+}
+3️⃣ Scripts trong package.json
+{
+  "scripts": {
+    "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
+    "build": "prisma generate && tsc",
+    "postinstall": "prisma generate",
+    "migrate:prod": "prisma migrate deploy",
+    "seed": "npx tsx src/scripts/seed.ts",
+    "start": "node dist/index.js",
+    "dev:db": "prisma migrate dev --name init && npm run seed"
+  }
+}
+dev:db → dev local: migrate + seed
+migrate:prod → deploy production: apply migration (không seed mặc định)
+4️⃣ Seed dữ liệu
+src/scripts/seed.ts
+import { PrismaClient } from "@prisma/client";
+const prisma = new PrismaClient();
+async function main() {
+  if (process.env.NODE_ENV === "production") {
+    console.log("Production mode: only minimal seed (brands, categories)...");
+    await seedProd();
+  } else {
+    console.log("Development mode: full seed (brands, categories, products)...");
+    await seedDev();
+  }
+}
+async function seedProd() {
+  await prisma.brand.upsert({ where: { name: "The Ordinary" }, update: {}, create: { name: "The Ordinary" } });
+  await prisma.category.upsert({ where: { name: "Skincare" }, update: {}, create: { name: "Skincare" } });
+}
+async function seedDev() {
+  await seedProd();
+  await prisma.product.upsert({ where: { name: "Niacinamide Serum" }, update: {}, create: { name: "Niacinamide Serum", price: 15 } });
+}
+main()
+  .catch((e) => console.error(e))
+  .finally(() => prisma.$disconnect());
+✅ Phân biệt dev vs production:
+Dev: full seed, fake data để test.
+Production: chỉ seed dữ liệu quan trọng, tránh ghi đè dữ liệu người dùng.
+5️⃣ Tự chạy khi deploy
+Trên Render / Vercel:
+Build phase:
+npm install
+npm run build
+Deploy phase:
+npm run migrate:prod
+npm run seed # tùy chọn nếu muốn auto seed dữ liệu mặc định
+Đảm bảo DATABASE_URL đúng.
+Luôn backup Supabase trước khi seed production.
+6️⃣ Tại dev local
+Chạy DB local (Docker hoặc Postgres local)
+Migrate + seed:
+npm run dev:db
+Chạy server:
+npm run dev
+7️⃣ Backup dữ liệu Supabase
+Supabase → Database → Backups → Export SQL
+Lưu SQL + migrate + seed → có thể restore khi cần.
+8️⃣ Tips an toàn
+Không bao giờ seed production full dữ liệu dev.
+Luôn check NODE_ENV trong seed.
+Test kết nối DB trước khi seed.
+Dùng upsert thay vì create để tránh duplicate / crash.
