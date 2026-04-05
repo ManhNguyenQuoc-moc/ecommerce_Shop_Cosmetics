@@ -244,3 +244,4 @@ Không bao giờ seed production full dữ liệu dev.
 Luôn check NODE_ENV trong seed.
 Test kết nối DB trước khi seed.
 Dùng upsert thay vì create để tránh duplicate / crash.
+"https://ecommerce-shop-cosmetics.vercel.app"
