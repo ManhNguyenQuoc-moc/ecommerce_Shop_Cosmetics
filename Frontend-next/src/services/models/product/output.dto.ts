@@ -1,4 +1,24 @@
 // product.output.dto.ts
+
+export type ProductStatusTag = 'BEST_SELLING' | 'TRENDING' | 'NEW' | 'SALE';
+
+export interface BaseVariantDto {
+  id: string;
+  sku?: string;
+  color?: string | null;
+  size?: string | null;
+  price: number;
+  salePrice?: number | null;
+  costPrice?: number;
+  stock: number;
+  image?: string | null;
+  imageId?: string | null;
+  soldCount: number;
+  statusName?: ProductStatusTag | string;
+  createdAt: string;
+  updatedAt?: string;
+}
+
 export interface ProductListItemDto {
   id: string;
   slug: string;
@@ -27,6 +47,11 @@ export interface ProductListResponseDto {
   page: number;
   pageSize: number;
 }
+
+/**
+ * Used within ProductDetailDto
+ */
+export interface ProductDetailVariantDto extends BaseVariantDto {}
 
 export interface ProductDetailDto {
   id: string;
@@ -73,20 +98,7 @@ export interface ProductDetailDto {
     max: number;
   };
 
-  variants: {
-    id: string;
-    sku?: string;
-    color?: string;
-    size?: string;
-    price: number;
-    salePrice?: number | null;
-    costPrice?: number;
-    stock: number;
-    image?: string | null;
-    imageId?: string | null;
-    soldCount: number;
-    statusName?: 'BEST_SELLING' | 'TRENDING' | 'NEW';
-  }[];
+  variants: ProductDetailVariantDto[];
 
   specifications: {
     label: string;
@@ -107,50 +119,33 @@ export interface ProductDetailDto {
   updatedAt: string;
 }
 
-export interface ProductVariantDto {
-  id: string;
+/**
+ * Used in Variant List (Admin)
+ */
+export interface ProductVariantDto extends BaseVariantDto {
   productId: string;
   productName?: string;
-  name: string;
-  sku?: string;
-  color?: string;
-  size?: string;
-  price: number;
-  salePrice?: number | null;
-  stock: number;
-  image?: string | null;
+  name: string; // Combined name like "Product A - Red - XL"
   brand: { id: string; name: string } | null;
   category: { id: string; name: string } | null;
-  status: string;
+  status: string; // Display status
   productStatus?: string;
-  statusName?: 'BEST_SELLING' | 'TRENDING' | 'NEW';
-  costPrice?: number;
-  createdAt: string;
 }
+
 export interface VariantListResponseDto {
   variants: ProductVariantDto[];
   total: number;
   page: number;
   pageSize: number;
 }
-export interface VariantDetailDto {
-  id: string;
+
+export interface VariantDetailDto extends BaseVariantDto {
   productId: string;
   product: {
     id: string;
     name: string;
     slug: string;
   };
-  color?: string | null;
-  size?: string | null;
-  sku?: string | null;
-  price: number;
-  salePrice?: number | null;
-  costPrice?: number;
-  stock: number;
-  image?: string | null;
-  imageId?: string | null;
-  statusName: string;
   status: string;
   statusRaw: string;
   
@@ -165,7 +160,4 @@ export interface VariantDetailDto {
     totalOut: number;
     createdAt: string;
   }[];
-  
-  createdAt: string;
-  updatedAt: string;
 }

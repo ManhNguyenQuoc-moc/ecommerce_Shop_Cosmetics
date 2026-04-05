@@ -1,13 +1,13 @@
 import { create } from "zustand";
-import type { Product } from "@/src/@core/type/Product";
+import { ProductListItemDto } from "@/src/services/models/product/output.dto";
 import { showNotificationSuccess } from "@/src/@core/utils/message";
 
 type WishlistState = {
-  items: Product[];
+  items: ProductListItemDto[];
 
-  addItem: (product: Product) => void;
+  addItem: (product: ProductListItemDto) => void;
   removeItem: (id: string) => void;
-  toggleItem: (product: Product) => void;
+  toggleItem: (product: ProductListItemDto) => void;
 
   isInWishlist: (id: string) => boolean;
 };

@@ -1,12 +1,12 @@
 import { Star } from "lucide-react";
-import { ProductDetail } from "@/src/@core/type/Product";
+import { ProductDetailDto } from "@/src/services/models/product/output.dto";
 
 type Props = {
-  product: ProductDetail;
+  product: ProductDetailDto;
 };
 
 export default function ProductInfo({ product }: Props) {
-  const brandName = typeof product.brand === 'object' ? product.brand?.name : product.brand;
+  const brandName = product.brand?.name || 'N/A';
 
   return (
     <div className="space-y-4">

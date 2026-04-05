@@ -4,12 +4,12 @@ import { useState, useEffect } from "react";
 import { Carousel } from "antd";
 import { Zap, ChevronRight } from "lucide-react";
 import SWTCard from "@/src/@core/component/AntD/SWTCard";
-import { Product } from "@/src/@core/type/Product";
+import { ProductListItemDto } from "@/src/services/models/product/output.dto";
 import ProductCard from "./ProductCard";
 import Link from "next/link";
 
 interface Props {
-  products: Product[];
+  products: ProductListItemDto[];
   endDate: string; // ISO string for sale end time
   loading?: boolean;
 }
@@ -61,7 +61,7 @@ const CountdownTimer = ({ targetDate }: { targetDate: string }) => {
 export default function FlashSaleSection({ products, endDate, loading }: Props) {
   if (!loading && products.length === 0) return null;
   const chunkSize = 4;
-  const grouped: Product[][] = [];
+  const grouped: ProductListItemDto[][] = [];
   for (let i = 0; i < products.length; i += chunkSize) {
     let group = products.slice(i, i + chunkSize);
     grouped.push(group);

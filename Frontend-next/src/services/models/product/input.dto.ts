@@ -11,7 +11,7 @@ export interface CreateVariantInput {
   salePrice?: number;
   costPrice?: number;
   imageUrl?: string | null;
-  statusName?: 'BEST_SELLING' | 'TRENDING' | 'NEW';
+  statusName?: 'BEST_SELLING' | 'TRENDING' | 'NEW' | 'SALE';
 }
 
 export interface UpdateVariantInput {
@@ -24,7 +24,7 @@ export interface UpdateVariantInput {
   costPrice?: number | null;
   imageUrl?: string | null;
   imageId?: string | null;
-  statusName?: 'BEST_SELLING' | 'TRENDING' | 'NEW';
+  statusName?: 'BEST_SELLING' | 'TRENDING' | 'NEW' | 'SALE';
 }
 
 export interface CreateProductInput {

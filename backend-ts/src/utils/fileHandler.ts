@@ -9,7 +9,7 @@ export const uploadFiles = async (files: Express.Multer.File[], folder: string, 
           folder,
           public_id: `${prefix}_${Date.now()}_${index}`,
         },
-        (error, result) => {
+        (error: any, result: any) => {
           if (error) return reject(error);
           resolve({ public_id: result!.public_id, url: result!.secure_url });
         }

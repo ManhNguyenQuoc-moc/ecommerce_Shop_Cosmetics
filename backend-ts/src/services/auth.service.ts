@@ -53,9 +53,14 @@ export class AuthService implements IAuthService {
       throw new Error("Invalid email or password");
     }
 
+    const jwtSecret = process.env.JWT_SECRET;
+    if (!jwtSecret) {
+      console.warn("WARNING: JWT_SECRET is not defined in environment variables. Using default secret is not recommended for production.");
+    }
+
     const token = jwt.sign(
       { id: user.id, role: user.role },
-      process.env.JWT_SECRET || "default_secret",
+      jwtSecret || "default_secret",
       { expiresIn: "1d" }
     );
 

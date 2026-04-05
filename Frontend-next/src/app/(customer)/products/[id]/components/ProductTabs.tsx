@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { ProductDetail } from "@/src/@core/type/Product";
+import { ProductDetailDto } from "@/src/services/models/product/output.dto";
 import SWTCard from "@/src/@core/component/AntD/SWTCard";
 
 type Props = {
-  product: ProductDetail;
+  product: ProductDetailDto;
 };
 
 export default function ProductTabs({ product }: Props) {

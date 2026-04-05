@@ -2,7 +2,7 @@
 
 import { useState, } from "react";
 import { useSearchParams } from "next/navigation";
-import { ProductDetail, ProductVariant } from "@/src/@core/type/Product";
+import { ProductDetailDto, ProductDetailVariantDto } from "@/src/services/models/product/output.dto";
 import { useFetchSWR } from "@/src/@core/hooks/useFetchSWR";
 import ProductGallery from "./components/ProductGallery";
 import ProductVariants from "./components/ProductVariants";
@@ -15,12 +15,12 @@ import { getProductDetail } from "@/src/services/customer/product.service";
 import SWTCard from "@/src/@core/component/AntD/SWTCard";
 
 type Props = {
-  product: ProductDetail;
+  product: ProductDetailDto;
 };
 
 export default function ProductDetailUI({ product }: Props) {
 
-  const { data, isLoading } = useFetchSWR(
+  const { data, isLoading } = useFetchSWR<ProductDetailDto>(
   ["products", product.id],
   () => getProductDetail(product.id),
   {
@@ -39,7 +39,7 @@ export default function ProductDetailUI({ product }: Props) {
   const searchParams = useSearchParams();
   const variantQueryId = searchParams.get("variant");
 
-  const [variant, setVariant] = useState<ProductVariant | null>(
+  const [variant, setVariant] = useState<ProductDetailVariantDto | null>(
     currentProduct.variants?.find(v => v.id === variantQueryId) ?? currentProduct.variants?.[0] ?? null
   );
   
@@ -49,7 +49,7 @@ export default function ProductDetailUI({ product }: Props) {
 
   const [qty, setQty] = useState(1);
 
-  const handleVariantChange = (v: ProductVariant) => {
+  const handleVariantChange = (v: ProductDetailVariantDto) => {
     setVariant(v);
     if (v.image) {
       setActiveImage(v.image);
@@ -98,7 +98,7 @@ export default function ProductDetailUI({ product }: Props) {
           <ProductTabs product={currentProduct} />
         </div>
         <div className="lg:col-span-3">
-          <ProductSidebar brand={currentProduct.brand} />
+          <ProductSidebar brand={currentProduct.brand ?? { id: '', name: 'N/A' }} />
         </div>
       </div>
     </div>

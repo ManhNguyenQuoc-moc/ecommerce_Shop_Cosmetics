@@ -83,6 +83,7 @@ export default function EditProductModal({ isOpen, onClose, productId, onUpdated
       salePrice: product.salePrice || null,
       short_description: product.short_description,
       long_description: product.long_description,
+      status: product.statusRaw,
       specifications: product.specifications || [],
       variants: product.variants?.map((v, index) => ({
         id: v.id,
@@ -473,6 +474,7 @@ export default function EditProductModal({ isOpen, onClose, productId, onUpdated
                               { label: "Mới ra mắt (NEW)", value: "NEW" },
                               { label: "Bán chạy (BEST)", value: "BEST_SELLING" },
                               { label: "Xu hướng (HOTS)", value: "TRENDING" },
+                              { label: "Giảm giá (SALE)", value: "SALE" },
                             ]}
                             className="w-full dark:[&_.ant-select-selector]:!bg-slate-900/50 dark:[&_.ant-select-selector]:!border-slate-700"
                           />

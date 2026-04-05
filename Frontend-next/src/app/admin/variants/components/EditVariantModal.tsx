@@ -22,7 +22,7 @@ interface EditVariantFormValues {
   price: number;
   salePrice?: number;
   costPrice?: number;
-  statusName?: 'BEST_SELLING' | 'TRENDING' | 'NEW';
+  statusName?: 'BEST_SELLING' | 'TRENDING' | 'NEW' | 'SALE';
   imageFile?: any[]; // AntD Upload file list
   
 }
@@ -180,6 +180,7 @@ export default function EditVariantModal({ isOpen, onClose, variant, onUpdate }:
                 { label: "Mới ra mắt (NEW)", value: "NEW" },
                 { label: "Bán chạy (BEST)", value: "BEST_SELLING" },
                 { label: "Xu hướng (HOTS)", value: "TRENDING" },
+                { label: "Giảm giá (SALE)", value: "SALE" },
               ]}
               className="w-full dark:[&_.ant-select-selector]:!bg-slate-800/80 dark:[&_.ant-select-selector]:!border-slate-700 dark:[&_.ant-select-selection-item]:!text-white"
             />

@@ -1,12 +1,12 @@
 "use client";
 import ProductCard from "./ProductCard";
-import type { Product } from "@/src/@core/type/Product";
+import { ProductListItemDto } from "@/src/services/models/product/output.dto";
 import SWTEmpty from "@/src/@core/component/AntD/SWTEmpty";
 import { Sparkles } from "lucide-react";
 
 type Props = {
   title: string;
-  products: Product[];
+  products: ProductListItemDto[];
   loading?: boolean;
 };
 
@@ -16,7 +16,7 @@ export default function ProductSection({
   loading = false,
 }: Props) {
 
-  const skeletonArray: (Product | undefined)[] = Array.from({ length: 12 });
+  const skeletonArray: (ProductListItemDto | undefined)[] = Array.from({ length: 12 });
   const renderList = loading ? skeletonArray : products;
   const isEmpty = !loading && (!products || products.length === 0);
 

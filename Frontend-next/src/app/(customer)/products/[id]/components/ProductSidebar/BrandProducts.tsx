@@ -1,7 +1,7 @@
 import ProductSmallCard from "./ProductSmallCard";
 
 type Props = {
-  brand: { id: string; name: string } | string;
+  brand: { id: string; name: string };
 };
 
 export default function BrandProducts({ brand }: Props) {
