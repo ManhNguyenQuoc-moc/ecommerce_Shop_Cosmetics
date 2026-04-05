@@ -31,7 +31,9 @@ export default function ProductsClient({ initialData }: Props) {
     ["products", page, pageSize],
     () => getProducts({ page, pageSize }),
     {
-      fallbackData: initialData
+      fallbackData: initialData,
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false
     }
   );
 
