@@ -14,17 +14,9 @@ export interface CreateVariantInput {
   statusName?: 'BEST_SELLING' | 'TRENDING' | 'NEW' | 'SALE';
 }
 
-export interface UpdateVariantInput {
+export interface UpdateVariantInput extends CreateVariantInput {
   id?: string;
-  sku?: string;
-  color?: string;
-  size?: string;
-  price: number;
-  salePrice?: number | null;
-  costPrice?: number | null;
-  imageUrl?: string | null;
   imageId?: string | null;
-  statusName?: 'BEST_SELLING' | 'TRENDING' | 'NEW';
 }
 
 export interface CreateProductInput {
