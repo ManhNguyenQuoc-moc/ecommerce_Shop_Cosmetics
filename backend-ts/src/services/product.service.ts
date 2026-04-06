@@ -1,6 +1,6 @@
 import { Product, Prisma } from "@prisma/client";
 import { prisma } from "../config/prisma";
-import { IProductRepository, ProductQueryFilters, VariantQueryFilters, ProductVariantWithRelations } from "../interfaces/IProductRepository";
+import { IProductRepository, ProductQueryFilters, VariantQueryFilters, ProductVariantWithRelations, ProductVariantRawResult } from "../interfaces/IProductRepository";
 import { IProductService } from "../interfaces/IProductService";
 import { InventoryService } from "./inventory.service";
 import { CreateProductDTO, CreateVariantDTO } from "../DTO/product/input/AddProductDTO";
@@ -8,6 +8,7 @@ import { UpdateProductDTO, UpdateVariantDTO } from "../DTO/product/input/UpdateP
 import { ProductMapper } from "../mapper/product.mapper";
 import { ProductListItemDto } from "../DTO/product/output/ProductListItemDto";
 import { VariantDetailDto } from "../DTO/product/output/VariantDetailDto";
+import { VariantListItemDto } from "../DTO/product/output/VariantListItemDto";
 import { PagedResult } from "../common/paged-result";
 
 export class ProductService implements IProductService {
@@ -160,19 +161,46 @@ async getProducts(
 ): Promise<PagedResult<ProductListItemDto>> {
 
   if (flatten) {
-    const allProducts = await this.productRepository.findAllUnpaginated();
+    const variantFilters: VariantQueryFilters = {
+      searchTerm: filters?.searchTerm,
+      categoryId: filters?.categoryId,
+      categorySlug: filters?.categorySlug,
+      brandId: filters?.brandId,
+      sortBy: filters?.sortBy,
+      status: filters?.status === 'active_tab' ? 'ACTIVE' : filters?.status,
+    };
 
-    const filtered = filters?.brandId
-      ? allProducts.filter((p) => p.brandId === filters.brandId)
-      : allProducts;
+    const { variants, total } = await this.productRepository.getVariants(
+      page,
+      pageSize,
+      variantFilters
+    );
 
-    const mapped = filtered.flatMap(ProductMapper.toFlatten);
+    const variantIds = variants.map((v) => v.id);
+    const stockMap = await this.inventoryService.getStockForVariants(variantIds);
 
-    const total = mapped.length;
-    const start = (page - 1) * pageSize;
+    const mapped = variants.map((v: ProductVariantRawResult) => {
+      const p = v.product;
+      const variantName = [p.name, v.color, v.size].filter(Boolean).join(' - ');
+      return {
+        id: p.id,
+        slug: p.slug,
+        variantId: v.id,
+        name: variantName,
+        brand: p.brand ? { id: p.brand.id, name: p.brand.name } : null,
+        category: p.category ? { id: p.category.id, name: p.category.name } : null,
+        price: v.price || p.price,
+        salePrice: v.salePrice || null,
+        sold: v.orderItems?.reduce((sum: number, i: any) => sum + i.quantity, 0) || 0,
+        stock: stockMap[v.id] || 0,
+        image: v.variantImageUrl || v.productImageUrl || null,
+        status: v.statusName || "NEW",
+        createdAt: v.createdAt || p.createdAt
+      };
+    });
 
     return {
-      data: mapped.slice(start, start + pageSize),
+      data: mapped,
       total,
       page,
       pageSize
@@ -195,24 +223,24 @@ async getProducts(
   };
 }
 
-  async getVariants(page: number, pageSize: number, filters?: VariantQueryFilters): Promise<PagedResult<any>> {
+  async getVariants(page: number, pageSize: number, filters?: VariantQueryFilters): Promise<PagedResult<VariantListItemDto>> {
     const { variants, total } = await this.productRepository.getVariants(page, pageSize, filters);
-    const mappedVariants: any[] = [];
+    const mappedVariants: VariantListItemDto[] = [];
     // collect variant ids and fetch stock map
-    const variantIds = variants.map((v: ProductVariantWithRelations) => v.id);
+    const variantIds = variants.map((v: ProductVariantRawResult) => v.id);
     const stockMap = await this.inventoryService.getStockForVariants(variantIds);
 
-    variants.forEach((v: ProductVariantWithRelations) => {
+    variants.forEach((v: ProductVariantRawResult) => {
       const p = v.product;
-      const variantName = [p.name, v.color, v.size].filter(Boolean).join(' - ');
+      const variantName = [p?.name, v.color, v.size].filter(Boolean).join(' - ');
       mappedVariants.push({
         id: v.id,
         slug: p?.slug || "",
         productId: p?.id || "",
         productName: p?.name || "",
         name: variantName,
-        brand: p.brand ? { id: p.brand.id, name: p.brand.name, slug: p.brand.slug } : null,
-        category: p.category ? { id: p.category.id, name: p.category.name, slug: p.category.slug } : null,
+        brand: p?.brand ? { id: p?.brand.id, name: p?.brand.name, slug: p?.brand.slug } : null,
+        category: p?.category ? { id: p?.category.id, name: p?.category.name, slug: p?.category.slug } : null,
         price: v.price,
         salePrice: v.salePrice || null,
         costPrice: v.costPrice || null,
@@ -221,7 +249,7 @@ async getProducts(
         size: v.size || "",
         soldCount: v.orderItems?.reduce((sum: number, item: any) => sum + item.quantity, 0) || 0,
         stock: stockMap[v.id] || 0,
-        image: v.image?.url || p?.productImages?.[0]?.image?.url || null,
+        image: v.variantImageUrl || v.productImageUrl || null,
         status: v.status || "ACTIVE",
         productStatus: p?.status || "ACTIVE",
         statusName: v.statusName || "NEW",
@@ -261,6 +289,7 @@ async getProducts(
       sku: v.sku || `SKU-${v.id.substring(0, 8)}`,
       color: v.color,
       size: v.size,
+      costPrice: v.costPrice || 0,
       price: v.price,
       salePrice: v.salePrice,
       stock: stockMap[v.id] || 0,

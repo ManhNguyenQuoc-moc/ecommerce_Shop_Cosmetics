@@ -10,8 +10,11 @@ import ProductListSection from "../components/ProductListSection";
 
 import { PaginationResponse } from "@/src/services/models/common/PaginationResponse";
 import { ProductListItemDto } from "@/src/services/models/product/output.dto";
-import { customerCategories } from "@/src/@core/http/routes/customer-categories";
+import { customerCategories, getDynamicCategories, Category } from "@/src/@core/http/routes/customer-categories";
 import { getProducts } from "@/src/services/customer/product.service";
+import { useCustomerCategories } from "@/src/services/customer/category.service";
+import { useCustomerBrands } from "@/src/services/customer/brand.service";
+import SWTCheckboxGroup from "@/src/@core/component/AntD/SWTCheckboxGroup";
 
 type Props = {
   initialData: PaginationResponse<ProductListItemDto>;
@@ -23,13 +26,28 @@ export default function ProductsClient({ initialData }: Props) {
   const router = useRouter();
 
   const categorySlug = searchParams.get("category");
+  const brandId = searchParams.get("brandId");
 
   const page = Number(searchParams.get("page") ?? 1);
   const pageSize = Number(searchParams.get("pageSize") ?? 9);
 
+  // Fetch dynamic categories to use in filtering logic
+  const { categories: apiCategories } = useCustomerCategories();
+  const dynamicCategories = apiCategories && apiCategories.length > 0 
+    ? getDynamicCategories(apiCategories) 
+    : customerCategories;
+
+  // Fetch brands for sidebar
+  const { brands: apiBrands } = useCustomerBrands(1, 50);
+
   const { data, isLoading, isValidating } = useFetchSWR<PaginationResponse<ProductListItemDto>>(
-    ["products", page, pageSize],
-    () => getProducts({ page, pageSize }),
+    ["products", page, pageSize, categorySlug, brandId],
+    () => {
+      const params: any = { page, pageSize };
+      if (categorySlug) params.category = categorySlug;
+      if (brandId) params.brandId = brandId;
+      return getProducts(params);
+    },
     {
       fallbackData: initialData,
       revalidateOnFocus: false,
@@ -37,38 +55,42 @@ export default function ProductsClient({ initialData }: Props) {
     }
   );
 
-  const loading = isLoading || isValidating;
+  const loading = isLoading;
+  const isFetching = isValidating;
 
   const productsdata = data?.data ?? [];
   const total = data?.total ?? 0;
 
-  const parentCategory = customerCategories.find(
-    (c) => c.slug === categorySlug
-  );
+  // Resolve breadcrumbs and selected category from dynamic tree
+  const findCategory = (cats: Category[], slug: string | null): { current: Category, parent?: Category } | null => {
+    if (!slug) return null;
+    for (const cat of cats) {
+      if (cat.slug === slug) return { current: cat };
+      if (cat.children) {
+        const child = cat.children.find(c => c.slug === slug);
+        if (child) return { current: child, parent: cat };
+      }
+    }
+    return null;
+  };
 
-  const parentOfChild = customerCategories.find((c) =>
-    c.children?.some((child) => child.slug === categorySlug)
-  );
-
-  const childCategory = parentOfChild?.children?.find(
-    (child) => child.slug === categorySlug
-  );
-
-  const currentCategory = parentCategory || childCategory;
+  const resolved = findCategory(dynamicCategories, categorySlug);
+  const currentCategory = resolved?.current;
+  const parentOfChild = resolved?.parent;
 
   const breadcrumbItems: BreadcrumbProps["items"] = [
     { title: "Trang chủ", href: "/" },
     { title: "Sản phẩm", href: "/products" },
   ];
 
-  if (parentOfChild) {
+  if (parentOfChild && parentOfChild.slug !== 'san-pham') {
     breadcrumbItems.push({
       title: parentOfChild.name,
-      href: `/products?category=${parentOfChild.slug}`,
+      href: parentOfChild.path,
     });
   }
 
-  if (currentCategory) {
+  if (currentCategory && currentCategory.slug !== 'san-pham') {
     breadcrumbItems.push({
       title: currentCategory.name,
     });
@@ -90,24 +112,32 @@ export default function ProductsClient({ initialData }: Props) {
           <div className="mb-6">
             <h3 className="font-semibold mb-3">Danh mục</h3>
 
-            <div className="flex flex-col gap-2">
-              {!categorySlug &&
-                customerCategories
-                  .filter(
-                    (cat) =>
-                      cat.name !== "Trang chủ" && cat.name !== "Sản phẩm"
-                  )
-                  .map((cat) => (
+            <div className="flex flex-col gap-4">
+              {dynamicCategories
+                .filter(cat => cat.slug !== 'home' && cat.slug !== 'thuong-hieu')
+                .map((cat: Category) => (
+                  <div key={cat.slug}>
                     <button
-                      key={cat.slug}
-                      onClick={() =>
-                        router.push(`/products?category=${cat.slug}`)
-                      }
-                      className="text-left hover:text-brand-600"
+                      onClick={() => router.push(cat.path)}
+                      className={`font-semibold mb-2 block hover:text-brand-600 transition-colors ${categorySlug === cat.slug ? 'text-brand-600' : 'text-gray-900'}`}
                     >
                       {cat.name}
                     </button>
-                  ))}
+                    {cat.children && (
+                      <div className="flex flex-col gap-1.5 ml-3">
+                        {cat.children.map((child: Category) => (
+                          <button
+                            key={child.slug}
+                            onClick={() => router.push(child.path)}
+                            className={`text-sm text-left hover:text-brand-500 transition-colors ${categorySlug === child.slug ? 'text-brand-500 font-medium' : 'text-gray-600'}`}
+                          >
+                            • {child.name}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
             </div>
           </div>
           {/* Price filter */}
@@ -120,16 +150,35 @@ export default function ProductsClient({ initialData }: Props) {
               <Radio value="above_2000">Trên 2.000.000đ</Radio>
             </Radio.Group>
           </div>
-            {/* Brand */} <div className="border-t pt-4"> <h3 className="font-semibold mb-3">Thương hiệu</h3> <Checkbox.Group className="flex flex-col gap-2"> <Checkbox value="apple">Apple</Checkbox> <Checkbox value="samsung">Samsung</Checkbox> <Checkbox value="xiaomi">Xiaomi</Checkbox> <Checkbox value="sony">Sony</Checkbox> <Checkbox value="lg">LG</Checkbox> </Checkbox.Group> </div> {/* Rating */} <div className="border-t pt-4"> <h3 className="font-semibold mb-3">Đánh giá</h3> <Checkbox.Group className="flex flex-col gap-2"> <Checkbox value="1">1 sao</Checkbox> <Checkbox value="2">2 sao</Checkbox> <Checkbox value="3">3 sao</Checkbox> <Checkbox value="4">4 sao</Checkbox> <Checkbox value="5">5 sao</Checkbox> </Checkbox.Group> </div>    
+          {/* Brand */}
+          <div className="border-t pt-4">
+            <h3 className="font-semibold mb-3">Thương hiệu</h3>
+            <div className="max-h-[250px] overflow-y-auto pr-2 custom-scrollbar">
+              <SWTCheckboxGroup
+                options={apiBrands.map((b: any) => ({ label: b.name, value: b.id }))}
+                value={brandId ? brandId.split(",") : []}
+                onChange={(values) => {
+                  const params = new URLSearchParams(searchParams.toString());
+                  if (values.length > 0) {
+                    params.set("brandId", values.join(","));
+                  } else {
+                    params.delete("brandId");
+                  }
+                  router.push(`/products?${params.toString()}`);
+                }}
+              />
+            </div>
+          </div>
         </aside>
         {/* Product list */}
         <ProductListSection
           products={productsdata}
           total={total}
           loading={loading}
+          isFetching={isFetching}
         />
       </div>
-      {/* Recommended */} <div className="mt-3.5"> <h3 className="text-lg font-semibold mb-4">Sản phẩm dành cho bạn</h3> <ProductListSection products={productsdata} total={total} loading={loading} /> </div>
+      {/* <div className="mt-3.5"> <h3 className="text-lg font-semibold mb-4">Sản phẩm dành cho bạn</h3> <ProductListSection products={productsdata} total={total} loading={loading} isFetching={isFetching} /> </div> */}
     </div>
   );
 }

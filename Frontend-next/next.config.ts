@@ -26,6 +26,9 @@ const nextConfig = {
       "res.cloudinary.com",
     ],
   },
+  experimental: {
+    turbopackUseSystemTlsCerts: true,
+  },
 };
 
 module.exports = nextConfig;

@@ -232,6 +232,7 @@ export default function AddProductModal({ isOpen, onClose, onAdd }: AddProductMo
             className="md:col-span-1"
           >
             <SWTSelect
+              disabled = {true}
               placeholder="Chọn trạng thái"
               options={[
                 { label: "Đang bán (ACTIVE)", value: "ACTIVE" },

@@ -18,10 +18,11 @@ export class ProductController {
       const filters = {
         searchTerm: (req.query.search || req.query.searchTerm) as string,
         categoryId: req.query.categoryId as string,
+        categorySlug: (req.query.categorySlug || req.query.category) as string,
         status: req.query.status as string,
         soldRange: req.query.soldRange as string,
         sortBy: req.query.sortBy as string,
-        brandId: req.query.brandId as string
+        brandId: req.query.brandId as string | string[]
       };
       const result = await this.productService.getProducts(page, pageSize, flatten, filters);
       res.status(200).json({
@@ -46,7 +47,9 @@ export class ProductController {
         priceRange: req.query.priceRange as string,
         statusName: req.query.statusName as string,
         brandId: req.query.brandId as string,
-        productId: req.query.productId as string
+        productId: req.query.productId as string,
+        categoryId: req.query.categoryId as string,
+        categorySlug: (req.query.categorySlug || req.query.category) as string,
       };
 
       const result = await this.productService.getVariants(page, pageSize, filters);

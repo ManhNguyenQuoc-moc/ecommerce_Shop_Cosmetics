@@ -2,6 +2,23 @@ import { Product, ProductVariant, Prisma } from "@prisma/client";
 import { CreateProductDTO, CreateVariantDTO } from "../DTO/product/input/AddProductDTO";
 import { UpdateProductDTO, UpdateVariantDTO } from "../DTO/product/input/UpdateProductDTO";
 
+export interface ProductVariantRawResult extends ProductVariant {
+  stock: number;
+  variantImageUrl: string | null;
+  productImageUrl: string | null;
+  product: {
+    id: string;
+    name: string;
+    slug: string;
+    status: string;
+    price: number; 
+    createdAt: Date;
+    brand: { id: string; name: string; slug: string } | null;
+    category: { id: string; name: string; slug: string } | null;
+  };
+  orderItems: { quantity: number }[];
+}
+
 export type ProductVariantWithRelations = Prisma.ProductVariantGetPayload<{
   include: {
     product: {
@@ -15,10 +32,11 @@ export type ProductVariantWithRelations = Prisma.ProductVariantGetPayload<{
 export interface ProductQueryFilters {
   searchTerm?: string;
   categoryId?: string;
+  categorySlug?: string;
   status?: string;
   soldRange?: string;
   sortBy?: string;
-  brandId?: string;
+  brandId?: string | string[];
 }
 
 export interface VariantQueryFilters {
@@ -29,12 +47,14 @@ export interface VariantQueryFilters {
   priceRange?: string;
   statusName?: string;
   productId?: string;
-  brandId?: string;
+  brandId?: string | string[];
+  categoryId?: string;
+  categorySlug?: string;
 }
 
 export interface IProductRepository {
   findAll(page: number, pageSize: number, filters?: ProductQueryFilters): Promise<{ products: Product[]; total: number }>;
-  getVariants(page: number, pageSize: number, filters?: VariantQueryFilters): Promise<{ variants: ProductVariantWithRelations[]; total: number }>;
+  getVariants(page: number, pageSize: number, filters?: VariantQueryFilters): Promise<{ variants: ProductVariantRawResult[]; total: number }>;
   findAllUnpaginated(): Promise<Product[]>;
   findById(id: string): Promise<Product | null>;
   create(data: Prisma.ProductCreateInput): Promise<Product>;

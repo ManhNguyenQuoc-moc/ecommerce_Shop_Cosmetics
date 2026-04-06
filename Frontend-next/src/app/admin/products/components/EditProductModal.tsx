@@ -36,6 +36,7 @@ interface EditProductFormValues {
     color?: string;
     size?: string;
     sku?: string;
+    costPrice?: number;
     price: number;
     salePrice?: number;
     statusName?: 'BEST_SELLING' | 'TRENDING' | 'NEW';
@@ -85,11 +86,12 @@ export default function EditProductModal({ isOpen, onClose, productId, onUpdated
       long_description: product.long_description,
       status: product.statusRaw,
       specifications: product.specifications || [],
-      variants: product.variants?.map((v, index) => ({
+      variants: product.variants?.map((v: any) => ({
         id: v.id,
         color: v.color,
         size: v.size,
         sku: v.sku,
+        costPrice: v.costPrice || null,
         price: v.price || 0,
         salePrice: v.salePrice || null,
         statusName: v.statusName || 'NEW',
@@ -159,6 +161,7 @@ export default function EditProductModal({ isOpen, onClose, productId, onUpdated
             color: v.color,
             size: v.size,
             sku: v.sku,
+            costPrice: v.costPrice || null,
             price: v.price,
             salePrice: v.salePrice || null,
             statusName: v.statusName,
@@ -283,6 +286,7 @@ export default function EditProductModal({ isOpen, onClose, productId, onUpdated
             </SWTFormItem>
             <SWTFormItem name="status" label="Trạng thái hiển thị">
               <SWTSelect
+                disabled={true}
                 placeholder="Chọn trạng thái"
                 options={[
                   { label: "Đang bán (ACTIVE)", value: "ACTIVE" },
@@ -461,7 +465,7 @@ export default function EditProductModal({ isOpen, onClose, productId, onUpdated
                       </h5>
 
                       <div className="grid grid-cols-1 sm:grid-cols-4 gap-x-4">
-                        <SWTFormItem {...restField} name={[name, 'color']} label="Màu sắc / Tên" className="!mb-4">
+                        <SWTFormItem {...restField} name={[name, 'color']} label="Màu sắc / Tên" className="sm:col-span-2 !mb-4">
                           <SWTInput placeholder="Vd: Đỏ Ruby..." className="dark:!bg-slate-900/50 dark:!border-slate-700 dark:!text-white" />
                         </SWTFormItem>
                         <SWTFormItem {...restField} name={[name, 'size']} label="Kích cỡ" className="!mb-4">
@@ -481,12 +485,14 @@ export default function EditProductModal({ isOpen, onClose, productId, onUpdated
                         </SWTFormItem>
                       </div>
 
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-x-4">
+                        <SWTFormItem {...restField} name={[name, 'costPrice']} label="Giá nhập (VNĐ)" className="!mb-0" rules={[{ required: true, message: 'Nhập giá' }]}>
+                          <SWTInputNumber min={0} placeholder="0" style={{ width: "100%" }} className="dark:[&_.ant-input-number-input]:!text-white dark:!bg-slate-900/50 dark:!border-slate-700" />
+                        </SWTFormItem>
+
                         <SWTFormItem {...restField} name={[name, 'price']} label="Giá bán (VNĐ)" className="!mb-0" rules={[{ required: true, message: 'Nhập giá' }]}>
                           <SWTInputNumber min={0} placeholder="0" style={{ width: "100%" }} className="dark:[&_.ant-input-number-input]:!text-white dark:!bg-slate-900/50 dark:!border-slate-700" />
                         </SWTFormItem>
-[diff_block_end]
-[diff_block_start]
                         <SWTFormItem
                           {...restField}
                           name={[name, 'salePrice']}

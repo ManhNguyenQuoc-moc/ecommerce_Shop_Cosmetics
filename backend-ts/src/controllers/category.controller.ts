@@ -10,28 +10,16 @@ export class CategoryController {
 
   getCategories = async (req: Request, res: Response): Promise<void> => {
     try {
-      const page = req.query.page ? parseInt(req.query.page as string) : null;
-      const limit = (req.query.limit || req.query.pageSize) ? parseInt((req.query.limit || req.query.pageSize) as string) : null;
+      const page = req.query.page ? parseInt(req.query.page as string) : 1;
+      const limit = (req.query.limit || req.query.pageSize) ? parseInt((req.query.limit || req.query.pageSize) as string) : 1000;
+      const searchTerm = req.query.search ? String(req.query.search) : undefined;
       
-      const categories = await this.categoryService.getCategories();
-      const total = categories.length;
-      
-      let paginatedCategories = categories;
-      if (page !== null || limit !== null) {
-        const pageNumber = page || 1;
-        const limitNumber = limit || 6;
-        paginatedCategories = categories.slice((pageNumber - 1) * limitNumber, pageNumber * limitNumber);
-      }
+      const result = await this.categoryService.getCategories(page, limit, searchTerm);
 
       res.status(200).json({
         success: true,
         message: "Get categories successfully",
-        data: {
-          data: paginatedCategories,
-          total,
-          page: page || 1,
-          pageSize: limit || total
-        },
+        data: result,
       });
     } catch (error: any) {
       res.status(500).json({ success: false, message: error.message || "Internal server error" });

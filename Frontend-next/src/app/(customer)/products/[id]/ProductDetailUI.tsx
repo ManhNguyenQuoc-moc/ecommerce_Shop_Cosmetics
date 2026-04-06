@@ -21,7 +21,7 @@ type Props = {
 export default function ProductDetailUI({ product }: Props) {
 
   const { data, isLoading } = useFetchSWR<ProductDetailDto>(
-  ["products", product.id],
+  ["products", product?.id],
   () => getProductDetail(product.id),
   {
     fallbackData: product,
@@ -32,8 +32,8 @@ export default function ProductDetailUI({ product }: Props) {
 
   const currentProduct = {
   ...product,
-  priceRange: data?.priceRange ?? product.priceRange,
-  variants: data?.variants ?? product.variants
+  priceRange: data?.priceRange ?? product?.priceRange,
+  variants: data?.variants ?? product?.variants
   };
   
   const searchParams = useSearchParams();
@@ -78,16 +78,16 @@ export default function ProductDetailUI({ product }: Props) {
               />
               <div className="lg:col-span-7 space-y-6">
                 <ProductInfo product={currentProduct} />
-                {currentProduct.variants.length > 0 ? (
+                {currentProduct.variants?.length > 0 ? (
                   <ProductVariants
-                    variants={currentProduct.variants}
+                    variants={currentProduct?.variants}
                     variant={variant}
                     setVariant={handleVariantChange}
-                    priceRange={currentProduct.priceRange}
+                    priceRange={currentProduct?.priceRange}
                   />
                 ) : (
                   <div className="text-3xl text-orange-600 font-bold">
-                    {currentProduct.priceRange.min.toLocaleString()}đ
+                    {currentProduct.priceRange?.min?.toLocaleString()}đ
                   </div>
                 )}
                 <ProductQuantity qty={qty} setQty={setQty} />

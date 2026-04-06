@@ -1,5 +1,5 @@
 import { PrismaClient, Product, Prisma, ProductVariant } from "@prisma/client";
-import { IProductRepository, ProductQueryFilters, VariantQueryFilters, ProductVariantWithRelations } from "../interfaces/IProductRepository";
+import { IProductRepository, ProductQueryFilters, VariantQueryFilters, ProductVariantWithRelations, ProductVariantRawResult } from "../interfaces/IProductRepository";
 import { prisma } from "../config/prisma";
 import { CreateProductDTO, CreateVariantDTO } from "../DTO/product/input/AddProductDTO";
 import { UpdateProductDTO, UpdateVariantDTO } from "../DTO/product/input/UpdateProductDTO";
@@ -10,10 +10,20 @@ export class ProductRepository implements IProductRepository {
     const conditions: Prisma.Sql[] = [];
 
     if (filters?.brandId && filters.brandId !== 'all') {
-      conditions.push(Prisma.sql`p."brandId" = ${filters.brandId}`);
+      if (Array.isArray(filters.brandId)) {
+        conditions.push(Prisma.sql`p."brandId" IN (${Prisma.join(filters.brandId)})`);
+      } else if (filters.brandId.includes(',')) {
+        const brandIds = filters.brandId.split(',');
+        conditions.push(Prisma.sql`p."brandId" IN (${Prisma.join(brandIds)})`);
+      } else {
+        conditions.push(Prisma.sql`p."brandId" = ${filters.brandId}`);
+      }
     }
     if (filters?.categoryId && filters.categoryId !== 'all') {
       conditions.push(Prisma.sql`p."categoryId" = ${filters.categoryId}`);
+    }
+    if (filters?.categorySlug && filters.categorySlug !== 'all') {
+      conditions.push(Prisma.sql`p."categoryId" IN (SELECT id FROM "Category" WHERE slug = ${filters.categorySlug})`);
     }
     if (filters?.status && filters.status !== 'all') {
       if (filters.status === 'active_tab') {
@@ -45,16 +55,16 @@ export class ProductRepository implements IProductRepository {
 
     const where = conditions.length > 0 ? Prisma.sql`WHERE ${Prisma.join(conditions, ' AND ')}` : Prisma.empty;
 
-    let orderBy = Prisma.sql`p."createdAt" DESC`;
+    let orderBy = Prisma.sql`p."createdAt" DESC, p."id" DESC`;
     if (filters?.sortBy) {
       switch (filters.sortBy) {
-        case 'oldest': orderBy = Prisma.sql`p."createdAt" ASC`; break;
-        case 'price_asc': orderBy = Prisma.sql`p."price" ASC`; break;
-        case 'price_desc': orderBy = Prisma.sql`p."price" DESC`; break;
-        case 'sold_desc': orderBy = Prisma.sql`p."sold" DESC`; break;
-        case 'sold_asc': orderBy = Prisma.sql`p."sold" ASC`; break;
-        case 'stock_asc': orderBy = Prisma.sql`"totalStock" ASC`; break;
-        case 'stock_desc': orderBy = Prisma.sql`"totalStock" DESC`; break;
+        case 'oldest': orderBy = Prisma.sql`p."createdAt" ASC, p."id" ASC`; break;
+        case 'price_asc': orderBy = Prisma.sql`p."price" ASC, p."id" DESC`; break;
+        case 'price_desc': orderBy = Prisma.sql`p."price" DESC, p."id" DESC`; break;
+        case 'sold_desc': orderBy = Prisma.sql`p."sold" DESC, p."id" DESC`; break;
+        case 'sold_asc': orderBy = Prisma.sql`p."sold" ASC, p."id" DESC`; break;
+        case 'stock_asc': orderBy = Prisma.sql`"totalStock" ASC, p."id" DESC`; break;
+        case 'stock_desc': orderBy = Prisma.sql`"totalStock" DESC, p."id" DESC`; break;
       }
     }
 
@@ -225,7 +235,7 @@ export class ProductRepository implements IProductRepository {
     });
   }
 
-  async getVariants(page: number, pageSize: number, filters?: VariantQueryFilters): Promise<{ variants: ProductVariantWithRelations[]; total: number }> {
+  async getVariants(page: number, pageSize: number, filters?: VariantQueryFilters): Promise<{ variants: ProductVariantRawResult[]; total: number }> {
     const skip = (page - 1) * pageSize;
     const conditions: Prisma.Sql[] = [];
 
@@ -272,7 +282,14 @@ export class ProductRepository implements IProductRepository {
 
     // 6. Brand Filter (filter variants by product's brand)
     if (filters?.brandId && filters.brandId !== 'all') {
-      conditions.push(Prisma.sql`p."brandId" = ${filters.brandId}`);
+      if (Array.isArray(filters.brandId)) {
+        conditions.push(Prisma.sql`p."brandId" IN (${Prisma.join(filters.brandId)})`);
+      } else if (typeof filters.brandId === 'string' && filters.brandId.includes(',')) {
+        const brandIds = filters.brandId.split(',');
+        conditions.push(Prisma.sql`p."brandId" IN (${Prisma.join(brandIds)})`);
+      } else {
+        conditions.push(Prisma.sql`p."brandId" = ${filters.brandId}`);
+      }
     }
 
     // 7. Product ID Filter
@@ -280,16 +297,26 @@ export class ProductRepository implements IProductRepository {
       conditions.push(Prisma.sql`v."productId" = ${filters.productId}`);
     }
 
+    // 8. Category Filter
+    if (filters?.categoryId && filters.categoryId !== 'all') {
+      conditions.push(Prisma.sql`p."categoryId" = ${filters.categoryId}`);
+    }
+    
+    // 9. Category Slug Filter
+    if (filters?.categorySlug && filters.categorySlug !== 'all') {
+      conditions.push(Prisma.sql`p."categoryId" IN (SELECT id FROM "Category" WHERE slug = ${filters.categorySlug})`);
+    }
+
     const where = conditions.length > 0 ? Prisma.sql`WHERE ${Prisma.join(conditions, ' AND ')}` : Prisma.empty;
 
-    let orderBy = Prisma.sql`v."createdAt" DESC`;
+    let orderBy = Prisma.sql`v."createdAt" DESC, v."id" DESC`;
     if (filters?.sortBy) {
       switch (filters.sortBy) {
-        case 'oldest': orderBy = Prisma.sql`v."createdAt" ASC`; break;
-        case 'price_asc': orderBy = Prisma.sql`v."price" ASC`; break;
-        case 'price_desc': orderBy = Prisma.sql`v."price" DESC`; break;
-        case 'stock_asc': orderBy = Prisma.sql`"stock" ASC`; break;
-        case 'stock_desc': orderBy = Prisma.sql`"stock" DESC`; break;
+        case 'oldest': orderBy = Prisma.sql`v."createdAt" ASC, v."id" ASC`; break;
+        case 'price_asc': orderBy = Prisma.sql`v."price" ASC, v."id" DESC`; break;
+        case 'price_desc': orderBy = Prisma.sql`v."price" DESC, v."id" DESC`; break;
+        case 'stock_asc': orderBy = Prisma.sql`"stock" ASC, v."id" DESC`; break;
+        case 'stock_desc': orderBy = Prisma.sql`"stock" DESC, v."id" DESC`; break;
       }
     }
 
@@ -318,6 +345,15 @@ export class ProductRepository implements IProductRepository {
             )
           )
         ) as product,
+        (SELECT i.url FROM "Image" i WHERE i.id = v."imageId") as "variantImageUrl",
+        (
+          SELECT img.url 
+          FROM "ProductImage" pi 
+          JOIN "Image" img ON pi."imageId" = img.id 
+          WHERE pi."productId" = p.id 
+          ORDER BY pi."order" ASC 
+          LIMIT 1
+        ) as "productImageUrl",
         (SELECT json_build_object('id', i.id, 'url', i.url) FROM "Image" i WHERE i.id = v."imageId") as image,
         (SELECT COALESCE(json_agg(oi), '[]'::json) FROM "OrderItem" oi WHERE oi."variantId" = v.id) as "orderItems"
       FROM "ProductVariant" v
@@ -335,7 +371,7 @@ export class ProductRepository implements IProductRepository {
     `;
 
     const [variants, totalResult] = await Promise.all([
-      prisma.$queryRaw<ProductVariantWithRelations[]>(variantsQuery),
+      prisma.$queryRaw<ProductVariantRawResult[]>(variantsQuery),
       prisma.$queryRaw<any[]>(countQuery)
     ]);
 

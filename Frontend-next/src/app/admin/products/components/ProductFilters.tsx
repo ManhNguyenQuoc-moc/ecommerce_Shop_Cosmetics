@@ -50,7 +50,7 @@ export default function ProductFilters({ startTransition }: ProductFiltersProps)
   const soldRangeVal = searchParams.get("soldRange") || "all";
 
   // Category mapping safely
-  const categoryList = categories?.data || categories || [];
+  const categoryList = categories || [];
   const categoryOptions = [
     { label: "Tất cả danh mục", value: "all" },
     ...(Array.isArray(categoryList) ? categoryList.map((c: any) => ({ label: c.name, value: c.id })) : [])

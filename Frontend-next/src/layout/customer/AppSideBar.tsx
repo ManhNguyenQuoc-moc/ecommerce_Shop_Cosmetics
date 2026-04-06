@@ -63,29 +63,45 @@ export default function AppSideBar({ open, onClose, categories }: Props) {
           </div>
           
           {categories.map((category) => {
-            const active = pathname === category.path || pathname.startsWith(category.path + "/");
+            const active = pathname === category.path || (category.children?.some(c => pathname === c.path));
             return (
-              <Link
-                key={category.slug}
-                href={category.path}
-                onClick={onClose}
-                className={`group flex items-center gap-3.5 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300
-                  ${active 
-                    ? "bg-gradient-to-r from-brand-500 to-rose-600 text-white shadow-md shadow-brand-500/30" 
-                    : "text-slate-600 hover:text-brand-600 hover:bg-slate-50"
-                  }
-                `}
-              >
-                <div className={`p-2 rounded-lg transition-all duration-300 flex-shrink-0 
-                  ${active 
-                    ? "bg-white/20 text-white shadow-sm" 
-                    : "bg-transparent text-slate-400 group-hover:text-brand-500"
-                  }
-                `}>
-                  <LayoutGrid size={18} strokeWidth={active ? 2.5 : 2} />
-                </div>
-                <span>{category.name}</span>
-              </Link>
+              <div key={category.slug} className="space-y-1">
+                <Link
+                  href={category.path}
+                  onClick={onClose}
+                  className={`group flex items-center gap-3.5 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300
+                    ${active 
+                      ? "bg-gradient-to-r from-brand-500 to-rose-600 text-white shadow-md shadow-brand-500/30" 
+                      : "text-slate-600 hover:text-brand-600 hover:bg-slate-50"
+                    }
+                  `}
+                >
+                  <div className={`p-2 rounded-lg transition-all duration-300 flex-shrink-0 
+                    ${active 
+                      ? "bg-white/20 text-white shadow-sm" 
+                      : "bg-transparent text-slate-400 group-hover:text-brand-500"
+                    }
+                  `}>
+                    <LayoutGrid size={18} strokeWidth={active ? 2.5 : 2} />
+                  </div>
+                  <span>{category.name}</span>
+                </Link>
+                
+                {category.children && (
+                  <div className="ml-12 flex flex-col gap-1 border-l border-slate-100 pl-4 py-1">
+                    {category.children.map(child => (
+                      <Link 
+                        key={child.slug}
+                        href={child.path}
+                        onClick={onClose}
+                        className={`text-[13px] py-1.5 transition-colors ${pathname === child.path ? 'text-brand-500 font-bold' : 'text-slate-500 hover:text-brand-600'}`}
+                      >
+                        {child.name}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
             )
           })}
         </nav>
