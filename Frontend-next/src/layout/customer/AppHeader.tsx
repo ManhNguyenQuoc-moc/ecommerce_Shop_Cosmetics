@@ -15,11 +15,17 @@ import SWTIconButton from "@/src/@core/component/SWTIconButton";
 
 import MenuCustomer from "../components/header/MenuCustomer"
 import AppSideBar from "./AppSideBar";
-import { customerCategories } from "@/src/@core/http/routes/customer-categories";
+import { customerCategories, getDynamicCategories } from "@/src/@core/http/routes/customer-categories";
+import { useCustomerCategories } from "@/src/services/customer/category.service";
 
 export default function CustomerHeader() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+
+  const { categories: apiCategories } = useCustomerCategories();
+  const dynamicCategories = apiCategories && apiCategories.length > 0 
+    ? getDynamicCategories(apiCategories) 
+    : customerCategories;
 
   useEffect(() => {
     const handleScroll = () => {
@@ -131,7 +137,7 @@ export default function CustomerHeader() {
           <div className="pt-5 border-t border-brand-200/50 mt-2">
             <div className="max-w-7xl mx-auto h-[48px] flex items-center justify-center">
               <Suspense fallback={<div className="h-10 w-full animate-pulse bg-brand-50/50 rounded-lg" />}>
-                <MenuCustomer categories={customerCategories} />
+                <MenuCustomer categories={dynamicCategories} />
               </Suspense>
             </div>
           </div>
@@ -140,7 +146,7 @@ export default function CustomerHeader() {
         <AppSideBar
           open={sidebarOpen}
           onClose={() => setSidebarOpen(false)}
-          categories={customerCategories}
+          categories={dynamicCategories}
         />
       </header>
     </>

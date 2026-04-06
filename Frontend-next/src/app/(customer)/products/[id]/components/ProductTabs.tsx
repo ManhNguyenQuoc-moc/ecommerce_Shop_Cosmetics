@@ -45,7 +45,7 @@ export default function ProductTabs({ product }: Props) {
         <div className="space-y-4 text-sm text-gray-700 leading-relaxed">
           <p>{product.long_description}</p>
           <div className="border rounded-lg overflow-hidden mt-4">
-            {product.specifications.map((spec) => (
+            {product.specifications?.map((spec) => (
               <div
                 key={spec.label}
                 className="flex border-b last:border-none"

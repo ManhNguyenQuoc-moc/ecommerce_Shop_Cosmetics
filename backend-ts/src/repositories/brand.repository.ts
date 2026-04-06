@@ -10,7 +10,7 @@ export class BrandRepository {
         skip,
         take,
         include: { logo: true, banner: true },
-        orderBy: { createdAt: 'desc' }
+        orderBy: [{ createdAt: 'desc' }, { id: 'desc' }]
       }),
       prisma.brand.count({ where })
     ]);

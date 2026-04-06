@@ -1,21 +1,51 @@
-import { get } from "../api";
+import { get, post, put, del } from "../api";
 import { useFetchSWR } from "@/src/@core/hooks/useFetchSWR";
+import useSWRMutation from "swr/mutation";
+import { CreateCategoryDto, UpdateCategoryDto, CategoryQueryFilters } from "../models/category/input.dto";
+import { CategoryResponseDto } from "../models/category/output.dto";
 
 export const CATEGORY_API_ENDPOINT = "/categories";
 
-export const getCategories = () => {
-  return get(CATEGORY_API_ENDPOINT);
-};
-
-export const useCategories = () => {
-  const { data, error, isLoading } = useFetchSWR(CATEGORY_API_ENDPOINT, getCategories);
+export const useCategories = (page: number | null = null, pageSize: number | null = null, filters: CategoryQueryFilters = {}) => {
+  const query = new URLSearchParams();
+  if (page) query.append("page", page.toString());
+  if (pageSize) query.append("pageSize", pageSize.toString());
   
-  // Handle both raw array (old) and paginated object (new)
+  if (filters.search) query.append("search", filters.search);
+
+  const url = `${CATEGORY_API_ENDPOINT}?${query.toString()}`;
+
+  const { data, isLoading, error, mutate } = useFetchSWR(
+    url,
+    () => get(url)
+  );
+
   const categories = Array.isArray(data) ? data : (data as any)?.data || [];
+  const total = Array.isArray(data) ? data.length : (data as any)?.total || 0;
 
   return {
-    categories,
+    categories: categories as CategoryResponseDto[],
+    total,
     isLoading,
     isError: error,
+    mutate
   };
+};
+
+export const useCreateCategory = () => {
+  return useSWRMutation(CATEGORY_API_ENDPOINT, (_, { arg }: { arg: CreateCategoryDto }) => post(CATEGORY_API_ENDPOINT, arg));
+};
+
+export const useUpdateCategory = () => {
+  return useSWRMutation(
+    CATEGORY_API_ENDPOINT,
+    (_, { arg }: { arg: { id: string; data: UpdateCategoryDto } }) => put(`${CATEGORY_API_ENDPOINT}/${arg.id}`, arg.data)
+  );
+};
+
+export const useDeleteCategory = () => {
+  return useSWRMutation(
+    CATEGORY_API_ENDPOINT,
+    (_, { arg }: { arg: string }) => del(`${CATEGORY_API_ENDPOINT}/${arg}`)
+  );
 };

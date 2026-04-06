@@ -18,6 +18,11 @@ export const adminNavItems: NavItem[] = [
     icon: Package,
   },
   {
+    name: "Categories",
+    path: "/admin/categories",
+    icon: Layers,
+  },
+  {
     name: "Variants",
     path: "/admin/variants",
     icon: Layers,
