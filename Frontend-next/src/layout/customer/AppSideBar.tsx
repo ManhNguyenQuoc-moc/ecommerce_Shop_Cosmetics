@@ -5,14 +5,17 @@ import { usePathname } from "next/navigation";
 import { X, LayoutGrid } from "lucide-react";
 import SWTIconButton from "@/src/@core/component/SWTIconButton";
 import { Category } from "@/src/@core/type/category";
+import { BrandResponseDto } from "@/src/services/customer/server-data";
+import { Sparkles } from "lucide-react";
 
 type Props = {
   open: boolean;
   onClose: () => void;
   categories: Category[];
+  brands: BrandResponseDto[];
 };
 
-export default function AppSideBar({ open, onClose, categories }: Props) {
+export default function AppSideBar({ open, onClose, categories, brands }: Props) {
   const pathname = usePathname();
 
   return (
@@ -62,7 +65,7 @@ export default function AppSideBar({ open, onClose, categories }: Props) {
             Danh mục sản phẩm
           </div>
           
-          {categories.map((category) => {
+          {categories.filter(c => c.name.toLowerCase() !== 'thương hiệu').map((category) => {
             const active = pathname === category.path || (category.children?.some(c => pathname === c.path));
             return (
               <div key={category.slug} className="space-y-1">
@@ -102,8 +105,52 @@ export default function AppSideBar({ open, onClose, categories }: Props) {
                   </div>
                 )}
               </div>
-            )
+            );
           })}
+          
+          {/* Brands Section */}
+          <div className="pt-6 mt-6 border-t border-slate-100">
+            <div className="flex items-center justify-between mb-4 px-2">
+              <div className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+                Thương hiệu phổ biến
+              </div>
+              <Link 
+                href="/brands" 
+                onClick={onClose}
+                className="text-[11px] font-bold text-brand-500 hover:text-brand-600 transition-colors bg-brand-50 px-2 py-0.5 rounded-full"
+              >
+                Tất cả
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2 px-2">
+              {Array.isArray(brands) && brands.slice(0, 6).map((brand) => (
+                <Link
+                  key={brand.id}
+                  href={`/products?brand=${brand.slug}`}
+                  onClick={onClose}
+                  className="flex flex-col items-center gap-2 p-3 rounded-xl bg-slate-50 hover:bg-brand-50 border border-slate-100 hover:border-brand-200 transition-all group"
+                >
+                  <div className="w-10 h-10 relative bg-white rounded-lg shadow-sm overflow-hidden p-1 border border-slate-100">
+                    {brand.logo?.url ? (
+                      <img 
+                        src={brand.logo.url} 
+                        alt={brand.name} 
+                        className="w-full h-full object-contain group-hover:scale-110 transition-transform" 
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-slate-300">
+                        <Sparkles size={16} />
+                      </div>
+                    )}
+                  </div>
+                  <span className="text-[11px] font-bold text-slate-600 group-hover:text-brand-600 text-center truncate w-full">
+                    {brand.name}
+                  </span>
+                </Link>
+              ))}
+            </div>
+          </div>
         </nav>
 
         {/* Sidebar Footer Details */}

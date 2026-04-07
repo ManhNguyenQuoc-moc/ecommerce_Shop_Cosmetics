@@ -1,4 +1,5 @@
-import { Category } from "@prisma/client";
+// Workaround for Prisma type export issues
+type Category = any;
 import { ICategoryRepository } from "../interfaces/ICategoryRepository";
 import { ICategoryService } from "../interfaces/ICategoryService";
 import { CreateCategoryDTO } from "../DTO/category/input/CreateCategoryDTO";
@@ -35,14 +36,19 @@ export class CategoryService implements ICategoryService {
     const slug = generateSlug(data.name);
     
     const createData: any = {
-      ...data,
+      name: data.name,
+      description: data.description,
       slug,
     };
     
+    // Handle CategoryGroup relation
+    if (data.categoryGroupId) {
+      createData.categoryGroup = { connect: { id: data.categoryGroupId } };
+    }
+    
+    // Handle Image relation
     if (data.image?.url) {
       createData.image = { create: { url: data.image.url } };
-    } else {
-       delete createData.image;
     }
     
     return this.categoryRepository.create(createData);
@@ -51,11 +57,22 @@ export class CategoryService implements ICategoryService {
   async updateCategory(id: string, data: UpdateCategoryDTO): Promise<Category> {
     const updateData: any = { ...data };
     
+    // Xóa field categoryGroupId trực tiếp để thay bằng relation object
+    delete updateData.categoryGroupId;
+    
     // Nếu có đổi tên mới thì gen lại slug
     if (data.name) {
       updateData.slug = generateSlug(data.name);
     }
     
+    // Handle CategoryGroup relation
+    if (data.categoryGroupId) {
+      updateData.categoryGroup = { connect: { id: data.categoryGroupId } };
+    } else if (data.categoryGroupId === null) {
+      updateData.categoryGroup = { disconnect: true };
+    }
+
+    // Handle Image relation
     if (data.image?.url) {
       updateData.image = { create: { url: data.image.url } };
     } else if (data.image === null) {

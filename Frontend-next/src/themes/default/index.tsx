@@ -1,6 +1,6 @@
 const defaultTheme = {
   token: {
-    fontFamily: "Be Vietnam Pro, sans-serif",
+    fontFamily: "var(--font-be-vietnam-pro), sans-serif",
     colorPrimary: "#7B61FF",
     borderRadius: 12,
   },

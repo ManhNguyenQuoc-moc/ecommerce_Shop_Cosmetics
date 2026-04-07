@@ -9,7 +9,9 @@ import SWTInput, { SWTInputTextArea } from "@/src/@core/component/AntD/SWTInput"
 import SWTUpload from "@/src/@core/component/AntD/SWTUpload";
 import SWTIconButton from "@/src/@core/component/SWTIconButton";
 import { useCreateCategory, useUpdateCategory, CATEGORY_API_ENDPOINT } from "@/src/services/admin/category.service";
+import { useCategoryGroups } from "@/src/services/admin/category-group.service";
 import { uploadFileToCloudinary as uploadImage } from "@/src/services/admin/upload.service";
+import { Select } from "antd";
 import { showNotificationError, showNotificationSuccess } from "@/src/@core/utils/message";
 import { CategoryResponseDto } from "@/src/services/models/category/output.dto";
 import { mutate } from "swr";
@@ -29,12 +31,14 @@ export default function AddCategoryModal({ isOpen, onClose, initialData }: Props
   const [imageUrl, setImageUrl] = useState<string>(""); // Lưu ảnh cũ (nếu có từ initialData)
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const { categoryGroups } = useCategoryGroups(1, 100); // Lấy danh sách nhóm
 
   useEffect(() => {
     if (initialData) {
       form.setFieldsValue({
         name: initialData.name,
         description: initialData.description,
+        categoryGroupId: initialData.categoryGroupId,
       });
       const oldUrl = (initialData as any).image?.url || "";
       setImageUrl(oldUrl);
@@ -87,6 +91,7 @@ export default function AddCategoryModal({ isOpen, onClose, initialData }: Props
       const payload = {
         name: values.name,
         description: values.description,
+        categoryGroupId: values.categoryGroupId,
         image: finalImageUrl && !finalImageUrl.startsWith("blob:") ? { url: finalImageUrl } : null,
       };
 
@@ -151,6 +156,18 @@ export default function AddCategoryModal({ isOpen, onClose, initialData }: Props
             placeholder="Vd: Chăm sóc da, Tẩy trang..."
             prefix={<Info size={16} className="text-slate-400" />}
             className="!h-10 !rounded-xl dark:!bg-slate-800/80 dark:!border-slate-700 dark:!text-white dark:[&_input]:!bg-transparent dark:[&_input]:!text-white"
+          />
+        </SWTFormItem>
+
+        <SWTFormItem
+          name="categoryGroupId"
+          label="Nhóm danh mục"
+        >
+          <Select
+            placeholder="Chọn nhóm danh mục (không bắt buộc)"
+            allowClear
+            className="w-full !h-10 [&_.ant-select-selector]:!rounded-xl dark:[&_.ant-select-selector]:!bg-slate-800/80 dark:[&_.ant-select-selector]:!border-slate-700 dark:[&_.ant-select-selection-item]:!text-white dark:[&_.ant-select-selection-placeholder]:!text-slate-500"
+            options={categoryGroups.map(g => ({ label: g.name, value: g.id }))}
           />
         </SWTFormItem>
 

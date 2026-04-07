@@ -1,36 +1,32 @@
-"use client";
-import { Outfit } from "next/font/google";
-import ThemeProvider from "../@core/provider/theme-provider";
-import { AntdRegistry } from '@ant-design/nextjs-registry';
-import { SidebarProvider } from "../@core/provider/sidebar-provider";
-import viVN from "antd/locale/vi_VN";
-import { ConfigProvider } from "antd";
-import { StyleProvider } from "@ant-design/cssinjs";
-import { AuthProvider } from "@/src/context/AuthContext";
+import { Be_Vietnam_Pro } from "next/font/google";
+import { Metadata } from "next";
+import AppProviders from "../@core/provider/AppProviders";
 import "@/public/css/globals.css";
-import { useMessageInit } from "../@core/utils/message";
-import { Provider } from "react-redux";
-// import { store } from "../stores";
 
-const outfit = Outfit({
-  subsets: ["latin"],
+// Configure Be Vietnam Pro using next/font/google for optimal performance
+const beVietnamPro = Be_Vietnam_Pro({
+  weight: ["300", "400", "500", "700"],
+  subsets: ["latin", "vietnamese"],
+  display: "swap",
+  variable: "--font-be-vietnam-pro",
 });
+
+export const metadata: Metadata = {
+  title: "SHOP COSMETICS",
+  description: "Ecommerce Shop Cosmetics Premium",
+  icons: {
+    icon: "/images/main/logo-app.png",
+  },
+};
 
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const MessageInitializer = ({ children }: { children: React.ReactNode }) => {
-    useMessageInit();
-    return <>{children}</>;
-  };
-
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="vi" suppressHydrationWarning className={`${beVietnamPro.variable}`}>
       <head>
-        <title>SHOP COSMETICS</title>
-        <link rel="icon" type="image/png" href="/images/main/logo-app.png"></link>
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -45,20 +41,10 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className={`${outfit.className}`}>
-        {/* <Provider store={store}> */}
-        <StyleProvider hashPriority="low">
-          <ConfigProvider locale={viVN}>
-            <ThemeProvider>
-              <MessageInitializer>
-                <SidebarProvider>
-                  <AuthProvider><AntdRegistry>{children}</AntdRegistry></AuthProvider>
-                </SidebarProvider>
-              </MessageInitializer>
-            </ThemeProvider>
-          </ConfigProvider>
-        </StyleProvider>
-        {/* </Provider> */}
+      <body className={`${beVietnamPro.className} antialiased`}>
+        <AppProviders>
+          {children}
+        </AppProviders>
       </body>
     </html>
   );

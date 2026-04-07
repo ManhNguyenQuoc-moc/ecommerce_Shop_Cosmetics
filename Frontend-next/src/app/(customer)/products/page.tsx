@@ -1,6 +1,6 @@
-
 import ProductsClient from "./ProductsClient/page";
 import { getProducts } from "@/src/services/customer/product.service";
+import { getServerBrands, getServerCategories } from "@/src/services/customer/server-data";
 
 export const revalidate = 60;
 
@@ -13,6 +13,22 @@ type Props = {
   };
 };
 
+async function ProductsDataWrapper({ params }: { params: any }) {
+  const [initialData, initialCategories, initialBrands] = await Promise.all([
+    getProducts(params),
+    getServerCategories(),
+    getServerBrands(1, 100),
+  ]);
+
+  return (
+    <ProductsClient 
+      initialData={initialData} 
+      initialCategories={initialCategories}
+      initialBrands={initialBrands}
+    />
+  );
+}
+
 export default async function ProductsPage({ searchParams }: Props) {
   const page = Number(searchParams.page ?? 1);
   const pageSize = Number(searchParams.pageSize ?? 9);
@@ -21,7 +37,7 @@ export default async function ProductsPage({ searchParams }: Props) {
   if (searchParams.category) params.category = searchParams.category;
   if (searchParams.brandId) params.brandId = searchParams.brandId;
 
-  const initialData = await getProducts(params);
-
-  return <ProductsClient initialData={initialData} />;
+  return (
+    <ProductsDataWrapper params={params} />
+  );
 }

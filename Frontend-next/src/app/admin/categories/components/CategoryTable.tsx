@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import SWTTable from "@/src/@core/component/AntD/SWTTable";
-import { Edit, Trash2 } from "lucide-react";
+import { Edit, Trash2, Plus, List } from "lucide-react";
 import { Popconfirm } from "antd";
 import SWTTooltip from "@/src/@core/component/AntD/SWTTooltip";
 import { showNotificationError, showNotificationSuccess } from "@/src/@core/utils/message";
@@ -10,6 +10,7 @@ import { useCategories, useDeleteCategory } from "@/src/services/admin/category.
 import SWTAvatar from "@/src/@core/component/AntD/SWTAvatar";
 import AddCategoryModal from "./AddCategoryModal";
 import { CategoryResponseDto } from "@/src/services/models/category/output.dto";
+import SWTIconButton from "@/src/@core/component/SWTIconButton";
 
 export default function CategoryTable() {
   const [page, setPage] = useState(1);
@@ -17,6 +18,7 @@ export default function CategoryTable() {
   const { categories, total, isLoading, mutate } = useCategories(page, pageSize);
   const { trigger: deleteCategory } = useDeleteCategory();
   const [editingCategory, setEditingCategory] = useState<CategoryResponseDto | null>(null);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
   const handleDelete = async (id: string) => {
     try {
@@ -56,6 +58,22 @@ export default function CategoryTable() {
       render: (text: string) => (
         <div className="max-w-[300px] truncate-2-lines text-xs text-slate-600 dark:text-slate-400">
           {text || "Chưa có mô tả"}
+        </div>
+      )
+    },
+    {
+      title: 'Nhóm',
+      dataIndex: 'categoryGroup',
+      key: 'categoryGroup',
+      render: (group: any) => (
+        <div className="flex items-center">
+          {group ? (
+            <span className="px-2.5 py-1 bg-pink-50 text-pink-600 dark:bg-pink-900/30 dark:text-pink-400 rounded-lg text-[11px] font-bold border border-pink-100 dark:border-pink-500/20">
+              {group.name}
+            </span>
+          ) : (
+            <span className="text-[11px] text-slate-400 italic">Chưa phân nhóm</span>
+          )}
         </div>
       )
     },
@@ -106,7 +124,7 @@ export default function CategoryTable() {
 
   return (
     <div className="w-full">
-      <div className="!bg-white/90 dark:!bg-slate-900/80 backdrop-blur-xl !rounded-xl overflow-hidden !border !border-slate-100 dark:!border-emerald-500/20 !shadow-lg mt-4 transition-colors">
+      <div className="!bg-white/90 dark:!bg-slate-900/80 backdrop-blur-xl !rounded-xl overflow-hidden !border !border-slate-100 dark:!border-emerald-500/20 !shadow-lg transition-colors">
         <SWTTable
           columns={columns}
           dataSource={categories}
@@ -124,10 +142,21 @@ export default function CategoryTable() {
         />
       </div>
       
+      <AddCategoryModal 
+        isOpen={isAddModalOpen} 
+        onClose={() => {
+          setIsAddModalOpen(false);
+          mutate();
+        }} 
+      />
+
       {editingCategory && (
         <AddCategoryModal 
           isOpen={!!editingCategory} 
-          onClose={() => setEditingCategory(null)} 
+          onClose={() => {
+            setEditingCategory(null);
+            mutate();
+          }} 
           initialData={editingCategory} 
         />
       )}

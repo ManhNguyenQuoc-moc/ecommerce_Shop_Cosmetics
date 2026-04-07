@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import SWTTabs from "@/src/@core/component/AntD/SWTTabs";
-import AntSpin from "@/src/@core/component/AntD/AntSpin";
+import { ProfileListSkeleton } from "../components/ProfileSkeleton";
 import SWTEmpty from "@/src/@core/component/AntD/SWTEmpty";
 import SWTCard from "@/src/@core/component/AntD/SWTCard";
 import { useFetchSWR } from "@/src/@core/hooks/useFetchSWR";
@@ -50,11 +50,8 @@ export default function OrdersPage() {
           items={tabItems}
         />
       <div className="space-y-4 min-h-[400px]">
-        {isLoading ? (
-          <div className="flex flex-col items-center justify-center py-20 gap-3">
-            <AntSpin size="large" />
-            <p className="text-gray-400 text-sm animate-pulse">Đang tải danh sách đơn hàng...</p>
-          </div>
+        {isLoading && orders.length === 0 ? (
+          <ProfileListSkeleton />
         ) : orders.length > 0 ? (
           orders.map((order) => (
             <OrderCard key={order.id} order={order} />

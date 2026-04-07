@@ -1,20 +1,25 @@
 import { Suspense } from "react";
 import { getProductDetail } from "@/src/services/customer/product.service";
 import ProductDetailUI from "./ProductDetailUI";
+import ProductDetailSkeleton from "./components/ProductDetailSkeleton";
+
 type Props = {
   params: {
     id: string;
   };
 };
 
+async function ProductDataWrapper({ id }: { id: string }) {
+  const product = await getProductDetail(id);
+  return <ProductDetailUI product={product} />;
+}
+
 export default async function ProductPage({ params }: Props) {
   const { id } = await params;
-  const product = await getProductDetail(id);
-  console.log(product);
+  
   return (
-    <Suspense fallback={<div className="animate-pulse flex items-center justify-center p-20 text-brand-500 font-bold text-lg">Đang tải thông tin sản phẩm...</div>}>
-      <ProductDetailUI product={product} />
+    <Suspense fallback={<ProductDetailSkeleton />}>
+      <ProductDataWrapper id={id} />
     </Suspense>
   );
-
 }

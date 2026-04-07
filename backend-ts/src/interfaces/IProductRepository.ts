@@ -2,7 +2,17 @@ import { Product, ProductVariant, Prisma } from "@prisma/client";
 import { CreateProductDTO, CreateVariantDTO } from "../DTO/product/input/AddProductDTO";
 import { UpdateProductDTO, UpdateVariantDTO } from "../DTO/product/input/UpdateProductDTO";
 
-export interface ProductVariantRawResult extends ProductVariant {
+export interface ProductVariantRawResult {
+  id: string;
+  productId: string;
+  sku: string | null;
+  price: number;
+  salePrice: number | null;
+  costPrice: number;
+  color: string | null;
+  size: string | null;
+  status: string;
+  statusName: string;
   stock: number;
   variantImageUrl: string | null;
   productImageUrl: string | null;
@@ -12,11 +22,14 @@ export interface ProductVariantRawResult extends ProductVariant {
     slug: string;
     status: string;
     price: number; 
+    rating?: number;
     createdAt: Date;
     brand: { id: string; name: string; slug: string } | null;
     category: { id: string; name: string; slug: string } | null;
   };
   orderItems: { quantity: number }[];
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export type ProductVariantWithRelations = Prisma.ProductVariantGetPayload<{
@@ -33,10 +46,16 @@ export interface ProductQueryFilters {
   searchTerm?: string;
   categoryId?: string;
   categorySlug?: string;
+  categoryGroupId?: string;
+  categoryGroupSlug?: string;
   status?: string;
   soldRange?: string;
   sortBy?: string;
   brandId?: string | string[];
+  minPrice?: number;
+  maxPrice?: number;
+  isSale?: boolean;
+  rating?: number;
 }
 
 export interface VariantQueryFilters {
@@ -50,6 +69,12 @@ export interface VariantQueryFilters {
   brandId?: string | string[];
   categoryId?: string;
   categorySlug?: string;
+  categoryGroupId?: string;
+  categoryGroupSlug?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  isSale?: boolean;
+  rating?: number;
 }
 
 export interface IProductRepository {

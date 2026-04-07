@@ -13,6 +13,7 @@ type Props = {
   total: number;
   loading: boolean;
   isFetching?: boolean;
+  sortBy?: string;
 };
 
 export default function ProductListSection({
@@ -20,6 +21,7 @@ export default function ProductListSection({
   total,
   loading,
   isFetching = false,
+  sortBy = "newest",
 }: Props) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -31,17 +33,24 @@ export default function ProductListSection({
     <section className="col-span-12 md:col-span-9">
       <div className="flex justify-end items-center mb-4">
         <SWTSelect
-          defaultValue="newest"
+          value={sortBy}
           style={{ width: 200 }}
+          onChange={(value) => {
+            const params = new URLSearchParams(searchParams.toString());
+            params.set("sortBy", value as string);
+            params.set("page", "1");
+            router.push(`${window.location.pathname}?${params.toString()}`);
+          }}
           options={[
             { value: "newest", label: "Mới nhất" },
             { value: "price_asc", label: "Giá tăng dần" },
             { value: "price_desc", label: "Giá giảm dần" },
-            { value: "best_seller", label: "Bán chạy" },
+            { value: "sold_desc", label: "Bán chạy nhất" },
+            { value: "rating", label: "Đánh giá cao" },
           ]}
         />
       </div>
-      {loading && (
+      {loading && products.length === 0 && (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-3">
           {Array.from({ length: pageSize }).map((_, index) => (
             <ProductCard key={index} loading />
@@ -60,10 +69,11 @@ export default function ProductListSection({
               className={`grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-3 transition-opacity duration-300 ${isFetching ? "opacity-60" : ""
                 }`}
             >
-              {products.map((product: ProductListItemDto) => (
+              {products.map((product: ProductListItemDto, index: number) => (
                 <ProductCard
                   key={product.variantId || product.id}
                   product={product}
+                  priority={index < 3}
                 />
               ))}
             </div>

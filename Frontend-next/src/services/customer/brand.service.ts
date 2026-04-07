@@ -1,9 +1,10 @@
+import { SWRConfiguration } from "swr";
 import { get } from "../api";
 import { useFetchSWR } from "@/src/@core/hooks/useFetchSWR";
 
 export const BRAND_API_ENDPOINT = "/brands";
 
-export const useCustomerBrands = (page: number = 1, pageSize: number = 10) => {
+export const useCustomerBrands = (page: number = 1, pageSize: number = 10, options?: SWRConfiguration) => {
   const query = new URLSearchParams();
   query.append("page", page.toString());
   query.append("pageSize", pageSize.toString());
@@ -12,7 +13,8 @@ export const useCustomerBrands = (page: number = 1, pageSize: number = 10) => {
 
   const { data, isLoading, error, mutate } = useFetchSWR(
     url,
-    () => get(url)
+    () => get(url),
+    options
   );
 
   const brands = (data as any)?.data || (Array.isArray(data) ? data : []);

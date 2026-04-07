@@ -11,9 +11,10 @@ import { useWishlistStore } from "@/src/stores/useWishlistStore";
 type Props = {
   product?: ProductListItemDto;
   loading?: boolean;
+  priority?: boolean;
 };
 
-export default function ProductCard({ product, loading }: Props) {
+export default function ProductCard({ product, loading, priority }: Props) {
   const toggleWishlist = useWishlistStore((s) => s.toggleItem);
   const isInWishlist = useWishlistStore((s) =>
     product ? s.isInWishlist(product.id) : false
@@ -46,6 +47,7 @@ export default function ProductCard({ product, loading }: Props) {
                 src={product.image || "https://placehold.co/400x400/png?text=No+Image"}
                 alt={product.name}
                 fill
+                priority={priority}
                 sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                 className="object-cover group-hover/card:scale-110 transition-transform duration-700"
               />

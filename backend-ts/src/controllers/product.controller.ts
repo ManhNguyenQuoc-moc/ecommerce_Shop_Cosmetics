@@ -19,10 +19,16 @@ export class ProductController {
         searchTerm: (req.query.search || req.query.searchTerm) as string,
         categoryId: req.query.categoryId as string,
         categorySlug: (req.query.categorySlug || req.query.category) as string,
+        categoryGroupId: req.query.categoryGroupId as string,
+        categoryGroupSlug: (req.query.categoryGroupSlug || req.query.categoryGroup) as string,
         status: req.query.status as string,
         soldRange: req.query.soldRange as string,
         sortBy: req.query.sortBy as string,
-        brandId: req.query.brandId as string | string[]
+        brandId: req.query.brandId as string | string[],
+        minPrice: req.query.minPrice ? Number(req.query.minPrice) : undefined,
+        maxPrice: req.query.maxPrice ? Number(req.query.maxPrice) : undefined,
+        isSale: req.query.isSale === 'true',
+        rating: req.query.rating ? Number(req.query.rating) : undefined,
       };
       const result = await this.productService.getProducts(page, pageSize, flatten, filters);
       res.status(200).json({
@@ -46,10 +52,12 @@ export class ProductController {
         classification: req.query.classification as string,
         priceRange: req.query.priceRange as string,
         statusName: req.query.statusName as string,
-        brandId: req.query.brandId as string,
         productId: req.query.productId as string,
+        brandId: req.query.brandId as string,
         categoryId: req.query.categoryId as string,
         categorySlug: (req.query.categorySlug || req.query.category) as string,
+        categoryGroupId: req.query.categoryGroupId as string,
+        categoryGroupSlug: (req.query.categoryGroupSlug || req.query.categoryGroup) as string,
       };
 
       const result = await this.productService.getVariants(page, pageSize, filters);

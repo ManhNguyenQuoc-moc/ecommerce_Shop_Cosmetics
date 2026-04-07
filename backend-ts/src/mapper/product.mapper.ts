@@ -15,6 +15,7 @@ export class ProductMapper {
         sold: p.sold || 0,
         stock: 0,
         status: "NEW",
+        rating: p.rating || 0,
         createdAt: p.createdAt
       }];
     }
@@ -32,6 +33,7 @@ export class ProductMapper {
       sold: v.orderItems?.reduce((sum: number, i: any) => sum + i.quantity, 0) || 0,
       stock: 0,
       status: v.statusName || "NEW",
+      rating: p.rating || 0,
       createdAt: v.createdAt || p.createdAt
     }));
   }
@@ -65,6 +67,7 @@ export class ProductMapper {
 
       stock: 0,
       status: p.status,
+      rating: p.rating || 0,
       createdAt: p.createdAt
     };
   }

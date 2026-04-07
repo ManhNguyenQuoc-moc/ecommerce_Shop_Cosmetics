@@ -105,7 +105,7 @@ export default function FlashSaleSection({ products, endDate, loading }: Props) 
   </Link>
 </div>
       <div className="pt-2">
-        {loading ? (
+        {loading && products.length === 0 ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
             {Array(4).fill(0).map((_, i) => (
               <ProductCard key={i} loading={true} />
@@ -118,7 +118,7 @@ export default function FlashSaleSection({ products, endDate, loading }: Props) 
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 pt-4">
                   {group.map((product) => (
                     <div key={product.variantId || product.id} className="group transition-transform hover:-translate-y-1">
-                      <ProductCard product={product} />
+                      <ProductCard product={product} priority={index === 0} />
                     </div>
                   ))}
                 </div>

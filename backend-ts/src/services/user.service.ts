@@ -1,4 +1,5 @@
-import { User } from "@prisma/client";
+// Workaround for Prisma type export issues
+type User = any;
 import { IUserRepository } from "../interfaces/IUserRepository";
 import { IUserService } from "../interfaces/IUserService";
 

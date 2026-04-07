@@ -41,6 +41,8 @@ export class HomeService implements IHomeService {
     const mapVariant = (v: any): ProductListItemDto => {
       const p = v.product;
       const variantName = [p.name, v.color, v.size].filter(Boolean).join(' - ');
+      const price = v.price || p.price;
+      const salePrice = v.salePrice || null;
       return {
         id: p.id,
         slug: p.slug,
@@ -48,12 +50,15 @@ export class HomeService implements IHomeService {
         name: variantName,
         brand: p.brand ? { id: p.brand.id, name: p.brand.name } : null,
         category: p.category ? { id: p.category.id, name: p.category.name } : null,
-        price: v.price || p.price,
-        salePrice: v.salePrice || null,
+        price,
+        salePrice,
+        minPrice: salePrice || price,
+        maxPrice: salePrice || price,
         sold: v.orderItems?.reduce((sum: number, i: any) => sum + i.quantity, 0) || 0,
         stock: 0, // Simplified for Home Page
         image: v.image?.url || p.productImages?.[0]?.image?.url || null,
         status: v.statusName,
+        rating: p.rating || 0,
         createdAt: v.createdAt
       };
     };
