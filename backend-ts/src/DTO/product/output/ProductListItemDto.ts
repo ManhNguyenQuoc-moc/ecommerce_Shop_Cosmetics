@@ -19,4 +19,5 @@ export interface ProductListItemDto {
   status: string;
   createdAt: Date;
   variantId?: string;
+  rating?: number;
 }

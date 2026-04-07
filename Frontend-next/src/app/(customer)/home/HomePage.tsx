@@ -29,7 +29,8 @@ export default function HomePage({ initialData }: Props) {
     }
   );
 
-  const isLoading = !data && isValidating;
+  // Option 1: Only show loading if we have absolutely no data (from SWR or Initial Props)
+  const isActuallyLoading = !data && !initialData && isValidating;
 
   const tomorrowMidnight = new Date();
   tomorrowMidnight.setDate(tomorrowMidnight.getDate() + 1);
@@ -51,7 +52,7 @@ export default function HomePage({ initialData }: Props) {
           <FlashSaleSection 
             products={data?.flashSaleProducts ?? []} 
             endDate={tomorrowMidnight.toISOString()} 
-            loading={isLoading}
+            loading={isActuallyLoading}
           />
         </div>
       </section>
@@ -66,7 +67,7 @@ export default function HomePage({ initialData }: Props) {
         <div className="container mx-auto">
             <CategorySection
               categories={data?.categories ?? []}
-              loading={isLoading}
+              loading={isActuallyLoading}
             />
         </div>
       </section>
@@ -76,7 +77,7 @@ export default function HomePage({ initialData }: Props) {
           <ProductSection
             title="Xu hướng mua sắm"
             products={data?.trendingProducts ?? []}
-            loading={isLoading}
+            loading={isActuallyLoading}
           />
         </div>
       </section>
@@ -86,7 +87,7 @@ export default function HomePage({ initialData }: Props) {
           <ProductSection
             title="Bán chạy nhất"
             products={data?.bestSellingProducts ?? []}
-            loading={isLoading}
+            loading={isActuallyLoading}
           />
         </div>
       </section>
@@ -95,7 +96,7 @@ export default function HomePage({ initialData }: Props) {
         <div className="container mx-auto px-4">
           <BrandSection
             brands={data?.brands ?? []}
-            loading={isLoading}
+            loading={isActuallyLoading}
           />
         </div>
       </section>
@@ -111,7 +112,7 @@ export default function HomePage({ initialData }: Props) {
           <ProductSection
             title="Sản phẩm mới nhất"
             products={data?.newestProducts ?? []}
-            loading={isLoading}
+            loading={isActuallyLoading}
           />
         </div>
       </section>

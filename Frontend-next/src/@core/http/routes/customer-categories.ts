@@ -5,37 +5,8 @@ export type Category = {
   children?: Category[];
 };
 
-// Cấu trúc Shell để định nghĩa các Nhóm lớn (Theme)
-export const CATEGORY_THEMES = [
-  {
-    name: "Chăm sóc da",
-    slug: "cham-soc-da",
-    keywords: ["sữa rửa mặt", "tẩy trang", "mặt nạ", "chống nắng", "toner", "serum", "kem dưỡng", "tẩy tế bào chết"],
-  },
-  {
-    name: "Trang điểm",
-    slug: "trang-diem",
-    keywords: ["trang điểm", "son môi", "kem nền", "phấn phủ", "phấn má", "kẻ mắt", "mascara", "chì kẻ mày"],
-  },
-  {
-    name: "Chăm sóc tóc",
-    slug: "cham-soc-toc",
-    keywords: ["dầu gội", "dầu xả", "ủ tóc", "dưỡng tóc", "xịt dưỡng tóc"],
-  },
-  {
-    name: "Chăm sóc cơ thể",
-    slug: "cham-soc-co-the",
-    keywords: ["sữa tắm", "dưỡng thể", "lăn khử mùi", "răng miệng"],
-  },
-  {
-    name: "Nước hoa",
-    slug: "nuoc-hoa",
-    keywords: ["nước hoa"],
-  },
-];
-
 /**
- * Hàm Helper để map dữ liệu phẳng từ API vào cấu trúc Tree dựa trên Themes
+ * Hàm Helper để map dữ liệu phẳng từ API vào cấu trúc Tree dựa trên CategoryGroup thực tế
  */
 export const getDynamicCategories = (apiCategories: any[]): Category[] => {
   const grouped: Category[] = [
@@ -43,43 +14,59 @@ export const getDynamicCategories = (apiCategories: any[]): Category[] => {
     { name: "Sản phẩm", slug: "san-pham", path: "/products" },
   ];
 
-  // Khởi tạo các Theme cha
-  const themeNodes = CATEGORY_THEMES.map(theme => ({
-    name: theme.name,
-    slug: theme.slug,
-    path: `/products?category=${theme.slug}`,
-    children: [] as Category[],
-    keywords: theme.keywords
-  }));
+  // Map để theo dõi các nhóm đã tạo
+  const groupMap = new Map<string, Category>();
 
-  // Phân loại từng category từ API vào các theme dựa trên keyword trong tên/slug
+  // Duyệt qua tất cả category từ API
   apiCategories.forEach(apiCat => {
-    const parentTheme = themeNodes.find(theme => 
-      theme.keywords.some(k => 
-        apiCat.name.toLowerCase().includes(k) || apiCat.slug.toLowerCase().includes(k)
-      )
-    );
-
+    const group = apiCat.categoryGroup;
+    
     const newNode: Category = {
       name: apiCat.name,
       slug: apiCat.slug,
       path: `/products?category=${apiCat.slug}`
     };
 
-    if (parentTheme) {
-      parentTheme.children.push(newNode);
+    if (group) {
+      if (!groupMap.has(group.id)) {
+        groupMap.set(group.id, {
+          name: group.name,
+          slug: group.slug,
+          path: `/products?category=${group.slug}`, // Truyền slug của Group để backend lọc recursive
+          children: []
+        });
+      }
+      groupMap.get(group.id)?.children?.push(newNode);
     } else {
-      // Nếu không khớp nhóm nào, mặc định cho vào Chăm sóc da hoặc nhóm Khác nếu muốn
-      themeNodes[0].children.push(newNode); 
+      // Nếu không có nhóm, có thể cho vào một nhóm mặc định hoặc để ở cấp ngoài
+      // Ở đây tôi giữ lại logic phân loại vào nhóm đầu tiên hoặc bạn có thể bỏ qua
+      if (!groupMap.has('others')) {
+         groupMap.set('others', {
+           name: "Khác",
+           slug: "khác",
+           path: "/products",
+           children: []
+         });
+      }
+      groupMap.get('others')?.children?.push(newNode);
     }
   });
 
-  // Chỉ lấy những Theme có chứa danh mục con (Tránh hiện folder rỗng)
-  const activeThemes = themeNodes
-    .filter(t => t.children.length > 0)
-    .map(({ keywords, ...rest }) => rest);
+  // Chuyển Map thành mảng và thêm vào grouped
+  const activeGroups = Array.from(groupMap.values()).filter(g => g.children && g.children.length > 0);
+  
+  // Sắp xếp: Ưu tiên hiển thị các nhóm có tên trong CATEGORY_THEMES cũ (để giữ thứ tự quen thuộc)
+  const order = ["Chăm sóc da", "Trang điểm", "Chăm sóc tóc", "Chăm sóc cơ thể", "Nước hoa"];
+  activeGroups.sort((a, b) => {
+    const indexA = order.indexOf(a.name);
+    const indexB = order.indexOf(b.name);
+    if (indexA !== -1 && indexB !== -1) return indexA - indexB;
+    if (indexA !== -1) return -1;
+    if (indexB !== -1) return 1;
+    return a.name.localeCompare(b.name);
+  });
 
-  grouped.push(...activeThemes);
+  grouped.push(...activeGroups);
   grouped.push({ name: "Thương hiệu", slug: "thuong-hieu", path: "/brands" });
 
   return grouped;

@@ -592,6 +592,7 @@ import paymentRoute from "./routes/payment.route";
 import productRoute from "./routes/product.route";
 import userRoute from "./routes/user.route";
 import categoryRoute from "./routes/category.route";
+import categoryGroupRoute from "./routes/category-group.routes";
 import orderRoute from "./routes/order.route";
 import cartRoute from "./routes/cart.route";
 import homeRoute from "./routes/home.route";
@@ -622,6 +623,7 @@ app.get("/ping", (req, res) => {
 app.use("/products", productRoute);
 app.use("/users", userRoute);
 app.use("/categories", categoryRoute);
+app.use("/category-groups", categoryGroupRoute);
 app.use("/orders", orderRoute);
 app.use("/carts", cartRoute);
 app.use("/payment", paymentRoute);

@@ -20,10 +20,26 @@ export class ProductRepository implements IProductRepository {
       }
     }
     if (filters?.categoryId && filters.categoryId !== 'all') {
-      conditions.push(Prisma.sql`p."categoryId" = ${filters.categoryId}`);
+      conditions.push(Prisma.sql`
+        p."categoryId" IN (
+          SELECT id FROM "Category" WHERE id = ${filters.categoryId}
+          UNION
+          SELECT id FROM "Category" WHERE "categoryGroupId" = ${filters.categoryId}
+        )`);
     }
     if (filters?.categorySlug && filters.categorySlug !== 'all') {
-      conditions.push(Prisma.sql`p."categoryId" IN (SELECT id FROM "Category" WHERE slug = ${filters.categorySlug})`);
+      conditions.push(Prisma.sql`
+        p."categoryId" IN (
+          SELECT id FROM "Category" WHERE slug = ${filters.categorySlug}
+          UNION
+          SELECT id FROM "Category" WHERE "categoryGroupId" IN (SELECT id FROM "CategoryGroup" WHERE slug = ${filters.categorySlug})
+        )`);
+    }
+    if (filters?.categoryGroupId && filters.categoryGroupId !== 'all') {
+      conditions.push(Prisma.sql`p."categoryId" IN (SELECT id FROM "Category" WHERE "categoryGroupId" = ${filters.categoryGroupId})`);
+    }
+    if (filters?.categoryGroupSlug && filters.categoryGroupSlug !== 'all') {
+      conditions.push(Prisma.sql`p."categoryId" IN (SELECT id FROM "Category" WHERE "categoryGroupId" IN (SELECT id FROM "CategoryGroup" WHERE slug = ${filters.categoryGroupSlug}))`);
     }
     if (filters?.status && filters.status !== 'all') {
       if (filters.status === 'active_tab') {
@@ -53,18 +69,34 @@ export class ProductRepository implements IProductRepository {
       }
     }
 
+    // New Filters
+    if (filters?.minPrice !== undefined) {
+      conditions.push(Prisma.sql`COALESCE(p."salePrice", p."price") >= ${filters.minPrice}`);
+    }
+    if (filters?.maxPrice !== undefined) {
+      conditions.push(Prisma.sql`COALESCE(p."salePrice", p."price") <= ${filters.maxPrice}`);
+    }
+    if (filters?.isSale) {
+      conditions.push(Prisma.sql`p."salePrice" IS NOT NULL AND p."salePrice" > 0`);
+    }
+    if (filters?.rating) {
+      conditions.push(Prisma.sql`p."rating" >= ${filters.rating}`);
+    }
+
     const where = conditions.length > 0 ? Prisma.sql`WHERE ${Prisma.join(conditions, ' AND ')}` : Prisma.empty;
 
     let orderBy = Prisma.sql`p."createdAt" DESC, p."id" DESC`;
     if (filters?.sortBy) {
       switch (filters.sortBy) {
+        case 'newest': orderBy = Prisma.sql`p."createdAt" DESC, p."id" DESC`; break;
         case 'oldest': orderBy = Prisma.sql`p."createdAt" ASC, p."id" ASC`; break;
-        case 'price_asc': orderBy = Prisma.sql`p."price" ASC, p."id" DESC`; break;
-        case 'price_desc': orderBy = Prisma.sql`p."price" DESC, p."id" DESC`; break;
+        case 'price_asc': orderBy = Prisma.sql`COALESCE(p."salePrice", p."price") ASC, p."id" DESC`; break;
+        case 'price_desc': orderBy = Prisma.sql`COALESCE(p."salePrice", p."price") DESC, p."id" DESC`; break;
         case 'sold_desc': orderBy = Prisma.sql`p."sold" DESC, p."id" DESC`; break;
         case 'sold_asc': orderBy = Prisma.sql`p."sold" ASC, p."id" DESC`; break;
         case 'stock_asc': orderBy = Prisma.sql`"totalStock" ASC, p."id" DESC`; break;
         case 'stock_desc': orderBy = Prisma.sql`"totalStock" DESC, p."id" DESC`; break;
+        case 'rating': orderBy = Prisma.sql`p."rating" DESC, p."id" DESC`; break;
       }
     }
 
@@ -299,12 +331,44 @@ export class ProductRepository implements IProductRepository {
 
     // 8. Category Filter
     if (filters?.categoryId && filters.categoryId !== 'all') {
-      conditions.push(Prisma.sql`p."categoryId" = ${filters.categoryId}`);
+      conditions.push(Prisma.sql`
+        p."categoryId" IN (
+          SELECT id FROM "Category" WHERE id = ${filters.categoryId}
+          UNION
+          SELECT id FROM "Category" WHERE "categoryGroupId" = ${filters.categoryId}
+        )`);
     }
     
     // 9. Category Slug Filter
     if (filters?.categorySlug && filters.categorySlug !== 'all') {
-      conditions.push(Prisma.sql`p."categoryId" IN (SELECT id FROM "Category" WHERE slug = ${filters.categorySlug})`);
+      conditions.push(Prisma.sql`
+        p."categoryId" IN (
+          SELECT id FROM "Category" WHERE slug = ${filters.categorySlug}
+          UNION
+          SELECT id FROM "Category" WHERE "categoryGroupId" IN (SELECT id FROM "CategoryGroup" WHERE slug = ${filters.categorySlug})
+        )`);
+    }
+
+    if (filters?.categoryGroupId && filters.categoryGroupId !== 'all') {
+      conditions.push(Prisma.sql`p."categoryId" IN (SELECT id FROM "Category" WHERE "categoryGroupId" = ${filters.categoryGroupId})`);
+    }
+
+    if (filters?.categoryGroupSlug && filters.categoryGroupSlug !== 'all') {
+      conditions.push(Prisma.sql`p."categoryId" IN (SELECT id FROM "Category" WHERE "categoryGroupId" IN (SELECT id FROM "CategoryGroup" WHERE slug = ${filters.categoryGroupSlug}))`);
+    }
+
+    // New Filters for Variants
+    if (filters?.minPrice !== undefined) {
+      conditions.push(Prisma.sql`COALESCE(v."salePrice", v."price") >= ${filters.minPrice}`);
+    }
+    if (filters?.maxPrice !== undefined) {
+      conditions.push(Prisma.sql`COALESCE(v."salePrice", v."price") <= ${filters.maxPrice}`);
+    }
+    if (filters?.isSale) {
+      conditions.push(Prisma.sql`v."salePrice" IS NOT NULL AND v."salePrice" > 0`);
+    }
+    if (filters?.rating) {
+      conditions.push(Prisma.sql`p."rating" >= ${filters.rating}`);
     }
 
     const where = conditions.length > 0 ? Prisma.sql`WHERE ${Prisma.join(conditions, ' AND ')}` : Prisma.empty;
@@ -312,11 +376,16 @@ export class ProductRepository implements IProductRepository {
     let orderBy = Prisma.sql`v."createdAt" DESC, v."id" DESC`;
     if (filters?.sortBy) {
       switch (filters.sortBy) {
+        case 'newest': orderBy = Prisma.sql`v."createdAt" DESC, v."id" DESC`; break;
         case 'oldest': orderBy = Prisma.sql`v."createdAt" ASC, v."id" ASC`; break;
-        case 'price_asc': orderBy = Prisma.sql`v."price" ASC, v."id" DESC`; break;
-        case 'price_desc': orderBy = Prisma.sql`v."price" DESC, v."id" DESC`; break;
+        case 'price_asc': orderBy = Prisma.sql`COALESCE(v."salePrice", v."price") ASC, v."id" DESC`; break;
+        case 'price_desc': orderBy = Prisma.sql`COALESCE(v."salePrice", v."price") DESC, v."id" DESC`; break;
         case 'stock_asc': orderBy = Prisma.sql`"stock" ASC, v."id" DESC`; break;
         case 'stock_desc': orderBy = Prisma.sql`"stock" DESC, v."id" DESC`; break;
+        case 'sold_desc': orderBy = Prisma.sql`
+          (SELECT COALESCE(SUM(oi.quantity), 0) FROM "OrderItem" oi WHERE oi."variantId" = v.id) DESC, 
+          v."id" DESC`; break;
+        case 'rating': orderBy = Prisma.sql`p."rating" DESC, v."id" DESC`; break;
       }
     }
 

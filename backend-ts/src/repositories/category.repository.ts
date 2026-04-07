@@ -27,6 +27,7 @@ export class CategoryRepository implements ICategoryRepository {
             select: { id: true } // Chỉ lấy id để nhẹ log nếu thật sự cần
           },
           image: true,
+          categoryGroup: true,
         },
         orderBy: [
           { createdAt: 'desc' },
@@ -45,6 +46,7 @@ export class CategoryRepository implements ICategoryRepository {
       include: {
         products: true,
         image: true,
+        categoryGroup: true,
       },
     });
   }

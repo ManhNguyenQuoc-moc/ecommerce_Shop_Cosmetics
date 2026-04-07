@@ -1,6 +1,6 @@
 "use client";
 
-import AntSpin from "@/src/@core/component/AntD/AntSpin";
+import { ProfileSubPageSkeleton } from "../components/ProfileSkeleton";
 import { getPointsSummary, getPointsHistory } from "@/src/services/customer/point.service";
 import PointsSummary from "./components/PointsSummary";
 import PointsHistoryTable from "./components/PointsHistoryTable";
@@ -29,10 +29,7 @@ export default function PointsPage() {
       </div>
 
       {isLoading && !summary ? (
-        <div className="flex flex-col items-center justify-center py-20 gap-3">
-          <AntSpin size="large" />
-          <p className="text-gray-400 text-sm animate-pulse">Đang tải thông tin điểm thưởng...</p>
-        </div>
+        <ProfileSubPageSkeleton />
       ) : (
         <>
           {summary && <PointsSummary summary={summary} />}

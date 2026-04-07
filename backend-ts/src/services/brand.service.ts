@@ -1,5 +1,6 @@
 import { BrandRepository } from "../repositories/brand.repository";
-import { Brand } from "@prisma/client";
+// Workaround for Prisma type export issues
+type Brand = any;
 
 export class BrandService {
   constructor(private readonly brandRepository: BrandRepository = new BrandRepository()) {}

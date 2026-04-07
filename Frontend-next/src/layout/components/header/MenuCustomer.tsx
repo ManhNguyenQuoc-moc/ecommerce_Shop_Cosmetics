@@ -35,14 +35,16 @@ export default function MenuCustomer({ categories }: Props) {
   `;
   return (
     <nav className="flex items-center justify-center gap-6">
-      {categories.map((category) => {
+
+
+      {categories.filter(c => c.name.toLowerCase() !== 'thương hiệu').map((category) => {
         const active = isActive(category);
         const button = (
           <SWTButton
             type="text"
             className={`${buttonBaseClass} ${active
-                ? "!text-brand-500"
-                : "!text-brand-900 hover:!text-brand-600"
+              ? "!text-brand-500"
+              : "!text-brand-900 hover:!text-brand-600"
               }`}
             onClick={() => router.push(category.path)}
           >
@@ -73,6 +75,21 @@ export default function MenuCustomer({ categories }: Props) {
           </div>
         );
       })}
+      <div key="all-brands" className="group relative">
+        <SWTButton
+          type="text"
+          className={`${buttonBaseClass} ${pathname === '/brands'
+            ? "!text-brand-500"
+            : "!text-brand-900 hover:!text-brand-600"
+            }`}
+          onClick={() => router.push('/brands')}
+        >
+          <span className="relative py-1">
+            Thương hiệu
+            <span className={`absolute -bottom-1 left-0 w-full h-0.5 bg-brand-500 rounded-full transition-all duration-300 transform origin-left ${pathname === '/brands' ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100 opacity-50"}`} />
+          </span>
+        </SWTButton>
+      </div>
     </nav>
   );
 }

@@ -17,14 +17,36 @@ import MenuCustomer from "../components/header/MenuCustomer"
 import AppSideBar from "./AppSideBar";
 import { customerCategories, getDynamicCategories } from "@/src/@core/http/routes/customer-categories";
 import { useCustomerCategories } from "@/src/services/customer/category.service";
+import { CategoryResponseDto } from "@/src/services/models/category/output.dto";
+import { BrandResponseDto } from "@/src/services/customer/server-data";
 
-export default function CustomerHeader() {
+interface CustomerHeaderProps {
+  initialCategories?: CategoryResponseDto[];
+  initialBrands?: BrandResponseDto[];
+}
+
+export default function CustomerHeader({ 
+  initialCategories = [], 
+  initialBrands = [] 
+}: CustomerHeaderProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
-  const { categories: apiCategories } = useCustomerCategories();
-  const dynamicCategories = apiCategories && apiCategories.length > 0 
-    ? getDynamicCategories(apiCategories) 
+  // Still use hook as fallback for mutation, but prefer initialCategories from server
+  // Use initialCategories from server and disable revalidation for static-ish ISR data
+  const { categories: apiCategories } = useCustomerCategories({
+    fallbackData: initialCategories,
+    revalidateOnFocus: false,
+    revalidateIfStale: false,
+    revalidateOnMount: false,
+  });
+  
+  const categoriesToUse = apiCategories && apiCategories.length > 0 
+    ? apiCategories 
+    : (initialCategories.length > 0 ? initialCategories : []);
+
+  const dynamicCategories = categoriesToUse.length > 0 
+    ? getDynamicCategories(categoriesToUse) 
     : customerCategories;
 
   useEffect(() => {
@@ -147,6 +169,7 @@ export default function CustomerHeader() {
           open={sidebarOpen}
           onClose={() => setSidebarOpen(false)}
           categories={dynamicCategories}
+          brands={initialBrands}
         />
       </header>
     </>

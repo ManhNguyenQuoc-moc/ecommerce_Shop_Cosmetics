@@ -68,7 +68,7 @@ export default function ProductDetailUI({ product }: Props) {
     <div className="container mx-auto px-4 py-8 space-y-8">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <div className="lg:col-span-9 space-y-8">
-          <SWTCard loading={isLoading} className="min-h-[600px]">
+          <SWTCard loading={!data && !product && isLoading} className="min-h-[600px]">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 p-4">
               <ProductGallery
                 productName={currentProduct.name}
