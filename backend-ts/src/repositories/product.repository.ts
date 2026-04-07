@@ -54,6 +54,8 @@ export class ProductRepository implements IProductRepository {
           conditions.push(Prisma.sql`p."status"::text = ${statusMap[filters.status]}`);
         }
       }
+    } else if (!filters?.status) {
+      conditions.push(Prisma.sql`p."status"::text = 'ACTIVE'`);
     }
     if (filters?.searchTerm && filters.searchTerm.trim() !== '') {
       const formattedTerm = filters.searchTerm.trim().toLowerCase().replace(/\s+/g, '%');
@@ -227,7 +229,7 @@ export class ProductRepository implements IProductRepository {
                 ...(v.salePrice !== undefined && { salePrice: v.salePrice !== null ? Number(v.salePrice) : null }),
                 ...(v.imageId !== undefined && { imageId: v.imageId }),
                 ...(v.statusName && { statusName: v.statusName }),
-                status: 'ACTIVE',
+                status: (data.status as any) || 'ACTIVE',
               },
             });
           } else if (!v.id) {
@@ -243,7 +245,7 @@ export class ProductRepository implements IProductRepository {
                 costPrice: 0,
                 imageId: v.imageId || null,
                 statusName: v.statusName || 'NEW',
-                status: 'ACTIVE',
+                status: (data.status as any) || 'ACTIVE',
               },
             });
           }
@@ -274,6 +276,9 @@ export class ProductRepository implements IProductRepository {
     // 1. Status Filter
     if (filters?.status && filters.status !== 'all') {
       conditions.push(Prisma.sql`v."status"::text = ${filters.status.toUpperCase()}`);
+    } else if (!filters?.status) {
+      conditions.push(Prisma.sql`v."status"::text = 'ACTIVE'`);
+      conditions.push(Prisma.sql`p."status"::text = 'ACTIVE'`);
     }
 
     // 2. Search Filter

@@ -9,7 +9,6 @@ import CategoryTable from "./components/CategoryTable";
 import CategoryFilters from "./components/CategoryFilters";
 import CategoryGroupTable from "./components/CategoryGroupTable";
 import SWTTabs from "@/src/@core/component/AntD/SWTTabs";
-import SWTIconButton from "@/src/@core/component/SWTIconButton";
 import AddCategoryModal from "./components/AddCategoryModal";
 import AddCategoryGroupModal from "./components/AddCategoryGroupModal";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
@@ -19,11 +18,8 @@ export default function CategoriesPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
-  
-  const activeTab = searchParams.get("tab") === "groups" ? "groups" : "categories";
 
-  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
-  const [isGroupModalOpen, setIsGroupModalOpen] = useState(false);
+  const activeTab = searchParams.get("tab") === "groups" ? "groups" : "categories";
 
   const onTabChange = (key: string) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -31,42 +27,14 @@ export default function CategoriesPage() {
     router.replace(`${pathname}?${params.toString()}`);
   };
 
-  const ActionHeader = ({ title, icon: Icon, onAdd, btnText }: { title: string, icon: any, onAdd: () => void, btnText: string }) => (
-    <div className="flex items-center justify-between mb-5">
-      <div className="flex items-center gap-3">
-        <div className="p-2.5 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-2xl border border-emerald-100 dark:border-emerald-500/20 shadow-sm">
-          <Icon size={22} className="stroke-[2.5]" />
-        </div>
-        <h3 className="!mb-0 text-xl font-black text-slate-800 dark:text-admin-accent uppercase tracking-tight">
-          {title}
-        </h3>
-      </div>
-
-      <SWTTooltip title={btnText} placement="top" color="#10b981">
-        <div 
-          className="flex h-11 w-11 items-center justify-center bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-500/30 rounded-xl shadow-sm transition-all cursor-pointer group"
-          onClick={onAdd}
-        >
-          <Plus size={24} className="stroke-[2.5] group-hover:scale-110 group-hover:rotate-90 transition-transform duration-300" />
-        </div>
-      </SWTTooltip>
-    </div>
-  );
-
   const tabItems = [
     {
       key: "categories",
       label: "Danh mục sản phẩm",
       children: (
         <div className="mt-4 p-6 bg-white/80 dark:bg-slate-900/50 backdrop-blur-md rounded-2xl shadow-sm border border-slate-200 dark:border-admin-sidebar-border transition-colors">
-          <ActionHeader 
-            title="Danh sách danh mục" 
-            icon={List} 
-            onAdd={() => setIsCategoryModalOpen(true)} 
-            btnText="Thêm Danh Mục"
-          />
-          <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
-            <CategoryFilters />
+          <div className="pt-4">
+            {/* <CategoryFilters /> */}
             <CategoryTable />
           </div>
         </div>
@@ -77,13 +45,7 @@ export default function CategoriesPage() {
       label: "Nhóm danh mục",
       children: (
         <div className="mt-4 p-6 bg-white/80 dark:bg-slate-900/50 backdrop-blur-md rounded-2xl shadow-sm border border-slate-200 dark:border-admin-sidebar-border transition-colors">
-          <ActionHeader 
-            title="Danh sách nhóm danh mục" 
-            icon={Layers} 
-            onAdd={() => setIsGroupModalOpen(true)} 
-            btnText="Thêm Nhóm Mới"
-          />
-          <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
+          <div className="pt-4">
             <CategoryGroupTable />
           </div>
         </div>
@@ -107,14 +69,14 @@ export default function CategoriesPage() {
             </h2>
           </div>
           <p className="text-slate-500 dark:text-slate-400 text-sm font-semibold uppercase tracking-widest">
-            {activeTab === "categories" 
-              ? "Danh sách các danh mục phân loại sản phẩm." 
+            {activeTab === "categories"
+              ? "Danh sách các danh mục phân loại sản phẩm."
               : "Phân loại danh mục theo nhóm lớn (vd: Trang điểm, Chăm sóc da)."}
           </p>
         </div>
 
         <div className="flex items-center gap-3">
-          <SWTTooltip 
+          <SWTTooltip
             title={<span className="text-sm">Quản lý cơ cấu phân cấp sản phẩm giúp khách hàng dễ dàng tìm kiếm.</span>}
             placement="left"
             color="green"
@@ -136,15 +98,6 @@ export default function CategoriesPage() {
         />
       </div>
 
-      <AddCategoryModal 
-        isOpen={isCategoryModalOpen} 
-        onClose={() => setIsCategoryModalOpen(false)} 
-      />
-
-      <AddCategoryGroupModal 
-        isOpen={isGroupModalOpen} 
-        onClose={() => setIsGroupModalOpen(false)} 
-      />
     </div>
   );
 }

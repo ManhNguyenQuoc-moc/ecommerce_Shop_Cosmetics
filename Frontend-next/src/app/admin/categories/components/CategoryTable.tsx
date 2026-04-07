@@ -124,7 +124,25 @@ export default function CategoryTable() {
 
   return (
     <div className="w-full">
-      <div className="!bg-white/90 dark:!bg-slate-900/80 backdrop-blur-xl !rounded-xl overflow-hidden !border !border-slate-100 dark:!border-emerald-500/20 !shadow-lg transition-colors">
+      <div className="flex items-center justify-between p-5 border-b border-slate-100 dark:border-emerald-500/10">
+        <div className="flex items-center gap-3">
+          <div className="flex flex-col">
+            <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200 mb-0 leading-tight">Danh sách danh mục</h3>
+            <span className="text-xs text-slate-500 font-medium">Tất cả danh mục trong hệ thống</span>
+          </div>
+        </div>
+
+        <SWTTooltip title="Thêm Danh Mục" placement="top" color="#10b981">
+          <div 
+            className="flex h-11 w-11 items-center justify-center bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-500/30 rounded-xl shadow-sm transition-all cursor-pointer group"
+            onClick={() => setIsAddModalOpen(true)}
+          >
+            <Plus size={24} className="stroke-[2.5] group-hover:scale-110 group-hover:rotate-90 transition-transform duration-300" />
+          </div>
+        </SWTTooltip>
+      </div>
+
+      <div className="!bg-white/90 dark:!bg-slate-900/80 backdrop-blur-xl overflow-hidden transition-colors">
         <SWTTable
           columns={columns}
           dataSource={categories}
