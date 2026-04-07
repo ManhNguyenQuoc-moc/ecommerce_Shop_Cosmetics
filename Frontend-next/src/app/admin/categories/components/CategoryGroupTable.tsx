@@ -37,8 +37,8 @@ export default function CategoryGroupTable() {
       key: 'name',
       render: (text: string, record: CategoryGroupResponseDto) => (
         <div className="flex items-center gap-3">
-          <SWTAvatar 
-            size={45} 
+          <SWTAvatar
+            size={45}
             className="rounded-xl border border-slate-200 bg-emerald-50 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 font-bold"
           >
             <Layers size={20} />
@@ -78,7 +78,7 @@ export default function CategoryGroupTable() {
       render: (_: any, record: CategoryGroupResponseDto) => (
         <div className="flex items-center gap-2 justify-center">
           <SWTTooltip title="Chỉnh sửa nhóm" color="#10b981">
-            <button 
+            <button
               onClick={() => setEditingGroup(record)}
               className="text-emerald-600 hover:text-emerald-800 transition-colors p-1.5 rounded-lg hover:bg-emerald-50 dark:hover:bg-emerald-500/10 group relative border border-transparent hover:border-emerald-100 dark:hover:border-emerald-500/20 cursor-pointer"
             >
@@ -86,7 +86,7 @@ export default function CategoryGroupTable() {
             </button>
           </SWTTooltip>
           <SWTTooltip title="Xóa nhóm" color="#f43f5e">
-            <Popconfirm 
+            <Popconfirm
               title="Xóa nhóm danh mục này?"
               description="Bạn chắc chắn muốn xóa nhóm này? Các danh mục bên trong sẽ không còn nhóm (set to null)."
               onConfirm={() => handleDelete(record.id)}
@@ -107,7 +107,28 @@ export default function CategoryGroupTable() {
 
   return (
     <div className="w-full">
-      <div className="!bg-white/90 dark:!bg-slate-900/80 backdrop-blur-xl !rounded-xl overflow-hidden !border !border-slate-100 dark:!border-emerald-500/20 !shadow-lg transition-colors">
+      <div className="flex items-center justify-between p-5 border-b border-slate-100 dark:border-emerald-500/10">
+        <div className="flex items-center gap-3">
+          {/* <div className="p-2.5 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-2xl border border-emerald-100 dark:border-emerald-500/20 shadow-sm">
+            {/* <Layers size={22} className="stroke-[2.5]" /> */}
+          {/* </div> */}
+          <div className="flex flex-col">
+            <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200 mb-0 leading-tight">Danh sách nhóm danh mục</h3>
+            <span className="text-xs text-slate-500 font-medium">Tất cả các nhóm phân loại chính</span>
+          </div>
+        </div>
+
+        <SWTTooltip title="Thêm Nhóm Mới" placement="top" color="#10b981">
+          <div
+            className="flex h-11 w-11 items-center justify-center bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-500/30 rounded-xl shadow-sm transition-all cursor-pointer group"
+            onClick={() => setIsAddModalOpen(true)}
+          >
+            <Plus size={24} className="stroke-[2.5] group-hover:scale-110 group-hover:rotate-90 transition-transform duration-300" />
+          </div>
+        </SWTTooltip>
+      </div>
+
+      <div className="!bg-white/90 dark:!bg-slate-900/80 backdrop-blur-xl overflow-hidden transition-colors">
         <SWTTable
           columns={columns}
           dataSource={categoryGroups}
@@ -118,29 +139,29 @@ export default function CategoryGroupTable() {
             page: page,
             fetch: pageSize,
             onChange: (p: number, f: number) => {
-                setPage(p);
-                setPageSize(f);
+              setPage(p);
+              setPageSize(f);
             }
           }}
         />
       </div>
-      
-      <AddCategoryGroupModal 
-        isOpen={isAddModalOpen} 
+
+      <AddCategoryGroupModal
+        isOpen={isAddModalOpen}
         onClose={() => {
           setIsAddModalOpen(false);
           mutate();
-        }} 
+        }}
       />
 
       {editingGroup && (
-        <AddCategoryGroupModal 
-          isOpen={!!editingGroup} 
+        <AddCategoryGroupModal
+          isOpen={!!editingGroup}
           onClose={() => {
             setEditingGroup(null);
             mutate();
-          }} 
-          initialData={editingGroup} 
+          }}
+          initialData={editingGroup}
         />
       )}
     </div>

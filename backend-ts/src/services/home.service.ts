@@ -19,7 +19,11 @@ export class HomeService implements IHomeService {
 
     const fetchVariants = (status: ProductStatus) => 
       prisma.productVariant.findMany({
-        where: { statusName: status, status: 'ACTIVE' },
+        where: { 
+          statusName: status, 
+          status: 'ACTIVE',
+          product: { status: 'ACTIVE' }
+        },
         take: 12,
         include: variantInclude,
         orderBy: status === 'NEW' ? { createdAt: 'desc' } : undefined
