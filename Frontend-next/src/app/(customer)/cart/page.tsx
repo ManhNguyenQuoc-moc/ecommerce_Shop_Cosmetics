@@ -5,40 +5,24 @@ import CartTable from "./components/CartTable";
 import CartSummary from "./components/CartSummary";
 import { useEffect } from "react";
 import { useCartStore } from "@/src/stores/useCartStore";
+import { useFetchSWR } from "@/src/@core/hooks/useFetchSWR";
+import { cartService } from "@/src/services/customer/cart.service";
+import { authStorage } from "@/src/@core/utils/authStorage";
 
 export default function CartPage() {
-  const items = useCartStore((s) => s.items);
-  const setItems = useCartStore((s) => s.setItems);
+  const user = authStorage.getUser();
+  const { items, setItems } = useCartStore();
+
+  const { data, isLoading } = useFetchSWR(
+    user?.id ? `/carts/${user.id}` : null,
+    () => cartService.getCartAsync(user!.id)
+  );
+
   useEffect(() => {
-    if (items.length === 0) {
-      setItems([
-        {
-          id: "c1",
-          productId: "p1",
-          variantId: "v1",
-          productName: "Kem Dưỡng La Roche-Posay Phục Hồi Da",
-          brand: "LA ROCHE-POSAY",
-          image:
-            "https://images.unsplash.com/photo-1600180758890-6b94519a8ba6",
-          price: 599000,
-          originalPrice: 880000,
-          quantity: 1,
-        },
-        {
-          id: "c2",
-          productId: "p2",
-          variantId: "v3",
-          productName: "Son Dior Rouge 999",
-          brand: "Dior",
-          image:
-            "https://images.unsplash.com/photo-1598440947619-2c35fc9aa908",
-          price: 850000,
-          originalPrice: 980000,
-          quantity: 2,  
-        },
-      ]);
+    if (data?.items) {
+      setItems(data.items);
     }
-  }, []);
+  }, [data, setItems]);
 
   return (
     <div className="w-full max-w-7xl mx-auto">

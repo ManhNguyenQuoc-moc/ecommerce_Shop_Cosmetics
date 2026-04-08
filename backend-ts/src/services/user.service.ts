@@ -19,10 +19,46 @@ export class UserService implements IUserService {
   }
 
   async createUser(data: any): Promise<User> {
+    if (data.birthday) {
+      const birthday = new Date(data.birthday);
+      const today = new Date();
+
+      if (birthday > today) {
+        throw new Error("Ngày sinh không thể ở tương lai.");
+      }
+
+      let age = today.getFullYear() - birthday.getFullYear();
+      const m = today.getMonth() - birthday.getMonth();
+      if (m < 0 || (m === 0 && today.getDate() < birthday.getDate())) {
+        age--;
+      }
+
+      if (age < 16) {
+        throw new Error("Bạn phải đủ 16 tuổi.");
+      }
+    }
     return this.userRepository.create(data);
   }
 
   async updateUser(id: string, data: any): Promise<User> {
+    if (data.birthday) {
+      const birthday = new Date(data.birthday);
+      const today = new Date();
+
+      if (birthday > today) {
+        throw new Error("Ngày sinh không thể ở tương lai.");
+      }
+
+      let age = today.getFullYear() - birthday.getFullYear();
+      const m = today.getMonth() - birthday.getMonth();
+      if (m < 0 || (m === 0 && today.getDate() < birthday.getDate())) {
+        age--;
+      }
+
+      if (age < 16) {
+        throw new Error("Bạn phải đủ 16 tuổi.");
+      }
+    }
     return this.userRepository.update(id, data);
   }
 

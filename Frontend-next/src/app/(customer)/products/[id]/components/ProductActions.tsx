@@ -48,11 +48,17 @@ export default function ProductActions({ qty, product, variant }: Props) {
       productId: product.id,
       variantId: currentVariantId,
       productName: currentProductName,
-      brand: product.brand?.name || "Đang cập nhật",
+      brandName: product.brand?.name || "Đang cập nhật",
       image: currentImage,
       price: currentPrice,
-      originalPrice: currentPriceOrigin,
+      originalPrice: currentPriceOrigin ?? null,
       quantity: qty,
+      color: variant?.color ?? null,
+      size: variant?.size ?? null,
+      sku: variant?.sku ?? null,
+      salePrice: variant?.salePrice ?? null,
+      subTotal: currentPrice * qty,
+      stock: variant?.stock ?? product.totalStock,
     });
   };
 

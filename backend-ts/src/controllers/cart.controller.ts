@@ -27,9 +27,9 @@ export class CartController {
     try {
       const userId = req.params.userId as string;
       const { variantId, quantity } = req.body;
-      const item = await this.cartService.addItemToCart(userId, variantId, quantity);
+      const cart = await this.cartService.addItemToCart(userId, variantId, quantity);
       
-      res.status(201).json({ success: true, data: item });
+      res.status(201).json({ success: true, message: "Item added to cart", data: cart });
     } catch (error: any) {
       res.status(500).json({ success: false, message: error.message });
     }
@@ -37,10 +37,10 @@ export class CartController {
 
   updateQuantity = async (req: Request, res: Response): Promise<void> => {
     try {
-      const { cartItemId } = req.params;
+      const { userId, cartItemId } = req.params;
       const { quantity } = req.body;
-      const item = await this.cartService.updateItemQuantity(cartItemId as string, quantity);
-      res.status(200).json({ success: true, data: item });
+      const cart = await this.cartService.updateItemQuantity(userId as string, cartItemId as string, quantity);
+      res.status(200).json({ success: true, message: "Quantity updated", data: cart });
     } catch (error: any) {
       res.status(500).json({ success: false, message: error.message });
     }
@@ -48,9 +48,9 @@ export class CartController {
 
   removeItem = async (req: Request, res: Response): Promise<void> => {
     try {
-      const { cartItemId } = req.params;
-      await this.cartService.removeItemFromCart(cartItemId as string);
-      res.status(200).json({ success: true, message: "Item removed" });
+      const { userId, cartItemId } = req.params;
+      const cart = await this.cartService.removeItemFromCart(userId as string, cartItemId as string);
+      res.status(200).json({ success: true, message: "Item removed", data: cart });
     } catch (error: any) {
       res.status(500).json({ success: false, message: error.message });
     }
@@ -61,6 +61,17 @@ export class CartController {
       const userId = req.params.userId as string;
       await this.cartService.clearCart(userId);
       res.status(200).json({ success: true, message: "Cart cleared" });
+    } catch (error: any) {
+      res.status(500).json({ success: false, message: error.message });
+    }
+  };
+
+  syncCart = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const userId = req.params.userId as string;
+      const { items } = req.body; // Array of { variantId, quantity }
+      const cart = await this.cartService.syncCart(userId, items);
+      res.status(200).json({ success: true, message: "Cart synced successfully", data: cart });
     } catch (error: any) {
       res.status(500).json({ success: false, message: error.message });
     }

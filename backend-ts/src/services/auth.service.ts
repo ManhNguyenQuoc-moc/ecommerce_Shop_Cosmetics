@@ -35,6 +35,7 @@ export class AuthService implements IAuthService {
       id: user.id,
       email: user.email,
       full_name: user.full_name,
+      avatar: user.avatar,
     };
   }
 
@@ -69,6 +70,7 @@ export class AuthService implements IAuthService {
         id: user.id,
         email: user.email,
         full_name: user.full_name,
+        avatar: user.avatar,
         role: user.role,
       },
       token

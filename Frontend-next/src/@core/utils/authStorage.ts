@@ -6,6 +6,7 @@ const USER_KEY = "user_info";
 export type AuthUser = {
   id: string;
   name: string;
+  full_name?: string;
   username: string;
   email?: string;
   avatar?: string;
@@ -36,5 +37,9 @@ export const authStorage = {
   } catch {
     return null;
   }
-}
+},
+
+  setUser: (user: AuthUser): void => {
+    Cookies.set(USER_KEY, JSON.stringify(user), { expires: 1 });
+  }
 };

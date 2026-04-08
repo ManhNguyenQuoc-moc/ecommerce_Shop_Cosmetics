@@ -59,3 +59,29 @@ BÁO CÁO TỐI ƯU HÓA HIỆU NĂNG & SEO - [07/04/2026]
 
 TỔNG KẾT:
 Hệ thống hiện tại đã đạt chuẩn Core Web Vitals của Google (LCP nhanh, CLS gần như bằng 0). Bên cạnh tốc độ tải trang tức thì, bộ máy tìm kiếm và lọc sản phẩm đã hoạt động cực kỳ chính xác, hỗ trợ tối đa người dùng trong việc khám phá sản phẩm dựa trên nhu cầu thực tế.
+
+--------------------------------------------------
+BÁO CÁO CẬP NHẬT - [08/04/2026]
+--------------------------------------------------
+
+8. TỐI ƯU TRUY VẤN HIỆU SUẤT BÁN HÀNG (SOLD COUNT PERSISTENCE)
+- Giải quyết vấn đề tốc độ khi sắp xếp theo "Bán chạy nhất" (giảm tải API).
+- Bổ sung trường `sold` vào `ProductVariant` và cơ chế Aggregated logic tự động cập nhật khi Order được xác nhận.
+- Loại bỏ các truy vấn `count` phức tạp tại Runtime, giúp trang Danh sách sản phẩm phản hồi tức thì.
+
+9. KIẾN TRÚC GIỎ HÀNG CHUYÊN NGHIỆP & TYPE-SAFE (SHOPPING CART 2.0)
+- Xây dựng hệ thống Cart Backend theo mô hình Repository - Service - Controller chuyên nghiệp.
+- Triển khai hệ thống DTO (input.dto, output.dto) nghiêm ngặt trên cả Backend và Frontend, xóa bỏ hoàn toàn `any`.
+- Tính năng Guest-to-User Sync: Tự động hợp nhất (Merge) giỏ hàng Local Storage vào DB ngay khi Login mà không làm mất dữ liệu.
+
+10. ĐỒNG BỘ DỮ LIỆU REAL-TIME QUA SWR & MUTATE
+- Tích hợp SWR (SWT) kết hợp cơ chế `mutate` toàn cục cho Cart Store.
+- Đảm bảo số lượng trên Header Badge và trang Giỏ hàng luôn đồng nhất 100% mà không cần Reload.
+- Inventory Integration: Tự động kiểm tra tồn kho (real-time stock) và hiển thị cảnh báo ngay trong giỏ hàng.
+
+11. QUẢN LÝ PHIÊN & BẢO MẬT DỮ LIỆU
+- Cơ chế Reset Session: Tự động dọn dẹp (Clear) toàn bộ Store/Cache khi Logout để bảo mật dữ liệu giữa các người dùng.
+- Chuẩn hóa chuẩn RESTful cho toàn bộ Cart API (/api/carts).
+
+TỔNG KẾT NGÀY 08/04:
+Hệ thống đã nâng cấp từ một giải pháp lưu trữ tạm thời sang một nền tảng Thương mại điện tử có tính toàn vẹn dữ liệu cao, tốc độ xử lý bán hàng nhanh và trải nghiệm người dùng mượt mà đạt chuẩn quốc tế.

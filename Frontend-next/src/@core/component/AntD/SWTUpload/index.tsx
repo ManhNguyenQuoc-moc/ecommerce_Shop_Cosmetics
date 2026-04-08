@@ -117,14 +117,46 @@ const SWTUpload = ({
                 </div>
             </SWTRenderIf>
             {crop && uploadType === "avatar" ? (
-                <ImgCrop
-                    rotationSlider
-                    aspect={aspect}
-                    showGrid
-                    modalTitle="Chỉnh sửa ảnh"
-                >
-                    {renderUpload}
-                </ImgCrop>
+                <div className="p-2">
+                    <ImgCrop
+                        rotationSlider
+                        aspect={aspect}
+                        showGrid
+                        modalTitle="Chỉnh sửa ảnh đại diện"
+                        modalOk="Lưu ảnh"
+                        modalCancel="Huỷ"
+                        modalWidth={500}
+                        zoomSlider
+                        showReset
+                        minZoom={1}
+                        maxZoom={3}
+                        quality={1}
+                        modalProps={{
+                            centered: true,
+                            rootClassName: "custom-crop-modal",
+                            style: { borderRadius: "12px" },
+                            styles: {
+                                header: {
+                                    padding: "24px 24px 0",
+                                },
+                                body: {
+                                    padding: "24px",
+                                },
+                                footer: {
+                                    padding: "0 24px 24px",
+                                },
+                            },
+                            okButtonProps: {
+                                className: "!bg-brand-500 hover:!bg-brand-600 !rounded-full",
+                            },
+                            cancelButtonProps: {
+                                className: "!rounded-full",
+                            },
+                        }}
+                    >
+                        {renderUpload}
+                    </ImgCrop>
+                </div>
             ) : (
                 renderUpload
             )}

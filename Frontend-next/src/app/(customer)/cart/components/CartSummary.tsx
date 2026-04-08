@@ -37,7 +37,7 @@ export default function CartSummary() {
       productId: item.productId,
       variantId: item.variantId,
       productName: item.productName,
-      image: item.image,
+      image: item.image ?? "",
       price: item.price,
       quantity: item.quantity,
     }));

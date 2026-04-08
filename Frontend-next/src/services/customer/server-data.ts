@@ -12,10 +12,11 @@ export interface BrandResponseDto {
   updatedAt: string;
 }
 export const getServerCategories = async (): Promise<CategoryResponseDto[]> => {
-  const res = await getServer<CategoryResponseDto[]>("/categories", undefined, {
+  const res = await getServer<CategoryResponseDto[] | { data: CategoryResponseDto[] }>("/categories", undefined, {
     revalidate: 60
   });
-  return res || [];
+
+  return (res as any)?.data || (Array.isArray(res) ? res : []);
 };
 
 export const getServerBrands = async (page: number = 1, pageSize: number = 100): Promise<BrandResponseDto[]> => {

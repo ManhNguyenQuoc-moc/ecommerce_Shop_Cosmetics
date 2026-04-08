@@ -4,9 +4,9 @@ import ProductDetailUI from "./ProductDetailUI";
 import ProductDetailSkeleton from "./components/ProductDetailSkeleton";
 
 type Props = {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 };
 
 async function ProductDataWrapper({ id }: { id: string }) {

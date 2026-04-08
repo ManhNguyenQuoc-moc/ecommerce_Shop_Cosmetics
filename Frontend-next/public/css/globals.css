@@ -285,6 +285,29 @@
     50% { background-position: 100% 50%; }
     100% { background-position: 0% 50%; }
   }
+
+  @keyframes orbit {
+    from { transform: rotate(0deg) translateX(var(--orbit-radius, 100px)) rotate(0deg); }
+    to { transform: rotate(360deg) translateX(var(--orbit-radius, 100px)) rotate(-360deg); }
+  }
+
+  @keyframes fish-swim {
+    0%, 100% { transform: scaleX(1) translateY(0); }
+    50% { transform: scaleX(0.9) translateY(-2px); }
+  }
+
+  --animate-orbit: orbit 10s linear infinite;
+  --animate-fish: fish-swim 2s ease-in-out infinite;
+
+  @keyframes lightning-zap {
+    0% { transform: translateX(-100%) skewX(-15deg); opacity: 0; }
+    20% { opacity: 0.8; }
+    21% { opacity: 0.2; }
+    22% { opacity: 1; }
+    25% { transform: translateX(100%) skewX(-15deg); opacity: 1; }
+    100% { transform: translateX(100%) skewX(-15deg); opacity: 0; }
+  }
+  --animate-lightning: lightning-zap 1.5s ease-in-out infinite;
 }
 
 .admin-layout-bg {
@@ -340,4 +363,12 @@ body {
 
 .ant-input {
   background: transparent !important;
+}
+.custom-crop-modal .ant-modal-content {
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+}
+
+.custom-crop-modal .ant-modal-header {
+  background: transparent;
 }

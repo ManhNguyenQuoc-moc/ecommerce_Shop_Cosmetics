@@ -11,8 +11,9 @@ const cartController = new CartController(cartService);
 
 router.get("/:userId", cartController.getCart);
 router.post("/:userId/items", cartController.addItem);
-router.put("/items/:cartItemId", cartController.updateQuantity);
-router.delete("/items/:cartItemId", cartController.removeItem);
+router.put("/:userId/items/:cartItemId", cartController.updateQuantity);
+router.delete("/:userId/items/:cartItemId", cartController.removeItem);
 router.delete("/:userId", cartController.clearCart);
+router.post("/:userId/sync", cartController.syncCart);
 
 export default router;

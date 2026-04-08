@@ -14,6 +14,7 @@ import { Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/src/context/AuthContext";
 import { authService } from "@/src/services/customer/auth.service";
+import { useCartStore } from "@/src/stores/useCartStore";
 
 type LoginFormValues = {
   email: string;
@@ -34,6 +35,7 @@ export default function SignInForm() {
         password: values.password,
       });
       login(result.token, result.user);
+      await useCartStore.getState().syncCart();
       showNotificationSuccess("Đăng nhập thành công");
       router.push("/");
     } catch (err: any) {

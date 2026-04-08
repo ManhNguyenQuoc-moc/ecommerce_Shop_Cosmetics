@@ -1,5 +1,5 @@
 "use client";
-
+import Image from "next/image";
 import HeroBanner from "./components/HeroBanner";
 import CategorySection from "./components/CategorySection";
 import ProductSection from "./components/ProductSection";
@@ -46,29 +46,25 @@ export default function HomePage({ initialData }: Props) {
           })) ?? []}
         />
       </section>
-      
+
       <section className="w-full bg-blue-light my-3">
         <div className="container mx-auto">
-          <FlashSaleSection 
-            products={data?.flashSaleProducts ?? []} 
-            endDate={tomorrowMidnight.toISOString()} 
+          <FlashSaleSection
+            products={data?.flashSaleProducts ?? []}
+            endDate={tomorrowMidnight.toISOString()}
             loading={isActuallyLoading}
           />
         </div>
       </section>
 
-      <section className="w-full relative my-3">
-        <div className="container mx-auto">
-          <TrustSection />
-        </div>
-      </section>
+
 
       <section className="w-full my-3">
         <div className="container mx-auto">
-            <CategorySection
-              categories={data?.categories ?? []}
-              loading={isActuallyLoading}
-            />
+          <CategorySection
+            categories={data?.categories ?? []}
+            loading={isActuallyLoading}
+          />
         </div>
       </section>
 
@@ -92,7 +88,7 @@ export default function HomePage({ initialData }: Props) {
         </div>
       </section>
 
-      <section className="w-full bg-slate-50 my-3 py-3 border-y border-gray-100">
+      <section className="w-full my-8">
         <div className="container mx-auto px-4">
           <BrandSection
             brands={data?.brands ?? []}
@@ -101,19 +97,38 @@ export default function HomePage({ initialData }: Props) {
         </div>
       </section>
 
-      <section className="w-full bg-white py-3">
+      <section className="w-full py-6">
         <div className="container mx-auto">
           <PromoBanner />
         </div>
       </section>
 
-      <section className="w-full bg-white pb-16">
+      <section className="w-full">
         <div className="container mx-auto px-4">
           <ProductSection
             title="Sản phẩm mới nhất"
             products={data?.newestProducts ?? []}
             loading={isActuallyLoading}
           />
+        </div>
+      </section>
+      <section className="w-full relative px-4">
+        <div className="container mx-auto">
+          <TrustSection />
+        </div>
+      </section>
+          
+      <section className="w-full relative px-4 mt-4">
+        <div className="container mx-auto">
+          <div className="relative w-full aspect-[21/9] md:aspect-[3/1] rounded-[2.5rem] overflow-hidden shadow-2xl shadow-brand-500/10 border-4 border-white">
+            <Image
+              src="/images/main/background.jpg"
+              alt="Cosmetics banner"
+              fill
+              priority
+              className="object-cover transition-transform duration-1000 hover:scale-105"
+            />
+          </div>
         </div>
       </section>
     </div>

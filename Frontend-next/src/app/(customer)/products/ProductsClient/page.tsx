@@ -35,7 +35,7 @@ export default function ProductsClient({ initialData, initialCategories, initial
 
   const page = Number(searchParams.get("page") ?? 1);
   const pageSize = Number(searchParams.get("pageSize") ?? 9);
-  
+
   const minPrice = searchParams.get("minPrice") ? Number(searchParams.get("minPrice")) : undefined;
   const maxPrice = searchParams.get("maxPrice") ? Number(searchParams.get("maxPrice")) : undefined;
   const sortBy = searchParams.get("sortBy") ?? "newest";
@@ -52,13 +52,12 @@ export default function ProductsClient({ initialData, initialCategories, initial
 
   // Use categories for rendering dynamic tree - Memoized to prevent recalculation
   const dynamicCategories = React.useMemo(() => {
-    return apiCategories && apiCategories.length > 0 
-      ? getDynamicCategories(apiCategories) 
+    return apiCategories && apiCategories.length > 0
+      ? getDynamicCategories(apiCategories)
       : customerCategories;
   }, [apiCategories]);
 
-  // Fetch brands with server-side fallback - Optimized for ISR
-  const { brands: apiBrands } = useCustomerBrands(1, 100, {
+  const { brands: apiBrands } = useCustomerBrands(1, 100, undefined, {
     fallbackData: initialBrands,
     revalidateIfStale: false,
     revalidateOnFocus: false,
@@ -75,7 +74,7 @@ export default function ProductsClient({ initialData, initialCategories, initial
       if (maxPrice !== undefined) params.maxPrice = maxPrice;
       if (isSale) params.isSale = true;
       if (rating !== undefined) params.rating = rating;
-      
+
       return getProducts(params);
     },
     {
@@ -133,16 +132,12 @@ export default function ProductsClient({ initialData, initialCategories, initial
     return items;
   }, [parentOfChild, currentCategory]);
   return (
-    <div className="max-w-7xl mx-auto px-4 py-6 space-y-6">
-
+    <div className="max-w-7xl mx-auto py-6 space-y-6">
       <SWTBreadcrumb items={breadcrumbItems} />
-
       <h1 className="text-2xl font-bold">
         {currentCategory ? currentCategory.name : "Danh sách sản phẩm"}
       </h1>
-
       <div className="grid grid-cols-12 gap-6">
-
         {/* Sidebar */}
         <aside className="col-span-12 md:col-span-3 border rounded-xl p-4 bg-white h-fit">
 
@@ -188,10 +183,10 @@ export default function ProductsClient({ initialData, initialCategories, initial
                 { label: "1.000.000đ - 2.000.000đ", min: 1000000, max: 2000000, value: "1000_2000" },
                 { label: "Trên 2.000.000đ", min: 2000000, max: undefined, value: "2000_plus" },
               ].map((range) => {
-                const isActive = range.value === "all" 
+                const isActive = range.value === "all"
                   ? (minPrice === undefined && maxPrice === undefined)
                   : (minPrice === range.min && maxPrice === range.max);
-                
+
                 return (
                   <button
                     key={range.value}
@@ -204,9 +199,8 @@ export default function ProductsClient({ initialData, initialCategories, initial
                       params.set("page", "1");
                       router.push(`${window.location.pathname}?${params.toString()}`);
                     }}
-                    className={`text-left text-sm py-1.5 px-3 rounded-lg transition-colors ${
-                      isActive ? "bg-brand-50 text-brand-600 font-medium" : "text-gray-600 hover:bg-gray-50"
-                    }`}
+                    className={`text-left text-sm py-1.5 px-3 rounded-lg transition-colors ${isActive ? "bg-brand-50 text-brand-600 font-medium" : "text-gray-600 hover:bg-gray-50"
+                      }`}
                   >
                     {range.label}
                   </button>
@@ -216,47 +210,46 @@ export default function ProductsClient({ initialData, initialCategories, initial
           </div>
           {/* Sale Filter */}
           <div className="mb-6 border-t pt-4">
-             <div className="flex items-center justify-between">
-                <h3 className="font-semibold">Đang giảm giá</h3>
-                <Checkbox 
-                  checked={isSale}
-                  onChange={(e) => {
-                    const params = new URLSearchParams(searchParams.toString());
-                    if (e.target.checked) params.set("isSale", "true");
-                    else params.delete("isSale");
-                    params.set("page", "1");
-                    router.push(`${window.location.pathname}?${params.toString()}`);
-                  }}
-                />
-             </div>
+            <div className="flex items-center justify-between">
+              <h3 className="font-semibold">Đang giảm giá</h3>
+              <Checkbox
+                checked={isSale}
+                onChange={(e) => {
+                  const params = new URLSearchParams(searchParams.toString());
+                  if (e.target.checked) params.set("isSale", "true");
+                  else params.delete("isSale");
+                  params.set("page", "1");
+                  router.push(`${window.location.pathname}?${params.toString()}`);
+                }}
+              />
+            </div>
           </div>
           {/* Rating Filter */}
           <div className="mb-6 border-t pt-4">
-             <h3 className="font-semibold mb-3">Đánh giá</h3>
-             <div className="flex flex-col gap-1">
-                {[5, 4, 3].map((star) => (
-                   <button
-                    key={star}
-                    onClick={() => {
-                      const params = new URLSearchParams(searchParams.toString());
-                      if (rating === star) params.delete("rating");
-                      else params.set("rating", star.toString());
-                      params.set("page", "1");
-                      router.push(`${window.location.pathname}?${params.toString()}`);
-                    }}
-                    className={`flex items-center gap-2 p-2 rounded-lg transition-colors ${
-                      rating === star ? "bg-brand-50 text-brand-600" : "text-gray-600 hover:bg-gray-50"
+            <h3 className="font-semibold mb-3">Đánh giá</h3>
+            <div className="flex flex-col gap-1">
+              {[5, 4, 3].map((star) => (
+                <button
+                  key={star}
+                  onClick={() => {
+                    const params = new URLSearchParams(searchParams.toString());
+                    if (rating === star) params.delete("rating");
+                    else params.set("rating", star.toString());
+                    params.set("page", "1");
+                    router.push(`${window.location.pathname}?${params.toString()}`);
+                  }}
+                  className={`flex items-center gap-2 p-2 rounded-lg transition-colors ${rating === star ? "bg-brand-50 text-brand-600" : "text-gray-600 hover:bg-gray-50"
                     }`}
-                   >
-                     <div className="flex text-yellow-400 text-xs">
-                        {Array.from({ length: 5 }).map((_, i) => (
-                          <span key={i}>{i < star ? "★" : "☆"}</span>
-                        ))}
-                     </div>
-                     <span className="text-xs">{star === 5 ? "" : "trở lên"}</span>
-                   </button>
-                ))}
-             </div>
+                >
+                  <div className="flex text-yellow-400 text-xs">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <span key={i}>{i < star ? "★" : "☆"}</span>
+                    ))}
+                  </div>
+                  <span className="text-xs">{star === 5 ? "" : "trở lên"}</span>
+                </button>
+              ))}
+            </div>
           </div>
           {/* Brand */}
           <div className="border-t pt-4">
