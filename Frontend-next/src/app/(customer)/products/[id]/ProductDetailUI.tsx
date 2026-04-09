@@ -39,9 +39,15 @@ export default function ProductDetailUI({ product }: Props) {
   const searchParams = useSearchParams();
   const variantQueryId = searchParams.get("variant");
 
-  const [variant, setVariant] = useState<ProductDetailVariantDto | null>(
-    currentProduct.variants?.find(v => v.id === variantQueryId) ?? currentProduct.variants?.[0] ?? null
-  );
+  const [variant, setVariant] = useState<ProductDetailVariantDto | null>(() => {
+    const variants = currentProduct.variants || [];
+    if (variantQueryId) {
+      const found = variants.find(v => v.id === variantQueryId);
+      if (found) return found;
+    }
+    // Auto-select first variant that is in stock (expiry > 3 months)
+    return variants.find(v => (v.availableStock ?? 0) > 0) ?? variants[0] ?? null;
+  });
   
   const [activeImage, setActiveImage] = useState(
     variant?.image ?? currentProduct.images?.[0] ?? ""
@@ -49,10 +55,19 @@ export default function ProductDetailUI({ product }: Props) {
 
   const [qty, setQty] = useState(1);
 
+  const maxAvailable = variant 
+    ? Math.min(5, variant.availableStock) 
+    : Math.min(5, currentProduct.availableStock || 0);
+
   const handleVariantChange = (v: ProductDetailVariantDto) => {
     setVariant(v);
     if (v.image) {
       setActiveImage(v.image);
+    }
+    // Adjust qty if it exceeds new max
+    const newMax = Math.min(5, v.availableStock);
+    if (qty > newMax) {
+      setQty(newMax || 1);
     }
   };
 
@@ -90,13 +105,14 @@ export default function ProductDetailUI({ product }: Props) {
                     {currentProduct.priceRange?.min?.toLocaleString()}đ
                   </div>
                 )}
-                <ProductQuantity qty={qty} setQty={setQty} />
+                <ProductQuantity qty={qty} setQty={setQty} max={maxAvailable} />
                 <ProductActions qty={qty} product={currentProduct} variant={variant}/>
               </div>
             </div>
           </SWTCard>
           <ProductTabs product={currentProduct} />
         </div>
+
         <div className="lg:col-span-3">
           <ProductSidebar brand={currentProduct.brand ?? { id: '', name: 'N/A' }} />
         </div>

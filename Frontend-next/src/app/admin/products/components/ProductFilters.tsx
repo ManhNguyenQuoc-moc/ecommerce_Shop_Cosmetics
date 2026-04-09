@@ -26,8 +26,8 @@ export default function ProductFilters({ startTransition }: ProductFiltersProps)
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
-  const { categories } = useCategories();
-  const { brands } = useBrands();
+  const { categories } = useCategories(1, 500);
+  const { brands } = useBrands(1, 500);
 
   const searchStr = searchParams.get("search") || "";
   const [localSearch, setLocalSearch] = useState(searchStr);
@@ -164,6 +164,7 @@ export default function ProductFilters({ startTransition }: ProductFiltersProps)
             {/* Category */}
             <SWTSelect
               placeholder="Danh mục"
+              showSearch ={true}
               className="w-full sm:w-[180px] !h-11"
               value={categoryVal}
               onChange={(v) => updateFilter("categoryId", v)}
@@ -173,6 +174,7 @@ export default function ProductFilters({ startTransition }: ProductFiltersProps)
             {/* Brand */}
             <SWTSelect
               placeholder="Thương hiệu"
+              showSearch ={true}
               className="w-full sm:w-[180px] !h-11"
               value={brandVal}
               onChange={(v) => updateFilter("brandId", v)}

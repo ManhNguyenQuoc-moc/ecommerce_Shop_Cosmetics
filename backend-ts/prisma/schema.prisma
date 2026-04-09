@@ -43,6 +43,7 @@ model Address {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orders    Order[]
 }
 
 model Image {
@@ -181,6 +182,7 @@ model Order {
   createdAt      DateTime             @default(now())
   updatedAt      DateTime             @updatedAt
   discountCode   DiscountCode?        @relation(fields: [discountCodeId], references: [id])
+  address        Address?              @relation(fields: [addressId], references: [id])
   user           User                 @relation(fields: [userId], references: [id])
   items          OrderItem[]
   status_history OrderStatusHistory[]

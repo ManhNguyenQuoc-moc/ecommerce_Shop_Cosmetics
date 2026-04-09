@@ -16,7 +16,7 @@ export default function BrandGridClient({ brands: initialBrands, categories }: B
   const [selectedCategory, setSelectedCategory] = useState<string | undefined>(undefined);
   const [searchTerm, setSearchTerm] = useState("");
 
-  const { brands: apiBrands, isLoading } = useCustomerBrands(1, 100, selectedCategory, {
+  const { brands: apiBrands, isLoading } = useCustomerBrands(1, 100, undefined, selectedCategory, {
     fallbackData: initialBrands,
     revalidateOnFocus: false,
     revalidateOnMount: false,

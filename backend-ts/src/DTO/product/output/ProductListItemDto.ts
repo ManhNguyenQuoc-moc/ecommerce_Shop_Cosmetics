@@ -15,6 +15,8 @@ export interface ProductListItemDto {
 
   sold: number;
   stock: number;
+  totalStock: number;
+  availableStock: number;
 
   status: string;
   createdAt: Date;

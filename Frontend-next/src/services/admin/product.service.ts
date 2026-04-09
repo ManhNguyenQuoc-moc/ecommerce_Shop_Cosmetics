@@ -199,7 +199,6 @@ export const useVariants = (
         revalidateIfStale: true,
       }
     );
-  console.log("Fetching variants with filters:", filters, "Data received:", data);
   return {
     variants: data?.data || [],
     total: data?.total || 0,

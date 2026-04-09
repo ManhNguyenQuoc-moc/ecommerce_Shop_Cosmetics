@@ -1,7 +1,7 @@
 "use client";
 
-import { Plus } from "lucide-react";
-import { useEffect, useState, useRef } from "react";
+import { Plus, Search } from "lucide-react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import {
   updatePurchaseOrder,
   PURCHASE_API_ENDPOINT,
@@ -81,10 +81,12 @@ export default function EditPOForm({ po, onCancel, onSuccess }: Props) {
   const selectedItemsRef = useRef<HTMLDivElement | null>(null);
 
 
-  const { variants, total } = useVariants(page, pageSize, selectedBrandId ? { brandId: selectedBrandId } : undefined);
+  const { variants, total, isLoading: variantsLoading } = useVariants(page, pageSize, selectedBrandId ? { brandId: selectedBrandId } : undefined);
 
-  const { brands } = useBrands();
-  const brandList = brands?.data || brands || [];
+  const [brandSearch, setBrandSearch] = useState("");
+  const { brands, isLoading: brandsLoading } = useBrands(1, 10, { searchTerm: brandSearch, minimal: true });
+
+  const brandList: Array<{ id: string; name: string }> = brands?.data || brands || [];
 
   useEffect(() => {
     if (!po) return;
@@ -132,6 +134,18 @@ export default function EditPOForm({ po, onCancel, onSuccess }: Props) {
     (acc, curr) => acc + curr.orderedQty * curr.costPrice,
     0
   );
+
+  const [itemSearch, setItemSearch] = useState("");
+  const filteredSelectedItems = useMemo(() => {
+    if (!itemSearch.trim()) return selectedItems;
+    const q = itemSearch.toLowerCase();
+    return selectedItems.filter((i) => {
+      const name = i.name?.toLowerCase() ?? "";
+      const variant = [i.color, i.size].join(" ").toLowerCase();
+      const sku = i.sku?.toLowerCase() ?? "";
+      return name.includes(q) || variant.includes(q) || sku.includes(q);
+    });
+  }, [selectedItems, itemSearch]);
 
   const handleSubmit = async () => {
     if (!po) return;
@@ -191,6 +205,10 @@ export default function EditPOForm({ po, onCancel, onSuccess }: Props) {
                 label: b.name,
                 value: b.id,
               }))}
+              showSearch
+              filterOption={false}
+              onSearch={(val) => setBrandSearch(val)}
+              loading={brandsLoading}
               onChange={(val) => {
                 if (skipBrandClearRef.current) {
                   skipBrandClearRef.current = false;
@@ -256,10 +274,11 @@ export default function EditPOForm({ po, onCancel, onSuccess }: Props) {
           <div className="p-4">
             
             {/* BẢNG 1: CHỌN BIẾN THỂ */}
-            {showVariantPicker && selectedBrandId && (variants ?? []).length > 0 && (
+            {showVariantPicker && selectedBrandId && (
               <div className="mb-4">
                 <SWTTable
                   rowKey={(r: any) => r.variant.id}
+                  loading={variantsLoading}
                   columns={[
                     {
                       title: "",
@@ -336,7 +355,7 @@ export default function EditPOForm({ po, onCancel, onSuccess }: Props) {
                       )
                     },
                     { title: "Tồn", dataIndex: ["variant", "stock"], key: "stock", width: COLUMN_WIDTH.stock, align: 'right' as const },
-                    { title: "Đã bán", dataIndex: ["variant", "soldCount"], key: "sold", width: COLUMN_WIDTH.sold, align: 'right' as const },
+                    { title: "Đã bán", dataIndex: ["variant", "sold"], key: "sold", width: COLUMN_WIDTH.sold, align: 'right' as const },
                     {
                       title: "Giá bán",
                       key: "sellPrice",
@@ -359,6 +378,20 @@ export default function EditPOForm({ po, onCancel, onSuccess }: Props) {
                   dataSource={(variants ?? []).map((v: any) => ({ product: { name: v.productName, id: v.productId }, variant: { ...v, id: v.id } }))}
                   pagination={{ fetch: page, page, totalCount: total || 0, onChange: (p: number) => setPage(p) }}
                   className="dark:[&_.ant-table]:!bg-slate-900/40 dark:[&_.ant-table-thead_th]:!bg-slate-800/80 dark:[&_.ant-table-tbody_tr:hover_td]:!bg-brand-500/5"
+                />
+              </div>
+            )}
+
+            {/* Search bar for selected items */}
+            {selectedItems.length > 0 && (
+              <div className="mb-3 px-1">
+                <SWTInput
+                  prefix={<Search size={14} className="text-slate-400" />}
+                  placeholder="Tìm trong danh sách đã chọn..."
+                  value={itemSearch}
+                  onChange={(e) => setItemSearch(e.target.value)}
+                  allowClear
+                  className="!rounded-xl !h-9 !bg-slate-50 dark:!bg-slate-800/50 !border-slate-200 dark:!border-slate-700 max-w-sm text-sm"
                 />
               </div>
             )}
@@ -459,7 +492,7 @@ export default function EditPOForm({ po, onCancel, onSuccess }: Props) {
                       ),
                     },
                   ]}
-                  dataSource={selectedItems}
+                  dataSource={filteredSelectedItems}
                   pagination={false}
                 />
               </div>

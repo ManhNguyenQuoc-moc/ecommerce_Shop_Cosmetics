@@ -10,6 +10,7 @@ type CheckoutState = {
   customer: {
     name: string;
     phone: string;
+    email: string;
   };
   addresses: AddressModel[];
   selectedAddress: AddressModel | null;
@@ -33,6 +34,7 @@ export const useCheckoutStore = create<CheckoutState>()(
       customer: {
         name: "",
         phone: "",
+        email: "",
       },
       addresses: [],
       selectedAddress: null,
@@ -66,7 +68,7 @@ export const useCheckoutStore = create<CheckoutState>()(
         set({
           mode: "cart",
           items: [],
-          customer: { name: "", phone: "" },
+          customer: { name: "", phone: "", email: "" },
           addresses: [],
           selectedAddress: null,
           shippingMethod: "standard",

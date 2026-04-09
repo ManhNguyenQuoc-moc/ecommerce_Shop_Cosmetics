@@ -12,8 +12,10 @@ export interface VariantListItemDto {
   sku: string;
   color: string;
   size: string;
-  soldCount: number;
+  sold: number;
   stock: number;
+  totalStock: number;
+  availableStock: number;
   image: string | null;
   status: string;        // e.g. "ACTIVE"
   productStatus: string; // e.g. "ACTIVE"

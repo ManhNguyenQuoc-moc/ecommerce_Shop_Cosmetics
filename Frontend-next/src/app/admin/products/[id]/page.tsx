@@ -103,11 +103,11 @@ export default function ProductDetailPage({
 
   const totalRevenue =
     product.variants?.reduce((sum: number, v: any) => {
-      return sum + (v.soldCount || 0) * (v.salePrice || v.price || 0);
+      return sum + (v.sold || 0) * (v.salePrice || v.price || 0);
     }, 0) || 0;
   const totalSold =
     product.variants?.reduce((sum: number, v: any) => {
-      return sum + (v.soldCount || 0);
+      return sum + (v.sold || 0);
     }, 0) || 0;
 
   return (
@@ -428,8 +428,8 @@ export default function ProductDetailPage({
                 },
                 {
                   title: "Đã bán",
-                  dataIndex: "soldCount",
-                  key: "soldCount",
+                  dataIndex: "sold",
+                  key: "sold",
                   align: "center",
                   render: (sold: number) => (
                     <span className="font-bold text-slate-600">{sold || 0}</span>
@@ -484,7 +484,7 @@ export default function ProductDetailPage({
                         name:
                           [v.size, v.color].filter(Boolean).join(" - ") ||
                           "Tiêu chuẩn",
-                        value: v.soldCount,
+                        value: v.sold,
                       }))}
                       dataKey="value"
                       nameKey="name"

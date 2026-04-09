@@ -29,6 +29,8 @@ export class ProductController {
         maxPrice: req.query.maxPrice ? Number(req.query.maxPrice) : undefined,
         isSale: req.query.isSale === 'true',
         rating: req.query.rating ? Number(req.query.rating) : undefined,
+        inStock: req.query.inStock === 'true',
+        minimal: req.query.minimal === 'true',
       };
       const result = await this.productService.getProducts(page, pageSize, flatten, filters);
       res.status(200).json({

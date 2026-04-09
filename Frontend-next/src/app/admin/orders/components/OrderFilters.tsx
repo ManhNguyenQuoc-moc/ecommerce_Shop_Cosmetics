@@ -4,8 +4,15 @@ import { SWTInputSearch } from "@/src/@core/component/AntD/SWTInput";
 import SWTSelect from "@/src/@core/component/AntD/SWTSelect";
 import SWTDatePickerRange from "@/src/@core/component/AntD/SWTDatePickerRange";
 import SWTTooltip from "@/src/@core/component/AntD/SWTTooltip";
+import { OrderQueryParams } from "@/src/services/admin/order.service";
 
-export default function OrderFilters() {
+interface OrderFiltersProps {
+  params: OrderQueryParams;
+  onParamChange: (newParams: Partial<OrderQueryParams>) => void;
+  onClear: () => void;
+}
+
+export default function OrderFilters({ params, onParamChange, onClear }: OrderFiltersProps) {
   return (
     <div className="flex flex-col gap-5 mb-6">
       <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-5">
@@ -13,6 +20,8 @@ export default function OrderFilters() {
           <SWTInputSearch 
             placeholder="Tìm kiếm mã đơn, tên khách hàng..." 
             className="w-full !h-11 !rounded-2xl shadow-sm"
+            value={params.searchTerm}
+            onChange={(e) => onParamChange({ searchTerm: e.target.value })}
           />
         </div>
 
@@ -43,18 +52,29 @@ export default function OrderFilters() {
           </div>
 
           <div className="flex flex-wrap items-center gap-3 flex-1">
-            <SWTDatePickerRange className="!h-11 !rounded-xl w-full sm:w-auto" />
+            <SWTDatePickerRange 
+                className="!h-11 !rounded-xl w-full sm:w-auto" 
+                onChange={(dates, dateStrings) => {
+                    onParamChange({
+                        startDate: dateStrings[0] || undefined,
+                        endDate: dateStrings[1] || undefined,
+                    });
+                }}
+            />
             
             <SWTSelect 
               placeholder="Trạng thái"
               className="w-full sm:w-[180px] !h-11"
+              value={params.status || "ALL"}
+              onChange={(val) => onParamChange({ status: val === "ALL" ? undefined : val })}
               options={[
-                { label: "Tất cả", value: "all" },
-                { label: "Chờ xác nhận", value: "pending" },
-                { label: "Đang xử lý", value: "processing" },
-                { label: "Đang giao", value: "shipping" },
-                { label: "Đã giao", value: "delivered" },
-                { label: "Đã hủy", value: "cancelled" }
+                { label: "Tất cả trạng thái", value: "ALL" },
+                { label: "Chờ xác nhận", value: "PENDING" },
+                { label: "Đã xác nhận", value: "CONFIRMED" },
+                { label: "Đang giao", value: "SHIPPING" },
+                { label: "Đã giao", value: "DELIVERED" },
+                { label: "Đã hủy", value: "CANCELLED" },
+                { label: "Trả hàng", value: "RETURNED" }
               ]}
             />
           </div>
@@ -63,6 +83,7 @@ export default function OrderFilters() {
         <div className="w-full md:w-auto flex justify-end md:justify-start border-t md:border-t-0 border-slate-100 dark:border-slate-700/50 pt-3 md:pt-0">
           <SWTButton
             type="text"
+            onClick={onClear}
             className="!h-9 !px-4 !text-xs !rounded-xl !w-auto whitespace-nowrap
             text-slate-400 hover:!text-red-500 hover:!bg-red-50 dark:hover:!bg-red-500/10 transition-all font-bold"
           >

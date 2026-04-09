@@ -185,10 +185,10 @@ export default function VariantTable({
     },
     {
       title: "Đã bán",
-      dataIndex: "soldCount",
-      key: "soldCount",
-      render: (soldCount: number) => (
-        <div className="text-sm font-bold text-sky-600 dark:text-sky-400">{soldCount || 0}</div>
+      dataIndex: "sold",
+      key: "sold",
+      render: (sold: number) => (
+        <div className="text-sm font-bold text-sky-600 dark:text-sky-400">{sold || 0}</div>
       ),
     },
     {

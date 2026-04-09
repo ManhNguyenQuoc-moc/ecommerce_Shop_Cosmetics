@@ -17,7 +17,6 @@ import { VariantDetailDto } from "../DTO/product/output/VariantDetailDto";
 import { VariantListItemDto } from "../DTO/product/output/VariantListItemDto";
 
 export class ProductService implements IProductService {
-// ... existing code ...
   async getVariantById(id: string): Promise<VariantDetailDto | null> {
     const variant = await prisma.productVariant.findUnique({
       where: { id },
@@ -53,7 +52,6 @@ export class ProductService implements IProductService {
 
     const statusMap: Record<string, string> = { ACTIVE: "Đang bán", HIDDEN: "Đã ẩn", STOPPED: "Ngừng bán" };
     const images = variant.product.productImages?.map((pi: any) => pi.image?.url) || [];
-    const soldCount = variant.sold || 0;
     
     return {
       id: variant.id,
@@ -71,7 +69,7 @@ export class ProductService implements IProductService {
       stock: batches.reduce((sum: number, b: any) => sum + b.quantity, 0),
       image: variant.image?.url || images[0] || null,
       imageId: variant.imageId,
-      soldCount,
+      sold: variant.sold || 0,
       statusName: variant.statusName,
       status: statusMap[variant.status] || "Đang bán",
       statusRaw: variant.status,
@@ -157,56 +155,74 @@ export class ProductService implements IProductService {
   
   private readonly inventoryService = new InventoryService();
 
-async getProducts(
-  page: number,
-  pageSize: number,
-  flatten: boolean = false,
-  filters?: ProductQueryFilters
-): Promise<PagedResult<ProductListItemDto>> {
+  async getProducts(
+    page: number,
+    pageSize: number,
+    flatten: boolean = false,
+    filters?: ProductQueryFilters
+  ): Promise<PagedResult<ProductListItemDto>> {
 
-  if (flatten) {
-    const variantFilters: VariantQueryFilters = {
-      searchTerm: filters?.searchTerm,
-      categoryId: filters?.categoryId,
-      categorySlug: filters?.categorySlug,
-      brandId: filters?.brandId,
-      sortBy: filters?.sortBy,
-      status: filters?.status === 'active_tab' ? 'ACTIVE' : filters?.status,
-      minPrice: filters?.minPrice,
-      maxPrice: filters?.maxPrice,
-      isSale: filters?.isSale,
-      rating: filters?.rating,
-    };
+    if (flatten) {
+      const variantFilters: VariantQueryFilters = {
+        searchTerm: filters?.searchTerm,
+        categoryId: filters?.categoryId,
+        categorySlug: filters?.categorySlug,
+        brandId: filters?.brandId,
+        sortBy: filters?.sortBy,
+        status: filters?.status === 'active_tab' ? 'ACTIVE' : filters?.status,
+        minPrice: filters?.minPrice,
+        maxPrice: filters?.maxPrice,
+        isSale: filters?.isSale,
+        rating: filters?.rating,
+      };
 
-    const { variants, total } = await this.productRepository.getVariants(
+      const { variants, total } = await this.productRepository.getVariants(
+        page,
+        pageSize,
+        variantFilters
+      );
+
+      const variantIds = variants.map((v) => v.id);
+      const stockMap = await this.inventoryService.getStockForVariants(variantIds);
+
+      const mapped = variants.map((v: ProductVariantRawResult) => {
+        const p = v.product;
+        const variantName = [p.name, v.color, v.size].filter(Boolean).join(' - ');
+        return {
+          id: p.id,
+          slug: p.slug,
+          variantId: v.id,
+          name: variantName,
+          brand: p.brand ? { id: p.brand.id, name: p.brand.name } : null,
+          category: p.category ? { id: p.category.id, name: p.category.name } : null,
+          price: v.price || p.price,
+          salePrice: v.salePrice || null,
+          sold: v.sold || 0,
+          stock: stockMap[v.id]?.totalStock || 0,
+          totalStock: stockMap[v.id]?.totalStock || 0,
+          availableStock: stockMap[v.id]?.availableStock || 0,
+          image: v.variantImageUrl || v.productImageUrl || null,
+          status: v.statusName || "NEW",
+          rating: (p as any).rating || 0,
+          createdAt: v.createdAt || p.createdAt
+        };
+      });
+
+      return {
+        data: mapped,
+        total,
+        page,
+        pageSize
+      };
+    }
+
+    const { products, total } = await this.productRepository.findAll(
       page,
       pageSize,
-      variantFilters
+      filters
     );
 
-    const variantIds = variants.map((v) => v.id);
-    const stockMap = await this.inventoryService.getStockForVariants(variantIds);
-
-    const mapped = variants.map((v: ProductVariantRawResult) => {
-      const p = v.product;
-      const variantName = [p.name, v.color, v.size].filter(Boolean).join(' - ');
-      return {
-        id: p.id,
-        slug: p.slug,
-        variantId: v.id,
-        name: variantName,
-        brand: p.brand ? { id: p.brand.id, name: p.brand.name } : null,
-        category: p.category ? { id: p.category.id, name: p.category.name } : null,
-        price: v.price || p.price,
-        salePrice: v.salePrice || null,
-        sold: v.sold || 0,
-        stock: stockMap[v.id] || 0,
-        image: v.variantImageUrl || v.productImageUrl || null,
-        status: v.statusName || "NEW",
-        rating: (p as any).rating || 0,
-        createdAt: v.createdAt || p.createdAt
-      };
-    });
+    const mapped = products.map(ProductMapper.toList);
 
     return {
       data: mapped,
@@ -215,22 +231,6 @@ async getProducts(
       pageSize
     };
   }
-
-  const { products, total } = await this.productRepository.findAll(
-    page,
-    pageSize,
-    filters
-  );
-
-  const mapped = products.map(ProductMapper.toList);
-
-  return {
-    data: mapped,
-    total,
-    page,
-    pageSize
-  };
-}
 
   async getVariants(page: number, pageSize: number, filters?: VariantQueryFilters): Promise<PagedResult<VariantListItemDto>> {
     const { variants, total } = await this.productRepository.getVariants(page, pageSize, filters);
@@ -256,8 +256,10 @@ async getProducts(
         sku: v.sku || "",
         color: v.color || "",
         size: v.size || "",
-        soldCount: v.sold || 0,
-        stock: stockMap[v.id] || 0,
+        sold: v.sold || 0,
+        stock: stockMap[v.id]?.totalStock || 0,
+        totalStock: stockMap[v.id]?.totalStock || 0,
+        availableStock: stockMap[v.id]?.availableStock || 0,
         image: v.variantImageUrl || v.productImageUrl || null,
         status: v.status || "ACTIVE",
         productStatus: p?.status || "ACTIVE",
@@ -294,10 +296,12 @@ async getProducts(
       costPrice: v.costPrice || 0,
       price: v.price,
       salePrice: v.salePrice,
-      stock: stockMap[v.id] || 0,
+      stock: stockMap[v.id]?.totalStock || 0,
+      totalStock: stockMap[v.id]?.totalStock || 0,
+      availableStock: stockMap[v.id]?.availableStock || 0,
       image: v.image?.url || images[0] || null,
       imageId: v.imageId || null,
-      soldCount: v.sold || 0,
+      sold: v.sold || 0,
       statusName: v.statusName,
       createdAt: v.createdAt,
       updatedAt: v.updatedAt
@@ -309,8 +313,9 @@ async getProducts(
     const minPrice = allPrices.length > 0 ? Math.min(...allPrices) : typedProduct.price;
     const maxPrice = allPrices.length > 0 ? Math.max(...allPrices) : typedProduct.price;
 
-    const totalStock = variants.reduce((sum: number, v: any) => sum + (v.stock || 0), 0);
-    const totalSold = variants.reduce((sum: number, v: any) => sum + (v.soldCount || 0), 0);
+    const totalStock = variants.reduce((sum: number, v: any) => sum + (v.totalStock || 0), 0);
+    const availableStock = variants.reduce((sum: number, v: any) => sum + (v.availableStock || 0), 0);
+    const totalSold = variants.reduce((sum: number, v: any) => sum + (v.sold || 0), 0);
     const commentCount = typedProduct.reviews?.filter((r: any) => r.comment && r.comment.trim() !== '').length || 0;
 
     const statusMap: Record<string, string> = { ACTIVE: "Đang bán", HIDDEN: "Đã ẩn", STOPPED: "Ngừng bán" };
@@ -338,6 +343,7 @@ async getProducts(
         max: maxPrice,
       },
       totalStock,
+      availableStock,
       variants,
       reviews: typedProduct.reviews?.map((r: any) => ({
         id: r.id,

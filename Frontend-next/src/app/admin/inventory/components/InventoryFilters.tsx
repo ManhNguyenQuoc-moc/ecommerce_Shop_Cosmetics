@@ -8,6 +8,8 @@ import SWTTooltip from "@/src/@core/component/AntD/SWTTooltip";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { TransitionStartFunction, useState, useEffect } from "react";
 import { useDebounce } from "@/src/@core/hooks/useDebounce";
+import { SWTDateRangePicker } from "@/src/@core/component/AntD/SWTDatePicker";
+import dayjs from "dayjs";
 
 interface InventoryFiltersProps {
   startTransition: TransitionStartFunction;
@@ -125,6 +127,56 @@ export default function InventoryFilters({ startTransition }: InventoryFiltersPr
                 { label: "Đã hết hàng", value: "OUT_OF_STOCK" },
               ]}
             />
+
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold text-slate-400 uppercase tracking-tight whitespace-nowrap">NSX:</span>
+              <SWTDateRangePicker
+                placeholder={["Từ ngày", "Đến ngày"]}
+                value={[
+                  searchParams.get("mfgDateFrom") ? dayjs(searchParams.get("mfgDateFrom")) : null,
+                  searchParams.get("mfgDateTo") ? dayjs(searchParams.get("mfgDateTo")) : null
+                ]}
+                onChange={(dates) => {
+                  startTransition(() => {
+                    const params = new URLSearchParams(searchParams.toString());
+                    if (dates && dates[0] && dates[1]) {
+                      params.set("mfgDateFrom", dates[0].toISOString());
+                      params.set("mfgDateTo", dates[1].toISOString());
+                    } else {
+                      params.delete("mfgDateFrom");
+                      params.delete("mfgDateTo");
+                    }
+                    params.set("page", "1");
+                    router.replace(`${pathname}?${params.toString()}`);
+                  });
+                }}
+              />
+            </div>
+
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold text-slate-400 uppercase tracking-tight whitespace-nowrap">HSD:</span>
+              <SWTDateRangePicker
+                placeholder={["Từ ngày", "Đến ngày"]}
+                value={[
+                  searchParams.get("expiryDateFrom") ? dayjs(searchParams.get("expiryDateFrom")) : null,
+                  searchParams.get("expiryDateTo") ? dayjs(searchParams.get("expiryDateTo")) : null
+                ]}
+                onChange={(dates) => {
+                  startTransition(() => {
+                    const params = new URLSearchParams(searchParams.toString());
+                    if (dates && dates[0] && dates[1]) {
+                      params.set("expiryDateFrom", dates[0].toISOString());
+                      params.set("expiryDateTo", dates[1].toISOString());
+                    } else {
+                      params.delete("expiryDateFrom");
+                      params.delete("expiryDateTo");
+                    }
+                    params.set("page", "1");
+                    router.replace(`${pathname}?${params.toString()}`);
+                  });
+                }}
+              />
+            </div>
           </div>
         </div>
 
@@ -139,6 +191,7 @@ export default function InventoryFilters({ startTransition }: InventoryFiltersPr
           </SWTButton>
         </div>
       </div>
+
     </div>
   );
 }

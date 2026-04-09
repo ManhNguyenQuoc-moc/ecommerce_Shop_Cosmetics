@@ -59,7 +59,9 @@ export class HomeService implements IHomeService {
         minPrice: salePrice || price,
         maxPrice: salePrice || price,
         sold: v.orderItems?.reduce((sum: number, i: any) => sum + i.quantity, 0) || 0,
-        stock: 0, // Simplified for Home Page
+        stock: 0, 
+        totalStock: 0,
+        availableStock: 0,
         image: v.image?.url || p.productImages?.[0]?.image?.url || null,
         status: v.statusName,
         rating: p.rating || 0,

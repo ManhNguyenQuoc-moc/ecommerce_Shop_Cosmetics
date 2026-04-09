@@ -46,8 +46,10 @@ export const usePurchaseOrders = (page: number, limit: number, filters?: POQuery
 export const usePurchaseOrderItems = (id: string | null, page: number, limit: number) => {
   const key = id ? `${PURCHASE_API_ENDPOINT}/${id}/items?page=${page}&limit=${limit}` : null;
   const fetcher = () => get<PaginationResponse<any>>(`${PURCHASE_API_ENDPOINT}/${id}/items`, { page, limit });
-  const { data, error, isLoading, isValidating, mutate } = useFetchSWR<PaginationResponse<any>>(key, fetcher);
-  console.log("Fetching PO Items with key:", data);
+  const { data, error, isLoading, isValidating, mutate } = useFetchSWR<PaginationResponse<any>>(key, fetcher, {
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
+  });
   return {
     items: (data?.data ?? []) as any[],
     total: data?.total ?? 0,
@@ -60,7 +62,10 @@ export const usePurchaseOrderItems = (id: string | null, page: number, limit: nu
 export const usePurchaseOrderReceipts = (id: string | null, page: number, limit: number) => {
   const key = id ? `${PURCHASE_API_ENDPOINT}/${id}/receipts?page=${page}&limit=${limit}` : null;
   const fetcher = () => get<PaginationResponse<any>>(`${PURCHASE_API_ENDPOINT}/${id}/receipts`, { page, limit });
-  const { data, error, isLoading, isValidating, mutate } = useFetchSWR<PaginationResponse<any>>(key, fetcher);
+  const { data, error, isLoading, isValidating, mutate } = useFetchSWR<PaginationResponse<any>>(key, fetcher, {
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
+  });
 
   return {
     receipts: (data?.data ?? []) as any[],
@@ -75,10 +80,13 @@ export const usePurchaseOrderById = (id: string | null) => {
   const fetcher = () => (id ? getPurchaseOrderById(id) : Promise.resolve(null));
   const { data, error, isLoading, isValidating, mutate } = useFetchSWR<PODetailDto | null>(
     id ? `${PURCHASE_API_ENDPOINT}/${id}` : null,
-    fetcher
+    fetcher,
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+    }
   );
 
-  // get<T> already returns res.data.data — so `data` IS the PODetailDto directly
   return {
     po: (data ?? null) as PODetailDto | null,
     isLoading: isLoading || isValidating,

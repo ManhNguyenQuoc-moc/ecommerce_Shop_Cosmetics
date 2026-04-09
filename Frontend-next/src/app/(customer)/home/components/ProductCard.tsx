@@ -73,7 +73,17 @@ export default function ProductCard({ product, loading, priority }: Props) {
                     {product.status}
                   </div>
                 )}
+                {product.availableStock === 0 ? (
+                  <div className="bg-gray-900/80 text-white text-[9px] font-black px-2.5 py-1 rounded-full backdrop-blur-sm shadow-sm uppercase tracking-tighter w-fit">
+                    Hết hàng
+                  </div>
+                ) : product.availableStock <= 5 ? (
+                  <div className="bg-orange-500/90 text-white text-[9px] font-black px-2.5 py-1 rounded-full animate-pulse backdrop-blur-sm shadow-sm uppercase tracking-tighter w-fit">
+                    Chỉ còn {product.availableStock}
+                  </div>
+                ) : null}
               </div>
+
 
               {/* Action Buttons Overlay */}
               <div className="absolute inset-0 bg-black/5 opacity-0 group-hover/card:opacity-100 transition-opacity duration-300 flex items-center justify-center z-0">
@@ -164,7 +174,7 @@ export default function ProductCard({ product, loading, priority }: Props) {
 
               </div>
               
-              {product.sold && (
+              {typeof product.sold === 'number' && (
                 <div className="pt-0.5">
                    {/* Đổi màu thanh tiến trình cho "nóng" hơn nếu đang sale */}
                    <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden relative">

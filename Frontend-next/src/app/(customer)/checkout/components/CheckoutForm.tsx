@@ -12,6 +12,7 @@ import {
   UserOutlined,
   PhoneOutlined,
   EnvironmentOutlined,
+  MailOutlined,
 } from "@ant-design/icons";
 import { useAuth } from "@/src/context/AuthContext";
 import { getCustomerInfo } from "@/src/services/customer/user.service";
@@ -49,6 +50,7 @@ export default function CheckoutForm() {
     setCustomer({
         name: (customer as any).full_name || customer.name || "",
         phone: customer.phone || "",
+        email: customer.email || "",
         
     });
     setAddresses(customer.addresses || []);
@@ -60,6 +62,7 @@ export default function CheckoutForm() {
     form.setFieldsValue({
       name: customerState.name,
       phone: customerState.phone,
+      email: customerState.email,
     });
   }, [customerState, form]);
 
@@ -106,6 +109,15 @@ export default function CheckoutForm() {
               <SWTInput
                 prefix={<PhoneOutlined />}
                 placeholder="Vui lòng nhập số điện thoại"
+                className="h-11 rounded-xl"
+                showCount={false}
+                allowClear={false}
+              />
+            </SWTFormItem>
+            <SWTFormItem name="email" label="Email" rules={[{ required: true, type: 'email' }]}>
+              <SWTInput
+                prefix={<MailOutlined />}
+                placeholder="Vui lòng nhập email"
                 className="h-11 rounded-xl"
                 showCount={false}
                 allowClear={false}

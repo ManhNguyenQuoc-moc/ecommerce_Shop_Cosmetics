@@ -20,18 +20,21 @@ export default function ProductActions({ qty, product, variant }: Props) {
   const router = useRouter();
   const hasVariants = product.variants?.length > 0;
   const noVariantSelected = hasVariants && !variant;
-  const isOutOfStock = variant ? variant.stock === 0 : false;
+  const isOutOfStock = variant
+    ? (variant.availableStock === undefined || variant.availableStock <= 0)
+    : (product.variants?.length === 0 && (product.availableStock === undefined || product.availableStock <= 0));
+
   const isDisabled = noVariantSelected || isOutOfStock;
   const disabledTitle = noVariantSelected
     ? "Vui lòng chọn biến thể"
     : isOutOfStock
-    ? "Sản phẩm đã hết hàng"
-    : undefined;
+      ? "Sản phẩm đã hết hàng (hoặc cận date)"
+      : undefined;
 
   const [loading, setLoading] = useState(false);
 
   const currentVariantId = variant ? variant.id : "default";
-  
+
   const currentPrice = variant?.salePrice || variant?.price || product.priceRange?.min || 0;
   const currentPriceOrigin = variant?.price;
   const currentImage = variant?.image || product.images?.[0] || "";
@@ -68,32 +71,33 @@ export default function ProductActions({ qty, product, variant }: Props) {
       sku: variant?.sku ?? null,
       salePrice: variant?.salePrice ?? null,
       subTotal: currentPrice * qty,
-      stock: variant?.stock ?? product.totalStock,
+      stock: variant?.totalStock ?? product.totalStock,
+      availableStock: variant?.availableStock ?? product.availableStock,
     });
   };
 
   return (
     <>
-    <div className="flex gap-3 pt-4">
-      <SWTButton
-        onClick={handleAddToCart}
-        disabled={isDisabled}
-        title={disabledTitle}
-        className="flex-1 !border-brand-500 !text-brand-500 !py-5 font-medium hover:!bg-brand-50 transition disabled:!opacity-50 disabled:!cursor-not-allowed"
-      >
-        Thêm vào giỏ hàng
-      </SWTButton>
+      <div className="flex gap-3 pt-4">
+        <SWTButton
+          onClick={handleAddToCart}
+          disabled={isDisabled}
+          title={disabledTitle}
+          className="flex-1 !border-brand-500 !text-brand-500 !py-5 font-medium hover:!bg-brand-50 transition disabled:!opacity-50 disabled:!cursor-not-allowed"
+        >
+          Thêm vào giỏ hàng
+        </SWTButton>
 
-      <SWTButton
-        onClick={handleBuyNow}
-        disabled={isDisabled}
-        title={disabledTitle}
-        className="flex-1 !bg-brand-500 !text-white !py-5 font-medium hover:!bg-brand-700 transition disabled:!opacity-50 disabled:!cursor-not-allowed"
-      >
-        Mua ngay ({qty})
-      </SWTButton>
-    </div>
-    {loading && <Loading shopName="SWT Shop" />}
+        <SWTButton
+          onClick={handleBuyNow}
+          disabled={isDisabled}
+          title={disabledTitle}
+          className="flex-1 !bg-brand-500 !text-white !py-5 font-medium hover:!bg-brand-700 transition disabled:!opacity-50 disabled:!cursor-not-allowed"
+        >
+          Mua ngay ({qty})
+        </SWTButton>
+      </div>
+      {loading && <Loading shopName="SWT Shop" />}
     </>
   );
 }

@@ -20,8 +20,13 @@ export const useCategories = (page: number | null = null, pageSize: number | nul
     () => get(url)
   );
 
-  const categories = Array.isArray(data) ? data : (data as any)?.data || [];
-  const total = Array.isArray(data) ? data.length : (data as any)?.total || 0;
+  const responseData = data as any;
+  const categories = Array.isArray(responseData) 
+    ? responseData 
+    : (responseData?.data?.data || responseData?.data || []);
+  const total = Array.isArray(responseData) 
+    ? responseData.length 
+    : (responseData?.data?.total || responseData?.total || 0);
 
   return {
     categories: categories as CategoryResponseDto[],

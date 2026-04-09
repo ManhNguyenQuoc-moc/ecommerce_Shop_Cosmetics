@@ -11,9 +11,11 @@ export interface BaseVariantDto {
   salePrice?: number | null;
   costPrice?: number;
   stock: number;
+  totalStock: number;
+  availableStock: number;
   image?: string | null;
   imageId?: string | null;
-  soldCount: number;
+  sold: number;
   statusName?: ProductStatusTag | string;
   createdAt: string;
   updatedAt?: string;
@@ -35,6 +37,8 @@ export interface ProductListItemDto {
 
   sold: number;
   stock: number;
+  totalStock: number;
+  availableStock: number;
 
   status: string;
   createdAt: string;
@@ -93,6 +97,7 @@ export interface ProductDetailDto {
 
   sold: number;
   totalStock: number;
+  availableStock: number;
 
   priceRange: {
     min: number;

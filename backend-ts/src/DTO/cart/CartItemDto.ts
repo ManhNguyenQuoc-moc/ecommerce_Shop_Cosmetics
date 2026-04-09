@@ -14,4 +14,6 @@ export interface CartItemDto {
   image: string | null;
   brandName: string | null;
   stock: number;
+  totalStock: number;
+  availableStock: number;
 }

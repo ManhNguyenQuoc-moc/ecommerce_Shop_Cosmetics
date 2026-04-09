@@ -65,6 +65,7 @@ export default function CheckoutSummary() {
           lat: selectedAddress.lat,
           lon: selectedAddress.lon,
         },
+        addressId: (selectedAddress as any).id,
         total,
         paymentMethod,
       };

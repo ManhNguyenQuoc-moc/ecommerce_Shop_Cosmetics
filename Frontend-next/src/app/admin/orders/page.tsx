@@ -1,16 +1,42 @@
 "use client";
 
-import React from 'react';
+import React, { useState } from 'react';
 import OrderFilters from "./components/OrderFilters";
 import OrderTable from "./components/OrderTable";
 import { ClipboardList, Info } from "lucide-react";
 import SWTTooltip from "@/src/@core/component/AntD/SWTTooltip";
-import SWTButton from "@/src/@core/component/AntD/SWTButton";
 import SWTBreadcrumb from "@/src/@core/component/AntD/SWTBreadcrumb";
 import useSWTTitle from "@/src/@core/hooks/useSWTTitle";
+import { useOrders, OrderQueryParams } from "@/src/services/admin/order.service";
+import OrderDetailDrawer from "./components/OrderDetailDrawer";
+import { OrderDto } from "@/src/services/models/order/output.dto";
 
 export default function OrdersPage() {
   useSWTTitle("Quản Lý Đơn Hàng | Admin");
+
+  const [params, setParams] = useState<OrderQueryParams>({
+    page: 1,
+    pageSize: 10,
+  });
+
+  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
+  const { orders, total, isLoading, mutate } = useOrders(params);
+
+  const handleParamChange = (newParams: Partial<OrderQueryParams>) => {
+    setParams(prev => ({ ...prev, ...newParams, page: newParams.page || 1 }));
+  };
+
+  const handleClear = () => {
+    setParams({ page: 1, pageSize: 10 });
+  };
+
+  const handleView = (order: OrderDto) => {
+    setSelectedOrderId(order.id);
+    setIsDrawerOpen(true);
+  };
+
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Header */}
@@ -18,7 +44,7 @@ export default function OrdersPage() {
         <div>
           <SWTBreadcrumb items={[
             { title: "Trang chủ", href: "/admin" },
-            { title: "Orders" }
+            { title: "Quản lý đơn hàng" }
           ]} />
           <div className="flex items-center gap-3.5 mt-4 mb-2">
             <ClipboardList size={32} className="text-brand-500 shrink-0" />
@@ -43,9 +69,28 @@ export default function OrdersPage() {
 
       {/* Main Content */}
       <div className="p-6 bg-white/80 dark:bg-slate-900/50 backdrop-blur-md rounded-2xl shadow-sm border border-slate-200 dark:border-admin-sidebar-border transition-colors">
-        <OrderFilters />
-        <OrderTable />
+        <OrderFilters 
+            params={params} 
+            onParamChange={handleParamChange} 
+            onClear={handleClear} 
+        />
+        <OrderTable 
+            orders={orders}
+            total={total}
+            isLoading={isLoading}
+            page={params.page || 1}
+            pageSize={params.pageSize || 6}
+            onPaginationChange={(page, pageSize) => handleParamChange({ page, pageSize })}
+            onView={handleView}
+        />
       </div>
+
+      <OrderDetailDrawer 
+          orderId={selectedOrderId}
+          open={isDrawerOpen}
+          onClose={() => setIsDrawerOpen(false)}
+          onUpdate={mutate}
+      />
     </div>
   );
 }

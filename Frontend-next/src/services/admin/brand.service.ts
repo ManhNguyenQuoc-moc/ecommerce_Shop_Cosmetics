@@ -19,8 +19,13 @@ export const useBrands = (page: number | null = null, pageSize: number | null = 
     () => get(`${BRAND_API_ENDPOINT}?${query.toString()}`)
   );
 
-  const brands = Array.isArray(data) ? data : (data as any)?.data || [];
-  const total = Array.isArray(data) ? data.length : (data as any)?.total || 0;
+  const responseData = data as any;
+  const brands = Array.isArray(responseData) 
+    ? responseData 
+    : (responseData?.data?.data || responseData?.data || []);
+  const total = Array.isArray(responseData) 
+    ? responseData.length 
+    : (responseData?.data?.total || responseData?.total || 0);
 
   return {
     brands,

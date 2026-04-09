@@ -32,7 +32,11 @@ export class InventoryController {
         search: req.query.search as string,
         categoryId: req.query.categoryId as string,
         status: req.query.status as any,
-        sortBy: req.query.sortBy as any
+        sortBy: req.query.sortBy as any,
+        mfgDateFrom: req.query.mfgDateFrom as string,
+        mfgDateTo: req.query.mfgDateTo as string,
+        expiryDateFrom: req.query.expiryDateFrom as string,
+        expiryDateTo: req.query.expiryDateTo as string
       };
       
       const result = await inventoryService.getBatches(page, pageSize, filters);

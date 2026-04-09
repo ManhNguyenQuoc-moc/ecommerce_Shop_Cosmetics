@@ -17,7 +17,7 @@ async function ProductsDataWrapper({ params }: { params: any }) {
   const [initialData, initialCategories, initialBrands] = await Promise.all([
     getProducts(params),
     getServerCategories(),
-    getServerBrands(1, 100),
+    getServerBrands(1, 1000),
   ]);
 
   return (
