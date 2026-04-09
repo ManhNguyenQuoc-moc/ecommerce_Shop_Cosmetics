@@ -13,7 +13,9 @@ export class ProductMapper {
         price: p.price,
         salePrice: p.salePrice || null,
         sold: p.sold || 0,
-        stock: 0,
+        stock: p.totalStock || 0,
+        totalStock: p.totalStock || 0,
+        availableStock: p.availableStock || 0,
         status: "NEW",
         rating: p.rating || 0,
         createdAt: p.createdAt
@@ -30,8 +32,10 @@ export class ProductMapper {
       image: v.image?.url || p.productImages?.[0]?.image?.url || null,
       price: v.price || p.price,
       salePrice: v.salePrice || p.salePrice || null,
-      sold: v.orderItems?.reduce((sum: number, i: any) => sum + i.quantity, 0) || 0,
-      stock: 0,
+      sold: v.sold || 0,
+      stock: v.totalStock || 0,
+      totalStock: v.totalStock || 0,
+      availableStock: v.availableStock || 0,
       status: v.statusName || "NEW",
       rating: p.rating || 0,
       createdAt: v.createdAt || p.createdAt
@@ -59,13 +63,11 @@ export class ProductMapper {
       minPrice,
       maxPrice,
 
-      sold: variants.reduce(
-        (total: number, v: any) =>
-          total + (v.orderItems?.reduce((s: number, i: any) => s + i.quantity, 0) || 0),
-        0
-      ),
+      sold: p.sold || 0,
 
-      stock: 0,
+      stock: p.totalStock || 0,
+      totalStock: p.totalStock || 0,
+      availableStock: p.availableStock || 0,
       status: p.status,
       rating: p.rating || 0,
       createdAt: p.createdAt

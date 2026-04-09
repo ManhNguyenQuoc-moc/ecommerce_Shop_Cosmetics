@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import Image from "next/image";
-import { FileSpreadsheet, FileText, Layers } from "lucide-react";
+import { FileSpreadsheet, FileText, Layers, Search } from "lucide-react";
 import { PODetailDto } from "@/src/services/models/purchase/output.dto";
 import SWTButton from "@/src/@core/component/AntD/SWTButton";
 import SWTTable from "@/src/@core/component/AntD/SWTTable";
+import { SWTInput } from "@/src/@core/component/AntD/SWTInput";
 import { usePurchaseOrderItems } from "@/src/services/admin/purchase.service";
 
 const COLUMN_WIDTH = {
@@ -23,7 +24,19 @@ interface POOrderedItemsProps {
 const POOrderedItems: React.FC<POOrderedItemsProps> = ({ po, onExport }) => {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(6);
+  const [search, setSearch] = useState("");
   const { items, total, isLoading } = usePurchaseOrderItems(po.id, page, pageSize);
+
+  const filteredItems = useMemo(() => {
+    if (!search.trim()) return items;
+    const q = search.toLowerCase();
+    return items.filter((item: any) => {
+      const name = item.variant?.product?.name?.toLowerCase() ?? "";
+      const variant = [item.variant?.color, item.variant?.size].join(" ").toLowerCase();
+      const sku = item.variant?.sku?.toLowerCase() ?? "";
+      return name.includes(q) || variant.includes(q) || sku.includes(q);
+    });
+  }, [items, search]);
 
   return (
     <div className="bg-white/90 dark:bg-slate-900/80 backdrop-blur-md rounded-3xl p-6 shadow-sm border border-slate-200 dark:border-pink-500/20 flex flex-col gap-4">
@@ -49,15 +62,27 @@ const POOrderedItems: React.FC<POOrderedItemsProps> = ({ po, onExport }) => {
         </div>
       </div>
 
+      {/* Search bar */}
+      <div className="px-1">
+        <SWTInput
+          prefix={<Search size={14} className="text-slate-400" />}
+          placeholder="Tìm theo tên sản phẩm, biến thể, SKU..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          allowClear
+          className="!rounded-xl !h-9 !bg-slate-50 dark:!bg-slate-800/50 !border-slate-200 dark:!border-slate-700 max-w-sm text-sm"
+        />
+      </div>
+
       <div className="border border-slate-200 dark:border-slate-700 rounded-3xl overflow-hidden bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm p-4">
         <SWTTable
           rowKey="id"
-          dataSource={items}
+          dataSource={filteredItems}
           loading={isLoading}
          pagination={{
-            page: page,           // Bắt buộc dùng chữ 'page'
-            fetch: pageSize,      // Bắt buộc dùng chữ 'fetch'
-            totalCount: total,    // Bắt buộc dùng chữ 'totalCount'
+            page: page,
+            fetch: pageSize,
+            totalCount: search.trim() ? filteredItems.length : total,
             onChange: (p: number, f: number) => {
               setPage(p);
               if (f && f !== pageSize) setPageSize(f);
@@ -147,15 +172,13 @@ const POOrderedItems: React.FC<POOrderedItemsProps> = ({ po, onExport }) => {
           ]}
         />
 
-        {/* Cụm tính tổng đồng bộ với form tạo */}
-        {(items || []).length > 0 && (
+        {/* Tổng hóa đơn — dùng po.totalAmount từ backend (toàn bộ, không phân trang) */}
+        {po.totalAmount > 0 && (
           <div className="flex justify-end pt-4 mt-2 border-t border-slate-200 dark:border-slate-700">
             <div className="text-right">
               <div className="text-slate-500 text-sm mb-1 uppercase font-medium">Tổng cộng hóa đơn:</div>
               <div className="text-2xl font-black text-brand-600 dark:text-brand-400">
-                {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(
-                  items?.reduce((sum, item) => sum + item.orderedQty * item.costPrice, 0) || 0
-                )}
+                {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(po.totalAmount)}
               </div>
             </div>
           </div>

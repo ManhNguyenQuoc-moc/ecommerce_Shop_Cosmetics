@@ -16,6 +16,7 @@ export type CheckoutRequestDTO = {
     lat?: number;
     lon?: number;
   };
+  addressId?: string;
   total: number;
   paymentMethod: "cod" | "bank";
 };

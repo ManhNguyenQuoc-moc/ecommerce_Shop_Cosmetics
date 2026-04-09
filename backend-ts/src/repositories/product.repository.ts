@@ -3,6 +3,7 @@ import { IProductRepository, ProductQueryFilters, VariantQueryFilters, ProductVa
 import { prisma } from "../config/prisma";
 import { CreateProductDTO, CreateVariantDTO } from "../DTO/product/input/AddProductDTO";
 import { UpdateProductDTO, UpdateVariantDTO } from "../DTO/product/input/UpdateProductDTO";
+import { InventoryRepository } from "./inventory.repository";
 
 export class ProductRepository implements IProductRepository {
   async findAll(page: number = 1, pageSize: number = 10, filters?: ProductQueryFilters): Promise<{ products: Product[]; total: number }> {
@@ -84,6 +85,18 @@ export class ProductRepository implements IProductRepository {
     if (filters?.rating) {
       conditions.push(Prisma.sql`p."rating" >= ${filters.rating}`);
     }
+    if (filters?.inStock) {
+      conditions.push(Prisma.sql`
+        (
+          SELECT COALESCE(SUM(b.quantity), 0) 
+          FROM "ProductVariant" v_in_stock
+          LEFT JOIN "Batch" b ON v_in_stock.id = b."variantId" 
+          WHERE v_in_stock."productId" = p.id
+          AND b."expiryDate" > (NOW() + INTERVAL '3 months')
+          AND b.quantity > 0
+        ) > 0
+      `);
+    }
 
     const where = conditions.length > 0 ? Prisma.sql`WHERE ${Prisma.join(conditions, ' AND ')}` : Prisma.empty;
 
@@ -111,12 +124,34 @@ export class ProductRepository implements IProductRepository {
           LEFT JOIN "Batch" b ON v_sum.id = b."variantId" 
           WHERE v_sum."productId" = p.id
         ) as "totalStock",
-        (SELECT json_build_object('id', b.id, 'name', b.name, 'slug', b.slug) FROM "Brand" b WHERE b.id = p."brandId") as brand,
-        (SELECT json_build_object('id', c.id, 'name', c.name, 'slug', c.slug) FROM "Category" c WHERE c.id = p."categoryId") as category,
         (
+          SELECT COALESCE(SUM(b.quantity), 0) 
+          FROM "ProductVariant" v_avail 
+          LEFT JOIN "Batch" b ON v_avail.id = b."variantId" 
+          WHERE v_avail."productId" = p.id
+          AND b."expiryDate" > (NOW() + INTERVAL '3 months')
+          AND b.quantity > 0
+        ) as "availableStock",
+        (SELECT json_build_object('id', b.id, 'name', b.name, 'slug', b.slug) FROM "Brand" b WHERE b.id = p."brandId") as brand,
+        (SELECT json_build_object('id', c.id, 'name', c.name, 'slug', c.slug) FROM "Category" c WHERE c.id = p."categoryId") as category
+        ${filters?.minimal ? Prisma.empty : Prisma.sql`
+        , (
           SELECT COALESCE(json_agg(v_data), '[]'::json)
           FROM (
-            SELECT v.*, (SELECT json_build_object('id', img.id, 'url', img.url) FROM "Image" img WHERE img.id = v."imageId") as image
+            SELECT v.*, 
+              (SELECT json_build_object('id', img.id, 'url', img.url) FROM "Image" img WHERE img.id = v."imageId") as image,
+              (
+                SELECT COALESCE(SUM(b.quantity), 0)
+                FROM "Batch" b
+                WHERE b."variantId" = v.id
+              ) as "totalStock",
+              (
+                SELECT COALESCE(SUM(b.quantity), 0)
+                FROM "Batch" b
+                WHERE b."variantId" = v.id
+                AND b."expiryDate" > (NOW() + INTERVAL '3 months')
+                AND b.quantity > 0
+              ) as "availableStock"
             FROM "ProductVariant" v 
             WHERE v."productId" = p.id
           ) v_data
@@ -131,10 +166,11 @@ export class ProductRepository implements IProductRepository {
             ORDER BY pi."order" ASC
           ) pi_data
         ) as "productImages"
+        `}
       FROM "Product" p
       ${where}
       ORDER BY ${orderBy}
-      LIMIT ${pageSize} OFFSET ${skip}
+      LIMIT ${pageSize}::int OFFSET ${skip}::int
     `;
 
     const countQuery = Prisma.sql`SELECT COUNT(*) as count FROM "Product" p ${where}`;
@@ -401,6 +437,13 @@ export class ProductRepository implements IProductRepository {
           WHERE b."variantId" = v.id
         ) as "stock",
         (
+          SELECT COALESCE(SUM(b.quantity), 0) 
+          FROM "Batch" b 
+          WHERE b."variantId" = v.id
+          AND b."expiryDate" > (NOW() + INTERVAL '3 months')
+          AND b.quantity > 0
+        ) as "availableStock",
+        (
           SELECT json_build_object(
             'id', p.id, 
             'name', p.name, 
@@ -453,7 +496,7 @@ export class ProductRepository implements IProductRepository {
   }
 
   async findAllUnpaginated(): Promise<Product[]> {
-    return prisma.product.findMany({
+    const products = await prisma.product.findMany({
       include: {
         brand: true,
         category: true,
@@ -463,13 +506,34 @@ export class ProductRepository implements IProductRepository {
       },
       orderBy: { createdAt: 'desc' }
     });
+
+    const inventoryRepo = new InventoryRepository();
+    
+    // Process all variants at once for better performance
+    const allVariantIds = products.flatMap(p => p.variants.map(v => v.id));
+    const stockMap = await inventoryRepo.getStockForVariants(allVariantIds);
+
+    return products.map(p => {
+      const variantsWithStock = p.variants.map(v => ({
+        ...v,
+        totalStock: stockMap[v.id]?.totalStock || 0,
+        availableStock: stockMap[v.id]?.availableStock || 0
+      }));
+
+      return {
+        ...p,
+        variants: variantsWithStock,
+        totalStock: variantsWithStock.reduce((sum, v) => sum + v.totalStock, 0),
+        availableStock: variantsWithStock.reduce((sum, v) => sum + v.availableStock, 0)
+      };
+    }) as any;
   }
 
   async findById(identifier: string): Promise<Product | null> {
     const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(identifier);
     const whereClause = isUUID ? { id: identifier } : { slug: identifier };
 
-    return prisma.product.findUnique({
+    const product = await prisma.product.findUnique({
       where: whereClause,
       include: {
         brand: true,
@@ -479,6 +543,26 @@ export class ProductRepository implements IProductRepository {
         productImages: { include: { image: true }, orderBy: { order: 'asc' } },
       },
     });
+
+    if (!product) return null;
+
+    // Attach stock and availableStock to variants
+    const variantIds = product.variants.map(v => v.id);
+    const inventoryRepo = new InventoryRepository();
+    const stockMap = await inventoryRepo.getStockForVariants(variantIds);
+
+    const updatedVariants = product.variants.map(v => ({
+      ...v,
+      totalStock: stockMap[v.id]?.totalStock || 0,
+      availableStock: stockMap[v.id]?.availableStock || 0
+    }));
+
+    return { 
+      ...product, 
+      variants: updatedVariants,
+      totalStock: updatedVariants.reduce((sum, v) => sum + v.totalStock, 0),
+      availableStock: updatedVariants.reduce((sum, v) => sum + v.availableStock, 0)
+    } as any;
   }
 
   async create(data: Prisma.ProductCreateInput): Promise<Product> {

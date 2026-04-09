@@ -2,14 +2,24 @@ import { prisma } from "../config/prisma";
 import { Brand } from "@prisma/client";
 
 export class BrandRepository {
-  async findAll(skip?: number, take?: number): Promise<[Brand[], number]> {
-    const where = {};
+  async findAll(skip?: number, take?: number, filters?: { searchTerm?: string; minimal?: boolean }): Promise<[Brand[], number]> {
+    const where: any = {};
+    
+    if (filters?.searchTerm) {
+      where.OR = [
+        { name: { contains: filters.searchTerm, mode: 'insensitive' } },
+        { slug: { contains: filters.searchTerm, mode: 'insensitive' } },
+      ];
+    }
+
+    const include = filters?.minimal ? undefined : { logo: true, banner: true };
+
     return Promise.all([
       prisma.brand.findMany({
         where,
         skip,
         take,
-        include: { logo: true, banner: true },
+        include,
         orderBy: [{ createdAt: 'desc' }, { id: 'desc' }]
       }),
       prisma.brand.count({ where })

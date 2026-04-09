@@ -1,9 +1,10 @@
-export type Address = { address: string; lat?: number; lon?: number };
+export type Address = { id?: string; address: string; lat?: number; lon?: number };
 
 export type CustomerInfo = {
   name: string;
   phone: string;
   addresses: Address[];
+  email: string;
 };
 
 export type CheckoutItem = {

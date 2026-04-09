@@ -18,6 +18,10 @@ import { getProducts } from "@/src/services/customer/product.service";
 import { useCustomerCategories } from "@/src/services/customer/category.service";
 import { useCustomerBrands } from "@/src/services/customer/brand.service";
 import SWTCheckboxGroup from "@/src/@core/component/AntD/SWTCheckboxGroup";
+import SWTSelect from "@/src/@core/component/AntD/SWTSelect";
+import { SWTInput } from "@/src/@core/component/AntD/SWTInput";
+import { Search } from "lucide-react";
+import { useDebounce } from "@/src/@core/hooks/useDebounce";
 
 type Props = {
   initialData: PaginationResponse<ProductListItemDto>;
@@ -40,7 +44,11 @@ export default function ProductsClient({ initialData, initialCategories, initial
   const maxPrice = searchParams.get("maxPrice") ? Number(searchParams.get("maxPrice")) : undefined;
   const sortBy = searchParams.get("sortBy") ?? "newest";
   const isSale = searchParams.get("isSale") === "true";
+  const inStock = searchParams.get("inStock") === "true";
   const rating = searchParams.get("rating") ? Number(searchParams.get("rating")) : undefined;
+  
+  const [brandSearch, setBrandSearch] = React.useState("");
+  const debouncedBrandSearch = useDebounce(brandSearch, 500);
 
   // Fetch dynamic categories with server-side fallback - Optimized for ISR
   const { categories: apiCategories } = useCustomerCategories({
@@ -57,15 +65,15 @@ export default function ProductsClient({ initialData, initialCategories, initial
       : customerCategories;
   }, [apiCategories]);
 
-  const { brands: apiBrands } = useCustomerBrands(1, 100, undefined, {
+  const { brands: apiBrands } = useCustomerBrands(1, 20, debouncedBrandSearch, undefined, {
     fallbackData: initialBrands,
-    revalidateIfStale: false,
+    revalidateIfStale: debouncedBrandSearch !== "",
     revalidateOnFocus: false,
     revalidateOnMount: false,
   });
 
   const { data, isLoading, isValidating } = useFetchSWR<PaginationResponse<ProductListItemDto>>(
-    ["products", page, pageSize, categorySlug, brandId, minPrice, maxPrice, sortBy, isSale, rating],
+    ["products", page, pageSize, categorySlug, brandId, minPrice, maxPrice, sortBy, isSale, inStock, rating],
     () => {
       const params: any = { page, pageSize, sortBy, flatten: true };
       if (categorySlug) params.category = categorySlug;
@@ -73,6 +81,7 @@ export default function ProductsClient({ initialData, initialCategories, initial
       if (minPrice !== undefined) params.minPrice = minPrice;
       if (maxPrice !== undefined) params.maxPrice = maxPrice;
       if (isSale) params.isSale = true;
+      if (inStock) params.inStock = true;
       if (rating !== undefined) params.rating = rating;
 
       return getProducts(params);
@@ -208,21 +217,36 @@ export default function ProductsClient({ initialData, initialCategories, initial
               })}
             </div>
           </div>
-          {/* Sale Filter */}
+          {/* Status Select Filter */}
           <div className="mb-6 border-t pt-4">
-            <div className="flex items-center justify-between">
-              <h3 className="font-semibold">Đang giảm giá</h3>
-              <Checkbox
-                checked={isSale}
-                onChange={(e) => {
-                  const params = new URLSearchParams(searchParams.toString());
-                  if (e.target.checked) params.set("isSale", "true");
-                  else params.delete("isSale");
-                  params.set("page", "1");
-                  router.push(`${window.location.pathname}?${params.toString()}`);
-                }}
-              />
-            </div>
+            <h3 className="font-semibold mb-3">Ưu tiên hiển thị</h3>
+            <SWTSelect
+              className="w-full"
+              value={inStock && isSale ? "both" : inStock ? "inStock" : isSale ? "isSale" : "all"}
+              onChange={(val) => {
+                const params = new URLSearchParams(searchParams.toString());
+                params.set("page", "1");
+                
+                // Clear existing
+                params.delete("inStock");
+                params.delete("isSale");
+
+                if (val === "inStock") params.set("inStock", "true");
+                if (val === "isSale") params.set("isSale", "true");
+                if (val === "both") {
+                  params.set("inStock", "true");
+                  params.set("isSale", "true");
+                }
+                
+                router.push(`${window.location.pathname}?${params.toString()}`);
+              }}
+              options={[
+                { label: "Tất cả sản phẩm", value: "all" },
+                { label: "Sản phẩm còn hàng", value: "inStock" },
+                { label: "Sản phẩm giảm giá", value: "isSale" },
+                { label: "Còn hàng & Giảm giá", value: "both" }
+              ]}
+            />
           </div>
           {/* Rating Filter */}
           <div className="mb-6 border-t pt-4">
@@ -251,9 +275,21 @@ export default function ProductsClient({ initialData, initialCategories, initial
               ))}
             </div>
           </div>
-          {/* Brand */}
           <div className="border-t pt-4">
             <h3 className="font-semibold mb-3">Thương hiệu</h3>
+            
+            <div className="mb-3">
+              <SWTInput
+                size="small"
+                placeholder="Tìm thương hiệu..."
+                prefix={<Search size={14} className="text-gray-400" />}
+                value={brandSearch}
+                onChange={(e) => setBrandSearch(e.target.value)}
+                allowClear
+                className="!rounded-lg !h-9 text-sm"
+              />
+            </div>
+
             <div className="max-h-[250px] overflow-y-auto pr-2 custom-scrollbar">
               <SWTCheckboxGroup
                 options={apiBrands.map((b: any) => ({ label: b.name, value: b.id }))}
@@ -261,11 +297,12 @@ export default function ProductsClient({ initialData, initialCategories, initial
                 onChange={(values) => {
                   const params = new URLSearchParams(searchParams.toString());
                   if (values.length > 0) {
-                    params.set("brandId", values.join(","));
+                    params.set("brandId", (values as string[]).join(","));
                   } else {
                     params.delete("brandId");
                   }
-                  router.push(`/products?${params.toString()}`);
+                  params.set("page", "1");
+                  router.push(`${window.location.pathname}?${params.toString()}`);
                 }}
               />
             </div>

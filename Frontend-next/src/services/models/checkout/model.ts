@@ -9,6 +9,7 @@ export type CheckoutItemModel = {
 };
 
 export type AddressModel = {
+  id?: string;
   address: string;
   lat?: number;
   lon?: number;

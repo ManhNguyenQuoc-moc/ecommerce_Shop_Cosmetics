@@ -22,6 +22,13 @@ export class CartService implements ICartService {
   }
 
   async addItemToCart(userId: string, variantId: string, quantity: number): Promise<CartDto> {
+    const stockMap = await this.inventoryService.getStockForVariants([variantId]);
+    const available = stockMap[variantId]?.availableStock || 0;
+    
+    if (available < quantity) {
+      throw new Error(`Sản phẩm không đủ hàng hợp lệ (còn ${available} sản phẩm có HSD > 3 tháng).`);
+    }
+
     const cart = await this.cartRepository.findByUserId(userId) || await this.cartRepository.create(userId);
     await this.cartRepository.addItem(cart.id, variantId, quantity);
     return this.getCartByUserId(userId);
@@ -45,6 +52,17 @@ export class CartService implements ICartService {
   }
 
   async syncCart(userId: string, items: AddToCartDto[]): Promise<CartDto> {
+    const variantIds = items.map(i => i.variantId);
+    const stockMap = await this.inventoryService.getStockForVariants(variantIds);
+    
+    for (const item of items) {
+       const available = stockMap[item.variantId]?.availableStock || 0;
+       if (available < item.quantity) {
+          // You could throw error or just skip/adjust. Conventionally throw for clear feedback.
+          throw new Error(`Variant ${item.variantId} không đủ hàng hợp lệ (còn ${available}).`);
+       }
+    }
+
     const cart = await this.cartRepository.findByUserId(userId) || await this.cartRepository.create(userId);
     
     for (const item of items) {
@@ -82,7 +100,9 @@ export class CartService implements ICartService {
         subTotal: activePrice * item.quantity,
         image: imageUrl,
         brandName: p.brand?.name || null,
-        stock: stockMap[item.variantId] || 0
+        stock: stockMap[item.variantId]?.totalStock || 0,
+        totalStock: stockMap[item.variantId]?.totalStock || 0,
+        availableStock: stockMap[item.variantId]?.availableStock || 0
       };
     });
 

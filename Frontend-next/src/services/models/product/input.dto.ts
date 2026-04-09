@@ -60,6 +60,7 @@ export interface ProductQueryParams {
   page?: number;
   pageSize?: number;
   search?: string;
+  searchTerm?: string;
   categoryId?: string;
   status?: string;
   soldRange?: string;
@@ -70,4 +71,5 @@ export interface ProductQueryParams {
   priceRange?: string;
   statusName?: string;
   productId?: string;
+  minimal?: boolean;
 }

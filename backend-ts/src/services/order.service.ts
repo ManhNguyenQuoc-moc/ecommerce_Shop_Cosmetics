@@ -1,6 +1,7 @@
 import { Order } from "@prisma/client";
 import { IOrderRepository } from "../interfaces/IOrderRepository";
 import { IOrderService } from "../interfaces/IOrderService";
+import { OrderMapper } from "../mappers/order.mapper";
 
 export class OrderService implements IOrderService {
   private readonly orderRepository: IOrderRepository;
@@ -9,15 +10,19 @@ export class OrderService implements IOrderService {
     this.orderRepository = orderRepository;
   }
 
-  async getOrders(page?: number, pageSize?: number): Promise<{ items: Order[], total: number }> {
+  async getOrders(page?: number, pageSize?: number, filters?: any): Promise<{ items: any[], total: number }> {
     const skip = page && pageSize ? (page - 1) * pageSize : undefined;
     const take = pageSize || undefined;
-    const [items, total] = await this.orderRepository.findAll(skip, take);
-    return { items, total };
+    const [items, total] = await this.orderRepository.findAll(skip, take, filters);
+    
+    const mappedItems = items.map(item => OrderMapper.toDto(item));
+    
+    return { items: mappedItems, total };
   }
 
-  async getOrderById(id: string): Promise<Order | null> {
-    return this.orderRepository.findById(id);
+  async getOrderById(id: string): Promise<any | null> {
+    const order = await this.orderRepository.findById(id);
+    return OrderMapper.toDto(order);
   }
 
   async createOrder(data: any): Promise<Order> {

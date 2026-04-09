@@ -18,6 +18,19 @@ export class InventoryRepository implements IInventoryRepository {
       where.variant = { product: { categoryId: filters.categoryId } };
     }
 
+    // Date Range Filters
+    if (filters?.mfgDateFrom || filters?.mfgDateTo) {
+      where.manufacturingDate = {};
+      if (filters.mfgDateFrom) where.manufacturingDate.gte = new Date(filters.mfgDateFrom);
+      if (filters.mfgDateTo) where.manufacturingDate.lte = new Date(filters.mfgDateTo);
+    }
+
+    if (filters?.expiryDateFrom || filters?.expiryDateTo) {
+      where.expiryDate = {};
+      if (filters.expiryDateFrom) where.expiryDate.gte = new Date(filters.expiryDateFrom);
+      if (filters.expiryDateTo) where.expiryDate.lte = new Date(filters.expiryDateTo);
+    }
+
     if (filters?.status && filters.status !== 'all') {
       const now = new Date();
       const nearExpiry = new Date();
@@ -153,14 +166,25 @@ export class InventoryRepository implements IInventoryRepository {
   }
 
   async getStockForVariants(variantIds: string[]) {
+    const now = new Date();
+    const minExpiryDate = new Date();
+    minExpiryDate.setMonth(minExpiryDate.getMonth() + 3);
+
     const batches = await prisma.batch.findMany({
       where: { variantId: { in: variantIds } }
     });
-    const stockMap: Record<string, number> = {};
+
+    const stockMap: Record<string, { totalStock: number, availableStock: number }> = {};
     for (const b of batches) {
-      if (!stockMap[b.variantId]) stockMap[b.variantId] = 0;
-      stockMap[b.variantId] += b.quantity;
+      if (!stockMap[b.variantId]) {
+        stockMap[b.variantId] = { totalStock: 0, availableStock: 0 };
+      }
+      stockMap[b.variantId].totalStock += b.quantity;
+      if (new Date(b.expiryDate) > minExpiryDate && b.quantity > 0) {
+        stockMap[b.variantId].availableStock += b.quantity;
+      }
     }
     return stockMap;
   }
+
 }

@@ -1,7 +1,7 @@
 "use client";
 
-import { Plus } from "lucide-react";
-import { useState, useRef } from "react";
+import { Plus, Search } from "lucide-react";
+import { useState, useRef, useMemo } from "react";
 import { createPurchaseOrder, PURCHASE_API_ENDPOINT } from "@/src/services/admin/purchase.service";
 import { useBrands } from "@/src/services/admin/brand.service";
 import { useVariants } from "@/src/services/admin/product.service";
@@ -62,8 +62,19 @@ export default function CreatePOForm({ onSuccess }: Props) {
   const submitCreatePO = createPurchaseOrder;
   const [page, setPage] = useState(1);
   const pageSize = 6;
-  const { variants, total } = useVariants(page, pageSize, selectedBrandId ? { brandId: selectedBrandId } : undefined);
-  const { brands } = useBrands();
+  const [itemSearch, setItemSearch] = useState("");
+  const [sourceVariantSearch, setSourceVariantSearch] = useState("");
+  
+  const { variants, total, isLoading: variantsLoading } = useVariants(
+    page, 
+    pageSize, 
+    { 
+      brandId: selectedBrandId || undefined,
+      search: sourceVariantSearch || undefined
+    }
+  );
+  const [brandSearch, setBrandSearch] = useState("");
+  const { brands, isLoading: brandsLoading } = useBrands(1, 10, { searchTerm: brandSearch, minimal: true });
 
   const brandList: Array<{ id: string; name: string }> = brands?.data || brands || [];
 
@@ -81,6 +92,17 @@ export default function CreatePOForm({ onSuccess }: Props) {
   };
 
   const totalAmount = selectedItems.reduce((acc, curr) => acc + curr.orderedQty * curr.costPrice, 0);
+
+  const filteredSelectedItems = useMemo(() => {
+    if (!itemSearch.trim()) return selectedItems;
+    const q = itemSearch.toLowerCase();
+    return selectedItems.filter((i) => {
+      const name = i.name?.toLowerCase() ?? "";
+      const variant = [i.color, i.size].join(" ").toLowerCase();
+      const sku = i.sku?.toLowerCase() ?? "";
+      return name.includes(q) || variant.includes(q) || sku.includes(q);
+    });
+  }, [selectedItems, itemSearch]);
 
   const handleSubmit = async () => {
     try {
@@ -134,11 +156,14 @@ export default function CreatePOForm({ onSuccess }: Props) {
             rules={[{ required: true, message: "Vui lòng chọn thương hiệu" }]}
           >
             <SWTSelect
-              placeholder="Chọn hoặc tìm kiếm thương hiệu..."
+              placeholder="Chọn thương hiệu / Nhà cung cấp..."
+              className="w-full h-11 dark:[&_.ant-select-selector]:!bg-slate-800/50"
+              options={brandList.map(b => ({ label: b.name, value: b.id }))}
               showSearch
-              optionFilterProp="label"
-              options={brandList.map((b) => ({ label: b.name, value: b.id }))}
-              className="w-full dark:[&_.ant-select-selector]:!bg-slate-800/80 dark:[&_.ant-select-selector]:!border-slate-700 dark:[&_.ant-select-selection-item]:!text-white"
+              filterOption={false}
+              onSearch={(val) => setBrandSearch(val)}
+              loading={brandsLoading}
+              value={selectedBrandId}
               onChange={(val) => {
                 const nextBrand = val as string;
                 if (selectedBrandId) {
@@ -147,6 +172,7 @@ export default function CreatePOForm({ onSuccess }: Props) {
 
                 const restored = savedByBrand[nextBrand];
                 setSelectedBrandId(nextBrand);
+                form.setFieldValue('brandId', nextBrand);
                 if (restored) {
                   setSelectedItems(restored.selectedItems || []);
                 } else {
@@ -194,15 +220,30 @@ export default function CreatePOForm({ onSuccess }: Props) {
                 Tick chọn vào biến thể từ danh sách để thêm trực tiếp vào phiếu đặt hàng.
               </p>
             </div>
+
+            <div className="flex items-center gap-3 w-full lg:w-auto">
+              <SWTInput
+                prefix={<Search size={16} className="text-slate-400" />}
+                placeholder="Tìm sản phẩm / SKU..."
+                value={sourceVariantSearch}
+                onChange={(e) => {
+                  setSourceVariantSearch(e.target.value);
+                  setPage(1); // Reset page on search
+                }}
+                allowClear
+                className="!max-w-xs !h-10 !rounded-xl dark:!bg-slate-800 dark:!border-slate-700"
+              />
+            </div>
           </div>
         </div>
         
         <div className="p-4">
           {/* BẢNG 1: Danh sách sản phẩm */}
-          {selectedBrandId && (variants ?? []).length > 0 && (
+          {selectedBrandId && (
             <div className="mb-4">
               <SWTTable
                 rowKey={(r: any) => r.variant.id}
+                loading={variantsLoading}
                 columns={[
                   {
                     title: "",
@@ -289,7 +330,7 @@ export default function CreatePOForm({ onSuccess }: Props) {
                   },
                   {
                     title: "Đã bán",
-                    dataIndex: ["variant", "soldCount"],
+                    dataIndex: ["variant", "sold"],
                     width: COLUMN_WIDTH.sold,
                     align: "right",
                   },
@@ -310,12 +351,26 @@ export default function CreatePOForm({ onSuccess }: Props) {
                 ]}
                 dataSource={(variants ?? []).map((v: any) => ({ product: { name: v.productName, id: v.productId }, variant: { ...v, id: v.id } }))}
                 pagination={{
-                  fetch: page,
-                  page,
+                  fetch: pageSize,
+                  page: page,
                   totalCount: total || 0,
                   onChange: (p: number) => setPage(p),
                 }}
                 className="dark:[&_.ant-table]:!bg-slate-900/40 dark:[&_.ant-table-thead_th]:!bg-slate-800/80 dark:[&_.ant-table-tbody_tr:hover_td]:!bg-brand-500/10"
+              />
+            </div>
+          )}
+          
+          {/* Search bar for selected items */}
+          {selectedItems.length > 0 && (
+            <div className="mb-3 px-1">
+              <SWTInput
+                prefix={<Search size={14} className="text-slate-400" />}
+                placeholder="Tìm trong danh sách đã chọn..."
+                value={itemSearch}
+                onChange={(e) => setItemSearch(e.target.value)}
+                allowClear
+                className="!rounded-xl !h-9 !bg-slate-50 dark:!bg-slate-800/50 !border-slate-200 dark:!border-slate-700 max-w-sm text-sm"
               />
             </div>
           )}
@@ -417,7 +472,7 @@ export default function CreatePOForm({ onSuccess }: Props) {
                       new Intl.NumberFormat("vi-VN").format(r.costPrice * r.orderedQty),
                   },
                 ]}
-                dataSource={selectedItems}
+                dataSource={filteredSelectedItems}
                 pagination={false}
               />
             </div>

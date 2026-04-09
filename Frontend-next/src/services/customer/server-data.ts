@@ -19,10 +19,10 @@ export const getServerCategories = async (): Promise<CategoryResponseDto[]> => {
   return (res as any)?.data || (Array.isArray(res) ? res : []);
 };
 
-export const getServerBrands = async (page: number = 1, pageSize: number = 100): Promise<BrandResponseDto[]> => {
-  const res = await getServer<{ data: BrandResponseDto[]; total: number }>("/brands", { page, pageSize }, {
+export const getServerBrands = async (page: number = 1, pageSize: number = 1000): Promise<BrandResponseDto[]> => {
+  const res = await getServer<any>("/brands", { page, pageSize }, {
     revalidate: 60
   });
 
-  return (res as any)?.data || [];
+  return res?.data?.data || res?.data || [];
 };

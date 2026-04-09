@@ -603,6 +603,12 @@ import purchaseRoute from "./routes/purchase.route";
 import inventoryRoute from "./routes/inventory.route";
 
 const app = express();
+
+// Fix for BigInt serialization issue
+(BigInt.prototype as any).toJSON = function () {
+  return this.toString();
+};
+
 app.use(
   cors({
     origin: [

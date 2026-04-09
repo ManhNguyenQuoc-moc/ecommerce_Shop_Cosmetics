@@ -1,6 +1,4 @@
 "use client";
-
-import React from "react";
 import SWTSkeleton from "@/src/@core/component/SWTSkeleton";
 
 export default function HomeSkeleton() {
@@ -38,8 +36,8 @@ export default function HomeSkeleton() {
       <section className="w-full mb-8">
         <div className="container mx-auto">
           <div className="flex items-center justify-between mb-4 px-4">
-             <SWTSkeleton width={150} height={32} />
-             <SWTSkeleton width={100} height={24} />
+            <SWTSkeleton width={150} height={32} />
+            <SWTSkeleton width={100} height={24} />
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
             {[1, 2, 3, 4].map((i) => (
@@ -81,9 +79,9 @@ export default function HomeSkeleton() {
 
 function ProductCardSkeleton() {
   return (
-    <div className="bg-white rounded-2xl p-3 border border-gray-100 shadow-sm space-y-3">
+    <div className="bg-white rounded-2xl p-3 border border-gray-100 shadow-sm flex flex-col gap-3">
       <SWTSkeleton className="aspect-square w-full" rounded="xl" />
-      <div className="space-y-2">
+      <div className="flex flex-col gap-2">
         <SWTSkeleton width="40%" height={10} />
         <SWTSkeleton width="90%" height={16} />
         <SWTSkeleton width="95%" height={16} />

@@ -1,9 +1,10 @@
 "use client";
-import { DatePicker, DatePickerProps } from "antd";
+import { DatePicker, DatePickerProps, GetProps } from "antd";
 
 export type SWTDatePickerProps = DatePickerProps & {
     label?: string;
 };
+
 const SWTDatePicker = ({ ...props }: SWTDatePickerProps) => {
     return (
         <DatePicker
@@ -21,4 +22,15 @@ const SWTDatePicker = ({ ...props }: SWTDatePickerProps) => {
     );
 };
 
-export default SWTDatePicker;
+export type RangePickerProps = GetProps<typeof DatePicker.RangePicker>;
+
+export const SWTDateRangePicker = (props: RangePickerProps) => {
+    return (
+        <DatePicker.RangePicker
+            {...props}
+            className={`h-11 rounded-xl ${props.className || ""}`}
+        />
+    );
+};
+
+export default SWTDatePicker;

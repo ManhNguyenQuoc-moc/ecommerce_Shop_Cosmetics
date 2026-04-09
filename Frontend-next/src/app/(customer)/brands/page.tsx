@@ -6,7 +6,7 @@ import BrandGridClient from "./components/BrandGridClient";
 
 export default async function BrandPage() {
   const [brands, categories] = await Promise.all([
-    getServerBrands(1, 100),
+    getServerBrands(1, 1000),
     getServerCategories()
   ]);
   const featuredBrands = brands.slice(0, 3);

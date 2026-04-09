@@ -28,7 +28,7 @@ export interface VariantDetailDto {
   stock: number;
   image?: string | null;
   imageId?: string | null;
-  soldCount: number;
+  sold: number;
   statusName: string; // e.g. "NEW", "BEST_SELLING"
   status: string;     // e.g. "Đang bán", "Đã ẩn"
   statusRaw: string;  // e.g. "ACTIVE", "HIDDEN"

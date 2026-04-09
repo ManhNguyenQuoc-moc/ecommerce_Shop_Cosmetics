@@ -5,7 +5,6 @@ import Image from "next/image";
 import { FileSpreadsheet, FileText, PackageCheck, Save, X, Layers } from "lucide-react";
 import dayjs from "dayjs";
 import { PODetailDto } from "@/src/services/models/purchase/output.dto";
-import { ReceiveStockInput } from "@/src/services/models/purchase/input.dto";
 import SWTButton from "@/src/@core/component/AntD/SWTButton";
 import SWTTable from "@/src/@core/component/AntD/SWTTable";
 import SWTForm from "@/src/@core/component/AntD/SWTForm";
@@ -23,9 +22,9 @@ const COLUMN_WIDTH = {
   variant: 130,
   sku: 120,
   progress: 90,
-  qty: 110,
-  batch: 130,
-  date: 140,
+  qty: 100,
+  batch: 165,
+  date: 150,
 };
 
 interface POReceiptSectionProps {
@@ -271,7 +270,8 @@ const POReceiptSection: React.FC<POReceiptSectionProps> = ({
                     return (
                       <SWTFormItem name={`batch_${record.variantId}`} rules={[{ required: isSelected }]} className="!mb-0">
                         <SWTInput
-                          disabled={!isSelected}
+                          disabled={true}
+                          showCount ={false}
                           className="!w-full !rounded-xl text-xs uppercase !bg-white dark:!bg-slate-800/50 !border-slate-200 dark:!border-slate-700/50 !h-9 px-2"
                           placeholder="BATCH..."
                         />
@@ -280,18 +280,23 @@ const POReceiptSection: React.FC<POReceiptSectionProps> = ({
                   }
                 },
                 {
-                  title: "Ngày SX",
+                  title: "Ngày SX *",
                   key: "mfg",
                   width: COLUMN_WIDTH.date,
                   render: (_: any, record: any) => {
                     const isSelected = selectedVariantIds.includes(record.variantId);
                     return (
-                      <SWTFormItem name={`mfg_${record.variantId}`} className="!mb-0">
+                      <SWTFormItem
+                        name={`mfg_${record.variantId}`}
+                        rules={[{ required: isSelected, message: "Nhập ngày SX" }]}
+                        className="!mb-0"
+                      >
                         <SWTDatePicker
                           format="DD/MM/YYYY"
                           showToday={false}
                           disabled={!isSelected}
                           placeholder="NSX"
+                          disabledDate={(d) => d && d.isAfter(dayjs().subtract(1, "day"))}
                           className="!w-full !rounded-xl !bg-white dark:!bg-slate-800/50 !border-slate-200 dark:!border-slate-700/50 !h-9 [&_input]:!text-xs"
                         />
                       </SWTFormItem>
@@ -305,11 +310,11 @@ const POReceiptSection: React.FC<POReceiptSectionProps> = ({
                   render: (_: any, record: any) => {
                     const isSelected = selectedVariantIds.includes(record.variantId);
                     return (
-                      <SWTFormItem name={`expiry_${record.variantId}`} rules={[{ required: isSelected }]} className="!mb-0">
+                      <SWTFormItem name={`expiry_${record.variantId}`} rules={[{ required: isSelected , message: "Nhập hạn sử dụng" }]} className="!mb-0">
                         <SWTDatePicker
                           format="DD/MM/YYYY"
                           showToday={false}
-                          disabled={!isSelected}
+                          disabledDate={(d) => d && !d.isAfter(dayjs(), "day")}
                           placeholder="HSD"
                           className="!w-full !rounded-xl !bg-white dark:!bg-slate-800/50 !border-slate-200 dark:!border-slate-700/50 !h-9 [&_input]:!text-xs"
                         />

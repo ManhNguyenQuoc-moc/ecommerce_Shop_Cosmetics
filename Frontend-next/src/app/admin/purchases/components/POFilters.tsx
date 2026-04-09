@@ -21,7 +21,7 @@ export default function POFilters({ startTransition }: POFiltersProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
-  const { brands } = useBrands();
+  const { brands } = useBrands(1, 500);
 
   const searchStr = searchParams.get("search") || "";
   const [localSearch, setLocalSearch] = useState(searchStr);

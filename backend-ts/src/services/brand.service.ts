@@ -5,9 +5,9 @@ type Brand = any;
 export class BrandService {
   constructor(private readonly brandRepository: BrandRepository = new BrandRepository()) {}
 
-  async getAllBrands(page?: number, limit?: number): Promise<{ items: Brand[], total: number }> {
+  async getAllBrands(page?: number, limit?: number, filters?: any): Promise<{ items: Brand[], total: number }> {
     const skip = page && limit ? (page - 1) * limit : undefined;
-    const [items, total] = await this.brandRepository.findAll(skip, limit);
+    const [items, total] = await this.brandRepository.findAll(skip, limit, filters);
     return { items, total };
   }
 

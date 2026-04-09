@@ -56,6 +56,8 @@ export interface ProductQueryFilters {
   maxPrice?: number;
   isSale?: boolean;
   rating?: number;
+  inStock?: boolean;
+  minimal?: boolean;
 }
 
 export interface VariantQueryFilters {

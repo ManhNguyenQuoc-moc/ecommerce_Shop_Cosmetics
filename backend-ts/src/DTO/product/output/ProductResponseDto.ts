@@ -63,7 +63,7 @@ export interface VariantResponseDto {
   stock: number;
   image?: string | null;
   imageId?: string | null;
-  soldCount: number;
+  sold: number;
   statusName?: string;
   createdAt: Date;
   updatedAt: Date;

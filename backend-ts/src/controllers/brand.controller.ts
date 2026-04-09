@@ -8,8 +8,12 @@ export class BrandController {
     try {
       const page = req.query.page ? parseInt(req.query.page as string) : null;
       const limit = (req.query.limit || req.query.pageSize) ? parseInt((req.query.limit || req.query.pageSize) as string) : null;
+      const filters = {
+        searchTerm: (req.query.searchTerm || req.query.search) as string,
+        minimal: req.query.minimal === 'true'
+      };
       
-      const { items, total } = await this.brandService.getAllBrands(page || undefined, limit || undefined);
+      const { items, total } = await this.brandService.getAllBrands(page || undefined, limit || undefined, filters);
       
       res.status(200).json({ 
         success: true, 

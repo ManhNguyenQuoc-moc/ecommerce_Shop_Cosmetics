@@ -7,5 +7,5 @@ export interface IInventoryRepository {
   findBatch(variantId: string, batchNumber: string): Promise<Batch | null>;
   receiveStockWithTransaction(poId: string, variantId: string, batchData: any, qty: number, note?: string): Promise<any>;
   
-  getStockForVariants(variantIds: string[]): Promise<Record<string, number>>;
+  getStockForVariants(variantIds: string[]): Promise<Record<string, { totalStock: number, availableStock: number }>>;
 }

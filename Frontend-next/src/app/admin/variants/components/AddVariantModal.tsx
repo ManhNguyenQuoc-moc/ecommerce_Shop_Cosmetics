@@ -36,7 +36,8 @@ export default function AddVariantModal({ isOpen, onClose, onAdd }: AddVariantMo
   const [form] = SWTForm.useForm();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
-  const { products, isLoading: isProductsLoading } = useProducts(1, 100);
+  const [productSearch, setProductSearch] = useState("");
+  const { products, isLoading: isProductsLoading } = useProducts(1, 20, { minimal: true, searchTerm: productSearch });
 
   const handleFinish = async (values: AddVariantFormValues) => {
     if (!selectedProductId) return;
@@ -111,9 +112,8 @@ export default function AddVariantModal({ isOpen, onClose, onAdd }: AddVariantMo
             ?.filter((p: any) => p.status !== 'HIDDEN')
             .map((p: any) => ({ label: p.name, value: p.id })) || []}
           showSearch
-          filterOption={(input, option) =>
-            (option?.label ?? '').toString().toLowerCase().includes(input.toLowerCase())
-          }
+          filterOption={false}
+          onSearch={(val) => setProductSearch(val)}
           className="w-full h-11 dark:[&_.ant-select-selector]:!bg-slate-800/80 dark:[&_.ant-select-selector]:!border-slate-700 dark:[&_.ant-select-selection-item]:!text-white"
           value={selectedProductId}
           onChange={(val) => setSelectedProductId(val)}

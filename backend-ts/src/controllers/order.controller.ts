@@ -13,8 +13,14 @@ export class OrderController {
     try {
       const page = parseInt(req.query.page as string || "1");
       const pageSize = parseInt(req.query.pageSize as string || req.query.limit as string || "10");
+      const filters = {
+        searchTerm: req.query.searchTerm as string,
+        status: req.query.status as string,
+        startDate: req.query.startDate as string,
+        endDate: req.query.endDate as string,
+      };
       
-      const { items, total } = await this.orderService.getOrders(page, pageSize);
+      const { items, total } = await this.orderService.getOrders(page, pageSize, filters);
 
       res.status(200).json({
         success: true,
@@ -54,7 +60,8 @@ export class OrderController {
   createOrder = async (req: Request, res: Response): Promise<void> => {
     try {
       const { paymentMethod, total, ...orderData } = req.body;
-      const order = await this.orderService.createOrder({ total, ...orderData });
+      const userId = (req as any).user?.id;
+      const order = await this.orderService.createOrder({ userId, total, ...orderData });
       
       if (paymentMethod === "vnpay") {
         const paymentUrl = createPaymentUrl({

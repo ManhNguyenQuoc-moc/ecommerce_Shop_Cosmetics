@@ -51,7 +51,7 @@ export default function ProductVariants({
         <div className="flex flex-wrap gap-2">
           {variants.map((v) => {
             const active = variant?.id === v.id;
-            const outOfStock = v.stock === 0;
+            const outOfStock = v.availableStock === undefined || v.availableStock <= 0;
 
             return (
               <button
@@ -75,10 +75,16 @@ export default function ProductVariants({
                     Hết hàng
                   </span>
                 )}
+                {!outOfStock && v.availableStock < 5 && (
+                  <span className="text-[9px] block text-orange-500 leading-none mt-0.5 font-bold">
+                    Còn {v.availableStock}
+                  </span>
+                )}
               </button>
             );
           })}
         </div>
+
       </div>
     </div>
   );
