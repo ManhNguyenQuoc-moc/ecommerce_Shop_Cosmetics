@@ -8,6 +8,7 @@ import Loading from "@/src/@core/component/Loading";
 import { useState } from "react";
 import { useCartStore } from "@/src/stores/useCartStore";
 import { useCheckoutStore } from "@/src/stores/useCheckoutStore";
+import { showNotificationError } from "@/src/@core/utils/message";
 
 export default function CartSummary() {
    const [loading, setLoading] = useState(false);
@@ -31,6 +32,14 @@ export default function CartSummary() {
     value.toLocaleString("vi-VN") + " đ";
   const  handleCheckout = async () => {
     if (items.length === 0) return;
+
+    // Kiểm tra sản phẩm hết hàng
+    const outOfStockItems = items.filter((item) => item.stock === 0);
+    if (outOfStockItems.length > 0) {
+      const names = outOfStockItems.map((i) => i.productName).join(", ");
+      showNotificationError(`Sản phẩm đã hết hàng: ${names}. Vui lòng xóa khỏi giỏ hàng trước khi tiếp tục.`);
+      return;
+    }
 
     const checkoutItems = items.map((item) => ({
       id: item.id,

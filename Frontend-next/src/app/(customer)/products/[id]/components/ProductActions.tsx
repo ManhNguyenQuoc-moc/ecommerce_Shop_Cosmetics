@@ -18,7 +18,17 @@ export default function ProductActions({ qty, product, variant }: Props) {
   const setBuyNow = useCheckoutStore((s) => s.setBuyNow);
   const addItem = useCartStore((s) => s.addItem);
   const router = useRouter();
-  const [loading, setLoading] = useState(false); 
+  const hasVariants = product.variants?.length > 0;
+  const noVariantSelected = hasVariants && !variant;
+  const isOutOfStock = variant ? variant.stock === 0 : false;
+  const isDisabled = noVariantSelected || isOutOfStock;
+  const disabledTitle = noVariantSelected
+    ? "Vui lòng chọn biến thể"
+    : isOutOfStock
+    ? "Sản phẩm đã hết hàng"
+    : undefined;
+
+  const [loading, setLoading] = useState(false);
 
   const currentVariantId = variant ? variant.id : "default";
   
@@ -67,14 +77,18 @@ export default function ProductActions({ qty, product, variant }: Props) {
     <div className="flex gap-3 pt-4">
       <SWTButton
         onClick={handleAddToCart}
-        className="flex-1 !border-brand-500 !text-brand-500 !py-5 font-medium hover:!bg-brand-50 transition"
+        disabled={isDisabled}
+        title={disabledTitle}
+        className="flex-1 !border-brand-500 !text-brand-500 !py-5 font-medium hover:!bg-brand-50 transition disabled:!opacity-50 disabled:!cursor-not-allowed"
       >
         Thêm vào giỏ hàng
       </SWTButton>
 
       <SWTButton
         onClick={handleBuyNow}
-        className="flex-1 !bg-brand-500 !text-white !py-5 font-medium hover:!bg-brand-700 transition"
+        disabled={isDisabled}
+        title={disabledTitle}
+        className="flex-1 !bg-brand-500 !text-white !py-5 font-medium hover:!bg-brand-700 transition disabled:!opacity-50 disabled:!cursor-not-allowed"
       >
         Mua ngay ({qty})
       </SWTButton>

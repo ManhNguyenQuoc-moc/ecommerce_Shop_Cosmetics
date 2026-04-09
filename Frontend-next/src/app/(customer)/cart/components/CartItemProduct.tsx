@@ -7,11 +7,19 @@ import { Heart, Trash2 } from "lucide-react";
 type Props = {
   item: CartItem;
   onRemove?: (id: string) => void;
+  outOfStock?: boolean;
 };
 
-export default function CartItemProduct({ item, onRemove }: Props) {
+export default function CartItemProduct({ item, onRemove, outOfStock = false }: Props) {
   return (
-    <div className="flex gap-4 items-start py-2">
+    <div className={`flex gap-4 items-start py-2 relative ${outOfStock ? "opacity-50" : ""}`}>
+      {outOfStock && (
+        <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+          <span className="bg-red-500 text-white text-xs font-semibold px-2 py-0.5 rounded-full">
+            Hết hàng
+          </span>
+        </div>
+      )}
       {/* Product Image */}
       <div className="relative w-16 h-16 flex-shrink-0 bg-gray-50 rounded-lg border border-gray-100 overflow-hidden">
         <Image

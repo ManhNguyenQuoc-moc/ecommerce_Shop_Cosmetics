@@ -85,3 +85,112 @@ BÁO CÁO CẬP NHẬT - [08/04/2026]
 
 TỔNG KẾT NGÀY 08/04:
 Hệ thống đã nâng cấp từ một giải pháp lưu trữ tạm thời sang một nền tảng Thương mại điện tử có tính toàn vẹn dữ liệu cao, tốc độ xử lý bán hàng nhanh và trải nghiệm người dùng mượt mà đạt chuẩn quốc tế.
+fix bug
+Task
+Walkthrough
+4
+apiServer.ts
+page.tsx
+page.tsx
+index.ts
+🛒 Cart là state theo user (không thể static)
+Phụ thuộc:
+user login
+localStorage / cookie
+session
+Mỗi user khác nhau → data khác nhau
+
+👉 Nếu dùng SSG:
+
+❌ build 1 lần → không đúng cho mọi user
+
+2. 💳 Checkout cần realtime + bảo mật
+Giá, stock thay đổi liên tục
+Gọi payment API
+Validate user
+
+👉 Không thể:
+
+pre-render
+cache lâu
+3. 🚫 Tránh lỗi bạn đang gặp
+
+Nếu để Server Component:
+
+// BAD ❌
+export default async function Page() {
+  const cart = await fetch(...)
+}
+
+👉 build sẽ gọi API → dễ:
+
+timeout
+fail deploy
+✅ Kiến trúc chuẩn cho bạn (rất quan trọng)
+🔹 Cách 1: CSR hoàn toàn (đơn giản nhất)
+"use client";
+
+import { useEffect, useState } from "react";
+
+export default function CartPage() {
+  const [cart, setCart] = useState(null);
+
+  useEffect(() => {
+    fetch("/api/cart")
+      .then(res => res.json())
+      .then(setCart);
+  }, []);
+
+  if (!cart) return <div>Loading...</div>;
+
+  return <div>{JSON.stringify(cart)}</div>;
+}
+
+👉 Ưu điểm:
+
+không bị build fail
+đúng logic user-specific
+🔹 Cách 2: Hybrid (PRO hơn – khuyên dùng)
+
+👉 Server chỉ render layout + skeleton
+👉 Client fetch data
+
+// page.tsx
+export const dynamic = "force-dynamic";
+
+export default function Page() {
+  return <CartClient />;
+}
+"use client";
+
+function CartClient() {
+  // fetch ở đây
+}
+⚠️ Những thứ KHÔNG nên làm
+❌ Fetch DB trực tiếp trong page
+await prisma.cart.findMany()
+❌ Fetch API trong Server Component
+await fetch("/api/cart")
+❌ Static page cho cart
+export const revalidate = 60 // ❌ sai phân tích cách này cho cart và checkout hiện tại của tôi kể cả frontend và backend luôn 
+🛒 Phân tích Frontend (Next.js)
+Trạng thái hiện tại:
+
+
+Cart & Checkout Pages: Đang dùng "use client" và fetch qua SWR/Axios. Đây là hướng đi đúng (CSR/Hybrid) vì dữ liệu này phụ thuộc vào authentication và cookies.
+
+Layout: Layout tổng (customer/layout.tsx) có fetch dữ liệu Server-side (Category/Brand). Điều này tốt cho SEO nhưng cần cẩn thận vì nó bao bọc cả Cart/Checkout.
+
+Build Optimization: Tôi vừa thêm force-dynamic để ngăn Next.js cố gắng "đóng gói" các trang này thành static HTML lúc build.
+
+Vấn đề với revalidate = 60 ở đây:
+
+
+Nếu bạn để revalidate = 60 ở trang Cart, Next.js sẽ build ra một bản HTML "trắng" hoặc chỉ có "Loading...". Mọi user truy cập sẽ thấy bản static đó trước khi Client fetch. Điều này làm trang web cảm giác bị "nháy" (Hydration mismatch) và không mang lại giá trị thực tế nào cho user-specific page.
+
+🛠️ Các hành động tôi đã thực hiện:
+ Force Dynamic: Ép /cart và /checkout luôn chạy runtime.
+ Timeout Safety: Giới hạn thời gian chờ API ở Server-side để build không bao giờ bị treo.
+ Axios Optimization: Rút ngắn thời gian chờ ở Client để tránh cảm giác treo máy khi mạng yếu.
+Bạn có muốn tôi kiểm tra thêm phần logic Security (như check tồn kho lúc nhấn Checkout) ở Backend không? Vì đây thường là nơi dễ gây lỗi "Race Condition" nhất trong eCommerce.
+
