@@ -387,9 +387,7 @@ export class ProductRepository implements IProductRepository {
         case 'price_desc': orderBy = Prisma.sql`COALESCE(v."salePrice", v."price") DESC, v."id" DESC`; break;
         case 'stock_asc': orderBy = Prisma.sql`"stock" ASC, v."id" DESC`; break;
         case 'stock_desc': orderBy = Prisma.sql`"stock" DESC, v."id" DESC`; break;
-        case 'sold_desc': orderBy = Prisma.sql`
-          (SELECT COALESCE(SUM(oi.quantity), 0) FROM "OrderItem" oi WHERE oi."variantId" = v.id) DESC, 
-          v."id" DESC`; break;
+        case 'sold_desc': orderBy = Prisma.sql`v."sold" DESC, v."id" DESC`; break;
         case 'rating': orderBy = Prisma.sql`p."rating" DESC, v."id" DESC`; break;
       }
     }
@@ -459,7 +457,7 @@ export class ProductRepository implements IProductRepository {
       include: {
         brand: true,
         category: true,
-        variants: { include: { image: true, orderItems: true } },
+        variants: { include: { image: true } },
         reviews: true,
         productImages: { include: { image: true }, orderBy: { order: 'asc' } },
       },
@@ -476,7 +474,7 @@ export class ProductRepository implements IProductRepository {
       include: {
         brand: true,
         category: true,
-        variants: { include: { image: true, orderItems: true } },
+        variants: { include: { image: true } },
         reviews: { include: { user: true } },
         productImages: { include: { image: true }, orderBy: { order: 'asc' } },
       },

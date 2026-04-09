@@ -7,28 +7,38 @@ import { Heart, Trash2 } from "lucide-react";
 type Props = {
   item: CartItem;
   onRemove?: (id: string) => void;
+  outOfStock?: boolean;
 };
 
-export default function CartItemProduct({ item, onRemove }: Props) {
+export default function CartItemProduct({ item, onRemove, outOfStock = false }: Props) {
   return (
-    <div className="flex gap-4 items-start py-2">
+    <div className={`flex gap-4 items-start py-2 relative ${outOfStock ? "opacity-50" : ""}`}>
+      {outOfStock && (
+        <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+          <span className="bg-red-500 text-white text-xs font-semibold px-2 py-0.5 rounded-full">
+            Hết hàng
+          </span>
+        </div>
+      )}
       {/* Product Image */}
       <div className="relative w-16 h-16 flex-shrink-0 bg-gray-50 rounded-lg border border-gray-100 overflow-hidden">
         <Image
-          src={item.image}
+          src={item.image || ""}
           alt={item.productName}
-          fill
-          sizes="80px"
-          className="object-cover hover:scale-105 transition-transform duration-300"
+          width={100}
+          height={100}
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
         />
       </div>
 
       {/* Product Info */}
       <div className="flex flex-col flex-1 min-w-0">
         <div className="mb-1">
-          <p className="text-xs font-medium text-gray-400 uppercase tracking-wider">
-            {typeof item.brand === "object" ? (item.brand as any).name : item.brand}
-          </p>
+          {item.brandName && (
+            <p className="text-xs font-medium text-gray-400 uppercase tracking-wider">
+              {item.brandName}
+            </p>
+          )}
           <h3 className="text-sm font-semibold text-gray-800 truncate leading-tight">
             {item.productName}
           </h3>

@@ -51,20 +51,30 @@ export default function ProductVariants({
         <div className="flex flex-wrap gap-2">
           {variants.map((v) => {
             const active = variant?.id === v.id;
+            const outOfStock = v.stock === 0;
 
             return (
               <button
                 key={v.id}
                 type="button"
-                onClick={() => setVariant(v)}
-                className={`px-4 py-2 rounded-full border text-sm transition-all
+                onClick={() => !outOfStock && setVariant(v)}
+                disabled={outOfStock}
+                title={outOfStock ? "Sản phẩm này đã hết hàng" : undefined}
+                className={`px-4 py-2 rounded-full border text-sm transition-all relative flex flex-col items-center leading-tight
                 ${
-                  active
+                  outOfStock
+                    ? "border-gray-200 text-gray-300 cursor-not-allowed bg-gray-50"
+                    : active
                     ? "border-brand-500 text-brand-500 bg-brand-50 shadow-sm"
                     : "border-gray-300 hover:border-brand-500 text-gray-700"
                 }`}
               >
                 {v.color || v.size}
+                {outOfStock && (
+                  <span className="text-[9px] block text-gray-400 leading-none mt-0.5 no-underline">
+                    Hết hàng
+                  </span>
+                )}
               </button>
             );
           })}

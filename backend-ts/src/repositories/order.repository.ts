@@ -1,4 +1,4 @@
-import { Order } from "@prisma/client";
+import { Order, OrderStatus } from "@prisma/client";
 import { IOrderRepository } from "../interfaces/IOrderRepository";
 import { prisma } from "../config/prisma";
 
@@ -41,8 +41,8 @@ export class OrderRepository implements IOrderRepository {
 
   async create(data: any): Promise<Order> {
     const { items, ...orderData } = data;
-    
-    return prisma.order.create({
+
+    const order = await prisma.order.create({
       data: {
         ...orderData,
         items: {
@@ -58,13 +58,70 @@ export class OrderRepository implements IOrderRepository {
         items: true,
       },
     });
+
+    if (order.current_status === "CONFIRMED" || order.current_status === "DELIVERED" || order.current_status === "SHIPPING") {
+      await this.syncSoldCounts(order.id, "increment");
+    }
+
+    return order;
   }
 
   async update(id: string, data: any): Promise<Order> {
-    return prisma.order.update({
+    const oldOrder = await prisma.order.findUnique({
+      where: { id },
+      select: { current_status: true }
+    });
+
+    const updatedOrder = await prisma.order.update({
       where: { id },
       data,
+      include: { items: true }
     });
+
+    if (oldOrder && data.current_status && oldOrder.current_status !== data.current_status) {
+      const isNowSold = ["CONFIRMED", "SHIPPING", "DELIVERED"].includes(data.current_status);
+      const wasSold = ["CONFIRMED", "SHIPPING", "DELIVERED"].includes(oldOrder.current_status);
+
+      if (isNowSold && !wasSold) {
+        await this.syncSoldCounts(id, "increment");
+      } else if (!isNowSold && wasSold) {
+        await this.syncSoldCounts(id, "decrement");
+      }
+    }
+
+    return updatedOrder;
+  }
+
+  private async syncSoldCounts(orderId: string, action: "increment" | "decrement") {
+    const order = await prisma.order.findUnique({
+      where: { id: orderId },
+      include: { items: true }
+    });
+
+    if (!order) return;
+
+    for (const item of order.items) {
+      if (!item.variantId) continue;
+
+      const incrementValue = action === "increment" ? item.quantity : -item.quantity;
+
+      // Update Variant sold count
+      const variant = await prisma.productVariant.update({
+        where: { id: item.variantId },
+        data: {
+          sold: { increment: incrementValue }
+        },
+        select: { productId: true }
+      });
+
+      // Update Product sold count
+      await prisma.product.update({
+        where: { id: variant.productId },
+        data: {
+          sold: { increment: incrementValue }
+        }
+      });
+    }
   }
 
   async delete(id: string): Promise<void> {

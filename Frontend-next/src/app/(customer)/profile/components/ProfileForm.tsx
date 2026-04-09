@@ -31,6 +31,7 @@ import { updateCustomerInfo } from "@/src/services/customer/user.service";
 import AddressAutocomplete from "../../checkout/components/AddressAutocomplete";
 import { UserProfileDTO } from "@/src/services/models/user/output.dto";
 import ProfileAvatarUpload from "./ProfileAvatarUpload";
+import { useAuth } from "@/src/context/AuthContext";
 
 type Props = {
   initialData: UserProfileDTO;
@@ -45,29 +46,68 @@ export default function ProfileForm({ initialData }: Props) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [addresses, setAddresses] = useState(initialData.addresses || []);
   const [showAddAddress, setShowAddAddress] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState(initialData.avatar);
   const { mutate } = useSWRConfig();
+  const { currentUser, updateUser } = useAuth();
 
-  useEffect(() => {
+  const syncFormValues = () => {
     form.setFieldsValue({
       full_name: initialData.full_name,
       phone: initialData.phone,
       gender: initialData.gender,
       birthday: initialData.birthday ? dayjs(initialData.birthday) : undefined,
     });
+  };
+
+  useEffect(() => {
+    syncFormValues();
     setAddresses(initialData.addresses || []);
+    setAvatarUrl(initialData.avatar);
   }, [initialData, form]);
 
   const onFinish = async (values: any) => {
     try {
+      // Check if anything has actually changed
+      const isBirthdaySame = (values.birthday && initialData.birthday)
+        ? dayjs(values.birthday).isSame(dayjs(initialData.birthday), 'day')
+        : (!values.birthday && !initialData.birthday);
+
+      const hasChanged =
+        values.full_name !== initialData.full_name ||
+        values.phone !== initialData.phone ||
+        values.gender !== initialData.gender ||
+        !isBirthdaySame ||
+        JSON.stringify(addresses) !== JSON.stringify(initialData.addresses || []) ||
+        avatarUrl !== initialData.avatar;
+
+      if (!hasChanged) {
+        showNotificationSuccess("Thông tin không có thay đổi");
+        setIsEdit(false);
+        return;
+      }
+
       setIsSubmitting(true);
-      await updateCustomerInfo({
+      const updateData = {
         full_name: values.full_name,
         phone: values.phone,
         gender: values.gender,
         birthday: values.birthday ? values.birthday.toISOString() : null,
         addresses,
+        avatar: avatarUrl,
+      };
+
+      const response = await updateCustomerInfo(updateData);
+      const updatedUserFromApi = (response as any).data || response;
+
+      // Sync global auth state with the actual data returned from server
+      updateUser({
+        name: updatedUserFromApi.full_name || updatedUserFromApi.name || values.full_name,
+        full_name: updatedUserFromApi.full_name || values.full_name,
+        avatar: updatedUserFromApi.avatar || avatarUrl || currentUser?.avatar,
       });
-      await mutate("/users/me");
+
+      // Update SWR cache immediately with the new data
+      await mutate("/users/me", updatedUserFromApi, false);
       showNotificationSuccess("Cập nhật thành công");
       setIsEdit(false);
     } catch (err: any) {
@@ -75,6 +115,20 @@ export default function ProfileForm({ initialData }: Props) {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleEdit = () => {
+    setIsEdit(true);
+    // Ensure form fields are updated after state change
+    setTimeout(syncFormValues, 0);
+  };
+
+  const handleCancel = () => {
+    setIsEdit(false);
+    form.resetFields();
+    setAvatarUrl(initialData.avatar);
+    // Reset to initial values explicitly to be safe
+    syncFormValues();
   };
 
   const handleAddAddress = (addr: any) => {
@@ -92,11 +146,8 @@ export default function ProfileForm({ initialData }: Props) {
   return (
     <SWTCard className=" !rounded-2xl !border-none !shadow-sm" bodyClassName="p-0">
       <div
-        className="relative h-20 bg-gradient-to-r from-brand-400 via-pink-400 to-rose-400 rounded-t-2xl overflow-hidden"
-        style={{
-          backgroundImage:
-            "radial-gradient(ellipse at 20% 50%, rgba(255,180,150,0.4) 0%, transparent 60%), radial-gradient(ellipse at 80% 30%, rgba(180,120,255,0.35) 0%, transparent 60%)",
-        }}
+        className="h-44 sm:h-52 rounded-t-2xl bg-cover bg-center relative group"
+        style={{ backgroundImage: "url('/images/main/background.jpg')" }}
       >
         <div className="absolute top-4 left-6 w-24 h-24 bg-white/10 rounded-full blur-2xl" />
         <div className="absolute bottom-2 right-12 w-32 h-32 bg-white/10 rounded-full blur-3xl" />
@@ -105,7 +156,7 @@ export default function ProfileForm({ initialData }: Props) {
             <SWTButton
               type="text"
               size="sm"
-              onClick={() => setIsEdit(true)}
+              onClick={handleEdit}
               startIcon={<EditOutlined className="!text-brand-500" />}
               className="!flex !items-center !gap-1.5 !bg-white/80 !backdrop-blur !text-gray-700 hover:!bg-white !text-sm !font-medium !px-3 !py-1.5 !rounded-full !shadow !transition-all !h-[40px]"
             >
@@ -114,7 +165,7 @@ export default function ProfileForm({ initialData }: Props) {
           ) : (
             <>
               <SWTButton
-                onClick={() => setIsEdit(false)}
+                onClick={handleCancel}
                 startIcon={<CloseOutlined />}
                 className="!flex !items-center !gap-1.5 !h-[40px] !bg-white/80 !backdrop-blur !text-gray-600 hover:!bg-white !text-sm !font-medium !px-3 !py-1.5 !rounded-full !shadow !transition-all"
               >
@@ -137,12 +188,12 @@ export default function ProfileForm({ initialData }: Props) {
         <div className="flex flex-col sm:flex-row sm:items-end gap-4 -mt-14 mb-4">
           <div className="shrink-0">
             <ProfileAvatarUpload
-              currentAvatar={initialData.avatar}
-              displayName={undefined}
+              currentAvatar={avatarUrl}
+              onAvatarChange={setAvatarUrl}
               size={112}
             />
           </div>
-          <div className="pb-1 flex-1 min-w-0">
+          <div className="pb-1 mt-25 flex-1 min-w-0">
             <h1 className="text-xl md:text-2xl font-bold text-gray-900 leading-tight truncate">
               {initialData.full_name || "Chưa cập nhật"}
             </h1>
@@ -225,8 +276,31 @@ export default function ProfileForm({ initialData }: Props) {
                 Ngày sinh
               </label>
               {isEdit ? (
-                <SWTFormItem name="birthday" className="!mb-0">
-                  <SWTDatePicker className="w-full h-10  !rounded-md" label="Ngày sinh" />
+                <SWTFormItem
+                  name="birthday"
+                  className="!mb-0"
+                  rules={[
+                    {
+                      validator: (_, value) => {
+                        if (value && value.isAfter(dayjs().subtract(16, "year"))) {
+                          return Promise.reject(new Error("Bạn phải ít nhất 16 tuổi."));
+                        }
+                        if (value && value.isAfter(dayjs())) {
+                          return Promise.reject(new Error("Ngày sinh không thể ở tương lai."));
+                        }
+                        return Promise.resolve();
+                      },
+                    },
+                  ]}
+                >
+                  <SWTDatePicker
+                    className="w-full h-10 !rounded-md"
+                    label="Ngày sinh"
+                    disabledDate={(current) => {
+                      // Cannot select future dates or dates that would make user < 18 years old
+                      return current && (current > dayjs().endOf('day') || current > dayjs().subtract(16, 'year'));
+                    }}
+                  />
                 </SWTFormItem>
               ) : (
                 <p className="text-gray-800 font-semibold text-base">
@@ -247,7 +321,7 @@ export default function ProfileForm({ initialData }: Props) {
               {isEdit && (
                 <SWTButton
                   type="text"
-                  icon={<PlusOutlined/>}
+                  icon={<PlusOutlined />}
                   onClick={() => setShowAddAddress(!showAddAddress)}
                   className="!flex !items-center !gap-1 !text-sm !text-brand-500 hover:!text-brand-700 !font-medium !transition-colors !w-[150px]"
                 >
@@ -309,6 +383,5 @@ export default function ProfileForm({ initialData }: Props) {
         </SWTForm>
       </div>
     </SWTCard>
-
   );
 }

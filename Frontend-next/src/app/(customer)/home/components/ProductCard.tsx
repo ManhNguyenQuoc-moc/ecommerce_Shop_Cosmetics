@@ -30,10 +30,10 @@ export default function ProductCard({ product, loading, priority }: Props) {
     <SWTCard
       loading={loading}
       height={loading ? 420 : "auto"}
-      className={`!overflow-hidden !shadow-sm hover:!shadow-xl transition-all duration-500 group/card !rounded-2xl ${
+      className={`!overflow-hidden transition-all duration-500 group/card !rounded-2xl !border-none ${
         isSale 
-          ? "!border-2 !border-brand-500 shadow-brand-100/50" 
-          : "!border-none"
+          ? "!shadow-[inset_0_0_30px_rgba(255,77,148,0.5),_0_1px_3px_rgba(0,0,0,0.1)] hover:!shadow-[inset_0_0_40px_rgba(255,77,148,0.6),_0_20px_25px_-5px_rgba(0,0,0,0.1),_0_10px_10px_-5px_rgba(0,0,0,0.04)]" 
+          : "!shadow-sm hover:!shadow-xl"
       }`}
       bodyClassName="!p-0"
     >
@@ -62,9 +62,17 @@ export default function ProductCard({ product, loading, priority }: Props) {
                     <span>Giảm {discountPercent}%</span>
                   </div>
                 )}
-                <div className="bg-black/80 text-white text-[9px] font-black px-2 py-0.5 rounded-full backdrop-blur-sm shadow-sm uppercase tracking-tighter w-fit">
-                  Mới
-                </div>
+                {product.status && (
+                  <div className={`text-white text-[9px] font-black px-2.5 py-1 rounded-full backdrop-blur-sm shadow-sm uppercase tracking-tighter w-fit
+                    ${product.status.toUpperCase().includes('MỚI') || product.status.toUpperCase().includes('NEW') ? 'bg-emerald-500/90' : 
+                      product.status.toUpperCase().includes('HOT') ? 'bg-rose-600/90' :
+                      product.status.toUpperCase().includes('BÁN CHẠY') || product.status.toUpperCase().includes('BEST') ? 'bg-amber-500/90' :
+                      product.status.toUpperCase().includes('XU HƯỚNG') || product.status.toUpperCase().includes('TRENDING') ? 'bg-blue-600/90' :
+                      'bg-brand-500/90'}
+                  `}>
+                    {product.status}
+                  </div>
+                )}
               </div>
 
               {/* Action Buttons Overlay */}
@@ -100,14 +108,39 @@ export default function ProductCard({ product, loading, priority }: Props) {
             </div>
 
             {/* Content */}
-            <div className="p-3 space-y-2">
-              <div className="space-y-0.5">
-                <p className="text-[9px] font-black text-brand-500 uppercase tracking-widest flex items-center gap-1 leading-none">
-                  {product.brand?.name}
-                </p>
+            <div className="p-3 space-y-2.5">
+              <div className="space-y-1">
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-[9px] font-black text-brand-500 uppercase tracking-widest flex items-center gap-1 leading-none">
+                    {product.brand?.name}
+                  </p>
+                  {product.status && (
+                    <span className={`text-[8px] font-black px-1.5 py-0.5 rounded uppercase tracking-tighter
+                      ${product.status.toUpperCase().includes('MỚI') || product.status.toUpperCase().includes('NEW') ? 'bg-emerald-50 text-emerald-600' : 
+                        product.status.toUpperCase().includes('HOT') ? 'bg-rose-50 text-rose-600' :
+                        product.status.toUpperCase().includes('BÁN CHẠY') || product.status.toUpperCase().includes('BEST') ? 'bg-amber-50 text-amber-600' :
+                        product.status.toUpperCase().includes('XU HƯỚNG') || product.status.toUpperCase().includes('TRENDING') ? 'bg-blue-50 text-blue-600' :
+                        'bg-brand-50 text-brand-600'}
+                    `}>
+                      {product.status}
+                    </span>
+                  )}
+                </div>
                 <h3 className="text-xs font-bold text-gray-800 line-clamp-2 min-h-[32px] leading-tight group-hover/card:text-brand-600 transition-colors">
                   {product.name}
                 </h3>
+              </div>
+
+              {/* Rating */}
+              <div className="flex items-center gap-0.5">
+                {[...Array(5)].map((_, i) => (
+                  <Star 
+                    key={i} 
+                    size={10} 
+                    className={`${i < Math.floor(product.rating || 5) ? 'text-amber-400 fill-amber-400' : 'text-gray-200'}`} 
+                  />
+                ))}
+                <span className="text-[10px] text-gray-400 font-bold ml-1">({product.rating || "5.0"})</span>
               </div>
               
               <div className="flex items-center justify-between gap-1 border-t border-gray-50 pt-2">
@@ -134,11 +167,14 @@ export default function ProductCard({ product, loading, priority }: Props) {
               {product.sold && (
                 <div className="pt-0.5">
                    {/* Đổi màu thanh tiến trình cho "nóng" hơn nếu đang sale */}
-                   <div className="w-full h-1 bg-gray-100 rounded-full overflow-hidden">
+                   <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden relative">
                       <div 
-                        className={`h-full rounded-full ${isSale ? 'bg-gradient-to-r from-rose-500 to-brand-500' : 'bg-gradient-to-r from-brand-500 to-brand-700'}`} 
+                        className={`h-full rounded-full relative ${isSale ? 'bg-gradient-to-r from-rose-500 to-brand-500' : 'bg-gradient-to-r from-brand-500 to-brand-700'}`} 
                         style={{ width: '65%' }} 
-                      />
+                      >
+                         {/* Lightning Effect */}
+                         <div className="absolute inset-0 bg-white/40 animate-lightning h-full w-full" />
+                      </div>
                    </div>
                    <p className="text-[9px] text-gray-400 font-bold mt-1 uppercase tracking-tighter">
                       Đã bán: <span className={isSale ? "text-rose-500" : "text-brand-500"}>{product.sold}</span>

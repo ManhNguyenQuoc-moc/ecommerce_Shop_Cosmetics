@@ -20,7 +20,7 @@ const BackgroundDecor = () => {
               <path d="M120 105 L121.5 118.5 L135 120 L121.5 121.5 L120 135 L118.5 121.5 L105 120 L118.5 118.5 Z" className="fill-brand-200" opacity="0.7" />
               <circle cx="95" cy="95" r="2" className="fill-brand-200" opacity="0.9" />
               <circle cx="145" cy="145" r="3.5" className="fill-brand-200" opacity="0.5" />
-              
+
               {/* Diamonds */}
               <rect x="80" y="25" width="6" height="6" transform="rotate(45 83 28)" className="fill-brand-200" />
               <rect x="25" y="105" width="8" height="8" transform="rotate(45 29 109)" className="fill-brand-200" opacity="0.7" />
@@ -29,7 +29,6 @@ const BackgroundDecor = () => {
           <rect x="0" y="0" width="100%" height="100%" fill="url(#premium-pattern)" />
         </svg>
       </div>
-
       {/* 3. Floating Cosmetic Accent Icons - Đa dạng icon, màu brand-200/30 (mờ) */}
       <div className="absolute top-[10%] left-[8%] text-brand-200/30 animate-[bounce_5s_infinite]">
         <Sparkles size={90} strokeWidth={1} />
@@ -37,14 +36,13 @@ const BackgroundDecor = () => {
       <div className="absolute top-[18%] right-[15%] text-brand-200/30 animate-[bounce_7s_infinite] delay-300">
         <Wand2 size={70} strokeWidth={1} className="animate-[spin_15s_linear_infinite]" />
       </div>
-      
+
       <div className="absolute top-[45%] right-[5%] text-brand-200/30 animate-[bounce_6s_infinite] delay-700">
         <Flower2 size={110} strokeWidth={0.5} className="animate-[spin_20s_linear_infinite]" />
       </div>
       <div className="absolute top-[50%] left-[10%] text-brand-200/30 animate-[bounce_8s_infinite] delay-500">
         <Droplet size={60} strokeWidth={1.5} className="animate-[spin_25s_linear_infinite_reverse]" />
       </div>
-
       <div className="absolute bottom-[20%] left-[25%] text-brand-200/30 animate-[bounce_5s_infinite] delay-1000">
         <Star size={70} strokeWidth={1} />
       </div>

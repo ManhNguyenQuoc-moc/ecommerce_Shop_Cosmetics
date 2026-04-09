@@ -5,12 +5,12 @@ import { getServerBrands, getServerCategories } from "@/src/services/customer/se
 export const revalidate = 60;
 
 type Props = {
-  searchParams: {
+  searchParams: Promise<{
     page?: string;
     pageSize?: string;
     category?: string;
     brandId?: string;
-  };
+  }>;
 };
 
 async function ProductsDataWrapper({ params }: { params: any }) {
@@ -30,12 +30,13 @@ async function ProductsDataWrapper({ params }: { params: any }) {
 }
 
 export default async function ProductsPage({ searchParams }: Props) {
-  const page = Number(searchParams.page ?? 1);
-  const pageSize = Number(searchParams.pageSize ?? 9);
+  const resolvedSearchParams = await searchParams;
+  const page = Number(resolvedSearchParams.page ?? 1);
+  const pageSize = Number(resolvedSearchParams.pageSize ?? 9);
   
   const params: any = { page, pageSize };
-  if (searchParams.category) params.category = searchParams.category;
-  if (searchParams.brandId) params.brandId = searchParams.brandId;
+  if (resolvedSearchParams.category) params.category = resolvedSearchParams.category;
+  if (resolvedSearchParams.brandId) params.brandId = resolvedSearchParams.brandId;
 
   return (
     <ProductsDataWrapper params={params} />

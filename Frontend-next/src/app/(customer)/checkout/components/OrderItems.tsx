@@ -20,7 +20,7 @@ const items = mode === "buy_now" ? checkoutItems : cartItems;
 
             <div className="relative w-14 h-14 rounded-md overflow-hidden bg-gray-100">
               <Image
-                src={item.image}
+                src={item.image || "/placeholder-image.png"}
                 alt={item.productName}
                 fill
                 className="object-cover"

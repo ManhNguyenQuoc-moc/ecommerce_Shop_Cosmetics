@@ -34,8 +34,7 @@ export class ProductService implements IProductService {
             }
           }
         },
-        image: true,
-        orderItems: true
+        image: true
       }
     });
 
@@ -54,7 +53,7 @@ export class ProductService implements IProductService {
 
     const statusMap: Record<string, string> = { ACTIVE: "Đang bán", HIDDEN: "Đã ẩn", STOPPED: "Ngừng bán" };
     const images = variant.product.productImages?.map((pi: any) => pi.image?.url) || [];
-    const soldCount = variant.orderItems?.reduce((sum: number, item: any) => sum + item.quantity, 0) || 0;
+    const soldCount = variant.sold || 0;
     
     return {
       id: variant.id,
@@ -200,7 +199,7 @@ async getProducts(
         category: p.category ? { id: p.category.id, name: p.category.name } : null,
         price: v.price || p.price,
         salePrice: v.salePrice || null,
-        sold: v.orderItems?.reduce((sum: number, i: any) => sum + i.quantity, 0) || 0,
+        sold: v.sold || 0,
         stock: stockMap[v.id] || 0,
         image: v.variantImageUrl || v.productImageUrl || null,
         status: v.statusName || "NEW",
@@ -257,7 +256,7 @@ async getProducts(
         sku: v.sku || "",
         color: v.color || "",
         size: v.size || "",
-        soldCount: v.orderItems?.reduce((sum: number, item: any) => sum + item.quantity, 0) || 0,
+        soldCount: v.sold || 0,
         stock: stockMap[v.id] || 0,
         image: v.variantImageUrl || v.productImageUrl || null,
         status: v.status || "ACTIVE",
@@ -298,7 +297,7 @@ async getProducts(
       stock: stockMap[v.id] || 0,
       image: v.image?.url || images[0] || null,
       imageId: v.imageId || null,
-      soldCount: v.orderItems?.reduce((sum: number, item: any) => sum + item.quantity, 0) || 0,
+      soldCount: v.sold || 0,
       statusName: v.statusName,
       createdAt: v.createdAt,
       updatedAt: v.updatedAt

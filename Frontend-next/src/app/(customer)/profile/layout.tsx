@@ -45,7 +45,7 @@ export default function ProfileLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const { currentUser, logout } = useAuth();
+  const { currentUser, logout, isUploadingAvatar } = useAuth();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {

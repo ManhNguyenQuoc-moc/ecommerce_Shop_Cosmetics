@@ -59,3 +59,138 @@ BÁO CÁO TỐI ƯU HÓA HIỆU NĂNG & SEO - [07/04/2026]
 
 TỔNG KẾT:
 Hệ thống hiện tại đã đạt chuẩn Core Web Vitals của Google (LCP nhanh, CLS gần như bằng 0). Bên cạnh tốc độ tải trang tức thì, bộ máy tìm kiếm và lọc sản phẩm đã hoạt động cực kỳ chính xác, hỗ trợ tối đa người dùng trong việc khám phá sản phẩm dựa trên nhu cầu thực tế.
+
+--------------------------------------------------
+BÁO CÁO CẬP NHẬT - [08/04/2026]
+--------------------------------------------------
+
+8. TỐI ƯU TRUY VẤN HIỆU SUẤT BÁN HÀNG (SOLD COUNT PERSISTENCE)
+- Giải quyết vấn đề tốc độ khi sắp xếp theo "Bán chạy nhất" (giảm tải API).
+- Bổ sung trường `sold` vào `ProductVariant` và cơ chế Aggregated logic tự động cập nhật khi Order được xác nhận.
+- Loại bỏ các truy vấn `count` phức tạp tại Runtime, giúp trang Danh sách sản phẩm phản hồi tức thì.
+
+9. KIẾN TRÚC GIỎ HÀNG CHUYÊN NGHIỆP & TYPE-SAFE (SHOPPING CART 2.0)
+- Xây dựng hệ thống Cart Backend theo mô hình Repository - Service - Controller chuyên nghiệp.
+- Triển khai hệ thống DTO (input.dto, output.dto) nghiêm ngặt trên cả Backend và Frontend, xóa bỏ hoàn toàn `any`.
+- Tính năng Guest-to-User Sync: Tự động hợp nhất (Merge) giỏ hàng Local Storage vào DB ngay khi Login mà không làm mất dữ liệu.
+
+10. ĐỒNG BỘ DỮ LIỆU REAL-TIME QUA SWR & MUTATE
+- Tích hợp SWR (SWT) kết hợp cơ chế `mutate` toàn cục cho Cart Store.
+- Đảm bảo số lượng trên Header Badge và trang Giỏ hàng luôn đồng nhất 100% mà không cần Reload.
+- Inventory Integration: Tự động kiểm tra tồn kho (real-time stock) và hiển thị cảnh báo ngay trong giỏ hàng.
+
+11. QUẢN LÝ PHIÊN & BẢO MẬT DỮ LIỆU
+- Cơ chế Reset Session: Tự động dọn dẹp (Clear) toàn bộ Store/Cache khi Logout để bảo mật dữ liệu giữa các người dùng.
+- Chuẩn hóa chuẩn RESTful cho toàn bộ Cart API (/api/carts).
+
+TỔNG KẾT NGÀY 08/04:
+Hệ thống đã nâng cấp từ một giải pháp lưu trữ tạm thời sang một nền tảng Thương mại điện tử có tính toàn vẹn dữ liệu cao, tốc độ xử lý bán hàng nhanh và trải nghiệm người dùng mượt mà đạt chuẩn quốc tế.
+fix bug
+Task
+Walkthrough
+4
+apiServer.ts
+page.tsx
+page.tsx
+index.ts
+🛒 Cart là state theo user (không thể static)
+Phụ thuộc:
+user login
+localStorage / cookie
+session
+Mỗi user khác nhau → data khác nhau
+
+👉 Nếu dùng SSG:
+
+❌ build 1 lần → không đúng cho mọi user
+
+2. 💳 Checkout cần realtime + bảo mật
+Giá, stock thay đổi liên tục
+Gọi payment API
+Validate user
+
+👉 Không thể:
+
+pre-render
+cache lâu
+3. 🚫 Tránh lỗi bạn đang gặp
+
+Nếu để Server Component:
+
+// BAD ❌
+export default async function Page() {
+  const cart = await fetch(...)
+}
+
+👉 build sẽ gọi API → dễ:
+
+timeout
+fail deploy
+✅ Kiến trúc chuẩn cho bạn (rất quan trọng)
+🔹 Cách 1: CSR hoàn toàn (đơn giản nhất)
+"use client";
+
+import { useEffect, useState } from "react";
+
+export default function CartPage() {
+  const [cart, setCart] = useState(null);
+
+  useEffect(() => {
+    fetch("/api/cart")
+      .then(res => res.json())
+      .then(setCart);
+  }, []);
+
+  if (!cart) return <div>Loading...</div>;
+
+  return <div>{JSON.stringify(cart)}</div>;
+}
+
+👉 Ưu điểm:
+
+không bị build fail
+đúng logic user-specific
+🔹 Cách 2: Hybrid (PRO hơn – khuyên dùng)
+
+👉 Server chỉ render layout + skeleton
+👉 Client fetch data
+
+// page.tsx
+export const dynamic = "force-dynamic";
+
+export default function Page() {
+  return <CartClient />;
+}
+"use client";
+
+function CartClient() {
+  // fetch ở đây
+}
+⚠️ Những thứ KHÔNG nên làm
+❌ Fetch DB trực tiếp trong page
+await prisma.cart.findMany()
+❌ Fetch API trong Server Component
+await fetch("/api/cart")
+❌ Static page cho cart
+export const revalidate = 60 // ❌ sai phân tích cách này cho cart và checkout hiện tại của tôi kể cả frontend và backend luôn 
+🛒 Phân tích Frontend (Next.js)
+Trạng thái hiện tại:
+
+
+Cart & Checkout Pages: Đang dùng "use client" và fetch qua SWR/Axios. Đây là hướng đi đúng (CSR/Hybrid) vì dữ liệu này phụ thuộc vào authentication và cookies.
+
+Layout: Layout tổng (customer/layout.tsx) có fetch dữ liệu Server-side (Category/Brand). Điều này tốt cho SEO nhưng cần cẩn thận vì nó bao bọc cả Cart/Checkout.
+
+Build Optimization: Tôi vừa thêm force-dynamic để ngăn Next.js cố gắng "đóng gói" các trang này thành static HTML lúc build.
+
+Vấn đề với revalidate = 60 ở đây:
+
+
+Nếu bạn để revalidate = 60 ở trang Cart, Next.js sẽ build ra một bản HTML "trắng" hoặc chỉ có "Loading...". Mọi user truy cập sẽ thấy bản static đó trước khi Client fetch. Điều này làm trang web cảm giác bị "nháy" (Hydration mismatch) và không mang lại giá trị thực tế nào cho user-specific page.
+
+🛠️ Các hành động tôi đã thực hiện:
+ Force Dynamic: Ép /cart và /checkout luôn chạy runtime.
+ Timeout Safety: Giới hạn thời gian chờ API ở Server-side để build không bao giờ bị treo.
+ Axios Optimization: Rút ngắn thời gian chờ ở Client để tránh cảm giác treo máy khi mạng yếu.
+Bạn có muốn tôi kiểm tra thêm phần logic Security (như check tồn kho lúc nhấn Checkout) ở Backend không? Vì đây thường là nơi dễ gây lỗi "Race Condition" nhất trong eCommerce.
+

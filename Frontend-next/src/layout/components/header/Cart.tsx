@@ -3,10 +3,16 @@
 import Link from "next/link";
 import { ShoppingCart } from "lucide-react";
 import SWTBadge from "@/src/@core/component/SWTBadge";
+import { useEffect } from "react";
 import {useCartStore} from "@/src/stores/useCartStore";
-export default function Cart() {
 
+export default function Cart() {
+  const fetchCart = useCartStore((s) => s.fetchCart);
   const cartCount = useCartStore((s) => s.getCount());
+
+  useEffect(() => {
+    fetchCart();
+  }, [fetchCart]);
 
   return (
     <Link

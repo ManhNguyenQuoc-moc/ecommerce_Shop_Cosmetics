@@ -21,6 +21,7 @@ export default function CartTable() {
         <CartItemProduct
           item={record}
           onRemove={removeItem}
+          outOfStock={record.stock === 0}
         />
       ),
     },

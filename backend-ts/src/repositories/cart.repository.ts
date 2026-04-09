@@ -11,7 +11,12 @@ export class CartRepository implements ICartRepository {
           include: {
             variant: {
               include: {
-                product: true,
+                product: {
+                    include: {
+                        productImages: { include: { image: true }, orderBy: { order: 'asc' } }
+                    }
+                },
+                image: true
               },
             },
           },
@@ -23,7 +28,18 @@ export class CartRepository implements ICartRepository {
   async create(userId: string): Promise<Cart> {
     return prisma.cart.create({
       data: { userId },
-      include: { items: true },
+      include: { 
+        items: {
+          include: {
+            variant: {
+                include: {
+                    product: true,
+                    image: true
+                }
+            }
+          }
+        } 
+      },
     });
   }
 

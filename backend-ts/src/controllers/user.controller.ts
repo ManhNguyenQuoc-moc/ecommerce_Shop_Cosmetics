@@ -22,8 +22,12 @@ export class UserController {
         success: true,
         message: "Get customer info successfully",
         data: {
+          id: user.id,
           full_name: user.full_name,
+          email: user.email,
           phone: user.phone,
+          avatar: (user as any).avatar,
+          loyalty_points: user.loyalty_points,
           addresses: (user as any).addresses || [],
         },
       });
@@ -44,8 +48,8 @@ export class UserController {
     try {
       const id = (req as any).user?.id;
       if (!id) {
-         res.status(401).json({ success: false, message: "Unauthorized" });
-         return;
+        res.status(401).json({ success: false, message: "Unauthorized" });
+        return;
       }
       const user = await this.userService.getUserById(id);
 
@@ -63,6 +67,7 @@ export class UserController {
           email: user.email,
           gender: user.gender,
           birthday: user.birthday,
+          avatar: (user as any).avatar,
           loyalty_points: user.loyalty_points,
           addresses: (user as any).addresses || [],
         },
@@ -78,6 +83,7 @@ export class UserController {
         res.status(401).json({ success: false, message: "Unauthorized" });
         return;
       }
+
       const updatedUser = await this.userService.updateUser(id, req.body);
       res.status(200).json({
         success: true,
@@ -85,7 +91,12 @@ export class UserController {
         data: updatedUser,
       });
     } catch (error: any) {
-      res.status(500).json({ success: false, message: error.message || "Internal server error" });
+      // Check if it's a validation error (you might want a custom error class for this)
+      const isValidationError = ["Ngày sinh không thể ở tương lai.", "Bạn phải đủ 16 tuổi."].includes(error.message);
+      res.status(isValidationError ? 400 : 500).json({ 
+        success: false, 
+        message: error.message || "Internal server error" 
+      });
     }
   };
 

@@ -27,7 +27,7 @@ export interface ProductVariantRawResult {
     brand: { id: string; name: string; slug: string } | null;
     category: { id: string; name: string; slug: string } | null;
   };
-  orderItems: { quantity: number }[];
+  sold: number;
   createdAt: Date;
   updatedAt: Date;
 }

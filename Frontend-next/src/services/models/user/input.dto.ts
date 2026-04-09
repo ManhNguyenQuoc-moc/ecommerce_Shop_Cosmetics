@@ -5,5 +5,6 @@ export type UpdateUserProfileDTO = {
   phone?: string;
   gender?: "MALE" | "FEMALE" | "OTHER";
   birthday?: string;
+  avatar?: string;
   addresses?: Address[];
 };

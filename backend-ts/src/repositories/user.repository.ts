@@ -48,11 +48,17 @@ export class UserRepository implements IUserRepository {
   }
 
   async update(id: string, data: any): Promise<User> {
-    const { name, phone, addresses, ...rest } = data;
+    const { name, full_name, phone, gender, birthday, avatar, addresses } = data;
     
-    const updateData: any = { ...rest };
-    if (name) updateData.full_name = name;
-    if (phone) updateData.phone = phone;
+    // Explicitly mapping fields to avoid spread issues and accommodate naming variations
+    const updateData: any = {};
+    if (full_name !== undefined) updateData.full_name = full_name;
+    else if (name !== undefined) updateData.full_name = name;
+    
+    if (phone !== undefined) updateData.phone = phone;
+    if (gender !== undefined) updateData.gender = gender;
+    if (avatar !== undefined) updateData.avatar = avatar;
+    if (birthday !== undefined) updateData.birthday = birthday ? new Date(birthday) : null;
 
     return prisma.$transaction(async (tx) => {
       if (addresses) {
