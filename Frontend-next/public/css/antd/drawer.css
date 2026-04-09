@@ -1,1 +1,23 @@
 .ant-drawer-body { padding: 0 !important;}
+
+/* SWTDrawer Theme Standards */
+.custom-swt-drawer.ant-drawer .ant-drawer-content {
+    background-color: white !important;
+}
+
+.dark .custom-swt-drawer.ant-drawer .ant-drawer-content,
+.dark .custom-swt-drawer.ant-drawer .ant-drawer-header {
+    background-color: var(--color-admin-bg, #030712) !important;
+}
+
+.dark .custom-swt-drawer.ant-drawer .ant-drawer-header {
+    border-bottom: 1px solid rgba(255, 77, 148, 0.1) !important;
+}
+
+.dark .custom-swt-drawer.ant-drawer .ant-drawer-title {
+    color: var(--color-admin-text-primary, #f8fafc) !important;
+}
+
+.dark .custom-swt-drawer.ant-drawer .ant-drawer-close {
+    color: var(--color-admin-text-secondary, #94a3b8) !important;
+}

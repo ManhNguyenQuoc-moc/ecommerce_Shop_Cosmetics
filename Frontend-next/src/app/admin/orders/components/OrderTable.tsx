@@ -2,7 +2,6 @@
 
 import SWTTable from "@/src/@core/component/AntD/SWTTable";
 import { Eye } from "lucide-react";
-import SWTTooltip from "@/src/@core/component/AntD/SWTTooltip";
 import SWTIconButton from "@/src/@core/component/SWTIconButton";
 import { OrderDto, OrderStatus } from "@/src/services/models/order/output.dto";
 

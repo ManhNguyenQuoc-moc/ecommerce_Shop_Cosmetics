@@ -6,6 +6,7 @@ import OrderTable from "./components/OrderTable";
 import { ClipboardList, Info } from "lucide-react";
 import SWTTooltip from "@/src/@core/component/AntD/SWTTooltip";
 import SWTBreadcrumb from "@/src/@core/component/AntD/SWTBreadcrumb";
+import SWTTabs from "@/src/@core/component/AntD/SWTTabs";
 import useSWTTitle from "@/src/@core/hooks/useSWTTitle";
 import { useOrders, OrderQueryParams } from "@/src/services/admin/order.service";
 import OrderDetailDrawer from "./components/OrderDetailDrawer";
@@ -16,7 +17,7 @@ export default function OrdersPage() {
 
   const [params, setParams] = useState<OrderQueryParams>({
     page: 1,
-    pageSize: 10,
+    pageSize: 6,
   });
 
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
@@ -29,7 +30,7 @@ export default function OrdersPage() {
   };
 
   const handleClear = () => {
-    setParams({ page: 1, pageSize: 10 });
+    setParams({ page: 1, pageSize: 6 });
   };
 
   const handleView = (order: OrderDto) => {
@@ -68,12 +69,29 @@ export default function OrdersPage() {
       </div>
 
       {/* Main Content */}
-      <div className="p-6 bg-white/80 dark:bg-slate-900/50 backdrop-blur-md rounded-2xl shadow-sm border border-slate-200 dark:border-admin-sidebar-border transition-colors">
-        <OrderFilters 
-            params={params} 
-            onParamChange={handleParamChange} 
-            onClear={handleClear} 
-        />
+      <div className="p-0 bg-white/80 dark:bg-slate-900/50 backdrop-blur-md rounded-2xl shadow-sm border border-slate-200 dark:border-admin-sidebar-border transition-colors overflow-hidden">
+        <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800">
+           <SWTTabs
+            activeKey={params.status || "ALL"}
+            onChange={(key) => handleParamChange({ status: key === "ALL" ? undefined : key as any })}
+            items={[
+              { key: "ALL", label: "Tất cả" },
+              { key: "PENDING", label: "Chờ xác nhận" },
+              { key: "CONFIRMED", label: "Đã xác nhận" },
+              { key: "SHIPPING", label: "Đang giao" },
+              { key: "DELIVERED", label: "Đã giao" },
+              { key: "CANCELLED", label: "Đã hủy" },
+              { key: "RETURNED", label: "Trả hàng" }
+            ]}
+          />
+        </div>
+
+        <div className="p-6">
+          <OrderFilters 
+              params={params} 
+              onParamChange={handleParamChange} 
+              onClear={handleClear} 
+          />
         <OrderTable 
             orders={orders}
             total={total}
@@ -91,6 +109,7 @@ export default function OrdersPage() {
           onClose={() => setIsDrawerOpen(false)}
           onUpdate={mutate}
       />
+      </div>
     </div>
   );
 }

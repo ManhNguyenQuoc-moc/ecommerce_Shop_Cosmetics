@@ -3,8 +3,8 @@
 import React, { useState } from 'react';
 import SWTTable from "@/src/@core/component/AntD/SWTTable";
 import { Edit, Trash2, Layers, Plus } from "lucide-react";
-import { Popconfirm } from "antd";
 import SWTTooltip from "@/src/@core/component/AntD/SWTTooltip";
+import SWTConfirmModal from "@/src/@core/component/AntD/SWTConfirmModal";
 import { showNotificationError, showNotificationSuccess } from "@/src/@core/utils/message";
 import { useCategoryGroups, useDeleteCategoryGroup } from "@/src/services/admin/category-group.service";
 import AddCategoryGroupModal from "./AddCategoryGroupModal";
@@ -16,15 +16,18 @@ export default function CategoryGroupTable() {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const { categoryGroups, total, isLoading, mutate } = useCategoryGroups(page, pageSize);
-  const { trigger: deleteGroup } = useDeleteCategoryGroup();
+  const { trigger: deleteGroup, isMutating: isDeleting } = useDeleteCategoryGroup();
   const [editingGroup, setEditingGroup] = useState<CategoryGroupResponseDto | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
   const handleDelete = async (id: string) => {
     try {
+      if (!id) return;
       await deleteGroup(id);
       showNotificationSuccess("Xóa nhóm danh mục thành công!");
       mutate();
+      setDeletingId(null);
     } catch (e: any) {
       showNotificationError(e.message || "Lỗi khi xóa nhóm danh mục");
     }
@@ -85,21 +88,12 @@ export default function CategoryGroupTable() {
               <Edit size={18} />
             </button>
           </SWTTooltip>
-          <SWTTooltip title="Xóa nhóm" color="#f43f5e">
-            <Popconfirm
-              title="Xóa nhóm danh mục này?"
-              description="Bạn chắc chắn muốn xóa nhóm này? Các danh mục bên trong sẽ không còn nhóm (set to null)."
-              onConfirm={() => handleDelete(record.id)}
-              okText="Xóa"
-              cancelText="Hủy"
-              okButtonProps={{ danger: true, className: "!rounded-lg" }}
-              cancelButtonProps={{ className: "!rounded-lg" }}
-            >
-              <button className="text-rose-500 hover:text-rose-700 transition-colors p-1.5 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-500/10 group relative border border-transparent hover:border-rose-100 dark:hover:border-rose-500/20 cursor-pointer">
-                <Trash2 size={18} />
-              </button>
-            </Popconfirm>
-          </SWTTooltip>
+          <button 
+            onClick={() => setDeletingId(record.id)}
+            className="text-rose-500 hover:text-rose-700 transition-colors p-1.5 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-500/10 group relative border border-transparent hover:border-rose-100 dark:hover:border-rose-500/20 cursor-pointer"
+          >
+            <Trash2 size={18} />
+          </button>
         </div>
       )
     }
@@ -164,6 +158,17 @@ export default function CategoryGroupTable() {
           initialData={editingGroup}
         />
       )}
+
+      <SWTConfirmModal
+        open={!!deletingId}
+        loading={isDeleting}
+        onConfirm={() => deletingId && handleDelete(deletingId)}
+        onCancel={() => setDeletingId(null)}
+        title="Xóa nhóm danh mục này?"
+        description="Bạn chắc chắn muốn xóa nhóm này? Các danh mục bên trong sẽ không còn nhóm (set to null)."
+        confirmText="Xác nhận xóa"
+        variant="danger"
+      />
     </div>
   );
 }

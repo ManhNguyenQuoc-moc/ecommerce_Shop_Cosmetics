@@ -3,8 +3,8 @@
 import React, { useState } from 'react';
 import SWTTable from "@/src/@core/component/AntD/SWTTable";
 import { Edit, Trash2, Globe, Phone, Mail, MapPin } from "lucide-react";
-import { Popconfirm } from "antd";
 import SWTTooltip from "@/src/@core/component/AntD/SWTTooltip";
+import SWTConfirmModal from "@/src/@core/component/AntD/SWTConfirmModal";
 import { showNotificationError, showNotificationSuccess } from "@/src/@core/utils/message";
 import { useBrands, useDeleteBrand } from "@/src/services/admin/brand.service";
 import SWTAvatar from "@/src/@core/component/AntD/SWTAvatar";
@@ -14,14 +14,17 @@ export default function BrandTable() {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(6);
   const { brands, total, isLoading, mutate } = useBrands(page, pageSize);
-  const { trigger: deleteBrand } = useDeleteBrand();
+  const { trigger: deleteBrand, isMutating: isDeleting } = useDeleteBrand();
   const [editingBrand, setEditingBrand] = useState<any>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const handleDelete = async (id: string) => {
     try {
+      if (!id) return;
       await deleteBrand(id);
       showNotificationSuccess("Xóa nhà cung cấp thành công!");
       mutate();
+      setDeletingId(null);
     } catch (e: any) {
       showNotificationError(e.message || "Lỗi khi xóa nhà cung cấp");
     }
@@ -102,21 +105,12 @@ export default function BrandTable() {
               <Edit size={18} />
             </button>
           </SWTTooltip>
-          <SWTTooltip title="Xóa nhà cung cấp" color="#f43f5e">
-            <Popconfirm 
-              title="Xóa nhà cung cấp này?"
-              description="Hành động này không thể hoàn tác."
-              onConfirm={() => handleDelete(record.id)}
-              okText="Xóa"
-              cancelText="Hủy"
-              okButtonProps={{ danger: true, className: "!rounded-lg" }}
-              cancelButtonProps={{ className: "!rounded-lg" }}
-            >
-              <button className="text-rose-500 hover:text-rose-700 transition-colors p-1.5 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-500/10 group relative border border-transparent hover:border-rose-100 dark:hover:border-rose-500/20 cursor-pointer">
-                <Trash2 size={18} />
-              </button>
-            </Popconfirm>
-          </SWTTooltip>
+          <button 
+            onClick={() => setDeletingId(record.id)}
+            className="text-rose-500 hover:text-rose-700 transition-colors p-1.5 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-500/10 group relative border border-transparent hover:border-rose-100 dark:hover:border-rose-500/20 cursor-pointer"
+          >
+            <Trash2 size={18} />
+          </button>
         </div>
       )
     }
@@ -149,6 +143,17 @@ export default function BrandTable() {
           initialData={editingBrand} 
         />
       )}
+
+      <SWTConfirmModal
+        open={!!deletingId}
+        loading={isDeleting}
+        onConfirm={() => deletingId && handleDelete(deletingId)}
+        onCancel={() => setDeletingId(null)}
+        title="Xóa nhà cung cấp này?"
+        description="Bạn chắc chắn muốn xóa nhà cung cấp này? Hành động này không thể hoàn tác."
+        confirmText="Xác nhận xóa"
+        variant="danger"
+      />
     </div>
   );
 }

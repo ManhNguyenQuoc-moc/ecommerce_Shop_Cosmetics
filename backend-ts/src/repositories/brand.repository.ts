@@ -34,16 +34,52 @@ export class BrandRepository {
   }
 
   async create(data: any): Promise<Brand> {
+    const { logo, banner, ...rest } = data;
+    const createData: any = { ...rest };
+
+    if (logo?.url) {
+      createData.logo = {
+        create: { url: logo.url }
+      };
+    }
+
+    if (banner?.url) {
+      createData.banner = {
+        create: { url: banner.url }
+      };
+    }
+
     return prisma.brand.create({
-      data,
+      data: createData,
       include: { logo: true, banner: true }
     });
   }
 
   async update(id: string, data: any): Promise<Brand> {
+    const { logo, banner, ...rest } = data;
+    const updateData: any = { ...rest };
+
+    if (logo?.url) {
+      updateData.logo = {
+        upsert: {
+          create: { url: logo.url },
+          update: { url: logo.url }
+        }
+      };
+    }
+
+    if (banner?.url) {
+      updateData.banner = {
+        upsert: {
+          create: { url: banner.url },
+          update: { url: banner.url }
+        }
+      };
+    }
+
     return prisma.brand.update({
       where: { id },
-      data,
+      data: updateData,
       include: { logo: true, banner: true }
     });
   }
