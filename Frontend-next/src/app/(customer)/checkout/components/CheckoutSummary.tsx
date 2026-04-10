@@ -59,6 +59,7 @@ export default function CheckoutSummary() {
         customer: {
           name: customer.name,
           phone: customer.phone,
+          email: customer.email,
         },
         address: {
           address: selectedAddress.address,
@@ -66,7 +67,9 @@ export default function CheckoutSummary() {
           lon: selectedAddress.lon,
         },
         addressId: (selectedAddress as any).id,
-        total,
+        total: subtotal,
+        shippingFee: shippingFee,
+        shippingMethod: shippingMethod || "standard",
         paymentMethod,
       };
       const res = await checkoutService.createOrder(payload);

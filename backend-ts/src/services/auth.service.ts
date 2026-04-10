@@ -1,79 +1,44 @@
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
 import { IAuthService } from "../interfaces/IAuthService";
 import { prisma } from "../config/prisma";
+import { AuthResponseDto, VerifyEmailOutputDto } from "../DTO/auth/output/auth-output.dto";
 
+/**
+ * AuthService - Clean version for Supabase Integration
+ * Password hashing and JWT generation are now handled by Supabase (BaaS).
+ * The backend only handles profile retrieval and supplementary logic.
+ */
 export class AuthService implements IAuthService {
+  constructor() {}
+
   async register(data: any): Promise<any> {
-    const { email, password, full_name, phone } = data;
-
-    const existingUser = await prisma.user.findFirst({
-      where: {
-        OR: [
-          { email },
-          { phone }
-        ]
-      }
-    });
-
-    if (existingUser) {
-      throw new Error("Email or Phone already exists");
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const user = await prisma.user.create({
-      data: {
-        email,
-        password_hash: hashedPassword,
-        full_name,
-        phone,
-      }
-    });
-
-    return {
-      id: user.id,
-      email: user.email,
-      full_name: user.full_name,
-      avatar: user.avatar,
-    };
+    // Note: Registration is handled by Supabase SDK in Frontend.
+    // The public.User record is created via SQL Triggers.
+    // This method is kept for architectural consistency but simplified.
+    return { message: "Redirected to Supabase Auth" };
   }
 
-  async login(email: string, password: string): Promise<{ user: any; token: string }> {
-    const user = await prisma.user.findUnique({ where: { email } });
-    if (!user) {
-      throw new Error("Invalid email or password");
-    }
+  async verifyEmail(token: string): Promise<VerifyEmailOutputDto> {
+    // Handled by Supabase
+    throw new Error("Handled by Supabase Auth service");
+  }
 
-    if (!user.password_hash) {
-      throw new Error("Invalid email or password");
-    }
+  async completeVerification(token: string, password?: string): Promise<void> {
+    // Handled by Supabase
+    throw new Error("Handled by Supabase Auth service");
+  }
 
-    const isValidPassword = await bcrypt.compare(password, user.password_hash);
-    if (!isValidPassword) {
-      throw new Error("Invalid email or password");
-    }
+  async login(email: string, password: string): Promise<AuthResponseDto> {
+    // Handled by Supabase SDK in Frontend.
+    throw new Error("Handled by Supabase Auth service");
+  }
 
-    const jwtSecret = process.env.JWT_SECRET;
-    if (!jwtSecret) {
-      console.warn("WARNING: JWT_SECRET is not defined in environment variables. Using default secret is not recommended for production.");
-    }
+  async googleLogin(idToken: string): Promise<AuthResponseDto> {
+    // Handled by Supabase OAuth
+    throw new Error("Handled by Supabase Auth service");
+  }
 
-    const token = jwt.sign(
-      { id: user.id, role: user.role },
-      jwtSecret || "default_secret",
-      { expiresIn: "1d" }
-    );
-
-    return {
-      user: {
-        id: user.id,
-        email: user.email,
-        full_name: user.full_name,
-        avatar: user.avatar,
-        role: user.role,
-      },
-      token
-    };
+  async facebookLogin(accessToken: string): Promise<AuthResponseDto> {
+    // Handled by Supabase OAuth
+    throw new Error("Handled by Supabase Auth service");
   }
 }

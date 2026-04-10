@@ -61,22 +61,6 @@ export default function OrderFilters({ params, onParamChange, onClear }: OrderFi
                     });
                 }}
             />
-            
-            <SWTSelect 
-              placeholder="Trạng thái"
-              className="w-full sm:w-[180px] !h-11"
-              value={params.status || "ALL"}
-              onChange={(val) => onParamChange({ status: val === "ALL" ? undefined : val })}
-              options={[
-                { label: "Tất cả trạng thái", value: "ALL" },
-                { label: "Chờ xác nhận", value: "PENDING" },
-                { label: "Đã xác nhận", value: "CONFIRMED" },
-                { label: "Đang giao", value: "SHIPPING" },
-                { label: "Đã giao", value: "DELIVERED" },
-                { label: "Đã hủy", value: "CANCELLED" },
-                { label: "Trả hàng", value: "RETURNED" }
-              ]}
-            />
           </div>
         </div>
 

@@ -59,9 +59,24 @@ export class OrderController {
 
   createOrder = async (req: Request, res: Response): Promise<void> => {
     try {
-      const { paymentMethod, total, ...orderData } = req.body;
+      const { 
+        paymentMethod, 
+        total, 
+        shipping_fee, 
+        shippingFee,
+        shipping_method, 
+        shippingMethod,
+        ...orderData 
+      } = req.body;
       const userId = (req as any).user?.id;
-      const order = await this.orderService.createOrder({ userId, total, ...orderData });
+      const order = await this.orderService.createOrder({ 
+        userId, 
+        total, 
+        shipping_fee: shipping_fee || shippingFee, 
+        shipping_method: shipping_method || shippingMethod,
+        paymentMethod,
+        ...orderData 
+      });
       
       if (paymentMethod === "vnpay") {
         const paymentUrl = createPaymentUrl({

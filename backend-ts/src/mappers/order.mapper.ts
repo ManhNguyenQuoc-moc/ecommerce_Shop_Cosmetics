@@ -18,6 +18,8 @@ export class OrderMapper {
       customer_phone: user?.phone || "",
       shipping_address: order.address?.address || "N/A",
       total_amount: order.total_amount,
+      shipping_fee: order.shipping_fee,
+      shipping_method: order.shipping_method,
       final_amount: order.final_amount,
       current_status: order.current_status,
       payment_method: order.payment_method,

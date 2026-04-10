@@ -10,6 +10,7 @@ export type CheckoutRequestDTO = {
   customer: {
     name: string;
     phone: string;
+    email: string;
   };
   address: {
     address: string;
@@ -18,5 +19,7 @@ export type CheckoutRequestDTO = {
   };
   addressId?: string;
   total: number;
+  shippingFee: number;
+  shippingMethod: string;
   paymentMethod: "cod" | "bank";
 };

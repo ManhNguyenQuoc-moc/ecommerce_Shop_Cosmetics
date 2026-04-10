@@ -30,10 +30,25 @@ const resetPassword = (body: ResetPasswordInputDto): Promise<boolean> => {
   return post<boolean>(`${path}/reset-password`, body);
 };
 
+const googleLoginAsync = (idToken: string): Promise<LoginOutputDto> => {
+    return post<LoginOutputDto>(`${path}/google`, { idToken });
+};
+
+const facebookLoginAsync = (accessToken: string): Promise<LoginOutputDto> => {
+    return post<LoginOutputDto>(`${path}/facebook`, { accessToken });
+};
+
+const registerAsync = (data: any): Promise<any> => {
+  return post<any>(`${path}/register`, data);
+};
+
 export const authService = {
   loginAsync,
+  registerAsync,
   refreshTokenAsync,
   logOutAsync,
   requestPasswordRecovery,
   resetPassword,
+  googleLoginAsync,
+  facebookLoginAsync
 };

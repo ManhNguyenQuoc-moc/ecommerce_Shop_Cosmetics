@@ -9,7 +9,6 @@ datasource db {
 model User {
   id                     String    @id @default(uuid())
   email                  String?   @unique
-  password_hash          String?
   full_name              String?
   phone                  String?   @unique
   gender                 Gender?
@@ -18,12 +17,7 @@ model User {
   loyalty_points         Int       @default(0)
   provider               Provider  @default(LOCAL)
   is_verified            Boolean   @default(false)
-  googleId               String?
-  facebookId             String?
-  refresh_token          String?
   is_banned              Boolean   @default(false)
-  reset_password_token   String?
-  reset_password_expires DateTime?
   createdAt              DateTime  @default(now())
   updatedAt              DateTime  @updatedAt
   avatar                 String?
@@ -175,6 +169,8 @@ model Order {
   addressId      String?
   discountCodeId String?
   total_amount   Float                @default(0)
+  shipping_fee   Float                @default(0)
+  shipping_method String?
   final_amount   Float                @default(0)
   current_status OrderStatus          @default(PENDING)
   payment_method PaymentMethod        @default(COD)
@@ -335,6 +331,7 @@ enum OrderStatus {
   SHIPPING
   DELIVERED
   CANCELLED
+  RETURNED
 }
 
 enum PaymentMethod {

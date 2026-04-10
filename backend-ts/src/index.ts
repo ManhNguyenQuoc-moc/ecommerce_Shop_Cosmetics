@@ -582,12 +582,9 @@
 //   console.log("Server running at", PORT);
 // });
 
+import "dotenv/config";
 import express from "express";
-
 import cors from "cors";
-import dotenv from "dotenv";
-
-dotenv.config();
 import paymentRoute from "./routes/payment.route";
 import productRoute from "./routes/product.route";
 import userRoute from "./routes/user.route";

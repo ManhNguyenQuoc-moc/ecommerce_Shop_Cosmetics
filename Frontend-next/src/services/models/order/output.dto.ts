@@ -40,6 +40,9 @@ export interface OrderDto {
   customer_phone: string;
   shipping_address: string;
   total_amount: number;
+  shipping_fee: number;
+  shipping_method: string;
+  final_amount: number;
   current_status: OrderStatus;
   payment_method: string;
   payment_status: string;

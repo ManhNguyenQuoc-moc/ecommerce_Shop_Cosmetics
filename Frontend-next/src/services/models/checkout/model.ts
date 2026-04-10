@@ -18,6 +18,7 @@ export type AddressModel = {
 export type CustomerModel = {
   name: string;
   phone: string;
+  email: string;
 };
 
 export type CheckoutModel = {
@@ -25,6 +26,8 @@ export type CheckoutModel = {
   customer: CustomerModel;
   selectedAddress: AddressModel;
   total: number;
+  shippingFee: number;
+  shippingMethod: string;
 };
 
 export type CheckoutResultModel = {

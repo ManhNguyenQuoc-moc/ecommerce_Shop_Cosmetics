@@ -18,6 +18,7 @@ export const mapCheckoutModelToDTO = (
     customer: {
       name: model.customer.name,
       phone: model.customer.phone,
+      email: model.customer.email,
     },
     address: {
       address: model.selectedAddress.address,
@@ -25,6 +26,8 @@ export const mapCheckoutModelToDTO = (
       lon: model.selectedAddress.lon,
     },
     total: model.total,
+    shippingFee: model.shippingFee,
+    shippingMethod: model.shippingMethod,
     paymentMethod,
   };
 };

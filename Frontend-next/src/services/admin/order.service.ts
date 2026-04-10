@@ -19,10 +19,8 @@ export const useOrders = (params: OrderQueryParams) => {
   Object.entries(params).forEach(([key, value]) => {
     if (value) queryParams.append(key, String(value));
   });
-
   const queryString = queryParams.toString();
   const fetcher = () => get<OrderListResponseDto>(`${ORDER_API_ENDPOINT}?${queryString}`);
-
   const { data, error, isLoading, mutate } = useFetchSWR<OrderListResponseDto>(
     `${ORDER_API_ENDPOINT}?${queryString}`,
     fetcher
@@ -57,4 +55,8 @@ export const useOrder = (id: string | undefined) => {
 
 export const updateOrderStatus = (id: string, status: string, note?: string) => {
   return put(`${ORDER_API_ENDPOINT}/${id}`, { current_status: status, note });
+};
+
+export const updateOrderPaymentStatus = (id: string, paymentStatus: 'PAID' | 'UNPAID') => {
+  return put(`${ORDER_API_ENDPOINT}/${id}`, { payment_status: paymentStatus });
 };

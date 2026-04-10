@@ -31,6 +31,7 @@ import { updateCustomerInfo } from "@/src/services/customer/user.service";
 import AddressAutocomplete from "../../checkout/components/AddressAutocomplete";
 import { UserProfileDTO } from "@/src/services/models/user/output.dto";
 import ProfileAvatarUpload from "./ProfileAvatarUpload";
+import { supabase } from "@/src/@core/utils/supabase";
 import { useAuth } from "@/src/context/AuthContext";
 
 type Props = {
@@ -104,7 +105,20 @@ export default function ProfileForm({ initialData }: Props) {
         name: updatedUserFromApi.full_name || updatedUserFromApi.name || values.full_name,
         full_name: updatedUserFromApi.full_name || values.full_name,
         avatar: updatedUserFromApi.avatar || avatarUrl || currentUser?.avatar,
+        phone: updatedUserFromApi.phone || values.phone,
       });
+
+   
+      try {
+        await supabase.auth.updateUser({
+          data: {
+            full_name: values.full_name,
+            phone: values.phone
+          }
+        });
+      } catch (supabaseError) {
+        console.warn("Failed to sync profile update to Supabase Auth:", supabaseError);
+      }
 
       // Update SWR cache immediately with the new data
       await mutate("/users/me", updatedUserFromApi, false);
