@@ -9,6 +9,7 @@ import ThemeProvider from "./theme-provider";
 import { SidebarProvider } from "./sidebar-provider";
 import { AuthProvider } from "@/src/context/AuthContext";
 import { useMessageInit } from "../utils/message";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 
 /**
  * MessageInitializer handles Ant Design global message/notification initialization
@@ -32,7 +33,9 @@ export default function AppProviders({ children }: AppProvidersProps) {
               <MessageInitializer>
                 <SidebarProvider>
                   <AuthProvider>
-                    {children}
+                    <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || ""}>
+                      {children}
+                    </GoogleOAuthProvider>
                   </AuthProvider>
                 </SidebarProvider>
               </MessageInitializer>

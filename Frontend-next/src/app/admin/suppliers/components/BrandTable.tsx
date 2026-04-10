@@ -147,7 +147,9 @@ export default function BrandTable() {
       <SWTConfirmModal
         open={!!deletingId}
         loading={isDeleting}
-        onConfirm={() => deletingId && handleDelete(deletingId)}
+        onConfirm={() => {
+          if (deletingId) handleDelete(deletingId);
+        }}
         onCancel={() => setDeletingId(null)}
         title="Xóa nhà cung cấp này?"
         description="Bạn chắc chắn muốn xóa nhà cung cấp này? Hành động này không thể hoàn tác."

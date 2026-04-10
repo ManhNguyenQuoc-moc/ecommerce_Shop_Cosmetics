@@ -176,7 +176,9 @@ export default function CategoryTable() {
       <SWTConfirmModal
         open={!!deletingId}
         loading={isDeleting}
-        onConfirm={() => deletingId && handleDelete(deletingId)}
+        onConfirm={() => {
+          if (deletingId) handleDelete(deletingId);
+        }}
         onCancel={() => setDeletingId(null)}
         title="Xóa danh mục này?"
         description="Bạn chắc chắn muốn xóa danh mục này? Hành động không thể hoàn tác."

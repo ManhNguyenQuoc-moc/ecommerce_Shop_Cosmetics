@@ -11,7 +11,8 @@ import { SWTInput, SWTInputPassword } from "@/src/@core/component/AntD/SWTInput"
 import GoogleIco from "@/src/@core/component/SWTIcon/iconoir/icon/GoogleIco";
 import FacebookIco from "@/src/@core/component/SWTIcon/iconoir/icon/FaceBookIco";
 import { Eye, EyeOff } from "lucide-react";
-import http from "@/src/@core/http";
+import { supabase } from "@/src/@core/utils/supabase";
+import { authService } from "@/src/services/customer/auth.service";
 
 export default function RegisterForm() {
     const router = useRouter();
@@ -20,18 +21,40 @@ export default function RegisterForm() {
     const handleSubmit = async (values: any) => {
         try {
             setIsLoading(true);
-
-            await http.post("/auth/register", {
+            const { data, error } = await supabase.auth.signUp({
                 email: values.email,
                 password: values.password,
-                full_name: values.fullName,
-                phone: values.phone
+                options: {
+                    data: {
+                        full_name: values.fullName,
+                        phone: values.phone,
+                    }
+                }
             });
 
-            showNotificationSuccess("Đăng ký thành công 🎉. Vui lòng đăng nhập!");
-            router.push("/login");
+            if (error) throw error;
+
+
+            try {
+                await authService.registerAsync({
+                    id: data.user?.id,
+                    email: values.email,
+                    fullName: values.fullName,
+                    phone: values.phone
+                });
+            } catch (backendError) {
+                console.warn("Backend registration sync skipped or failed:", backendError);
+            }
+            if (data.user && !data.session) {
+                showNotificationSuccess("Đăng ký thành công. Vui lòng kiểm tra email của bạn để kích hoạt tài khoản!");
+                router.push("/login?verify=sent");
+            } else if (data.session) {
+                showNotificationSuccess("Đăng ký thành công! Chào mừng bạn.");
+                router.push("/");
+            }
         } catch (err: any) {
-            showNotificationError(err.response?.data?.message || err.message || "Đăng ký thất bại");
+            console.error("Registration error:", err);
+            showNotificationError(err.message || "Đăng ký thất bại. Vui lòng thử lại!");
         } finally {
             setIsLoading(false);
         }
@@ -67,7 +90,6 @@ export default function RegisterForm() {
                 >
                     <SWTInput placeholder="Địa chỉ email của bạn" className="h-11 rounded-xl" />
                 </SWTFormItem>
-
                 <SWTFormItem
                     name="phone"
                     label="Số điện thoại"

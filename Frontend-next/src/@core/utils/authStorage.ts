@@ -9,6 +9,7 @@ export type AuthUser = {
   full_name?: string;
   username: string;
   email?: string;
+  phone?: string;
   avatar?: string;
   role?:string;
 };

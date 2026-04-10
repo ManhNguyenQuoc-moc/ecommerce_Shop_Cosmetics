@@ -162,7 +162,9 @@ export default function CategoryGroupTable() {
       <SWTConfirmModal
         open={!!deletingId}
         loading={isDeleting}
-        onConfirm={() => deletingId && handleDelete(deletingId)}
+        onConfirm={() => {
+          if (deletingId) handleDelete(deletingId);
+        }}
         onCancel={() => setDeletingId(null)}
         title="Xóa nhóm danh mục này?"
         description="Bạn chắc chắn muốn xóa nhóm này? Các danh mục bên trong sẽ không còn nhóm (set to null)."

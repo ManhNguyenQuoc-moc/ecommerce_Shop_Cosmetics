@@ -12,16 +12,14 @@ import FacebookIco from "@/src/@core/component/SWTIcon/iconoir/icon/FaceBookIco"
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { supabase } from "@/src/@core/utils/supabase";
 import { useAuth } from "@/src/context/AuthContext";
-import { authService } from "@/src/services/customer/auth.service";
 import { useCartStore } from "@/src/stores/useCartStore";
-
 type LoginFormValues = {
   email: string;
   password: string;
   remember?: boolean;
 };
-
 export default function SignInForm() {
   const { login } = useAuth();
   const router = useRouter();
@@ -30,18 +28,69 @@ export default function SignInForm() {
   const handleSubmit = async (values: LoginFormValues) => {
     try {
       setIsLoading(true);
-      const result = await authService.loginAsync({
-        email: values.email,
-        password: values.password,
-      });
-      login(result.token, result.user);
-      await useCartStore.getState().syncCart();
-      showNotificationSuccess("Đăng nhập thành công");
-      router.push("/");
+      const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email);
+      const credentials = isEmail 
+        ? { email: values.email, password: values.password } 
+        : { phone: values.email, password: values.password };
+
+      const { data, error } = await supabase.auth.signInWithPassword(credentials);
+
+      if (error) throw error;
+      
+      if (data.session && data.user) {
+        const authUser = {
+          id: data.user.id,
+          name: data.user.user_metadata.full_name || "User",
+          full_name: data.user.user_metadata.full_name,
+          email: data.user.email,
+          avatar: data.user.user_metadata.avatar_url,
+          username: data.user.email || "",
+          role: data.user.user_metadata.role || "CUSTOMER"
+        };
+        
+        await login(data.session.access_token, authUser);
+        await useCartStore.getState().syncCart();
+        showNotificationSuccess("Đăng nhập thành công! Chào mừng trở lại.");
+        router.push("/");
+      }
     } catch (err: any) {
       showNotificationError(err?.message || "Đăng nhập thất bại");
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    try {
+        setIsLoading(true);
+        const { error } = await supabase.auth.signInWithOAuth({
+            provider: 'google',
+            options: {
+                redirectTo: `${window.location.origin}`,
+            }
+        });
+        if (error) throw error;
+    } catch (err: any) {
+        showNotificationError(err?.message || "Lỗi đăng nhập Google");
+    } finally {
+        setIsLoading(false);
+    }
+  };
+
+  const handleFacebookLogin = async () => {
+    try {
+        setIsLoading(true);
+        const { error } = await supabase.auth.signInWithOAuth({
+            provider: 'facebook',
+            options: {
+                redirectTo: `${window.location.origin}`,
+            }
+        });
+        if (error) throw error;
+    } catch (err: any) {
+        showNotificationError(err?.message || "Lỗi đăng nhập Facebook");
+    } finally {
+        setIsLoading(false);
     }
   };
 
@@ -66,14 +115,10 @@ export default function SignInForm() {
             { required: true, message: "Vui lòng nhập email hoặc số điện thoại" },
             {
               validator(_, value) {
-
                 if (!value) return Promise.resolve();
-
                 const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
                 const isPhone = /^0\d{9,10}$/.test(value);
-
                 if (isEmail || isPhone) return Promise.resolve();
-
                 return Promise.reject(
                   new Error("Email hoặc số điện thoại không hợp lệ")
                 );
@@ -136,22 +181,31 @@ export default function SignInForm() {
         </div>
       </SWTForm>
       <div className="flex items-center text-sm gap-3 mt-4">
-        <SWTButton
-          variant="outlined"
-          className="w-full"
-          startIcon={<GoogleIco />}
-          size="sm">
-          Google
-        </SWTButton>
-        <SWTButton
-          variant="outlined"
-          size="sm"
-          startIcon={<FacebookIco />}
-        >
-          Facebook
-        </SWTButton>
+        {/* Google Button Wrapper */}
+        <div id="google-login-btn" className="flex-1">
+            <div 
+                onClick={handleGoogleLogin}
+                className="flex justify-center items-center w-full border border-gray-200 rounded-lg overflow-hidden py-2 hover:bg-gray-50 transition-colors cursor-pointer relative h-11"
+            >
+                <GoogleIco />
+                <span className="ml-2 font-medium text-gray-700 hidden sm:inline">Google</span>
+            </div>
+        </div>
 
+        {/* Facebook Button Wrapper */}
+        <div className="flex-1">
+            <SWTButton
+                variant="outlined"
+                className="w-full !border-gray-200 !text-gray-700 !h-11 !rounded-lg"
+                startIcon={<FacebookIco />}
+                onClick={handleFacebookLogin}
+                loading={isLoading}
+            >
+                <span className="hidden sm:inline">Facebook</span>
+            </SWTButton>
+        </div>
       </div>
+
       <p className="text-center text-sm text-gray-600 mt-6">
         Chưa có tài khoản{" "}
         <Link

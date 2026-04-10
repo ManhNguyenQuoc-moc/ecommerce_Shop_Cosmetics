@@ -1,32 +1,105 @@
 "use client";
 
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 import { authStorage, AuthUser } from "@/src/@core/utils/authStorage";
 import { useCheckoutStore } from "@/src/stores/useCheckoutStore";
 import { useCartStore } from "@/src/stores/useCartStore";
+import { supabase } from "@/src/@core/utils/supabase";
+import { Session } from "@supabase/supabase-js";
+import { getProfile } from "@/src/services/customer/user.service";
+
 type AuthContextType = {
   currentUser: AuthUser | null;
+  session: Session | null;
+  isInitializing: boolean;
   isUploadingAvatar: boolean;
   login: (token: string, user: AuthUser) => void;
   logout: () => void;
   updateUser: (user: Partial<AuthUser>) => void;
   setIsUploadingAvatar: (loading: boolean) => void;
+  refreshUser: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [currentUser, setCurrentUser] = useState<AuthUser | null>(() => {
-  return authStorage.getUser();
-});
-  const login = (token: string, user: AuthUser) => {
+  const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
+  const [isInitializing, setIsInitializing] = useState(true);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+
+  const syncUserWithBackend = async (supabaseSession: Session | null) => {
+    if (!supabaseSession?.user) {
+      setCurrentUser(null);
+      authStorage.logout();
+      return;
+    }
+
+    // 1. Start with Supabase data
+    const user: AuthUser = {
+      id: supabaseSession.user.id,
+      name: supabaseSession.user.user_metadata.full_name || "User",
+      full_name: supabaseSession.user.user_metadata.full_name,
+      email: supabaseSession.user.email,
+      avatar: supabaseSession.user.user_metadata.avatar_url,
+      username: supabaseSession.user.email || "",
+      role: supabaseSession.user.user_metadata.role || "CUSTOMER"
+    };
+    try {
+      const profile = await getProfile();
+      if (profile) {
+        user.full_name = profile.full_name || user.full_name;
+        user.name = profile.full_name || user.name;
+        user.avatar = profile.avatar || user.avatar;
+        user.phone = profile.phone || user.phone;
+      }
+    } catch (err) {
+      console.warn("Failed to enrichment user profile from backend:", err);
+    }
+
+    setCurrentUser(user);
+    authStorage.login(supabaseSession.access_token, user);
+  };
+
+  useEffect(() => {
+    // 1. Initial Session Check
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      syncUserWithBackend(session).finally(() => {
+        setIsInitializing(false);
+      });
+    });
+
+    // 2. Listen for Auth Changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      setSession(session);
+      await syncUserWithBackend(session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const login = async (token: string, user: AuthUser) => {
+    // We already have the session from Supabase, but we can enrichment it here too
+    try {
+        const profile = await getProfile();
+        if (profile) {
+            user.avatar = profile.avatar || user.avatar;
+            user.full_name = profile.full_name || user.full_name;
+            user.name = profile.full_name || user.name;
+            user.phone = profile.phone || user.phone;
+        }
+    } catch (err) {}
+    
     authStorage.login(token, user);
     setCurrentUser(user);
   };
 
-  const logout = () => {
+  const logout = async () => {
+    await supabase.auth.signOut();
     authStorage.logout();
     setCurrentUser(null);
+    setSession(null);
     useCheckoutStore.getState().reset();
     useCartStore.getState().reset();
   };
@@ -39,10 +112,24 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const refreshUser = async () => {
+    if (session) {
+        await syncUserWithBackend(session);
+    }
+  };
 
   return (
-    <AuthContext.Provider value={{ currentUser, isUploadingAvatar, login, logout, updateUser, setIsUploadingAvatar }}>
+    <AuthContext.Provider value={{ 
+        currentUser, 
+        session,
+        isInitializing,
+        isUploadingAvatar, 
+        login, 
+        logout, 
+        updateUser, 
+        setIsUploadingAvatar,
+        refreshUser
+    }}>
       {children}
     </AuthContext.Provider>
   );

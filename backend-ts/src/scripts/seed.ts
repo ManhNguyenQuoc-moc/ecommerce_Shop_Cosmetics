@@ -178,8 +178,6 @@ async function main() {
 
   // 5. USER ENTITIES: USERS & ADDRESSES
   console.log("👤 Seeding Users & Addresses...");
-  const bcrypt = require("bcrypt");
-  const hashedPassword = await bcrypt.hash("123456", 10);
 
   const adminEmail = "admin@gmail.com";
   const user = await prisma.user.upsert({
@@ -188,7 +186,6 @@ async function main() {
     create: {
       email: adminEmail,
       full_name: "SWT Admin Root",
-      password_hash: hashedPassword,
       phone: "0999888777",
       role: Role.ADMIN,
       loyalty_points: 1000,

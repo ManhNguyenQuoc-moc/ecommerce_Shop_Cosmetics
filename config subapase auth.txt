@@ -1,0 +1,50 @@
+Quyết định rất dứt khoát và thực tế! Việc dùng toàn bộ hệ sinh thái của Supabase (cả Database lẫn Authentication) sẽ giúp bạn tiết kiệm được hàng tuần code và fix bug, cực kỳ phù hợp để đua tiến độ đồ án.Với mô hình này, luồng hoạt động sẽ thay đổi như sau:Frontend (React) gọi Supabase để Đăng nhập ➔ Lấy Token ➔ Gửi Token xuống Backend (Express.js) ➔ Backend kiểm tra Token và thao tác với Database.Dưới đây là lộ trình 4 bước chuẩn xác nhất để tích hợp Supabase vào hệ thống của bạn:Bước 1: Cấu hình trên Dashboard của SupabaseĐầu tiên, bạn cần mở các "cánh cửa" trên Supabase để nó cho phép đăng nhập.Đăng nhập vào Supabase, tạo một Project mới.Vào mục Authentication (Menu bên trái) $\rightarrow$ Providers.Bật Google và Facebook lên.Dán Client ID và Client Secret (mà bạn đã lấy từ Google Cloud / Facebook Developer) vào đây.Copy cái Callback URL của Supabase cung cấp (vd: https://xxxx.supabase.co/auth/v1/callback) và đem dán ngược lại vào Google Cloud / Facebook Developer (thay cho cái localhost lúc trước).Vào mục Settings $\rightarrow$ API và copy 3 thứ quan trọng bỏ vào file .env:SUPABASE_URLSUPABASE_ANON_KEY (Dùng cho Frontend)SUPABASE_JWT_SECRET (Dùng cho Backend để giải mã token)Bước 2: Xử lý Đăng nhập ở Frontend (React / Next.js)Frontend bây giờ sẽ trực tiếp nói chuyện với Supabase để lấy Token, chứ không gọi qua Express nữa.Cài thư viện: npm install @supabase/supabase-jsKhởi tạo Supabase Client:JavaScriptimport { createClient } from '@supabase/supabase-js'
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL, 
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+)
+Làm nút Đăng nhập:JavaScript// Hàm gọi khi user bấm nút "Đăng nhập Google"
+const loginWithGoogle = async () => {
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+  })
+}
+Quan trọng: Mỗi khi gọi API xuống Express.js (để mua hàng, xem đơn), bạn phải kẹp cái Token vào Header:JavaScriptconst { data: { session } } = await supabase.auth.getSession();
+const token = session?.access_token;
+
+// Gọi API của bạn
+fetch('http://localhost:8080/api/orders', {
+  headers: {
+    'Authorization': `Bearer ${token}`
+  }
+})
+Bước 3: Bảo vệ API ở Backend (Express.js)Backend của bạn không cần passport.js nữa. Nó chỉ cần một đoạn Middleware để kiểm tra xem cái Token mà Frontend gửi xuống có phải do chính Supabase phát hành hay không.Cài thư viện giải mã JWT: npm install jsonwebtokenViết Middleware requireAuth:JavaScriptconst jwt = require('jsonwebtoken');
+
+const requireAuth = (req, res, next) => {
+  // Lấy token từ header
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ message: "Thiếu Token đăng nhập!" });
+  }
+
+  const token = authHeader.split(' ')[1];
+
+  try {
+    // Dùng JWT Secret của Supabase để giải mã
+    const decoded = jwt.verify(token, process.env.SUPABASE_JWT_SECRET);
+    
+    // Nếu thành công, gắn thông tin user vào req để các controller sau dùng
+    req.user = decoded; 
+    /* decoded chứa thông tin user của Supabase, ví dụ: 
+      { sub: 'user-id-123', email: 'khachhang@gmail.com', role: 'authenticated' }
+    */
+    next();
+  } catch (error) {
+    return res.status(403).json({ message: "Token không hợp lệ hoặc đã hết hạn!" });
+  }
+};
+
+module.exports = { requireAuth };
+Bước 4: Kết nối Database (Prisma) với SupabaseVề phần dữ liệu, bạn lấy chuỗi kết nối Database của Supabase bỏ vào file .env của Backend Express.Vào Supabase $\rightarrow$ Database $\rightarrow$ Connection Pooling (Khuyên dùng port 6543 cho Prisma).Sửa file .env của Backend:Đoạn mãDATABASE_URL="postgresql://postgres.[project-ref]:[password]@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres?pgbouncer=true"
+Chạy lệnh đồng bộ database: npx prisma db push (hoặc prisma migrate dev).🎉 Xong! Lúc này hệ thống của bạn đã hoạt động hoàn hảo: Frontend lo UI và lấy Token bằng Supabase SDK $\rightarrow$ Backend Express lo phân quyền bằng JWT và thao tác dữ liệu bằng Prisma.

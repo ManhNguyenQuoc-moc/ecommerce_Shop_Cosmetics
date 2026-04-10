@@ -50,7 +50,7 @@ const getStatusClasses = (status: OrderStatus) => {
 export default function OrderDetailModal({ orderId, isOpen, onClose }: Props) {
   const { data: order, isLoading } = useFetchSWR(
     orderId ? ["order-detail", orderId] : null,
-    () => orderId ? getOrderDetails(orderId) : null
+    () => getOrderDetails(orderId!)
   );
 
   const formatVND = (v: number) => new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(v || 0);

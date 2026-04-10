@@ -1,0 +1,54 @@
+================================================================================
+HƯỚNG DẪN CẬP NHẬT DATABASE PRISMA AN TOÀN (TRÁNH MẤT DỮ LIỆU)
+================================================================================
+
+1. VẤN ĐỀ CẦN LƯU Ý:
+   - Lệnh `npx prisma migrate dev` được thiết kế cho môi trường phát triển (Development).
+   - Nếu Database (ví dụ Supabase) có dữ liệu mà lịch sử migration ở Local không khớp, 
+     Prisma sẽ yêu cầu RESET DATABASE (Xóa toàn bộ dữ liệu) để đồng bộ lại.
+   - TRUYỆT ĐỐI KHÔNG CHỌN 'Y' khi Prisma hỏi về việc Reset nếu bạn không muốn mất data.
+
+2. PHƯƠNG PHÁP CẬP NHẬT AN TOÀN (Khi DB đã có dữ liệu quan trọng):
+   Để thêm cột hoặc thay đổi schema mà không mất dữ liệu, hãy làm theo quy trình sau:
+
+   Bước 1: Cập nhật file `prisma/schema.prisma` như bình thường.
+
+   Bước 2: Sử dụng lệnh `db execute` để chạy SQL trực tiếp (Chỉ thêm/sửa, không reset):
+     - Tạo file SQL (ví dụ `update.sql`) chứa các lệnh ALTER TABLE.
+     - Chạy lệnh:
+       .\node_modules\.bin\prisma.cmd db execute --file ./update.sql
+
+   Bước 3: Cập nhật lại Prisma Client để code nhận diện thay đổi:
+     - Chạy lệnh:
+       .\node_modules\.bin\prisma.cmd generate
+
+3. LƯU Ý VỀ ĐƯỜNG DẪN (PATH):
+   - Luôn chạy các lệnh trên bên trong thư mục `backend-ts` (nơi chứa node_modules và file config).
+   - Nếu đứng ở thư mục gốc của dự án, bạn phải dùng `cd backend-ts` trước.
+
+4. CÁC LỆNH HỮU ÍCH (Chạy trong thư mục backend-ts):
+   - Kiểm tra sự khác biệt giữa Schema và DB (Không thay đổi gì):
+     .\node_modules\.bin\prisma.cmd db pull
+   
+   - Đẩy thay đổi nhanh (Cẩn thận: Kiểm tra cảnh báo mất data):
+     .\node_modules\.bin\prisma.cmd db push
+
+5. LƯU Ý VỀ LỆCH LỊCH SỬ MIGRATION (MIGRATION DRIFT):
+   - Prisma theo dõi các migration đã chạy trong bảng `_prisma_migrations` trên DB.
+   - Nếu Database đã chạy migration A, B, C mà máy của bạn chỉ có file A, B (thiếu C):
+     => Prisma sẽ báo lỗi và yêu cầu RESET DATABASE.
+   - CÁCH KHẮC PHỤC:
+     + Tuyệt đối không chọn Reset (Y).
+     + Hãy tìm và copy đủ các thư mục migration còn thiếu vào `prisma/migrations`.
+     + Khi số lượng thư mục migration ở local khớp hoặc nhiều hơn DB, Prisma sẽ cho phép 
+       tiếp tục dùng `migrate dev` mà không bị reset.
+
+6. TỔNG KẾT QUY TẮC VÀNG:
+   - Thư mục `prisma/migrations` là cực kỳ quan trọng, hãy coi nó như code source. 
+     Luôn commit nó lên Git và đồng bộ giữa các máy.
+   - Nếu lỡ làm mất file migration local và bị hỏi reset: Hãy dừng lại và sử dụng 
+     phương pháp `db execute` (SQL thủ công) như hướng dẫn ở mục 2.
+
+================================================================================
+Ngày cập nhật: 10/04/2026 (Bổ sung lưu ý về Migration Drift)
+================================================================================

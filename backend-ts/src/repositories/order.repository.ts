@@ -1,8 +1,16 @@
-import { Order, OrderStatus } from "@prisma/client";
+import { Order, OrderStatus, User } from "@prisma/client";
 import { IOrderRepository } from "../interfaces/IOrderRepository";
 import { prisma } from "../config/prisma";
+import { MailService } from "../services/mail.service";
+import { supabase } from "../config/supabase";
 
 export class OrderRepository implements IOrderRepository {
+  private readonly mailService: MailService;
+
+  constructor() {
+    this.mailService = new MailService();
+  }
+
   async findAll(skip?: number, take?: number, filters?: any): Promise<[Order[], number]> {
     const where: any = {};
 
@@ -80,33 +88,83 @@ export class OrderRepository implements IOrderRepository {
       let userId = data.userId;
 
       // 1. Resolve User (Auto-Account Creation)
+      let isNewAccount = false;
+      let userRecord: User | null = null;
+      let rawPassword = "";
+
       if (!userId && customer?.email) {
-        const user = await tx.user.upsert({
-          where: { email: customer.email },
-          update: {
-            full_name: customer.name || undefined,
-            phone: customer.phone || undefined,
-          },
-          create: {
+        userRecord = await tx.user.findUnique({ where: { email: customer.email } });
+
+        if (!userRecord) {
+          // New guest user: Generate memorable password
+          rawPassword = `Shop@${Math.floor(100000 + Math.random() * 900000)}`;
+
+          // Create user in Supabase Auth via Admin SDK
+          const { data: authData, error: authError } = await supabase.auth.admin.createUser({
             email: customer.email,
-            full_name: customer.name || "Guest",
-            phone: customer.phone || null,
-          },
-        });
-        userId = user.id;
-      } else if (!userId && customer?.phone) {
-          // Fallback to phone if email missing but phone exists
-          const user = await tx.user.upsert({
-            where: { phone: customer.phone },
-            update: {
-                full_name: customer.name || undefined,
-            },
-            create: {
-                phone: customer.phone,
-                full_name: customer.name || "Guest",
+            password: rawPassword,
+            email_confirm: true,
+            user_metadata: {
+              full_name: customer.name || "Guest",
+              phone: customer.phone || null
             }
           });
-          userId = user.id;
+
+          if (authError) {
+            // If user somehow exists in Auth but not in public.User, try to fetch it
+            if (authError.message.includes("already exists")) {
+              const { data: existingAuth } = await supabase.auth.admin.listUsers();
+              const found = existingAuth.users.find(u => u.email === customer.email);
+              if (found) {
+                userId = found.id;
+                userRecord = await tx.user.findUnique({ where: { id: userId } });
+              }
+            } else {
+              throw new Error("Không thể tạo tài khoản xác thực: " + authError.message);
+            }
+          } else if (authData.user) {
+            userId = authData.user.id;
+            // Note: The SQL Trigger will handle inserting into public.User
+            // But for the current transaction, we might need to wait or manually insert if trigger is async
+            // To be safe and immediate within this transaction:
+            userRecord = await tx.user.create({
+              data: {
+                id: userId,
+                email: customer.email,
+                full_name: customer.name || "Guest",
+                phone: customer.phone || null,
+                is_verified: true,
+              },
+            });
+          }
+          isNewAccount = true;
+        } else {
+          // Existing user: Update info but don't change password
+          userRecord = await tx.user.update({
+            where: { email: customer.email },
+            data: {
+              full_name: customer.name || undefined,
+              phone: customer.phone || undefined,
+            }
+          });
+        }
+        userId = userRecord?.id;
+      } else if (!userId && customer?.phone) {
+        // Fallback to phone if email missing but phone exists
+        userRecord = await tx.user.upsert({
+          where: { phone: customer.phone },
+          update: {
+            full_name: customer.name || undefined,
+          },
+          create: {
+            phone: customer.phone,
+            full_name: customer.name || "Guest",
+            is_verified: false,
+          }
+        });
+        userId = userRecord.id;
+      } else if (userId) {
+        userRecord = await tx.user.findUnique({ where: { id: userId } });
       }
 
       if (!userId) {
@@ -133,7 +191,9 @@ export class OrderRepository implements IOrderRepository {
           userId,
           addressId,
           total_amount: total || 0,
-          final_amount: total || 0,
+          shipping_fee: data.shipping_fee || 0,
+          shipping_method: data.shipping_method || null,
+          final_amount: (total || 0) + (data.shipping_fee || 0),
           current_status: orderData.current_status || "PENDING",
           payment_method: orderData.payment_method || "COD",
           payment_status: orderData.payment_status || "UNPAID",
@@ -158,7 +218,7 @@ export class OrderRepository implements IOrderRepository {
       // Stock deduction logic (FEFO) - Same as before but robust
       for (const item of order.items) {
         if (!item.variantId) continue;
-        
+
         let remainingToDeduct = item.quantity;
         const now = new Date();
         const minExpiry = new Date();
@@ -177,7 +237,7 @@ export class OrderRepository implements IOrderRepository {
           if (remainingToDeduct <= 0) break;
 
           const deduction = Math.min(batch.quantity, remainingToDeduct);
-          
+
           await tx.batch.update({
             where: { id: batch.id },
             data: { quantity: { decrement: deduction } }
@@ -206,6 +266,11 @@ export class OrderRepository implements IOrderRepository {
         await this.syncSoldCounts(order.id, "increment", tx);
       }
 
+      // 4. Send Emails (Non-blocking)
+      if (userRecord && userRecord.email) {
+        this.mailService.sendOrderConfirmation(userRecord.email, order, rawPassword).catch(console.error);
+      }
+
       return order;
     });
   }
@@ -214,7 +279,7 @@ export class OrderRepository implements IOrderRepository {
     return prisma.$transaction(async (tx) => {
       const oldOrder = await tx.order.findUnique({
         where: { id },
-        select: { 
+        select: {
           current_status: true,
           payment_method: true,
           payment_status: true,
@@ -265,7 +330,7 @@ export class OrderRepository implements IOrderRepository {
 
   private async restoreStock(orderId: string, tx?: any) {
     const db = tx || prisma;
-    
+
     // Find all 'OUT' transactions for this order
     const transactions = await db.stockTransaction.findMany({
       where: {
@@ -276,7 +341,7 @@ export class OrderRepository implements IOrderRepository {
 
     for (const st of transactions) {
       if (!st.batchId) continue;
-      
+
       // Increment batch quantity
       await db.batch.update({
         where: { id: st.batchId },
