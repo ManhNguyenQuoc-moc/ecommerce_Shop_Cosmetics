@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-const protectedRoutes = ["/profile", "/orders", "/checkout", "/admin"];
+const protectedRoutes = ["/profile", "/admin"];
 
 export function proxy(request: NextRequest) {
   const token = request.cookies.get("access_token")?.value;
@@ -20,10 +20,8 @@ export function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/profile/:path*", 
+    "/profile/:path*",
     "/profile",
-    "/orders/:path*", 
-    "/orders",
     "/admin/:path*",
     "/admin"
   ],
