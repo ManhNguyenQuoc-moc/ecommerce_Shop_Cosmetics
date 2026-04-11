@@ -69,7 +69,7 @@ export class CartController {
   syncCart = async (req: Request, res: Response): Promise<void> => {
     try {
       const userId = req.params.userId as string;
-      const { items } = req.body; // Array of { variantId, quantity }
+      const { items } = req.body;
       const cart = await this.cartService.syncCart(userId, items);
       res.status(200).json({ success: true, message: "Cart synced successfully", data: cart });
     } catch (error: any) {

@@ -16,7 +16,7 @@ import { useCart } from "@/src/hooks/useCart";
 
 export default function RegisterForm() {
     const router = useRouter();
-    const { items, syncCart } = useCart();
+    const { items, syncCart, setIsMerging } = useCart();
     const [isLoading, setIsLoading] = useState(false);
 
     const handleSubmit = async (values: any) => {
@@ -51,7 +51,12 @@ export default function RegisterForm() {
                 showNotificationSuccess("Đăng ký thành công. Vui lòng kiểm tra email của bạn để kích hoạt tài khoản!");
                 router.push("/login?verify=sent");
             } else if (data.session) {
-                if (data.user) await syncCart(data.user.id, guestItems);
+                setIsMerging(true);
+                try {
+                    if (data.user) await syncCart(data.user.id, guestItems);
+                } finally {
+                    setIsMerging(false);
+                }
                 showNotificationSuccess("Đăng ký thành công! Chào mừng bạn.");
                 router.push("/");
             }

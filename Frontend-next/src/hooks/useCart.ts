@@ -8,17 +8,17 @@ import { useEffect } from "react";
 import { useAuth } from "@/src/context/AuthContext";
 
 export const useCart = () => {
-  const { items, isLoading, setItems, setLoading, reset } = useCartStore();
+  const { items, isLoading, isMerging, setItems, setLoading, setIsMerging, reset } = useCartStore();
   const { currentUser: user } = useAuth();
   const token = authStorage.getToken();
 
   // 1. Fetch from backend using SWR
+  // Only fetch if NOT currently merging guest cart
   const { data: remoteData, mutate } = useFetchSWR(
-    (user?.id && token) ? `/carts/${user.id}` : null,
+    (user?.id && token && !isMerging) ? `/carts/${user.id}` : null,
     () => cartService.getCartAsync(user!.id)
   );
 
-  // 2. Sync remote data to store
   useEffect(() => {
     if (remoteData?.items && user) {
       setItems(remoteData.items);
@@ -131,8 +131,6 @@ export const useCart = () => {
       try {
         const syncData = targetItems.map(i => ({ variantId: i.variantId, quantity: i.quantity }));
         const data = await cartService.syncCartAsync(targetUserId, syncData);
-        
-        // Optimistically update SWR cache to prevent race condition with auto-fetch
         mutate(data, false);
         
         setItems(data.items);
@@ -146,6 +144,7 @@ export const useCart = () => {
   return {
     items,
     isLoading: !remoteData && !!user,
+    isMerging,
     total,
     count,
     addItem,
@@ -153,6 +152,7 @@ export const useCart = () => {
     removeItem,
     clearCart,
     syncCart,
+    setIsMerging,
     reset,
   };
 };
