@@ -42,6 +42,43 @@ const tagConfig: Record<string, { label: string; color: string; dot: string }> =
     color: "bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900/40 dark:text-emerald-400 dark:border-emerald-500/30",
     dot: "bg-emerald-500",
   },
+  // Order Statuses
+  PENDING: {
+    label: "Chờ xác nhận",
+    color: "bg-slate-100 text-slate-600 border-slate-200 dark:bg-slate-800/40 dark:text-slate-400 dark:border-slate-700",
+    dot: "bg-slate-400",
+  },
+  PROCESSING: {
+    label: "Đang xử lý",
+    color: "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/40 dark:text-blue-400 dark:border-blue-500/30",
+    dot: "bg-blue-500",
+  },
+  SHIPPED: {
+    label: "Đang giao hàng",
+    color: "bg-indigo-100 text-indigo-700 border-indigo-200 dark:bg-indigo-900/40 dark:text-indigo-400 dark:border-indigo-500/30",
+    dot: "bg-indigo-500",
+  },
+  DELIVERED: {
+    label: "Đã giao hàng",
+    color: "bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900/40 dark:text-emerald-400 dark:border-emerald-500/30",
+    dot: "bg-emerald-500",
+  },
+  CANCELLED: {
+    label: "Đã hủy",
+    color: "bg-red-100 text-red-700 border-red-200 dark:bg-red-900/40 dark:text-red-500 dark:border-red-500/30",
+    dot: "bg-red-500",
+  },
+  // Payment Statuses
+  PAID: {
+    label: "Đã thanh toán",
+    color: "bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900/40 dark:text-emerald-400 dark:border-emerald-500/30",
+    dot: "bg-emerald-500",
+  },
+  UNPAID: {
+    label: "Chưa thanh toán",
+    color: "bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/40 dark:text-amber-400 dark:border-amber-500/30",
+    dot: "bg-amber-500",
+  },
 };
 
 const SWTStatusTag: React.FC<SWTStatusTagProps> = ({ 

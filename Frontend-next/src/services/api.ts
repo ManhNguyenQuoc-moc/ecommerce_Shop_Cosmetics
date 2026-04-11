@@ -6,7 +6,7 @@ export async function get<T>(
   params?: Record<string, any>
 ): Promise<T> {
   const res = await http.get<ApiResponse<T>>(url, { params });
-  return res.data.data;
+  return res.data.data !== undefined ? res.data.data : (res.data as any);
 }
 
 export async function post<T>(
@@ -15,7 +15,7 @@ export async function post<T>(
   params?: Record<string, any>
 ): Promise<T> {
   const res = await http.post<ApiResponse<T>>(url, data, { params });
-  return res.data.data;
+  return res.data.data !== undefined ? res.data.data : (res.data as any);
 }
 
 export async function put<T>(
@@ -24,7 +24,7 @@ export async function put<T>(
   params?: Record<string, any>
 ): Promise<T> {
   const res = await http.put<ApiResponse<T>>(url, data, { params });
-  return res.data.data;
+  return res.data.data !== undefined ? res.data.data : (res.data as any);
 }
 
 export async function patch<T>(
@@ -33,7 +33,7 @@ export async function patch<T>(
   params?: Record<string, any>
 ): Promise<T> {
   const res = await http.patch<ApiResponse<T>>(url, data, { params });
-  return res.data.data;
+  return res.data.data !== undefined ? res.data.data : (res.data as any);
 }
 
 export async function del<T>(
@@ -41,5 +41,5 @@ export async function del<T>(
   params?: Record<string, any>
 ): Promise<T> {
   const res = await http.delete<ApiResponse<T>>(url, { params });
-  return res.data.data;
+  return res.data.data !== undefined ? res.data.data : (res.data as any);
 }

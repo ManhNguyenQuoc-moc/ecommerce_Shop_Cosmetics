@@ -12,7 +12,7 @@ import SWTConfirmModal from "@/src/@core/component/AntD/SWTConfirmModal";
 import SWTTooltip from "@/src/@core/component/AntD/SWTTooltip";
 import Image from "next/image";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
-import { useState } from "react";
+import React, { useState, useMemo } from "react";
 
 interface ProductTableProps {
   isPending?: boolean;
@@ -98,7 +98,7 @@ export default function ProductTable({ isPending }: ProductTableProps) {
     }
   };
 
-  const columns = [
+  const columns = useMemo(() => [
     {
       title: "Sản phẩm",
       dataIndex: "name",
@@ -187,7 +187,7 @@ export default function ProductTable({ isPending }: ProductTableProps) {
         </div>
       ),
     },
-  ];
+  ], [isHiddenTab]);
 
   return (
     <div className="w-full">

@@ -1,6 +1,6 @@
 import { Tag, Tooltip } from "antd";
 import { TicketPercent, Copy, Calendar, Info } from "lucide-react";
-import { VoucherDTO } from "@/src/services/models/customer/voucher.dto";
+import { VoucherResponseDto as VoucherDTO } from "@/src/services/models/voucher/output.dto";
 import { showNotificationSuccess } from "@/src/@core/utils/message";
 import SWTCard from "@/src/@core/component/AntD/SWTCard";
 

@@ -166,7 +166,6 @@ export class InventoryRepository implements IInventoryRepository {
   }
 
   async getStockForVariants(variantIds: string[]) {
-    const now = new Date();
     const minExpiryDate = new Date();
     minExpiryDate.setMonth(minExpiryDate.getMonth() + 3);
 
@@ -187,4 +186,78 @@ export class InventoryRepository implements IInventoryRepository {
     return stockMap;
   }
 
+  async deductStock(variantId: string, quantity: number, orderId: string, tx: any): Promise<void> {
+    const db = tx || prisma;
+    let remainingToDeduct = quantity;
+    const minExpiry = new Date();
+    minExpiry.setMonth(minExpiry.getMonth() + 3);
+
+    const validBatches = await db.batch.findMany({
+      where: {
+        variantId,
+        expiryDate: { gt: minExpiry },
+        quantity: { gt: 0 }
+      },
+      orderBy: { expiryDate: 'asc' } // FEFO
+    });
+
+    for (const batch of validBatches) {
+      if (remainingToDeduct <= 0) break;
+
+      const deduction = Math.min(batch.quantity, remainingToDeduct);
+
+      await db.batch.update({
+        where: { id: batch.id },
+        data: { quantity: { decrement: deduction } }
+      });
+
+      await db.stockTransaction.create({
+        data: {
+          variantId,
+          batchId: batch.id,
+          type: 'OUT',
+          quantity: -deduction,
+          referenceId: orderId,
+          note: `Checkout order ${orderId}`
+        }
+      });
+
+      remainingToDeduct -= deduction;
+    }
+
+    if (remainingToDeduct > 0) {
+      throw new Error(`Sản phẩm [${variantId}] không đủ tồn kho hợp lệ (hạn sử dụng > 3 tháng).`);
+    }
+  }
+
+  async restoreStock(orderId: string, tx: any): Promise<void> {
+    const db = tx || prisma;
+
+    const transactions = await db.stockTransaction.findMany({
+      where: {
+        referenceId: orderId,
+        type: 'OUT'
+      }
+    });
+
+    for (const st of transactions) {
+      if (!st.batchId) continue;
+
+      await db.batch.update({
+        where: { id: st.batchId },
+        data: { quantity: { increment: Math.abs(st.quantity) } }
+      });
+
+      await db.stockTransaction.create({
+        data: {
+          variantId: st.variantId,
+          batchId: st.batchId,
+          type: 'IN',
+          quantity: Math.abs(st.quantity),
+          referenceId: orderId,
+          note: `Hoàn kho từ đơn hàng đã hủy ${orderId}`
+        }
+      });
+    }
+  }
 }

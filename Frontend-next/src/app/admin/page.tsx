@@ -1,39 +1,13 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import { Loader2 } from "lucide-react";
-import SWTTabs from "@/src/@core/component/AntD/SWTTabs";
-import SimpleDashboard from "./components/dashboard/SimpleDashboard";
-import AdvancedDashboard from "./components/dashboard/AdvancedDashboard";
+import React from "react";
 import SWTBreadcrumb from "@/src/@core/component/AntD/SWTBreadcrumb";
 import { LayoutDashboard } from "lucide-react";
-import useSWTTitle from "@/src/@core/hooks/useSWTTitle";
+import DashboardClient from "./DashboardClient";
+
+export const metadata = {
+  title: "Thống Kê Hệ Thống | Admin",
+};
 
 export default function AdminDashboardPage() {
-  useSWTTitle("Thống Kê Hệ Thống | Admin");
-  const [isLoading, setIsLoading] = useState(false);
-  const tabsItems = [
-    {
-      key: "simple",
-      label: "Tổng Quan Kinh Doanh",
-      children: <SimpleDashboard />,
-    },
-    {
-      key: "advanced",
-      label: "Phân Tích Chi Tiết",
-      children: <AdvancedDashboard />,
-    }
-  ];
-
-  if (isLoading) {
-    return (
-      <div className="flex flex-col items-center justify-center h-[70vh] text-brand-600 gap-4">
-        <Loader2 size={40} className="animate-spin" />
-        <span className="text-sm font-medium text-slate-500">Đang tải biểu đồ...</span>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6">
       <div className="mb-4">
@@ -52,14 +26,7 @@ export default function AdminDashboardPage() {
         </p>
       </div>
 
-      <div className="bg-transparent rounded-2xl">
-        <SWTTabs 
-          items={tabsItems}
-          defaultActiveKey="simple"
-          size="large"
-          className="!admin-dashboard-tabs"
-        />
-      </div>
+      <DashboardClient />
     </div>
   );
 }

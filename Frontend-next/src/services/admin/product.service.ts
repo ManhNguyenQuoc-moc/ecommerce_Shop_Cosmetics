@@ -3,6 +3,7 @@ import { useFetchSWR } from "@/src/@core/hooks/useFetchSWR";
 import { mutate as globalMutate } from "swr";
 import { ProductListResponseDto, ProductDetailDto, ProductVariantDto, VariantListResponseDto, VariantDetailDto } from "../models/product/output.dto";
 import { PaginationResponse } from "../models/common/PaginationResponse";
+import { buildQueryString } from "../../utils/query.util";
 
 /**
  * Call this after any stock receipt to revalidate all related SWR caches:
@@ -128,30 +129,12 @@ export const useProducts = (
   pageSize: number,
   filters?: ProductQueryParams
 ) => {
-  const queryParams = new URLSearchParams({
-    page: page.toString(),
-    pageSize: pageSize.toString(),
-  });
+  const query = buildQueryString({ page, pageSize, ...filters });
 
-  if (filters) {
-    Object.entries(filters).forEach(([key, value]) => {
-      if (value && value !== "all") {
-        queryParams.append(key, String(value));
-      }
-    });
-  }
-
-  const queryString = queryParams.toString();
-
-  const fetcher = () =>
-    get<PaginationResponse<any>>(PRODUCT_API_ENDPOINT, {
-      page,
-      pageSize,
-      ...filters,
-    });
+  const fetcher = () => get<PaginationResponse<any>>(`${PRODUCT_API_ENDPOINT}${query}`);
 
   const { data, error, isLoading, isValidating, mutate } = useFetchSWR<PaginationResponse<any>>(
-    `${PRODUCT_API_ENDPOINT}?${queryString}`,
+    `${PRODUCT_API_ENDPOINT}${query}`,
     fetcher
   );
 
@@ -171,27 +154,14 @@ export const useVariants = (
   pageSize: number,
   filters?: ProductQueryParams
 ) => {
-  const queryParams = new URLSearchParams({
-    page: page.toString(),
-    pageSize: pageSize.toString(),
-  });
-
-  if (filters) {
-    Object.entries(filters).forEach(([key, value]) => {
-      if (value && value !== "all") {
-        queryParams.append(key, String(value));
-      }
-    });
-  }
-
-  const queryString = queryParams.toString();
+  const query = buildQueryString({ page, pageSize, ...filters });
 
   const fetcher = () =>
-    get<PaginationResponse<ProductVariantDto>>(`${PRODUCT_API_ENDPOINT}/variants/list?${queryString}`);
+    get<PaginationResponse<ProductVariantDto>>(`${PRODUCT_API_ENDPOINT}/variants/list${query}`);
 
   const { data, error, isLoading, isValidating, mutate } =
     useFetchSWR<PaginationResponse<ProductVariantDto>>(
-      `${PRODUCT_API_ENDPOINT}/variants/list?${queryString}`,
+      `${PRODUCT_API_ENDPOINT}/variants/list${query}`,
       fetcher,
       {
         revalidateOnFocus: false,

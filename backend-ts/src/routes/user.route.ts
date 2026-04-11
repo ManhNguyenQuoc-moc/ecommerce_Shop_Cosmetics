@@ -6,17 +6,19 @@ import { authenticate } from "../middlewares/auth.middleware";
 
 const router = Router();
 
-// Khởi tạo Dependency Injection
+// Dependency Injection Assembly
 const userRepository = new UserRepository();
 const userService = new UserService(userRepository);
 const userController = new UserController(userService);
 
-// Định nghĩa routes
-router.get("/all", userController.getUsers);
+// Public / Authenticated User Routes (Profile)
 router.get("/me", authenticate, userController.getMe);
+router.get("/me/points", authenticate, userController.getPointsHistory);
 router.patch("/me", authenticate, userController.update);
-router.get("/:id", userController.getUserById);
-router.put("/:id/status", userController.create); // Simplified for now, or update status logic
+
+// Admin Routes
+router.get("/", userController.getUsers);
 router.post("/", userController.create);
+router.get("/:id", userController.getUserById);
 
 export default router;

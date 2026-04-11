@@ -76,7 +76,7 @@ export default function CreatePOForm({ onSuccess }: Props) {
   const [brandSearch, setBrandSearch] = useState("");
   const { brands, isLoading: brandsLoading } = useBrands(1, 10, { searchTerm: brandSearch, minimal: true });
 
-  const brandList: Array<{ id: string; name: string }> = brands?.data || brands || [];
+  const brandList: Array<{ id: string; name: string }> = Array.isArray(brands) ? brands : [];
 
   const selectedItemsRef = useRef<HTMLDivElement | null>(null);
   const [newlyAddedIds, setNewlyAddedIds] = useState<string[]>([]);

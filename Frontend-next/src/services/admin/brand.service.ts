@@ -2,34 +2,26 @@ import { get, post, put, del } from "../api";
 import { useFetchSWR } from "@/src/@core/hooks/useFetchSWR";
 import useSWRMutation from "swr/mutation";
 import { PaginationResponse } from "../models/common/PaginationResponse";
+import { buildQueryString } from "../../utils/query.util";
+import { BrandResponseDto } from "../models/brand/output.dto";
 
 export const BRAND_API_ENDPOINT = "/brands";
 
 export const useBrands = (page: number | null = null, pageSize: number | null = null, filters: any = {}) => {
-  const query = new URLSearchParams();
-  if (page) query.append("page", page.toString());
-  if (pageSize) query.append("pageSize", pageSize.toString());
-  
-  Object.entries(filters).forEach(([key, value]) => {
-    if (value) query.append(key, String(value));
+  const queryString = buildQueryString({
+    page,
+    pageSize,
+    ...filters
   });
 
-  const { data, isLoading, error, mutate } = useFetchSWR(
-    `${BRAND_API_ENDPOINT}?${query.toString()}`,
-    () => get(`${BRAND_API_ENDPOINT}?${query.toString()}`)
+  const { data, isLoading, error, mutate } = useFetchSWR<PaginationResponse<BrandResponseDto>>(
+    `${BRAND_API_ENDPOINT}${queryString}`,
+    () => get(`${BRAND_API_ENDPOINT}${queryString}`)
   );
 
-  const responseData = data as any;
-  const brands = Array.isArray(responseData) 
-    ? responseData 
-    : (responseData?.data?.data || responseData?.data || []);
-  const total = Array.isArray(responseData) 
-    ? responseData.length 
-    : (responseData?.data?.total || responseData?.total || 0);
-
   return {
-    brands,
-    total,
+    brands: data?.data || [],
+    total: data?.total || 0,
     isLoading,
     isError: error,
     mutate
@@ -53,4 +45,3 @@ export const useDeleteBrand = () => {
     (_, { arg }: { arg: string }) => del(`${BRAND_API_ENDPOINT}/${arg}`)
   );
 };
-

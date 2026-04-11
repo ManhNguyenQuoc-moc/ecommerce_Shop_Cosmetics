@@ -1,17 +1,10 @@
-"use client";
-
 import React from 'react';
 import { Users, Info } from "lucide-react";
 import SWTTooltip from "@/src/@core/component/AntD/SWTTooltip";
-import UserTable from "./components/UserTable";
-import UserFilters from "./components/UserFilters";
-import SWTButton from "@/src/@core/component/AntD/SWTButton";
-import { SWTInputSearch } from "@/src/@core/component/AntD/SWTInput";
 import SWTBreadcrumb from "@/src/@core/component/AntD/SWTBreadcrumb";
-import useSWTTitle from "@/src/@core/hooks/useSWTTitle";
+import UsersClient from "./UsersClient";
 
 export default function UsersPage() {
-  useSWTTitle("Quản Lý Người Dùng | Admin");
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Header */}
@@ -42,13 +35,7 @@ export default function UsersPage() {
         </SWTTooltip>
       </div>
 
-      {/* Main Content */}
-      <div className="p-6 bg-white/80 dark:bg-slate-900/50 backdrop-blur-md rounded-2xl shadow-sm border border-slate-200 dark:border-admin-sidebar-border transition-colors">
-        
-        <UserFilters />
-
-        <UserTable />
-      </div>
+      <UsersClient />
     </div>
   );
 }

@@ -4,14 +4,11 @@ import SWTTable from "@/src/@core/component/AntD/SWTTable";
 import SWTCard from "@/src/@core/component/AntD/SWTCard";
 import CartItemProduct from "./CartItemProduct";
 import CartQuantity from "./CartQuantity";
-
-import { useCartStore } from "@/src/stores/useCartStore";
+import { useCart } from "@/src/hooks/useCart";
 import type { ColumnsType } from "antd/es/table";
 
 export default function CartTable() {
-  const items = useCartStore((s) => s.items);
-  const updateQuantity = useCartStore((s) => s.updateQuantity);
-  const removeItem = useCartStore((s) => s.removeItem);
+  const { items, updateQuantity, removeItem } = useCart();
 
   const columns: ColumnsType<any> = [
     {
@@ -49,9 +46,10 @@ export default function CartTable() {
       render: (_, record) => (
         <CartQuantity
           quantity={record.quantity}
+          max={record.availableStock}
           onChange={(val) => {
-          const quantity = Number(val) || 1; 
-          updateQuantity(record.id, quantity);
+            const quantity = Number(val) || 1; 
+            updateQuantity(record.id, record.variantId, quantity);
           }}
         />
       ),
@@ -64,7 +62,7 @@ export default function CartTable() {
         rowKey="id"
         columns={columns}
         dataSource={items}
-         scroll={{ x: "max-content" }}
+        scroll={{ x: "max-content" }}
       />
     </SWTCard>
   );

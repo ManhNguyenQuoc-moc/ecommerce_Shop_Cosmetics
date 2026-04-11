@@ -6,7 +6,7 @@ import SWTForm from "@/src/@core/component/AntD/SWTForm";
 import SWTFormItem from "@/src/@core/component/AntD/SWTFormItem";
 import SWTCard from "@/src/@core/component/AntD/SWTCard";
 import { SWTInput } from "@/src/@core/component/AntD/SWTInput";
-import { useCheckoutStore } from "@/src/stores/useCheckoutStore";
+import { useCheckout } from "@/src/hooks/useCheckout";
 import AddressAutocomplete from "./AddressAutocomplete";
 import {
   UserOutlined,
@@ -14,57 +14,33 @@ import {
   EnvironmentOutlined,
   MailOutlined,
 } from "@ant-design/icons";
-import { useAuth } from "@/src/context/AuthContext";
-import { getCustomerInfo } from "@/src/services/customer/user.service";
-import { useFetchSWR } from "@/src/@core/hooks/useFetchSWR";
 import { Address } from "@/src/@core/type/checkout";
 
 export default function CheckoutForm() {
   const [form] = Form.useForm();
-  const { currentUser } = useAuth();
-  const userId = currentUser?.id;
-
-  const { data: customer, isLoading } = useFetchSWR(
-    userId ? `/users/${userId}` : null,
-    () => getCustomerInfo(userId!),
-    {
-    revalidateOnMount: true,
-    revalidateOnFocus: false,
-  } 
-  );
   const {
-    customer: customerState,
+    customer,
     addresses,
     selectedAddress,
     setCustomer,
-    setAddresses,
     setSelectedAddress,
-  } = useCheckoutStore();
+    setAddresses,
+    fetchCustomerInfo
+  } = useCheckout();
 
   const [addingNew, setAddingNew] = useState(false);
 
-
   useEffect(() => {
-    if (!customer) return;
-    const firstAddr = customer.addresses?.[0];
-    setCustomer({
-        name: (customer as any).full_name || customer.name || "",
-        phone: customer.phone || "",
-        email: customer.email || "",
-        
-    });
-    setAddresses(customer.addresses || []);
-      if (firstAddr) setSelectedAddress(firstAddr);
-
-  }, [customer, setCustomer, setAddresses, setSelectedAddress]);
+    fetchCustomerInfo();
+  }, []);
 
   useEffect(() => {
     form.setFieldsValue({
-      name: customerState.name,
-      phone: customerState.phone,
-      email: customerState.email,
+      name: customer.name,
+      phone: customer.phone,
+      email: customer.email,
     });
-  }, [customerState, form]);
+  }, [customer, form]);
 
   const handleSelectAddress = (addr: Address) => {
     setSelectedAddress(addr);
@@ -80,7 +56,6 @@ export default function CheckoutForm() {
 
   return (
     <SWTCard
-      loading={isLoading}
       className="!border-none !shadow-md !rounded-2xl !p-6 flex flex-col gap-6 min-h-[450px]"
     >
       <div className="flex flex-col gap-4">

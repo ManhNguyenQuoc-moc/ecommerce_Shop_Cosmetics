@@ -1,18 +1,10 @@
-"use client";
-
-import React, { useState } from 'react';
+import React from 'react';
 import { Info, Truck } from "lucide-react";
 import SWTTooltip from "@/src/@core/component/AntD/SWTTooltip";
 import SWTBreadcrumb from "@/src/@core/component/AntD/SWTBreadcrumb";
-import useSWTTitle from "@/src/@core/hooks/useSWTTitle";
-import BrandTable from "./components/BrandTable";
-import BrandFilters from "./components/BrandFilters";
-import AddBrandModal from "./components/AddBrandModal";
+import SuppliersClient from "./SuppliersClient";
 
 export default function SuppliersPage() {
-  useSWTTitle("Quản Lý Nhà Cung Cấp | Admin");
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Header */}
@@ -45,11 +37,7 @@ export default function SuppliersPage() {
       </div>
 
       {/* Main Content */}
-      <div className="p-6 bg-white/80 dark:bg-slate-900/50 backdrop-blur-md rounded-2xl shadow-sm border border-slate-200 dark:border-admin-sidebar-border transition-colors">
-        <BrandFilters />
-        <BrandTable />
-      </div>
-      <AddBrandModal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} />
+      <SuppliersClient />
     </div>
   );
 }
