@@ -39,15 +39,17 @@ export default function ProductDetailUI({ product }: Props) {
   const searchParams = useSearchParams();
   const variantQueryId = searchParams.get("variant");
 
-  const [variant, setVariant] = useState<ProductDetailVariantDto | null>(() => {
+  const [selectedVariantId, setSelectedVariantId] = useState<string | null>(() => {
     const variants = currentProduct.variants || [];
     if (variantQueryId) {
       const found = variants.find(v => v.id === variantQueryId);
-      if (found) return found;
+      if (found) return found.id;
     }
     // Auto-select first variant that is in stock (expiry > 3 months)
-    return variants.find(v => (v.availableStock ?? 0) > 0) ?? variants[0] ?? null;
+    return variants.find(v => (v.availableStock ?? 0) > 0)?.id ?? variants[0]?.id ?? null;
   });
+
+  const variant = currentProduct.variants?.find(v => v.id === selectedVariantId) || null;
   
   const [activeImage, setActiveImage] = useState(
     variant?.image ?? currentProduct.images?.[0] ?? ""
@@ -60,7 +62,7 @@ export default function ProductDetailUI({ product }: Props) {
     : Math.min(5, currentProduct.availableStock || 0);
 
   const handleVariantChange = (v: ProductDetailVariantDto) => {
-    setVariant(v);
+    setSelectedVariantId(v.id);
     if (v.image) {
       setActiveImage(v.image);
     }

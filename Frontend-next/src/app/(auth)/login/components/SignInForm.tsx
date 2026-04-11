@@ -21,7 +21,7 @@ type LoginFormValues = {
 };
 export default function SignInForm() {
   const { login } = useAuth();
-  const { items, syncCart } = useCart();
+  const { items, syncCart, setIsMerging } = useCart();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -49,8 +49,13 @@ export default function SignInForm() {
         };
         
         const guestItems = [...items];
-        await login(data.session.access_token, authUser);
-        await syncCart(data.user.id, guestItems);
+        setIsMerging(true);
+        try {
+          await login(data.session.access_token, authUser);
+          await syncCart(data.user.id, guestItems);
+        } finally {
+          setIsMerging(false);
+        }
         showNotificationSuccess("Đăng nhập thành công! Chào mừng trở lại.");
         router.push("/");
       }
