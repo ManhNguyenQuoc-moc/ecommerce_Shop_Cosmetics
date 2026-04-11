@@ -20,10 +20,31 @@ export const useCart = () => {
   );
 
   useEffect(() => {
-    if (remoteData?.items && user) {
+    if (remoteData?.items && user && !isMerging) {
       setItems(remoteData.items);
     }
-  }, [remoteData, user?.id, setItems]);
+  }, [remoteData, user?.id, setItems, isMerging]);
+
+  // 3. Auto-sync for Social Login (Redirect return)
+  // Detect transition from No User -> User
+  useEffect(() => {
+    const guestItems = items;
+    if (user?.id && guestItems.length > 0 && !isMerging) {
+      // If we have items and just logged in, but haven't synced yet
+      // We check if the current items are likely guest items (since isMerging is false)
+      // and we trigger a sync. This covers the social login redirect case.
+      const performAutoSync = async () => {
+        setIsMerging(true);
+        try {
+            await syncCart(user.id, guestItems);
+        } finally {
+            setIsMerging(false);
+        }
+      };
+      performAutoSync();
+    }
+    // We only want to trigger this when user.id BECOMES available
+  }, [user?.id]);
 
   const MAX_ITEMS_PER_VARIANT = 5;
 
