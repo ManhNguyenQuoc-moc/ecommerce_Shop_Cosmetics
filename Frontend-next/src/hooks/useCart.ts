@@ -131,8 +131,11 @@ export const useCart = () => {
       try {
         const syncData = targetItems.map(i => ({ variantId: i.variantId, quantity: i.quantity }));
         const data = await cartService.syncCartAsync(targetUserId, syncData);
+        
+        // Optimistically update SWR cache to prevent race condition with auto-fetch
+        mutate(data, false);
+        
         setItems(data.items);
-        mutate();
       } catch (err) {}
     }
   };

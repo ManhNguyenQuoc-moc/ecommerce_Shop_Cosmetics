@@ -62,10 +62,8 @@ export const useCheckout = () => {
 
   const placeOrder = async () => {
     const user = authStorage.getUser();
-    if (!user?.id) {
-      showNotificationError("Vui lòng đăng nhập để đặt hàng");
-      return;
-    }
+    // Guest checkout is allowed, backend will handle getOrCreateCustomer if user.id is missing
+
 
     if (!customer.name || !customer.phone || !selectedAddress) {
       showNotificationError("Vui lòng nhập đầy đủ thông tin giao hàng");
