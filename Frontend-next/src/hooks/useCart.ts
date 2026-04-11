@@ -110,11 +110,12 @@ export const useCart = () => {
     setItems([]);
   };
 
-  const syncCart = async () => {
-    if (user?.id && items.length > 0) {
+  const syncCart = async (forcedUserId?: string) => {
+    const targetUserId = forcedUserId || user?.id;
+    if (targetUserId && items.length > 0) {
       try {
         const syncData = items.map(i => ({ variantId: i.variantId, quantity: i.quantity }));
-        const data = await cartService.syncCartAsync(user.id, syncData);
+        const data = await cartService.syncCartAsync(targetUserId, syncData);
         setItems(data.items);
         mutate();
       } catch (err) {}

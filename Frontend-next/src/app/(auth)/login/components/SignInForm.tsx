@@ -49,7 +49,7 @@ export default function SignInForm() {
         };
         
         await login(data.session.access_token, authUser);
-        await syncCart();
+        await syncCart(data.user.id);
         showNotificationSuccess("Đăng nhập thành công! Chào mừng trở lại.");
         router.push("/");
       }

@@ -43,18 +43,19 @@ const onResponseInterceptor = async (error: AxiosError) => {
     return Promise.reject(error);
   }
 
-  // 401 => Unauthorized. Chuyển hướng về login nếu token không hợp lệ
   if (error.response && error.response.status === HttpStatusCode.Unauthorized) {
     if (typeof window !== "undefined") {
-        authStorage.logout();
-        // window.location.href = `/login`; // Tạm tắt redirect tự động để tránh loop
+        // Only logout if we are not already on the login page
+        if (!window.location.pathname.startsWith('/login')) {
+            authStorage.logout();
+            // Optional: Notify user or redirect gracefully
+        }
     }
     return Promise.reject(error.response.data);
   }
 
   const _response = error.response?.data as any;
   
-  // 400 => Bad Request
   if (error.response && error.response.status === HttpStatusCode.BadRequest) {
     showNotificationError(
       `${_response?.message ?? "Lỗi không xác định, vui lòng liên hệ quản trị viên."}`,

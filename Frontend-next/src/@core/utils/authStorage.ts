@@ -17,8 +17,8 @@ export type AuthUser = {
 export const authStorage = {
 
   login: (token: string, user: AuthUser): void => {
-    Cookies.set(TOKEN_KEY, token, { expires: 1 });
-    Cookies.set(USER_KEY, JSON.stringify(user), { expires: 1 });
+    Cookies.set(TOKEN_KEY, token, { expires: 7 });
+    Cookies.set(USER_KEY, JSON.stringify(user), { expires: 7 });
   },
 
   logout: (): void => {
@@ -41,6 +41,6 @@ export const authStorage = {
 },
 
   setUser: (user: AuthUser): void => {
-    Cookies.set(USER_KEY, JSON.stringify(user), { expires: 1 });
+    Cookies.set(USER_KEY, JSON.stringify(user), { expires: 7 });
   }
 };
