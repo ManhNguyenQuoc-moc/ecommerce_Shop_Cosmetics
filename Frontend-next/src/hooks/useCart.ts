@@ -144,6 +144,7 @@ export const useCart = () => {
   return {
     items,
     isLoading: !remoteData && !!user,
+    isMerging,
     total,
     count,
     addItem,
@@ -151,6 +152,7 @@ export const useCart = () => {
     removeItem,
     clearCart,
     syncCart,
+    setIsMerging,
     reset,
   };
 };
