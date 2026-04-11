@@ -1,16 +1,10 @@
-"use client";
-
 import React from 'react';
-import VoucherTable from "./components/VoucherTable";
-import VoucherFilters from "./components/VoucherFilters";
 import { Ticket, Info } from "lucide-react";
 import SWTTooltip from "@/src/@core/component/AntD/SWTTooltip";
-import SWTButton from "@/src/@core/component/AntD/SWTButton";
 import SWTBreadcrumb from "@/src/@core/component/AntD/SWTBreadcrumb";
-import useSWTTitle from "@/src/@core/hooks/useSWTTitle";
+import DiscountsClient from "./DiscountsClient";
 
 export default function DiscountsPage() {
-  useSWTTitle("Quản Lý Voucher | Admin");
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Header */}
@@ -41,11 +35,7 @@ export default function DiscountsPage() {
         </SWTTooltip>
       </div>
 
-      {/* Main Content */}
-      <div className="bg-white/80 dark:bg-slate-900/50 backdrop-blur-md rounded-2xl shadow-sm border border-slate-200 dark:border-admin-sidebar-border transition-colors p-6">
-        <VoucherFilters />
-        <VoucherTable />
-      </div>
+      <DiscountsClient />
     </div>
   );
 }

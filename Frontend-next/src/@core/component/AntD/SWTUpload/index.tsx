@@ -5,7 +5,7 @@ import type { UploadFile, UploadProps } from "antd";
 import SWTButton from "../SWTButton";
 import ImgCrop from "antd-img-crop";
 import { LoadingOutlined } from "@ant-design/icons";
-import UploadIcon from "../../SWTIcon/iconoir/upload";
+import { Upload as UploadIcon } from "lucide-react";
 import SWTRenderIf from "../../SWTRenderIf";
 import {
     showNotificationSuccess,

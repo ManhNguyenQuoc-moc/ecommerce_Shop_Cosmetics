@@ -6,7 +6,7 @@ import { Heart, Star, Zap } from "lucide-react";
 
 import SWTCard from "@/src/@core/component/AntD/SWTCard";
 import { ProductListItemDto } from "@/src/services/models/product/output.dto";
-import { useWishlistStore } from "@/src/stores/useWishlistStore";
+import { useWishlist } from "@/src/hooks/useWishlist";
 
 type Props = {
   product?: ProductListItemDto;
@@ -15,10 +15,9 @@ type Props = {
 };
 
 export default function ProductCard({ product, loading, priority }: Props) {
-  const toggleWishlist = useWishlistStore((s) => s.toggleItem);
-  const isInWishlist = useWishlistStore((s) =>
-    product ? s.isInWishlist(product.id) : false
-  );
+  const { toggleItem: toggleWishlist, isInWishlist: checkIsInWishlist } = useWishlist();
+  
+  const isInWishlist = product ? checkIsInWishlist(product.id, product.variantId) : false;
 
   const isSale = !!product?.salePrice;
   

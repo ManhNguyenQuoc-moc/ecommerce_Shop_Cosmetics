@@ -2,7 +2,7 @@
 
 import { Input } from "antd";
 import type { GetProps } from "antd";
-import SearchIcon from "@/src/@core/component/SWTIcon/iconoir/search";
+import { Search as SearchIcon } from "lucide-react";
 
 const { TextArea, Password } = Input;
 

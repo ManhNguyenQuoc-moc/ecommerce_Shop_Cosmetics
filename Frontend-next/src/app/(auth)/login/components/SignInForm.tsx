@@ -7,14 +7,13 @@ import SWTCheckbox from "@/src/@core/component/AntD/SWTCheckbox";
 import Link from "next/link";
 import SWTButton from "@/src/@core/component/AntD/SWTButton";
 import { SWTInput, SWTInputPassword } from "@/src/@core/component/AntD/SWTInput";
-import GoogleIco from "@/src/@core/component/SWTIcon/iconoir/icon/GoogleIco";
-import FacebookIco from "@/src/@core/component/SWTIcon/iconoir/icon/FaceBookIco";
+import { GoogleIcon as GoogleIco, FacebookIcon as FacebookIco } from "@/src/@core/component/AntD/Icons";
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/src/@core/utils/supabase";
 import { useAuth } from "@/src/context/AuthContext";
-import { useCartStore } from "@/src/stores/useCartStore";
+import { useCart } from "@/src/hooks/useCart";
 type LoginFormValues = {
   email: string;
   password: string;
@@ -22,6 +21,7 @@ type LoginFormValues = {
 };
 export default function SignInForm() {
   const { login } = useAuth();
+  const { syncCart } = useCart();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -49,7 +49,7 @@ export default function SignInForm() {
         };
         
         await login(data.session.access_token, authUser);
-        await useCartStore.getState().syncCart();
+        await syncCart();
         showNotificationSuccess("Đăng nhập thành công! Chào mừng trở lại.");
         router.push("/");
       }

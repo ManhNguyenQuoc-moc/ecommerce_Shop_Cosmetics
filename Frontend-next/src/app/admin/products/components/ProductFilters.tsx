@@ -50,17 +50,17 @@ export default function ProductFilters({ startTransition }: ProductFiltersProps)
   const soldRangeVal = searchParams.get("soldRange") || "all";
 
   // Category mapping safely
-  const categoryList = categories || [];
+  const categoryList = Array.isArray(categories) ? categories : [];
   const categoryOptions = [
     { label: "Tất cả danh mục", value: "all" },
-    ...(Array.isArray(categoryList) ? categoryList.map((c: any) => ({ label: c.name, value: c.id })) : [])
+    ...categoryList.map((c: any) => ({ label: c.name, value: c.id }))
   ];
 
   // Brand mapping safely
-  const brandList = brands?.data || brands || [];
+  const brandList = Array.isArray(brands) ? brands : [];
   const brandOptions = [
     { label: "Tất cả thương hiệu", value: "all" },
-    ...(Array.isArray(brandList) ? brandList.map((b: any) => ({ label: b.name, value: b.id })) : [])
+    ...brandList.map((b: any) => ({ label: b.name, value: b.id }))
   ];
 
   const updateFilter = (key: string, value: string) => {

@@ -2,6 +2,7 @@
 import { get, put } from "../api";
 import { useFetchSWR } from "@/src/@core/hooks/useFetchSWR";
 import { OrderDto, OrderListResponseDto } from "../models/order/output.dto";
+import { buildQueryString } from "../../utils/query.util";
 
 export const ORDER_API_ENDPOINT = "/orders";
 
@@ -15,14 +16,12 @@ export interface OrderQueryParams {
 }
 
 export const useOrders = (params: OrderQueryParams) => {
-  const queryParams = new URLSearchParams();
-  Object.entries(params).forEach(([key, value]) => {
-    if (value) queryParams.append(key, String(value));
-  });
-  const queryString = queryParams.toString();
-  const fetcher = () => get<OrderListResponseDto>(`${ORDER_API_ENDPOINT}?${queryString}`);
+  const query = buildQueryString(params);
+  const url = `${ORDER_API_ENDPOINT}${query}`;
+  
+  const fetcher = () => get<OrderListResponseDto>(url);
   const { data, error, isLoading, mutate } = useFetchSWR<OrderListResponseDto>(
-    `${ORDER_API_ENDPOINT}?${queryString}`,
+    url,
     fetcher
   );
 

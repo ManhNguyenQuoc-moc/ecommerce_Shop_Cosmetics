@@ -22,14 +22,18 @@ export class CartService implements ICartService {
   }
 
   async addItemToCart(userId: string, variantId: string, quantity: number): Promise<CartDto> {
+    const cart = await this.cartRepository.findByUserId(userId) || await this.cartRepository.create(userId);
+    const existingItem = (cart as any).items?.find((i: any) => i.variantId === variantId);
+    const currentQty = existingItem ? (existingItem as any).quantity : 0;
+    const requestedQty = currentQty + quantity;
+
     const stockMap = await this.inventoryService.getStockForVariants([variantId]);
     const available = stockMap[variantId]?.availableStock || 0;
     
-    if (available < quantity) {
-      throw new Error(`Sản phẩm không đủ hàng hợp lệ (còn ${available} sản phẩm có HSD > 3 tháng).`);
+    if (available < requestedQty) {
+      throw new Error(`Sản phẩm không đủ hàng hợp lệ (còn ${available} sản phẩm, bạn đã có ${currentQty} trong giỏ).`);
     }
 
-    const cart = await this.cartRepository.findByUserId(userId) || await this.cartRepository.create(userId);
     await this.cartRepository.addItem(cart.id, variantId, quantity);
     return this.getCartByUserId(userId);
   }
@@ -40,6 +44,22 @@ export class CartService implements ICartService {
   }
 
   async updateItemQuantity(userId: string, cartItemId: string, quantity: number): Promise<CartDto> {
+    // 1. Get current cart to find the variantId of this cartItem
+    const cart = await this.cartRepository.findByUserId(userId);
+    if (!cart) throw new Error("Giỏ hàng không tồn tại");
+    
+    const item = (cart as any).items?.find((i: any) => i.id === cartItemId);
+    if (!item) throw new Error("Sản phẩm không có trong giỏ hàng");
+
+    // 2. Check stock for this variant
+    const variantId = (item as any).variantId;
+    const stockMap = await this.inventoryService.getStockForVariants([variantId]);
+    const available = stockMap[variantId]?.availableStock || 0;
+
+    if (available < quantity) {
+      throw new Error(`Cập nhật thất bại: Sản phẩm chỉ còn tối đa ${available} sản phẩm hợp lệ.`);
+    }
+
     await this.cartRepository.updateItemQuantity(cartItemId, quantity);
     return this.getCartByUserId(userId);
   }

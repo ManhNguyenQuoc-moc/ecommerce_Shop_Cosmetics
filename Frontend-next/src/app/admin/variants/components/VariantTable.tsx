@@ -6,16 +6,16 @@ import SWTIconButton from "@/src/@core/component/SWTIconButton";
 import SWTButton from "@/src/@core/component/AntD/SWTButton";
 import SWTTooltip from "@/src/@core/component/AntD/SWTTooltip";
 import { useSearchParams } from "next/navigation";
-import { useState } from "react";
+import React, { useState, useMemo } from "react";
 import Image from "next/image";
 import { showNotificationSuccess, showNotificationError } from "@/src/@core/utils/message";
 import { softDeleteVariants, restoreVariants, PRODUCT_API_ENDPOINT } from "@/src/services/admin/product.service";
 import { mutate as globalMutate } from "swr";
-import { RotateCcw, Layers, Edit, Eye, Trash2 } from "lucide-react";
+import { RotateCcw, Layers, Edit, Eye, Trash2, AlertCircle } from "lucide-react";
 import EditVariantModal from "./EditVariantModal";
 import SWTConfirmModal from "@/src/@core/component/AntD/SWTConfirmModal";
-import { ProductVariantDto} from "@/src/services/models/product/output.dto";
-import { AlertCircle } from "lucide-react";
+import { ProductVariantDto } from "@/src/services/models/product/output.dto";
+
 interface TableRecord extends ProductVariantDto {
   onEdit: (record: ProductVariantDto) => void;
   productStatus?: string;
@@ -42,7 +42,6 @@ export default function VariantTable({
   onPaginationChange,
   mutate: refetch,
 }: VariantTableProps) {
-  console.log("VariantTable Data:", { variants, total });
   const [editingVariant, setEditingVariant] = useState<ProductVariantDto | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
@@ -111,16 +110,16 @@ export default function VariantTable({
   };
 
 
-  const dataSource: TableRecord[] = variants.map((v) => ({ ...v, onEdit: handleEdit }));
-  const hasHiddenSelected = isHiddenTab && selectedRowKeys.some(key => {
+  const dataSource: TableRecord[] = useMemo(() => variants.map((v) => ({ ...v, onEdit: handleEdit })), [variants]);
+  const hasHiddenSelected = useMemo(() => isHiddenTab && selectedRowKeys.some(key => {
     const variant = variants.find(v => v.id === key);
     return variant?.productStatus === 'HIDDEN';
-  });
+  }), [isHiddenTab, selectedRowKeys, variants]);
 
   const formatVND = (v: number) =>
     new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(v || 0);
 
-  const columns = [
+  const columns = useMemo(() => [
     {
       title: "Biến thể",
       dataIndex: "name",
@@ -243,7 +242,7 @@ export default function VariantTable({
         </div>
       ),
     },
-  ];
+  ], [isHiddenTab]);
 
   return (
     <div className="w-full">

@@ -86,7 +86,7 @@ export default function EditPOForm({ po, onCancel, onSuccess }: Props) {
   const [brandSearch, setBrandSearch] = useState("");
   const { brands, isLoading: brandsLoading } = useBrands(1, 10, { searchTerm: brandSearch, minimal: true });
 
-  const brandList: Array<{ id: string; name: string }> = brands?.data || brands || [];
+  const brandList: Array<{ id: string; name: string }> = Array.isArray(brands) ? brands : [];
 
   useEffect(() => {
     if (!po) return;

@@ -21,5 +21,5 @@ export type CheckoutRequestDTO = {
   total: number;
   shippingFee: number;
   shippingMethod: string;
-  paymentMethod: "cod" | "bank";
+  paymentMethod: "COD" | "VNPAY";
 };

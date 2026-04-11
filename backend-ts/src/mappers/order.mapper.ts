@@ -1,12 +1,22 @@
-// order.mapper.ts
+import { Order, OrderItem, OrderStatusHistory, Product, ProductVariant, User, Address, Image } from "@prisma/client";
+
+type OrderWithRelations = Order & {
+  user: User;
+  address: Address | null;
+  items: (OrderItem & {
+    variant: (ProductVariant & {
+      product: Product;
+      image: Image | null;
+    }) | null;
+  })[];
+  status_history: OrderStatusHistory[];
+};
 
 export class OrderMapper {
-  static toDto(order: any) {
+  static toDto(order: OrderWithRelations | any) {
     if (!order) return null;
 
     const user = order.user;
-    
-    // Generate a readable code from ID
     const generatedCode = order.id.split('-')[0].toUpperCase();
 
     return {
@@ -31,7 +41,7 @@ export class OrderMapper {
         orderId: item.orderId,
         variantId: item.variantId,
         quantity: item.quantity,
-        price: item.price_at_purchase, // Map from internal field name to public DTO name
+        price: item.price_at_purchase,
         variant: item.variant ? {
           id: item.variant.id,
           sku: item.variant.sku,

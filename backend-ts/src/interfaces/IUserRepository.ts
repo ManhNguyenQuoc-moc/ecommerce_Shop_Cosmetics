@@ -1,9 +1,12 @@
-import { User } from "@prisma/client";
+import { User, Prisma } from "@prisma/client";
+import { CreateUserDTO, UpdateUserDTO, UserQueryFiltersDTO } from "../DTO/user/user.dto";
 
 export interface IUserRepository {
   findById(id: string): Promise<User | null>;
-  findByEmail(email: string): Promise<User | null>;
-  create(data: any): Promise<User>;
-  update(id: string, data: any): Promise<User>;
-  findAll(skip?: number, take?: number, filters?: any): Promise<[User[], number]>;
+  findByEmail(email: string, tx?: Prisma.TransactionClient): Promise<User | null>;
+  findByPhone(phone: string, tx?: Prisma.TransactionClient): Promise<User | null>;
+  create(data: CreateUserDTO, tx?: Prisma.TransactionClient): Promise<User>;
+  update(id: string, data: UpdateUserDTO, tx?: Prisma.TransactionClient): Promise<User>;
+  findAll(skip?: number, take?: number, filters?: UserQueryFiltersDTO): Promise<[User[], number]>;
+  findPointTransactions(userId: string): Promise<any[]>;
 }

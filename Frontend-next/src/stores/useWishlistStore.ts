@@ -1,49 +1,40 @@
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 import { ProductListItemDto } from "@/src/services/models/product/output.dto";
-import { showNotificationSuccess } from "@/src/@core/utils/message";
 
 type WishlistState = {
   items: ProductListItemDto[];
 
   addItem: (product: ProductListItemDto) => void;
   removeItem: (id: string) => void;
-  toggleItem: (product: ProductListItemDto) => void;
-
+  setItems: (items: ProductListItemDto[]) => void;
   isInWishlist: (id: string) => boolean;
+  reset: () => void;
 };
 
-export const useWishlistStore = create<WishlistState>((set, get) => ({
-  items: [],
+export const useWishlistStore = create<WishlistState>()(
+  persist(
+    (set, get) => ({
+      items: [],
 
-  addItem: (product) =>
-    set((state) => ({
-      items: [...state.items, product],
-    })),
+      addItem: (product) =>
+        set((state) => ({
+          items: [...state.items, product],
+        })),
 
-  removeItem: (id) =>
-    set((state) => ({
-      items: state.items.filter((i) => i.id !== id),
-    })),
+      removeItem: (id) =>
+        set((state) => ({
+          items: state.items.filter((i) => i.id !== id),
+        })),
 
- toggleItem: (product) => {
-  const exist = get().items.find((i) => i.id === product.id);
+      setItems: (items) => set({ items }),
 
-  if (exist) {
-    showNotificationSuccess("Đã xóa khỏi wishlist 💔");
+      isInWishlist: (id) => get().items.some((i) => i.id === id),
 
-    set((state) => ({
-      items: state.items.filter((i) => i.id !== product.id),
-    }));
-  } else {
-    showNotificationSuccess("Đã thêm vào wishlist ❤️");
-
-    set((state) => ({
-      items: [...state.items, product],
-    }));
-  }
-},
-
-  isInWishlist: (id) => {
-    return get().items.some((i) => i.id === id);
-  },
-}));
+      reset: () => set({ items: [] }),
+    }),
+    {
+      name: "wishlist-storage",
+    }
+  )
+);

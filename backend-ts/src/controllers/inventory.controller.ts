@@ -42,12 +42,7 @@ export class InventoryController {
       const result = await inventoryService.getBatches(page, pageSize, filters);
       res.json({ 
         success: true, 
-        data: {
-          items: result.items,
-          total: result.total,
-          page: result.page,
-          pageSize: result.limit
-        } 
+        data: result 
       });
     } catch (error: any) {
       res.status(500).json({ success: false, message: error.message });

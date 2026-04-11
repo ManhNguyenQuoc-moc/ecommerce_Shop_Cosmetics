@@ -3,10 +3,10 @@
 import SWTButton from "@/src/@core/component/AntD/SWTButton";
 import { ProductDetailDto, ProductDetailVariantDto } from "@/src/services/models/product/output.dto";
 import { useCheckoutStore } from "@/src/stores/useCheckoutStore";
-import { useCartStore } from "@/src/stores/useCartStore";
+import { useCart } from "@/src/hooks/useCart";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import Loading from "@/src/@core/component/Loading";
+import SWTLoading from "@/src/@core/component/AntD/SWTLoading";
 
 type Props = {
   qty: number;
@@ -16,7 +16,7 @@ type Props = {
 
 export default function ProductActions({ qty, product, variant }: Props) {
   const setBuyNow = useCheckoutStore((s) => s.setBuyNow);
-  const addItem = useCartStore((s) => s.addItem);
+  const { addItem } = useCart();
   const router = useRouter();
   const hasVariants = product.variants?.length > 0;
   const noVariantSelected = hasVariants && !variant;
@@ -97,7 +97,7 @@ export default function ProductActions({ qty, product, variant }: Props) {
           Mua ngay ({qty})
         </SWTButton>
       </div>
-      {loading && <Loading shopName="SWT Shop" />}
+      {loading && <SWTLoading fullPage tip="Đang chuyển đến thanh toán..." />}
     </>
   );
 }

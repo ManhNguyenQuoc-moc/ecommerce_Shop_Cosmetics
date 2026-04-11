@@ -1,16 +1,8 @@
 import { getServer } from "../apiServer";
 import { CategoryResponseDto } from "../models/category/output.dto";
+import { BrandResponseDto } from "../models/brand/output.dto";
 
-export interface BrandResponseDto {
-  id: string;
-  name: string;
-  slug: string;
-  description: string | null;
-  logo: { id: string; url: string } | null;
-  banner: { id: string; url: string } | null;
-  createdAt: string;
-  updatedAt: string;
-}
+export type { BrandResponseDto };
 export const getServerCategories = async (): Promise<CategoryResponseDto[]> => {
   const res = await getServer<CategoryResponseDto[] | { data: CategoryResponseDto[] }>("/categories", undefined, {
     revalidate: 60

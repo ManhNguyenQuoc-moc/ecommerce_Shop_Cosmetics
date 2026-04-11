@@ -3,34 +3,23 @@ import { useFetchSWR } from "@/src/@core/hooks/useFetchSWR";
 import useSWRMutation from "swr/mutation";
 import { CreateCategoryDto, UpdateCategoryDto, CategoryQueryFilters } from "../models/category/input.dto";
 import { CategoryResponseDto } from "../models/category/output.dto";
+import { buildQueryString } from "../../utils/query.util";
+import { PaginationResponse } from "../models/common/PaginationResponse";
 
 export const CATEGORY_API_ENDPOINT = "/categories";
 
 export const useCategories = (page: number | null = null, pageSize: number | null = null, filters: CategoryQueryFilters = {}) => {
-  const query = new URLSearchParams();
-  if (page) query.append("page", page.toString());
-  if (pageSize) query.append("pageSize", pageSize.toString());
-  
-  if (filters.search) query.append("search", filters.search);
+  const query = buildQueryString({ page, pageSize, ...filters });
+  const url = `${CATEGORY_API_ENDPOINT}${query}`;
 
-  const url = `${CATEGORY_API_ENDPOINT}?${query.toString()}`;
-
-  const { data, isLoading, error, mutate } = useFetchSWR(
+  const { data, isLoading, error, mutate } = useFetchSWR<PaginationResponse<CategoryResponseDto>>(
     url,
     () => get(url)
   );
 
-  const responseData = data as any;
-  const categories = Array.isArray(responseData) 
-    ? responseData 
-    : (responseData?.data?.data || responseData?.data || []);
-  const total = Array.isArray(responseData) 
-    ? responseData.length 
-    : (responseData?.data?.total || responseData?.total || 0);
-
   return {
-    categories: categories as CategoryResponseDto[],
-    total,
+    categories: data?.data || [],
+    total: data?.total || 0,
     isLoading,
     isError: error,
     mutate

@@ -19,7 +19,7 @@ export default function CheckoutClient() {
           <CheckoutForm />
         </div>
         <div className="lg:col-span-5">
-          <div>
+          <div className="sticky top-24">
             <CheckoutSummary />
           </div>
         </div>

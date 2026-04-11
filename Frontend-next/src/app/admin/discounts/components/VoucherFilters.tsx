@@ -4,7 +4,11 @@ import { SWTInputSearch } from "@/src/@core/component/AntD/SWTInput";
 import SWTSelect from "@/src/@core/component/AntD/SWTSelect";
 import SWTTooltip from "@/src/@core/component/AntD/SWTTooltip";
 
-export default function VoucherFilters() {
+interface VoucherFiltersProps {
+  onAdd?: () => void;
+}
+
+export default function VoucherFilters({ onAdd }: VoucherFiltersProps) {
   return (
     <div className="flex flex-col gap-5 mb-6">
       <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-5">
@@ -17,12 +21,13 @@ export default function VoucherFilters() {
 
         <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
           <SWTTooltip title="Xuất dữ liệu voucher" placement="top">
-            <div className="flex h-11 w-11 items-center justify-center bg-white dark:bg-slate-900/50 hover:bg-emerald-50 dark:hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-slate-200 dark:border-emerald-500/50 rounded-xl shadow-sm transition-all cursor-pointer group">
+            <div className="flex h-11 w-11 items-center justify-center bg-white dark:bg-slate-900/50 hover:bg-emerald-50 dark:hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-slate-200 dark:border-slate-700/50 rounded-xl shadow-sm transition-all cursor-pointer group">
               <Download size={20} className="group-hover:scale-110 transition-transform duration-300" />
             </div>
           </SWTTooltip>
           <SWTTooltip title="Thêm Voucher Mới" placement="top" color="#6366f1">
             <div 
+              onClick={onAdd}
               className="flex h-11 w-11 items-center justify-center bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-500/30 rounded-xl shadow-sm transition-all cursor-pointer group"
             >
               <Plus size={24} className="stroke-[2.5] group-hover:scale-110 group-hover:rotate-90 transition-transform duration-300" />

@@ -9,57 +9,57 @@ type NavItem = {
 
 export const adminNavItems: NavItem[] = [
   {
-    name: "Dashboard",
+    name: "Bảng điều khiển",
     path: "/admin",
     icon: LayoutDashboard,
   },
   {
-    name: "Categories & Groups",
+    name: "Danh mục & Nhóm",
     path: "/admin/categories",
     icon: NotebookText,
   },
   {
-    name: "Products",
+    name: "Sản phẩm",
     path: "/admin/products",
     icon: Package,
   },
   {
-    name: "Variants",
+    name: "Phiên bản sản phẩm",
     path: "/admin/variants",
     icon: Layers,
   },
    {
-    name: "Suppliers",
+    name: "Nhà cung cấp",
     path: "/admin/suppliers",
     icon: PackagePlus,
   },
   {
-    name: "Purchases",
+    name: "Nhập hàng",
     path: "/admin/purchases",
     icon: Truck,
   },
   {
-    name: "Inventory",
+    name: "Quản lý tồn kho",
     path: "/admin/inventory",
     icon: PackageSearch,
   },
   {
-    name: "Orders",
+    name: "Đơn hàng",
     path: "/admin/orders",
     icon: ShoppingCart,
   },
   {
-    name: "Users",
+    name: "Người dùng",
     path: "/admin/users",
     icon: Users,
   },
   {
-    name: "Rewards",
+    name: "Điểm thưởng",
     path: "/admin/rewards",
     icon: Award,
   },
   {
-    name: "Vouchers",
+    name: "Mã giảm giá",
     path: "/admin/discounts",
     icon: Ticket,
   },

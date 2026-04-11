@@ -72,7 +72,7 @@ export class InventoryService {
       };
     });
 
-    return { items: mappedBatches, total, page, limit };
+    return { data: mappedBatches, total, page, pageSize: limit };
   }
 
   async getTransactions(page: number = 1, limit: number = 20) {

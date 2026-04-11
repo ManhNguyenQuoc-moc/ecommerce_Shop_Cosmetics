@@ -1,13 +1,13 @@
 "use client";
 
 import Image from "next/image";
-import { useCartStore} from "@/src/stores/useCartStore";
+import { useCart } from "@/src/hooks/useCart";
 import {useCheckoutStore} from "@/src/stores/useCheckoutStore"
 
 export default function OrderItems() {
 const mode = useCheckoutStore((s) => s.mode);
 const checkoutItems = useCheckoutStore((s) => s.items);
-const cartItems = useCartStore((s) => s.items);
+const { items: cartItems } = useCart();
 
 const items = mode === "buy_now" ? checkoutItems : cartItems;
   return (

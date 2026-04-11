@@ -4,7 +4,7 @@ import SWTDatePicker from "../../AntD/SWTDatePicker";
 import SWTFormItem from "../../AntD/SWTFormItem";
 import SWTInput from "../../AntD/SWTInput";
 import SWTSelect from "../../AntD/SWTSelect";
-import SWTSearchEngineIcon from "../../SWTIcon/iconoir/search-engine";
+import { Search as SWTSearchEngineIcon } from "lucide-react";
 
 type FilterItemsProps = {
   filterItems: FilterProps[];

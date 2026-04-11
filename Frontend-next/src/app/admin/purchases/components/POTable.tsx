@@ -2,17 +2,12 @@
 
 import SWTTable from "@/src/@core/component/AntD/SWTTable";
 import SWTIconButton from "@/src/@core/component/SWTIconButton";
-import SWTStatusTag from "@/src/@core/component/SWTStatusTag";
-import { showNotificationSuccess, showNotificationError } from "@/src/@core/utils/message";
 import {
   usePurchaseOrders,
-  PURCHASE_API_ENDPOINT,
 } from "@/src/services/admin/purchase.service";
 import { Eye, Edit } from "lucide-react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
-import { useState } from "react";
-import { mutate as globalMutate } from "swr";
-import { usePurchaseOrderById } from "@/src/services/admin/purchase.service";
+import { useMemo } from "react";
 import { POListItemDto, POStatus, PO_STATUS_LABELS, POPriority, PO_PRIORITY_LABELS } from "@/src/services/models/purchase/output.dto";
 import { POQueryParams } from "@/src/services/models/purchase/input.dto";
 
@@ -25,20 +20,17 @@ export default function POTable({ isPending }: POTableProps) {
   const router = useRouter();
   const pathname = usePathname();
 
-  const [viewId, setViewId] = useState<string | null>(null);
-  const [editId, setEditId] = useState<string | null>(null);
-
   const page = Number(searchParams.get("page") ?? 1);
   const pageSize = Number(searchParams.get("pageSize") ?? 6);
 
-  const filters: POQueryParams = {
+  const filters: POQueryParams = useMemo(() => ({
     search: searchParams.get("search") || undefined,
     status: searchParams.get("status") || undefined,
     brandId: searchParams.get("brandId") || undefined,
     sortBy: (searchParams.get("sortBy") || "newest") as POQueryParams["sortBy"],
-  };
+  }), [searchParams]);
 
-  const { orders, total, isLoading, mutate: refetch } = usePurchaseOrders(page, pageSize, filters);
+  const { orders, total, isLoading } = usePurchaseOrders(page, pageSize, filters);
 
   const renderStatusTag = (status: POStatus) => {
     const colorMap: Record<POStatus, string> = {
@@ -72,7 +64,7 @@ export default function POTable({ isPending }: POTableProps) {
     );
   };
 
-  const columns = [
+  const columns = useMemo(() => [
     {
       title: "Mã PO",
       dataIndex: "code",
@@ -144,7 +136,7 @@ export default function POTable({ isPending }: POTableProps) {
         </div>
       ),
     },
-  ];
+  ], [router]);
 
   return (
     <div className="w-full">

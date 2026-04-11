@@ -1,25 +1,27 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import SWTTable from "@/src/@core/component/AntD/SWTTable";
-import { Edit, Trash2, Plus, List } from "lucide-react";
+import { Edit, Trash2, Plus } from "lucide-react";
 import SWTTooltip from "@/src/@core/component/AntD/SWTTooltip";
 import SWTConfirmModal from "@/src/@core/component/AntD/SWTConfirmModal";
 import { showNotificationError, showNotificationSuccess } from "@/src/@core/utils/message";
 import { useCategories, useDeleteCategory } from "@/src/services/admin/category.service";
 import SWTAvatar from "@/src/@core/component/AntD/SWTAvatar";
-import AddCategoryModal from "./AddCategoryModal";
 import { CategoryResponseDto } from "@/src/services/models/category/output.dto";
 import SWTIconButton from "@/src/@core/component/SWTIconButton";
 
-export default function CategoryTable() {
+interface CategoryTableProps {
+  onEdit?: (category: CategoryResponseDto) => void;
+  onAdd?: () => void;
+}
+
+export default function CategoryTable({ onEdit, onAdd }: CategoryTableProps) {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(6);
   const { categories, total, isLoading, mutate } = useCategories(page, pageSize);
   const { trigger: deleteCategory, isMutating: isDeleting } = useDeleteCategory();
-  const [editingCategory, setEditingCategory] = useState<CategoryResponseDto | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
   const handleDelete = async (id: string) => {
     try {
@@ -33,7 +35,7 @@ export default function CategoryTable() {
     }
   };
 
-  const columns = [
+  const columns = useMemo(() => [
     {
       title: 'Danh mục',
       dataIndex: 'name',
@@ -97,24 +99,22 @@ export default function CategoryTable() {
       width: 120,
       render: (_: any, record: CategoryResponseDto) => (
         <div className="flex items-center gap-2 justify-center">
-          <SWTTooltip title="Chỉnh sửa danh mục" color="#10b981">
-            <button 
-              onClick={() => setEditingCategory(record)}
-              className="text-emerald-600 hover:text-emerald-800 transition-colors p-1.5 rounded-lg hover:bg-emerald-50 dark:hover:bg-emerald-500/10 group relative border border-transparent hover:border-emerald-100 dark:hover:border-emerald-500/20 cursor-pointer"
-            >
-              <Edit size={18} />
-            </button>
-          </SWTTooltip>
-          <button 
+          <SWTIconButton 
+            variant="edit"
+            tooltip="Chỉnh sửa danh mục"
+            icon={<Edit size={18} />}
+            onClick={() => onEdit?.(record)}
+          />
+          <SWTIconButton 
+            variant="delete"
+            tooltip="Xóa danh mục"
+            icon={<Trash2 size={18} />}
             onClick={() => setDeletingId(record.id)}
-            className="text-rose-500 hover:text-rose-700 transition-colors p-1.5 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-500/10 group relative border border-transparent hover:border-rose-100 dark:hover:border-rose-500/20 cursor-pointer"
-          >
-            <Trash2 size={18} />
-          </button>
+          />
         </div>
       )
     }
-  ];
+  ], [onEdit]);
 
   return (
     <div className="w-full">
@@ -129,7 +129,7 @@ export default function CategoryTable() {
         <SWTTooltip title="Thêm Danh Mục" placement="top" color="#10b981">
           <div 
             className="flex h-11 w-11 items-center justify-center bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-500/30 rounded-xl shadow-sm transition-all cursor-pointer group"
-            onClick={() => setIsAddModalOpen(true)}
+            onClick={onAdd}
           >
             <Plus size={24} className="stroke-[2.5] group-hover:scale-110 group-hover:rotate-90 transition-transform duration-300" />
           </div>
@@ -153,25 +153,6 @@ export default function CategoryTable() {
           }}
         />
       </div>
-      
-      <AddCategoryModal 
-        isOpen={isAddModalOpen} 
-        onClose={() => {
-          setIsAddModalOpen(false);
-          mutate();
-        }} 
-      />
-
-      {editingCategory && (
-        <AddCategoryModal 
-          isOpen={!!editingCategory} 
-          onClose={() => {
-            setEditingCategory(null);
-            mutate();
-          }} 
-          initialData={editingCategory} 
-        />
-      )}
 
       <SWTConfirmModal
         open={!!deletingId}

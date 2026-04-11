@@ -8,6 +8,7 @@ import { authStorage } from "../utils/authStorage";
 import {
   AUTHORIZATION_KEY,
   TOKEN_TYPE_KEY,
+  API_BASE_URL
 } from "../const";
 import { showNotificationError } from "../utils/message";
 
@@ -90,10 +91,9 @@ const onResponseInterceptor = async (error: AxiosError) => {
   return Promise.reject(error);
 };
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
-
+// Removed local API_BASE_URL definition
 const http = axios.create({
-  baseURL: API_BASE_URL, // Dùng biến đã được bảo vệ
+  baseURL: API_BASE_URL, 
   timeout: 30 * 1000,
   headers: {
     "Content-Type": "application/json",

@@ -4,8 +4,21 @@ import { SWTInputSearch } from "@/src/@core/component/AntD/SWTInput";
 import SWTSelect from "@/src/@core/component/AntD/SWTSelect";
 import SWTDatePickerRange from "@/src/@core/component/AntD/SWTDatePickerRange";
 import SWTTooltip from "@/src/@core/component/AntD/SWTTooltip";
+import { useState, useEffect } from "react";
+import { useDebounce } from "@/src/@core/hooks/useDebounce";
 
-export default function UserFilters() {
+interface UserFiltersProps {
+  onSearch: (val: string) => void;
+}
+
+export default function UserFilters({ onSearch }: UserFiltersProps) {
+  const [localSearch, setLocalSearch] = useState("");
+  const debouncedSearch = useDebounce(localSearch, 500);
+
+  useEffect(() => {
+    onSearch(debouncedSearch);
+  }, [debouncedSearch, onSearch]);
+
   return (
     <div className="flex flex-col gap-5 mb-6">
       <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-5">
@@ -13,6 +26,9 @@ export default function UserFilters() {
           <SWTInputSearch 
             placeholder="Tìm kiếm tên, email, số điện thoại..." 
             className="w-full !h-11 !rounded-2xl shadow-sm"
+            value={localSearch}
+            onChange={(e) => setLocalSearch(e.target.value)}
+            allowClear
           />
         </div>
 

@@ -4,25 +4,20 @@ import SWTCard from "@/src/@core/component/AntD/SWTCard";
 import SWTButton from "@/src/@core/component/AntD/SWTButton";
 import Image from "next/image";
 import { useRouter } from "next/navigation"; 
-import Loading from "@/src/@core/component/Loading";
+import SWTLoading from "@/src/@core/component/AntD/SWTLoading";
 import { useState } from "react";
-import { useCartStore } from "@/src/stores/useCartStore";
+import { useCart } from "@/src/hooks/useCart";
 import { useCheckoutStore } from "@/src/stores/useCheckoutStore";
 import { showNotificationError } from "@/src/@core/utils/message";
 
 export default function CartSummary() {
-   const [loading, setLoading] = useState(false);
-  const items = useCartStore((s) => s.items);
+  const [loading, setLoading] = useState(false);
+  const { items, total } = useCart();
   const router = useRouter();
 
   const subtotal = items.reduce(
     (sum, item) =>
       sum + (item.originalPrice ?? item.price) * item.quantity,
-    0
-  );
-
-  const total = items.reduce(
-    (sum, item) => sum + item.price * item.quantity,
     0
   );
 
@@ -140,7 +135,7 @@ export default function CartSummary() {
         Tiến hành đặt hàng
       </SWTButton>
     </SWTCard>
-     {loading && <Loading shopName="CosmeticsShop"/>} 
+      {loading && <SWTLoading fullPage tip="Đang chuẩn bị thanh toán..." />}
      </>
   );
    

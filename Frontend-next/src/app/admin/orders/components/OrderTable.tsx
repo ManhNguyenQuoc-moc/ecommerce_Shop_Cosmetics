@@ -4,6 +4,7 @@ import SWTTable from "@/src/@core/component/AntD/SWTTable";
 import { Eye } from "lucide-react";
 import SWTIconButton from "@/src/@core/component/SWTIconButton";
 import { OrderDto, OrderStatus } from "@/src/services/models/order/output.dto";
+import React, { useMemo } from "react";
 
 interface OrderTableProps {
   orders: OrderDto[];
@@ -28,7 +29,7 @@ export default function OrderTable({ orders, total, isLoading, page, pageSize, o
   
   const formatVND = (v: number) => new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(v || 0);
 
-  const columns = [
+  const columns = useMemo(() => [
     {
       title: 'Mã đơn hàng',
       dataIndex: 'code',
@@ -140,7 +141,7 @@ export default function OrderTable({ orders, total, isLoading, page, pageSize, o
         </div>
       )
     }
-  ];
+  ], [onView]);
 
   return (
     <div className="w-full">

@@ -5,31 +5,34 @@ import SWTTable from "@/src/@core/component/AntD/SWTTable";
 import { Tag } from "antd";
 import { PointLogDTO } from "@/src/services/models/customer/point.dto";
 
+import { useMemo } from "react";
+
 interface Props {
   history: PointLogDTO[];
   loading?: boolean;
 }
 
 export default function PointsHistoryTable({ history, loading }: Props) {
-  const columns = [
+  const columns = useMemo(() => [
     {
       title: "Ngày giao dịch",
       dataIndex: "created_at",
       key: "created_at",
       render: (date: string) => (
-        <span className="text-gray-500 text-sm">{new Date(date).toLocaleString("vi-VN")}</span>
+        <span className="text-gray-500 text-sm whitespace-nowrap">{new Date(date).toLocaleString("vi-VN")}</span>
       ),
     },
     {
       title: "Nội dung",
       dataIndex: "reason",
       key: "reason",
-      render: (text: string) => <span className="text-gray-800 font-medium text-sm">{text}</span>,
+      render: (text: string) => <span className="text-gray-800 font-medium text-sm line-clamp-1">{text}</span>,
     },
     {
       title: "Loại",
       dataIndex: "type",
       key: "type",
+      width: 120,
       render: (type: string) => {
         const configs: any = {
           EARN: { color: "green", label: "Tích điểm" },
@@ -38,7 +41,7 @@ export default function PointsHistoryTable({ history, loading }: Props) {
           EXPIRE: { color: "gray", label: "Hết hạn" },
         };
         const config = configs[type] || configs.EARN;
-        return <Tag color={config.color} className="!rounded-full !px-3 font-medium border-none !m-0 !text-[11px]">{config.label}</Tag>;
+        return <Tag color={config.color} className="!rounded-full !px-3 font-medium border-none !m-0 !text-[11px] whitespace-nowrap">{config.label}</Tag>;
       },
     },
     {
@@ -46,16 +49,17 @@ export default function PointsHistoryTable({ history, loading }: Props) {
       dataIndex: "amount",
       key: "amount",
       align: "right" as const,
+      width: 100,
       render: (amount: number) => {
         const isPositive = amount > 0;
         return (
-          <span className={`text-base font-bold ${isPositive ? "text-green-500" : "text-red-500"}`}>
+          <span className={`text-base font-bold whitespace-nowrap ${isPositive ? "text-green-500" : "text-red-500"}`}>
             {isPositive ? "+" : ""}{amount.toLocaleString("vi-VN")}
           </span>
         );
       },
     },
-  ];
+  ], []);
 
   return (
     <SWTCard className="!mt-6 !rounded-2xl !border-none !shadow-sm overflow-hidden" bodyClassName="p-0">

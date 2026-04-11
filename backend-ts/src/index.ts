@@ -598,6 +598,8 @@ import uploadRoute from "./routes/upload.route";
 import brandRoute from "./routes/brand.route";
 import purchaseRoute from "./routes/purchase.route";
 import inventoryRoute from "./routes/inventory.route";
+import wishlistRoute from "./routes/wishlist.route";
+import voucherRoute from "./routes/voucher.route";
 
 const app = express();
 
@@ -636,6 +638,8 @@ app.use("/upload", uploadRoute);
 app.use("/brands", brandRoute);
 app.use("/purchases", purchaseRoute);
 app.use("/inventory", inventoryRoute);
+app.use("/wishlist", wishlistRoute);
+app.use("/vouchers", voucherRoute);
 
 const PORT = process.env.PORT || 3000;
 

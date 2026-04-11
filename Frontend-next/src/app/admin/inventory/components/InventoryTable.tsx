@@ -1,5 +1,6 @@
 "use client";
 
+import React, { useMemo } from "react";
 import SWTTable from "@/src/@core/component/AntD/SWTTable";
 import SWTStatusTag from "@/src/@core/component/SWTStatusTag";
 import { Package, Calendar, Clock, AlertTriangle } from "lucide-react";
@@ -30,7 +31,7 @@ export default function InventoryTable({ isPending }: InventoryTableProps) {
 
   const { batches, total, isLoading } = useInventoryBatches(page, pageSize, filters);
 
-  const columns = [
+  const columns = useMemo(() => [
     {
       title: "Sản phẩm",
       key: "product",
@@ -153,7 +154,6 @@ export default function InventoryTable({ isPending }: InventoryTableProps) {
 
         const config = statusConfig[status] || statusConfig.GOOD;
 
-        // Use CUSTOM mode so the component applies the passed tailwind classes
         return (
           <SWTStatusTag
             status="CUSTOM"
@@ -164,7 +164,7 @@ export default function InventoryTable({ isPending }: InventoryTableProps) {
         );
       }
     }
-  ];
+  ], []);
 
   return (
     <div className="w-full">

@@ -15,7 +15,7 @@ type CheckoutState = {
   addresses: AddressModel[];
   selectedAddress: AddressModel | null;
   shippingMethod: "standard" | "express";
-  paymentMethod: "cod" | "bank";
+  paymentMethod: "COD" | "VNPAY";
   setCustomer: (data: Partial<CheckoutState["customer"]>) => void;
   setAddresses: (list: AddressModel[]) => void;
   setSelectedAddress: (addr: AddressModel) => void;
@@ -39,7 +39,7 @@ export const useCheckoutStore = create<CheckoutState>()(
       addresses: [],
       selectedAddress: null,
       shippingMethod: "standard",
-      paymentMethod: "cod",
+      paymentMethod: "COD",
       setCustomer: (data) =>
         set((state) => ({
           customer: { ...state.customer, ...data },
@@ -72,7 +72,7 @@ export const useCheckoutStore = create<CheckoutState>()(
           addresses: [],
           selectedAddress: null,
           shippingMethod: "standard",
-          paymentMethod: "cod",
+          paymentMethod: "COD",
         }),
     }),
     {

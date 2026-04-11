@@ -1,100 +1,42 @@
 "use client";
 import Image from "next/image";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { useCheckoutStore } from "@/src/stores/useCheckoutStore";
-import { useCartStore } from "@/src/stores/useCartStore";
 import SWTButton from "@/src/@core/component/AntD/SWTButton";
-import { showNotificationSuccess, showNotificationError } from "@/src/@core/utils/message";
 import SWTCard from "@/src/@core/component/AntD/SWTCard";
 import SWTSelect from "@/src/@core/component/AntD/SWTSelect";
-import { checkoutService } from "@/src/services/customer/checkout.service";
-import { CheckoutRequestDTO } from "@/src/services/models/checkout/input.dto";
-import {Modal} from "antd";
+import { Modal } from "antd";
+import { useCheckout } from "@/src/hooks/useCheckout";
+
 export default function CheckoutSummary() {
   const [loadingPay, setLoadingPay] = useState(false);
-   const [confirmOpen, setConfirmOpen] = useState(false); // 👈 thêm
-  const router = useRouter();
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  
   const {
     items,
-    customer,
-    selectedAddress,
-    shippingMethod,
     paymentMethod,
-    mode,
-    reset,
+    shippingMethod,
     setPayment,
     setShipping,
-  } = useCheckoutStore();
+    calculateSubtotal,
+    calculateShipping,
+    calculateTotal,
+    placeOrder,
+  } = useCheckout();
 
-  const clearCart = useCartStore((state) => state.clearCart);
+  const subtotal = calculateSubtotal();
+  const shippingFee = calculateShipping();
+  const total = calculateTotal();
 
-  const subtotal = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
-  const shippingFee = shippingMethod === "express" ? 30000 : 0;
-  const total = subtotal + shippingFee;
-
-  const handleCheckout = async () => {
-    if (!items.length) {
-      showNotificationError("Không có sản phẩm trong đơn hàng");
-      return;
-    }
-
-    if (!customer.name || !customer.phone || !selectedAddress) {
-      showNotificationError("Vui lòng nhập đầy đủ thông tin giao hàng");
-      return;
-    }
-    
+  const handleConfirm = async () => {
+    setConfirmOpen(false);
+    setLoadingPay(true);
     try {
-      setLoadingPay(true);
-
-      const payload: CheckoutRequestDTO = {
-        items: items.map((i) => ({
-          productId: i.productId,
-          variantId: i.variantId,
-          productName: i.productName,
-          price: i.price,
-          quantity: i.quantity,
-          image: i.image,
-        })),
-        customer: {
-          name: customer.name,
-          phone: customer.phone,
-          email: customer.email,
-        },
-        address: {
-          address: selectedAddress.address,
-          lat: selectedAddress.lat,
-          lon: selectedAddress.lon,
-        },
-        addressId: (selectedAddress as any).id,
-        total: subtotal,
-        shippingFee: shippingFee,
-        shippingMethod: shippingMethod || "standard",
-        paymentMethod,
-      };
-      const res = await checkoutService.createOrder(payload);
-      if (res?.paymentUrl) {
-        window.location.href = res.paymentUrl;
-        return;
-      }
-      showNotificationSuccess("Đặt hàng thành công 🎉");
-      if (mode === "cart" && typeof clearCart === "function") {
-        clearCart();
-      }
-      
-      reset();
-      router.push("/");
-    } catch (err) {
-      console.error("Checkout error:", err);
-      showNotificationError("Đã có lỗi xảy ra trong quá trình thanh toán");
+      await placeOrder();
     } finally {
       setLoadingPay(false);
     }
   };
-   const handleConfirm = async () => {
-    setConfirmOpen(false);
-    await handleCheckout();
-  };
+
   return (
     <SWTCard className="!border-none !shadow-md !rounded-2xl !p-6 flex flex-col gap-5">
       <h2 className="text-lg font-bold text-gray-800 uppercase tracking-tight">
@@ -128,13 +70,14 @@ export default function CheckoutSummary() {
           </div>
         ))}
       </div>
+      
       <div className="flex flex-col gap-1 mb-3">
         <p className="text-sm font-medium text-gray-700">
           Phương thức giao hàng
         </p>
         <SWTSelect
           value={shippingMethod}
-          onChange={(v) => setShipping(v)}
+          onChange={(v: any) => setShipping(v)}
           allowClear={false}
           className="w-full"
           options={[
@@ -150,12 +93,12 @@ export default function CheckoutSummary() {
         </p>
         <SWTSelect
           value={paymentMethod}
-          onChange={(v) => setPayment(v)}
+          onChange={(v: any) => setPayment(v)}
           allowClear={false}
           className="w-full"
           options={[
-            { value: "cod", label: "Thanh toán khi nhận hàng (COD)" },
-            { value: "bank", label: "Chuyển khoản / Online" },
+            { value: "COD", label: "Thanh toán khi nhận hàng (COD)" },
+            { value: "VNPAY", label: "Chuyển khoản / Online" },
           ]}
         />
       </div>
@@ -183,47 +126,52 @@ export default function CheckoutSummary() {
       <SWTButton
         loading={loadingPay}
         disabled={!items.length}
-       onClick={() => setConfirmOpen(true)}
+        onClick={() => setConfirmOpen(true)}
         className="w-full py-4 text-base font-bold !bg-brand-500 !text-white hover:!bg-brand-600 rounded-xl transition shadow-md my-3"
       >
-        {paymentMethod === "bank" ? "Thanh toán ngay" : "Đặt hàng ngay"}
+        {paymentMethod === "VNPAY" ? "Thanh toán ngay" : "Đặt hàng ngay"}
       </SWTButton>
+
       <Modal
-  width={600}
-  open={confirmOpen}
-  onOk={handleConfirm}
-  onCancel={() => setConfirmOpen(false)}
-  confirmLoading={loadingPay}
-  styles={{
-    body: {
-      padding: "24px",
-    },
-  }}
-  footer={
-    <div className="flex justify-end gap-3 p-5">
-      <button
-        onClick={() => setConfirmOpen(false)}
-        className="px-5 py-2 rounded-lg bg-gray-200 hover:bg-gray-300"
+        width={600}
+        open={confirmOpen}
+        onOk={handleConfirm}
+        onCancel={() => setConfirmOpen(false)}
+        confirmLoading={loadingPay}
+        styles={{
+          body: {
+            padding: "24px",
+          },
+        }}
+        footer={
+          <div className="flex justify-end gap-3 p-5">
+            <button
+              onClick={() => setConfirmOpen(false)}
+              className="px-5 py-2 rounded-lg bg-gray-200 hover:bg-gray-300"
+            >
+              Huỷ
+            </button>
+            <button
+              onClick={handleConfirm}
+              className="px-5 py-2 rounded-lg bg-brand-500 hover:bg-brand-600 text-white font-semibold"
+            >
+              Xác nhận
+            </button>
+          </div>
+        }
       >
-        Huỷ
-      </button>
-      <button
-        onClick={handleConfirm}
-        className="px-5 py-2 rounded-lg bg-brand-500 hover:bg-brand-600 text-white font-semibold"
-      >
-        Xác nhận
-      </button>
-    </div>
-  }
-    >
-    <div className="max-h-[400px] overflow-auto">
-      <h1 className ="font-bold">Xác nhận đặt hàng</h1>
-    <p>Bạn có chắc chắn muốn đặt đơn hàng này không?</p>
-    <p className="mt-2 text-black-500 text-sm">
-      Tổng tiền: <b className="text-orange-600">{total.toLocaleString()}đ</b>
-    </p>
-  </div>
-</Modal>
+        <div className="max-h-[400px] overflow-auto">
+          <h1 className="font-bold text-lg">Xác nhận đặt hàng</h1>
+          <p>Bạn có chắc chắn muốn đặt đơn hàng này không?</p>
+          <div className="mt-4 p-4 bg-slate-50 rounded-xl border border-slate-100 italic text-slate-500 text-sm">
+            Lưu ý: Bạn nên kiểm tra kỹ địa chỉ và số điện thoại nhận hàng trước khi xác nhận.
+          </div>
+          <p className="mt-4 text-gray-700 font-semibold text-lg flex justify-between items-center">
+            <span>Tổng số tiền:</span>
+            <b className="text-brand-600 text-2xl">{total.toLocaleString()}đ</b>
+          </p>
+        </div>
+      </Modal>
     </SWTCard>
   );
 }

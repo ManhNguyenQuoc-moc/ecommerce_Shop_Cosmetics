@@ -42,7 +42,7 @@ export default function POFilters({ startTransition }: POFiltersProps) {
   const statusVal = searchParams.get("status") || "all";
   const brandVal = searchParams.get("brandId") || "all";
 
-  const brandList = brands?.data || brands || [];
+  const brandList = Array.isArray(brands) ? brands : [];
   const brandOptions = [
     { label: "Tất cả thương hiệu", value: "all" },
     ...(Array.isArray(brandList)

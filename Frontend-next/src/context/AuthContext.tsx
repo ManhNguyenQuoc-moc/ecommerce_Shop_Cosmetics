@@ -45,6 +45,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       username: supabaseSession.user.email || "",
       role: supabaseSession.user.user_metadata.role || "CUSTOMER"
     };
+
+    // IMPORTANT: Save token first so subsequent API calls (like getProfile) have it in headers
+    authStorage.login(supabaseSession.access_token, user);
+
     try {
       const profile = await getProfile();
       if (profile) {
@@ -52,13 +56,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         user.name = profile.full_name || user.name;
         user.avatar = profile.avatar || user.avatar;
         user.phone = profile.phone || user.phone;
+        
+        // Update user in storage with fetched profile data
+        authStorage.setUser(user);
       }
     } catch (err) {
       console.warn("Failed to enrichment user profile from backend:", err);
     }
 
     setCurrentUser(user);
-    authStorage.login(supabaseSession.access_token, user);
   };
 
   useEffect(() => {

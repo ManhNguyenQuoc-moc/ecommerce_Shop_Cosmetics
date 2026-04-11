@@ -1,40 +1,29 @@
+import { get } from "../api";
 import { PointLogDTO, PointSummaryDTO } from "../models/customer/point.dto";
 
-const MOCK_POINTS: PointLogDTO[] = [
-  {
-    id: "1",
-    amount: 100,
-    reason: "Hoàn thành đơn hàng ORD-20240321-001",
-    created_at: "2024-03-21T10:00:00Z",
-    type: "EARN",
-  },
-  {
-    id: "2",
-    amount: -50,
-    reason: "Sử dụng điểm cho đơn hàng ORD-20240320-099",
-    created_at: "2024-03-20T16:00:00Z",
-    type: "SPEND",
-  },
-  {
-    id: "3",
-    amount: 200,
-    reason: "Thưởng sinh nhật khách hàng",
-    created_at: "2024-03-10T00:00:00Z",
-    type: "EARN",
-  }
-];
+const path = "/users/me";
 
 export const getPointsSummary = async (): Promise<PointSummaryDTO> => {
-  await new Promise(resolve => setTimeout(resolve, 400));
+  const user = await get<any>(path);
+  
+  // Real points from user profile, mock tier logic for now as it's not in DB yet
+  const points = user.loyalty_points || 0;
+  
   return {
-    total_points: 1250,
-    current_tier: "Vàng",
-    next_tier: "Kim cương",
-    points_to_next_tier: 750,
+    total_points: points,
+    current_tier: points > 5000 ? "Kim cương" : points > 2000 ? "Vàng" : points > 1000 ? "Bạc" : "Thành viên",
+    next_tier: points > 5000 ? "MAX" : points > 2000 ? "Kim cương" : points > 1000 ? "Vàng" : "Bạc",
+    points_to_next_tier: points > 5000 ? 0 : points > 2000 ? 5000 - points : points > 1000 ? 2000 - points : 1000 - points,
   };
 };
 
 export const getPointsHistory = async (): Promise<PointLogDTO[]> => {
-  await new Promise(resolve => setTimeout(resolve, 600));
-  return MOCK_POINTS;
+  const history = await get<any[]>(`${path}/points`);
+  return history.map(h => ({
+    id: h.id,
+    amount: h.amount,
+    reason: h.reason,
+    created_at: h.createdAt,
+    type: h.type as any,
+  }));
 };
