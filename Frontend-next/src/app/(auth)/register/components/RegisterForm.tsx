@@ -12,9 +12,11 @@ import { GoogleIcon as GoogleIco, FacebookIcon as FacebookIco } from "@/src/@cor
 import { Eye, EyeOff } from "lucide-react";
 import { supabase } from "@/src/@core/utils/supabase";
 import { authService } from "@/src/services/customer/auth.service";
+import { useCart } from "@/src/hooks/useCart";
 
 export default function RegisterForm() {
     const router = useRouter();
+    const { syncCart } = useCart();
     const [isLoading, setIsLoading] = useState(false);
 
     const handleSubmit = async (values: any) => {
@@ -48,6 +50,7 @@ export default function RegisterForm() {
                 showNotificationSuccess("Đăng ký thành công. Vui lòng kiểm tra email của bạn để kích hoạt tài khoản!");
                 router.push("/login?verify=sent");
             } else if (data.session) {
+                if (data.user) await syncCart(data.user.id);
                 showNotificationSuccess("Đăng ký thành công! Chào mừng bạn.");
                 router.push("/");
             }
