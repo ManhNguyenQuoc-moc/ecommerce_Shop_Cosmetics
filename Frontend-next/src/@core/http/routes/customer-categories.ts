@@ -55,7 +55,6 @@ export const getDynamicCategories = (apiCategories: any[]): Category[] => {
   // Chuyển Map thành mảng và thêm vào grouped
   const activeGroups = Array.from(groupMap.values()).filter(g => g.children && g.children.length > 0);
   
-  // Sắp xếp: Ưu tiên hiển thị các nhóm có tên trong CATEGORY_THEMES cũ (để giữ thứ tự quen thuộc)
   const order = ["Chăm sóc da", "Trang điểm", "Chăm sóc tóc", "Chăm sóc cơ thể", "Nước hoa"];
   activeGroups.sort((a, b) => {
     const indexA = order.indexOf(a.name);
@@ -72,11 +71,10 @@ export const getDynamicCategories = (apiCategories: any[]): Category[] => {
   return grouped;
 };
 
-// Fallback tĩnh (Dùng cho lúc đang load hoặc lỗi)
 export const customerCategories: Category[] = [
   { name: "Trang chủ", slug: "home", path: "/" },
   { name: "Sản phẩm", slug: "san-pham", path: "/products" },
   { name: "Chăm sóc da", slug: "cham-soc-da", path: "/products?category=cham-soc-da" },
   { name: "Trang điểm", slug: "trang-diem", path: "/products?category=trang-diem" },
   { name: "Thương hiệu", slug: "thuong-hieu", path: "/brands" },
-];
+];

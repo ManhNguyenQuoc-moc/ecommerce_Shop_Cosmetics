@@ -21,7 +21,7 @@ type LoginFormValues = {
 };
 export default function SignInForm() {
   const { login } = useAuth();
-  const { syncCart } = useCart();
+  const { items, syncCart } = useCart();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -48,8 +48,9 @@ export default function SignInForm() {
           role: data.user.user_metadata.role || "CUSTOMER"
         };
         
+        const guestItems = [...items];
         await login(data.session.access_token, authUser);
-        await syncCart(data.user.id);
+        await syncCart(data.user.id, guestItems);
         showNotificationSuccess("Đăng nhập thành công! Chào mừng trở lại.");
         router.push("/");
       }

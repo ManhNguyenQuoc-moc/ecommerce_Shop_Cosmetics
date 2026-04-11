@@ -25,13 +25,21 @@ export const useCart = () => {
     }
   }, [remoteData, user?.id, setItems]);
 
+  const MAX_ITEMS_PER_VARIANT = 5;
+
   const addItem = async (item: CartItemOutputDto) => {
-    // A. Validation: Check available stock
+    // A. Validation: Check available stock and MAX_ITEMS
     const exist = items.find((i) => i.variantId === item.variantId);
     const currentQty = exist ? exist.quantity : 0;
-    const newTotal = currentQty + item.quantity;
+    const requestedQty = item.quantity;
+    const totalQty = currentQty + requestedQty;
 
-    if (item.availableStock !== undefined && newTotal > item.availableStock) {
+    if (totalQty > MAX_ITEMS_PER_VARIANT) {
+        showNotificationWarning(`Bạn chỉ có thể thêm tối đa ${MAX_ITEMS_PER_VARIANT} sản phẩm cho mỗi loại.`);
+        return;
+    }
+
+    if (item.availableStock !== undefined && totalQty > item.availableStock) {
       showNotificationWarning(`Sản phẩm chỉ còn ${item.availableStock} sản phẩm khả dụng.`);
       return;
     }
@@ -63,7 +71,12 @@ export const useCart = () => {
   };
 
   const updateQuantity = async (id: string, variantId: string, quantity: number) => {
-    // A. Validation: Check available stock
+    // A. Validation: Check available stock and MAX_ITEMS
+    if (quantity > MAX_ITEMS_PER_VARIANT) {
+        showNotificationWarning(`Số lượng tối đa cho mỗi sản phẩm là ${MAX_ITEMS_PER_VARIANT}.`);
+        return;
+    }
+
     const item = items.find(i => i.id === id);
     if (item && item.availableStock !== undefined && quantity > item.availableStock) {
        showNotificationWarning(`Sản phẩm chỉ còn tối đa ${item.availableStock} sản phẩm.`);
@@ -110,11 +123,13 @@ export const useCart = () => {
     setItems([]);
   };
 
-  const syncCart = async (forcedUserId?: string) => {
+  const syncCart = async (forcedUserId?: string, itemsToSync?: any[]) => {
     const targetUserId = forcedUserId || user?.id;
-    if (targetUserId && items.length > 0) {
+    const targetItems = itemsToSync || items;
+    
+    if (targetUserId && targetItems.length > 0) {
       try {
-        const syncData = items.map(i => ({ variantId: i.variantId, quantity: i.quantity }));
+        const syncData = targetItems.map(i => ({ variantId: i.variantId, quantity: i.quantity }));
         const data = await cartService.syncCartAsync(targetUserId, syncData);
         setItems(data.items);
         mutate();

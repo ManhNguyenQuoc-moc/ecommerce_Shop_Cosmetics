@@ -13,6 +13,8 @@ export class CartService implements ICartService {
     this.cartRepository = cartRepository;
   }
 
+  private readonly MAX_ITEMS = 5;
+
   async getCartByUserId(userId: string): Promise<CartDto> {
     let cart = await this.cartRepository.findByUserId(userId);
     if (!cart) {
@@ -26,6 +28,10 @@ export class CartService implements ICartService {
     const existingItem = (cart as any).items?.find((i: any) => i.variantId === variantId);
     const currentQty = existingItem ? (existingItem as any).quantity : 0;
     const requestedQty = currentQty + quantity;
+
+    if (requestedQty > this.MAX_ITEMS) {
+        throw new Error(`Bạn chỉ có thể thêm tối đa ${this.MAX_ITEMS} sản phẩm cho mỗi loại.`);
+    }
 
     const stockMap = await this.inventoryService.getStockForVariants([variantId]);
     const available = stockMap[variantId]?.availableStock || 0;
@@ -44,14 +50,16 @@ export class CartService implements ICartService {
   }
 
   async updateItemQuantity(userId: string, cartItemId: string, quantity: number): Promise<CartDto> {
-    // 1. Get current cart to find the variantId of this cartItem
+    if (quantity > this.MAX_ITEMS) {
+        throw new Error(`Số lượng tối đa cho mỗi sản phẩm là ${this.MAX_ITEMS}.`);
+    }
+
     const cart = await this.cartRepository.findByUserId(userId);
     if (!cart) throw new Error("Giỏ hàng không tồn tại");
     
     const item = (cart as any).items?.find((i: any) => i.id === cartItemId);
     if (!item) throw new Error("Sản phẩm không có trong giỏ hàng");
 
-    // 2. Check stock for this variant
     const variantId = (item as any).variantId;
     const stockMap = await this.inventoryService.getStockForVariants([variantId]);
     const available = stockMap[variantId]?.availableStock || 0;
@@ -72,21 +80,32 @@ export class CartService implements ICartService {
   }
 
   async syncCart(userId: string, items: AddToCartDto[]): Promise<CartDto> {
+    const cart = await this.cartRepository.findByUserId(userId) || await this.cartRepository.create(userId);
+    const existingItems = (cart as any).items || [];
+    
     const variantIds = items.map(i => i.variantId);
     const stockMap = await this.inventoryService.getStockForVariants(variantIds);
     
     for (const item of items) {
+       const existingItem = existingItems.find((ei: any) => ei.variantId === item.variantId);
+       const existingQty = existingItem ? existingItem.quantity : 0;
+       
+       // Calculate new quantity with cap
+       let targetQty = existingQty + item.quantity;
+       if (targetQty > this.MAX_ITEMS) targetQty = this.MAX_ITEMS;
+       
+       // Check stock for the combined quantity
        const available = stockMap[item.variantId]?.availableStock || 0;
-       if (available < item.quantity) {
-          // You could throw error or just skip/adjust. Conventionally throw for clear feedback.
-          throw new Error(`Variant ${item.variantId} không đủ hàng hợp lệ (còn ${available}).`);
+       if (available < targetQty) {
+          targetQty = available; // Adjust to available stock if capped by it
        }
-    }
 
-    const cart = await this.cartRepository.findByUserId(userId) || await this.cartRepository.create(userId);
-    
-    for (const item of items) {
-      await this.cartRepository.addItem(cart.id, item.variantId, item.quantity);
+       // Calculate how much MORE we need to add to reach targetQty
+       const addedQty = targetQty - existingQty;
+       
+       if (addedQty > 0) {
+          await this.cartRepository.addItem(cart.id, item.variantId, addedQty);
+       }
     }
     
     return this.getCartByUserId(userId);
