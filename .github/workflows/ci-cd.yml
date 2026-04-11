@@ -43,12 +43,19 @@ jobs:
         working-directory: Frontend-next
         run: npm ci
 
-      # ✅ DEBUG ENV (BẮT BUỘC TEST 1 LẦN)
-      - name: Debug ENV
+      # ✅ VERIFY ENV (Check if secrets are set without exposing them)
+      - name: Verify ENV
         working-directory: Frontend-next
         run: |
-          echo "URL=$NEXT_PUBLIC_SUPABASE_URL"
-          echo "KEY=$NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY"
+          if [ -z "$NEXT_PUBLIC_SUPABASE_URL" ]; then
+            echo "❌ Error: NEXT_PUBLIC_SUPABASE_URL is not set in GitHub Secrets!"
+            exit 1
+          fi
+          if [ -z "$NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY" ]; then
+            echo "❌ Error: NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY is not set in GitHub Secrets!"
+            exit 1
+          fi
+          echo "✅ Environment variables are correctly configured."
 
       - name: 🏗 Build frontend
         working-directory: Frontend-next
