@@ -88,7 +88,11 @@ export class OrderRepository implements IOrderRepository {
 
   async create(data: CreateOrderDTO & { userId: string, addressId?: string }, tx?: Prisma.TransactionClient): Promise<Order> {
     const db = tx || prisma;
-    const { items, total, shipping_fee, shipping_method, paymentMethod, userId, addressId } = data;
+    const { items, total, paymentMethod, userId, addressId } = data;
+
+    // Resolve shipping fields regardless of naming convention (frontend vs backend)
+    const resolvedShippingFee = data.shipping_fee ?? data.shippingFee ?? 0;
+    const resolvedShippingMethod = data.shipping_method ?? data.shippingMethod ?? null;
 
     return db.order.create({
       data: {
@@ -96,9 +100,9 @@ export class OrderRepository implements IOrderRepository {
         addressId,
         shipping_address: data.address?.address || null,
         total_amount: total || 0,
-        shipping_fee: shipping_fee || 0,
-        shipping_method: shipping_method || null,
-        final_amount: (total || 0) + (shipping_fee || 0),
+        shipping_fee: resolvedShippingFee,
+        shipping_method: resolvedShippingMethod,
+        final_amount: (total || 0) + resolvedShippingFee,
         current_status: "PENDING",
         payment_method: paymentMethod as any,
         payment_status: "UNPAID",
