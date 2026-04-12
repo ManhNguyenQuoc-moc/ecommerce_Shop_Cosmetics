@@ -126,7 +126,7 @@ export default function VariantTable({
       key: "name",
       render: (text: string, record: TableRecord) => (
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center border border-slate-200 shrink-0 overflow-hidden relative">
+          <div className="admin-image-placeholder w-10 h-10 rounded-lg flex items-center justify-center shrink-0 overflow-hidden relative">
           {record.image ? (
             <Image
               src={record.image}
@@ -137,15 +137,15 @@ export default function VariantTable({
               unoptimized
             />
           ) : (
-            <Layers size={20} className="text-slate-400" />
+            <Layers size={20} className="text-text-muted" />
           )}
         </div>
           <div className="flex flex-col gap-1">
-            <div className="font-bold text-slate-800 dark:text-white dark:drop-shadow-[0_0_2px_rgba(255,255,255,0.5)]">
+            <div className="font-bold text-text-main">
               {record.productName} - {record.color || "Không màu"} - {record.size || "Không kích thước"}
             </div>
             <div className="flex items-center gap-2">
-               <span className="text-slate-500 dark:text-slate-400 font-medium text-xs"></span>
+               <span className="text-text-muted font-medium text-xs"></span>
               {record.productStatus === 'HIDDEN' && (
              <SWTTooltip
                   title="Sản phẩm gốc đang bị ẩn"
@@ -167,7 +167,7 @@ export default function VariantTable({
       dataIndex: "price",
       key: "price",
       render: (price: number) => (
-        <div className="font-medium text-sm text-slate-400 line-through decoration-slate-300">
+        <div className="font-medium text-sm text-text-muted line-through opacity-60">
           {formatVND(price)}
         </div>
       ),
@@ -177,7 +177,7 @@ export default function VariantTable({
       dataIndex: "salePrice",
       key: "salePrice",
       render: (salePrice: number, record: TableRecord) => (
-        <div className="font-bold text-sm text-rose-600 dark:text-rose-400">
+        <div className="font-bold text-sm text-status-error-text">
           {formatVND(salePrice || record.price)}
         </div>
       ),
@@ -187,7 +187,7 @@ export default function VariantTable({
       dataIndex: "sold",
       key: "sold",
       render: (sold: number) => (
-        <div className="text-sm font-bold text-sky-600 dark:text-sky-400">{sold || 0}</div>
+        <div className="text-sm font-bold text-status-info-text">{sold || 0}</div>
       ),
     },
     {
@@ -195,7 +195,7 @@ export default function VariantTable({
       dataIndex: "createdAt",
       key: "createdAt",
       render: (date: string) => (
-        <div className="text-xs font-medium text-slate-500 dark:text-slate-400">
+        <div className="text-xs font-medium text-text-muted">
           {new Date(date).toLocaleDateString("vi-VN")}
         </div>
       ),
@@ -246,7 +246,7 @@ export default function VariantTable({
 
   return (
     <div className="w-full">
-      <div className="!bg-white/90 dark:!bg-slate-900/80 backdrop-blur-xl !rounded-xl overflow-hidden !border !border-slate-100 dark:!border-fuchsia-500/20 !shadow-lg dark:!shadow-[0_0_15px_rgba(0,0,0,0.5)] mt-4 transition-colors">
+      <div className="!bg-bg-card backdrop-blur-xl !rounded-xl overflow-hidden !border !border-border-default dark:!border-border-brand !shadow-lg mt-4 transition-colors">
         <SWTTable
           columns={columns}
           dataSource={dataSource}
@@ -269,8 +269,8 @@ export default function VariantTable({
 
       {/* Bulk action bar - below table */}
       {selectedRowKeys.length > 0 && (
-        <div className="flex items-center gap-3 mt-4 px-4 py-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-500/30 rounded-xl">
-          <span className="text-sm font-semibold text-amber-700 dark:text-amber-400 flex-1">
+        <div className="flex items-center gap-3 mt-4 px-4 py-3 bg-status-warning-bg border border-status-warning-border rounded-xl">
+          <span className="text-sm font-semibold text-status-warning-text flex-1">
             Đã chọn {selectedRowKeys.length} biến thể
           </span>
           <SWTTooltip
@@ -289,10 +289,10 @@ export default function VariantTable({
               disabled={isDeleting || hasHiddenSelected}
               className={`!w-auto !h-8 !px-3 !text-xs !font-semibold !rounded-lg ${
                 hasHiddenSelected
-                  ? "!bg-slate-100 !text-slate-400 !border-slate-200 !cursor-not-allowed"
+                  ? "!bg-bg-muted !text-text-muted !border-border-default !cursor-not-allowed"
                   : isHiddenTab
-                  ? "!bg-emerald-100 hover:!bg-emerald-200 !text-emerald-700 dark:!bg-emerald-500/20 dark:hover:!bg-emerald-500/30 dark:!text-emerald-400 !border-emerald-200 dark:!border-emerald-500/40"
-                  : "!bg-amber-100 hover:!bg-amber-200 !text-amber-700 dark:!bg-amber-500/20 dark:hover:!bg-amber-500/30 dark:!text-amber-400 !border-amber-200 dark:!border-amber-500/40"
+                  ? "!bg-status-success-bg hover:opacity-80 !text-status-success-text !border-status-success-border"
+                  : "!bg-status-warning-bg hover:opacity-80 !text-status-warning-text !border-status-warning-border"
               } transition-colors`}
               startIcon={isHiddenTab ? <RotateCcw size={14} /> : <Trash2 size={14} />}
               size="sm"
@@ -303,7 +303,7 @@ export default function VariantTable({
           <SWTTooltip title="Bỏ chọn tất cả" placement="top">
             <SWTButton
               onClick={() => setSelectedRowKeys([])}
-              className="!w-auto !h-8 !px-3 !text-xs !font-semibold !rounded-lg !bg-slate-100 hover:!bg-slate-200 !text-slate-600 dark:!bg-slate-800 dark:hover:!bg-slate-700 dark:!text-slate-400 !border !border-slate-200 dark:!border-slate-700 transition-colors"
+              className="!w-auto !h-8 !px-3 !text-xs !font-semibold !rounded-lg !bg-bg-muted hover:opacity-80 !text-text-sub !border !border-border-default transition-colors"
               size="sm"
             >
               Bỏ chọn

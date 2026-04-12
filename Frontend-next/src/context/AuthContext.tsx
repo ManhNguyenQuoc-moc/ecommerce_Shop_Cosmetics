@@ -4,6 +4,7 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { authStorage, AuthUser } from "@/src/@core/utils/authStorage";
 import { useCheckoutStore } from "@/src/stores/useCheckoutStore";
 import { useCartStore } from "@/src/stores/useCartStore";
+import { useWishlistStore } from "@/src/stores/useWishlistStore";
 import { supabase } from "@/src/@core/utils/supabase";
 import { Session } from "@supabase/supabase-js";
 import { getProfile } from "@/src/services/customer/user.service";
@@ -28,10 +29,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [isInitializing, setIsInitializing] = useState(true);
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
 
+  const resetUserStores = () => {
+    useCheckoutStore.getState().reset();
+    useCartStore.getState().reset();
+    useWishlistStore.getState().reset();
+  };
+
   const syncUserWithBackend = async (supabaseSession: Session | null) => {
     if (!supabaseSession?.user) {
       setCurrentUser(null);
       authStorage.logout();
+      resetUserStores();
       return;
     }
 
@@ -46,7 +54,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       role: supabaseSession.user.user_metadata.role || "CUSTOMER"
     };
 
-    // IMPORTANT: Save token first so subsequent API calls (like getProfile) have it in headers
     authStorage.login(supabaseSession.access_token, user);
 
     try {
@@ -106,8 +113,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     authStorage.logout();
     setCurrentUser(null);
     setSession(null);
-    useCheckoutStore.getState().reset();
-    useCartStore.getState().reset();
+    resetUserStores();
   };
 
   const updateUser = (userData: Partial<AuthUser>) => {

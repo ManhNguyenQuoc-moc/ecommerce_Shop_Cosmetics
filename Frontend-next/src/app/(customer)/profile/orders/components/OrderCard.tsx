@@ -5,7 +5,6 @@ import { OrderDTO } from "@/src/services/models/customer/order.dto";
 import SWTButton from "@/src/@core/component/AntD/SWTButton";
 import SWTCard from "@/src/@core/component/AntD/SWTCard";
 import SWTConfirmModal from "@/src/@core/component/AntD/SWTConfirmModal";
-import SWTDivider from "@/src/@core/component/AntD/SWTDivider";
 import OrderStatusTag from "./OrderStatusTag";
 import OrderDetailModal from "./OrderDetailModal";
 import Image from "next/image";
@@ -24,6 +23,7 @@ export default function OrderCard({ order, onUpdate }: Props) {
 
   const firstItem = order.items[0];
   const otherItemsCount = order.items.length - 1;
+  const totalQuantity = order.items.reduce((acc, item) => acc + item.quantity, 0);
 
   const handleCancel = async () => {
     setIsCancelling(true);
@@ -39,109 +39,122 @@ export default function OrderCard({ order, onUpdate }: Props) {
     }
   };
 
-  const formatVND = (v: number) => new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(v || 0);
+  const formatVND = (v: number) =>
+    new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(v || 0);
 
   return (
-    <>
-      <SWTCard className="!mb-4 !rounded-2xl !border-none !shadow-sm overflow-hidden hover:shadow-md transition-shadow" bodyClassName="p-0">
-        {/* Order Header */}
-        <div className="px-6 py-4 flex items-center justify-between bg-gray-50/50">
-          <div className="flex items-center gap-3">
-            <span className="text-sm font-black text-gray-900">#{order.code}</span>
-            <SWTDivider type="vertical" />
-            <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">
-              {new Date(order.createdAt).toLocaleDateString("vi-VN")}
-            </span>
-          </div>
-          <OrderStatusTag status={order.current_status} />
+    <SWTCard className="!rounded-2xl !border !border-border-default/60 !shadow-sm overflow-hidden mb-4 hover:shadow-md transition-shadow">
+      {/* 1. Header: Thông tin mã đơn và ngày đặt */}
+      <div className="px-5 py-3.5 flex items-center justify-between border-b border-border-default/40 bg-bg-muted/5 gap-3">
+        <div className="flex items-center gap-2 sm:gap-3 text-sm">
+          <span className="font-bold text-text-main">#{order.code}</span>
+          <span className="w-1 h-1 rounded-full bg-text-muted/40"></span>
+          <span className="text-text-muted">
+            {new Date(order.createdAt).toLocaleDateString("vi-VN", {
+              day: "2-digit",
+              month: "2-digit",
+              year: "numeric",
+            })}
+          </span>
         </div>
+        <OrderStatusTag status={order.current_status} className="!text-xs !px-3 !py-1 !rounded-full !font-medium shadow-sm" />
+      </div>
 
-        {/* Order Items Preview */}
-        <div className="px-6 py-5 cursor-pointer hover:bg-gray-50/30 transition-colors" onClick={() => setIsDetailOpen(true)}>
-          <div className="flex gap-4">
-            <div className="relative w-16 h-16 rounded-xl overflow-hidden border border-gray-100 shrink-0 shadow-sm">
-              <Image 
-                src={firstItem?.product_image || "/images/placeholder.png"} 
-                alt={firstItem?.product_name} 
-                fill 
-                className="object-cover"
-                unoptimized
-              />
-            </div>
-            <div className="flex-1 min-w-0">
-              <h4 className="text-sm font-bold text-gray-900 truncate">{firstItem?.product_name}</h4>
-              <div className="flex justify-between items-center mt-2">
-                <div className="flex items-center gap-2">
-                  {firstItem?.variant_name && <span className="text-[10px] font-bold text-gray-400 uppercase">{firstItem.variant_name}</span>}
-                  <span className="text-[10px] text-gray-400 font-bold uppercase">x{firstItem?.quantity}</span>
-                </div>
-                <span className="text-sm font-black text-brand-500">
-                  {formatVND(firstItem?.price)}
-                </span>
+      {/* 2. Body: Sản phẩm (Clickable để mở Modal) */}
+      <div 
+        className="p-5 cursor-pointer group hover:bg-bg-muted/5 transition-colors"
+        onClick={() => setIsDetailOpen(true)}
+      >
+        <div className="flex items-start gap-4 sm:gap-5">
+          <div className="relative w-16 h-16 rounded-xl border border-border-default/50 overflow-hidden shrink-0 bg-white shadow-sm">
+            <Image
+              src={firstItem?.product_image || "/images/placeholder.png"}
+              alt={firstItem?.product_name || "product"}
+              fill
+              className="object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
+              unoptimized
+            />
+            {otherItemsCount > 0 && (
+              <div className="absolute inset-0 bg-black/50 flex items-center justify-center backdrop-blur-[1px] opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <span className="text-white text-xs font-semibold">+{otherItemsCount}</span>
               </div>
-              {otherItemsCount > 0 && (
-                <p className="text-[10px] text-gray-400 mt-2 font-black uppercase tracking-tighter opacity-70">
-                  và {otherItemsCount} sản phẩm khác...
-                </p>
-              )}
+            )}
+          </div>
+
+          {/* Info */}
+          <div className="flex-1 min-w-0 flex flex-col justify-center">
+            <h4 className="text-base font-semibold text-text-main line-clamp-2 leading-snug group-hover:text-brand-500 transition-colors mb-1.5">
+              {firstItem?.product_name} - {firstItem?.variant_name || "No variant"} 
+            </h4>
+            <div className="flex items-center gap-2 text-sm text-text-muted">
+              <span className="font-medium">x{firstItem?.quantity}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 3. Footer: Thanh toán & Nút bấm */}
+      <div className="px-5 py-4 border-t border-border-default/40 flex flex-col md:flex-row justify-between items-center gap-5">
+        <div className="flex items-center justify-between md:justify-start gap-6 w-full md:w-auto">
+          <div className="flex flex-col gap-0.5">
+            <span className="text-xs text-text-muted font-medium">Thanh toán</span>
+            <span className="text-sm font-bold text-text-main uppercase">{order.payment_method}</span>
+          </div>
+          <div className="hidden sm:block w-px h-8 bg-border-default/50"></div>
+          <div className="flex flex-col gap-0.5">
+            <span className="text-xs text-text-muted font-medium">Tổng tiền ({totalQuantity} SP)</span>
+            <div className="text-sm font-bold text-brand-500">
+              {formatVND(order.final_amount || order.total_amount)}
             </div>
           </div>
         </div>
 
-        <SWTDivider className="!my-0 !border-gray-50" />
-
-        {/* Order Footer */}
-        <div className="px-6 py-5 flex items-center justify-between">
-          <div>
-            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-0.5">Tổng thanh toán:</p>
-            <p className="text-xl font-black text-brand-600">
-              {formatVND(order.final_amount || order.total_amount)}
-            </p>
-          </div>
-          <div className="flex gap-3">
-             {order.current_status === "PENDING" && (
-              <SWTButton 
-                variant="outlined"
-                onClick={() => setShowCancelConfirm(true)}
-                className="!text-[11px] !font-black !rounded-full !px-5 !border-rose-200 !text-rose-500 hover:!bg-rose-50"
-              >
-                Hủy đơn
-              </SWTButton>
-            )}
-            <SWTButton 
-              variant="outlined" 
-              onClick={() => setIsDetailOpen(true)}
-              className="!text-[11px] !font-black !rounded-full !px-5 !border-gray-200 !text-gray-600"
+        {/* Nút thao tác (Chống móp méo, rớt dòng) */}
+        <div className="flex items-center gap-3 w-full md:w-auto justify-end shrink-0">
+          {order.current_status === "PENDING" && (
+            <SWTButton
+              variant="outlined"
+              onClick={() => setShowCancelConfirm(true)}
+              className="!bg-red-500/10 !border-red-500/20 !text-red-600 dark:!text-red-400 !rounded-xl font-bold !h-10 !px-6 hover:!bg-red-500/20 transition-all shadow-sm !min-w-max whitespace-nowrap"
             >
-              Chi tiết
+              Hủy
             </SWTButton>
-            {(order.current_status === "DELIVERED" || order.current_status === "CANCELLED") && (
-              <SWTButton 
-                className="!text-[11px] !font-black !bg-brand-500 !text-white !rounded-full !px-6 hover:shadow-lg hover:shadow-brand-500/30 transition-shadow"
-              >
-                Mua lại
-              </SWTButton>
-            )}
-          </div>
+          )}
+          <SWTButton
+            variant="text"
+            onClick={() => setIsDetailOpen(true)}
+            className="!bg-green-500/10 !text-green-600 !rounded-xl font-bold !h-10 !px-6 hover:!bg-green-500/20 transition-all shadow-sm !min-w-max whitespace-nowrap"
+          >
+            Chi tiết
+          </SWTButton>
+          {(order.current_status === "DELIVERED" || order.current_status === "CANCELLED") && (
+            <SWTButton
+              className="!bg-brand-500 !text-white !rounded-xl font-bold !h-10 !px-6 hover:!bg-brand-600 transition-all shadow-sm !min-w-max whitespace-nowrap"
+            >
+              Mua lại
+            </SWTButton>
+          )}
         </div>
-      </SWTCard>
+      </div>
 
-      <OrderDetailModal 
-        orderId={order.id} 
-        isOpen={isDetailOpen} 
-        onClose={() => setIsDetailOpen(false)} 
+      {/* Modals */}
+      <OrderDetailModal
+        orderId={order.id}
+        isOpen={isDetailOpen}
+        onClose={() => setIsDetailOpen(false)}
       />
 
-      <SWTConfirmModal 
+      <SWTConfirmModal
         open={showCancelConfirm}
         variant="danger"
         loading={isCancelling}
         onConfirm={handleCancel}
         onCancel={() => setShowCancelConfirm(false)}
-        title="Hủy đơn hàng?"
-        description="Bạn chắc chắn muốn hủy đơn hàng này? Thao tác không thể hoàn tác."
-        confirmText="Xác nhận hủy"
+        title="Xác nhận hủy đơn?"
+        description="Đơn hàng của bạn đang trong trạng thái chờ xử lý. Bạn có chắc muốn hủy không? Thao tác này không thể hoàn tác."
+        confirmText="Hủy ngay"
+        cancelText="Đóng"
       />
-    </>
+    </SWTCard>
   );
 }

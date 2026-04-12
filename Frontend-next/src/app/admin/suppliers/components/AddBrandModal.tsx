@@ -104,38 +104,38 @@ export default function AddBrandModal({ isOpen, onClose, initialData }: Props) {
         className: "!bg-brand-600 hover:!bg-brand-700 !border-none !shadow-md shadow-brand-500/30 !rounded-xl",
       }}
       cancelButtonProps={{
-        className: "dark:!text-slate-300 dark:!bg-slate-800 dark:!border-slate-700 !rounded-xl",
+        className: "bg-bg-muted text-text-muted border-border-default !rounded-xl",
       }}
-      className="[&_.ant-modal-header]:!px-6 [&_.ant-modal-header]:!pt-6 [&_.ant-modal-body]:!px-6 [&_.ant-modal-footer]:!px-6 [&_.ant-modal-footer]:!pb-6 sm:[&_.ant-modal-header]:!px-8 sm:[&_.ant-modal-header]:!pt-8 sm:[&_.ant-modal-body]:!px-8 sm:[&_.ant-modal-footer]:!px-8 sm:[&_.ant-modal-footer]:!pb-8 dark:[&_.ant-modal-content]:!bg-slate-900/90 dark:[&_.ant-modal-content]:!border dark:[&_.ant-modal-content]:!border-brand-500/20 dark:[&_.ant-modal-header]:!bg-transparent dark:[&_.ant-modal-title]:!bg-transparent"
+      className="[&_.ant-modal-header]:!px-6 [&_.ant-modal-header]:!pt-6 [&_.ant-modal-body]:!px-6 [&_.ant-modal-footer]:!px-6 [&_.ant-modal-footer]:!pb-6 sm:[&_.ant-modal-header]:!px-8 sm:[&_.ant-modal-header]:!pt-8 sm:[&_.ant-modal-body]:!px-8 sm:[&_.ant-modal-footer]:!px-8 sm:[&_.ant-modal-footer]:!pb-8 [&_.ant-modal-content]:!bg-bg-card/90 [&_.ant-modal-content]:!backdrop-blur-xl [&_.ant-modal-content]:!border [&_.ant-modal-content]:!border-border-default [&_.ant-modal-header]:!bg-transparent [&_.ant-modal-title]:!bg-transparent"
     >
       <SWTForm 
         form={form} 
         layout="vertical" 
         onFinish={handleFinish}
-        className="mt-6 [&_.ant-form-item-label>label]:font-semibold [&_.ant-form-item-label>label]:text-slate-700 dark:[&_.ant-form-item-label>label]:!text-slate-300"
+        className="mt-6 [&_.ant-form-item-label>label]:font-bold [&_.ant-form-item-label>label]:text-text-sub uppercase text-xs tracking-tight"
       >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6">
           <SWTFormItem name="name" label="Tên nhà cung cấp / Thương hiệu" rules={[{ required: true, message: "Vui lòng nhập tên" }]}>
-            <SWTInput placeholder="Vd: L'Oréal, Rohto..." prefix={<Info size={16} className="text-slate-400" />} className="dark:!bg-slate-800/80 dark:!border-slate-700 dark:!text-white" />
+            <SWTInput placeholder="Vd: L'Oréal, Rohto..." prefix={<Info size={16} className="text-text-muted" />} className="!bg-bg-muted !border-border-default text-text-main" />
           </SWTFormItem>
           
           <SWTFormItem name="email" label="Email liên hệ">
-            <SWTInput placeholder="example@brand.com" prefix={<Mail size={16} className="text-slate-400" />} className="dark:!bg-slate-800/80 dark:!border-slate-700 dark:!text-white" />
+            <SWTInput placeholder="example@brand.com" prefix={<Mail size={16} className="text-text-muted" />} className="!bg-bg-muted !border-border-default text-text-main" />
           </SWTFormItem>
-
+ 
           <SWTFormItem name="phone" label="Số điện thoại">
-            <SWTInput placeholder="0987..." prefix={<Phone size={16} className="text-slate-400" />} className="dark:!bg-slate-800/80 dark:!border-slate-700 dark:!text-white" />
+            <SWTInput placeholder="0987..." prefix={<Phone size={16} className="text-text-muted" />} className="!bg-bg-muted !border-border-default text-text-main" />
           </SWTFormItem>
-
+ 
           <SWTFormItem name="address" label="Địa chỉ văn phòng">
-            <SWTInput placeholder="Quận 1, TP.HCM..." prefix={<MapPin size={16} className="text-slate-400" />} className="dark:!bg-slate-800/80 dark:!border-slate-700 dark:!text-white" />
+            <SWTInput placeholder="Quận 1, TP.HCM..." prefix={<MapPin size={16} className="text-text-muted" />} className="!bg-bg-muted !border-border-default text-text-main" />
           </SWTFormItem>
         </div>
-
+ 
         <SWTFormItem name="description" label="Giới thiệu thương hiệu / Ghi chú">
-          <SWTInputTextArea rows={3} placeholder="Thông tin chi tiết về nhà cung cấp..." className="dark:!bg-slate-800/80 dark:!border-slate-700 dark:!text-white" />
+          <SWTInputTextArea rows={3} placeholder="Thông tin chi tiết về nhà cung cấp..." className="!bg-bg-muted !border-border-default text-text-main" />
         </SWTFormItem>
-
+ 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 mt-4">
           {/* Logo Upload */}
           <SWTFormItem label="Logo Thương hiệu">
@@ -150,17 +150,17 @@ export default function AddBrandModal({ isOpen, onClose, initialData }: Props) {
                 return false;
               }}
               onRemove={() => setLogoFileList([])}
-              className="dark:[&_.ant-upload-drag]:!bg-slate-800/50 dark:[&_.ant-upload-list-item]:!border-slate-700 dark:[&_.ant-upload-list-item-name]:!text-slate-300"
+              className="[&_.ant-upload-drag]:!bg-bg-muted/50 [&_.ant-upload-drag]:!border-border-default [&_.ant-upload-list-item]:!border-border-default [&_.ant-upload-list-item-name]:!text-text-sub"
             >
               <div className="py-4">
-                 <p className="ant-upload-drag-icon flex justify-center text-brand-500 dark:text-brand-400 mb-2">
+                 <p className="ant-upload-drag-icon flex justify-center text-brand-500 mb-2">
                    <UploadIcon size={32} className="stroke-[1.5]" />
                  </p>
-                 <p className="ant-upload-text text-sm font-medium">Nhấp hoặc kéo thả Logo</p>
+                 <p className="ant-upload-text text-sm font-bold text-text-main">Nhấp hoặc kéo thả Logo</p>
               </div>
             </SWTUpload>
           </SWTFormItem>
-
+ 
           {/* Banner Upload */}
           <SWTFormItem label="Ảnh Bìa (Banner)">
             <SWTUpload
@@ -174,13 +174,13 @@ export default function AddBrandModal({ isOpen, onClose, initialData }: Props) {
                 return false;
               }}
               onRemove={() => setBannerFileList([])}
-              className="dark:[&_.ant-upload-drag]:!bg-slate-800/50 dark:[&_.ant-upload-list-item]:!border-slate-700 dark:[&_.ant-upload-list-item-name]:!text-slate-300"
+              className="[&_.ant-upload-drag]:!bg-bg-muted/50 [&_.ant-upload-drag]:!border-border-default [&_.ant-upload-list-item]:!border-border-default [&_.ant-upload-list-item-name]:!text-text-sub"
             >
               <div className="py-4">
-                 <p className="ant-upload-drag-icon flex justify-center text-brand-500 dark:text-brand-400 mb-2">
+                 <p className="ant-upload-drag-icon flex justify-center text-brand-500 mb-2">
                    <ImageIcon size={32} className="stroke-[1.5]" />
                  </p>
-                 <p className="ant-upload-text text-sm font-medium">Nhấp hoặc kéo thả Banner</p>
+                 <p className="ant-upload-text text-sm font-bold text-text-main">Nhấp hoặc kéo thả Banner</p>
               </div>
             </SWTUpload>
           </SWTFormItem>

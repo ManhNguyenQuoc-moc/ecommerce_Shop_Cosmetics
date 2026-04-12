@@ -33,36 +33,36 @@ export default function PointsSummary({ summary }: Props) {
           </div>
 
           <div className="mt-8">
-             <div className="flex justify-between text-xs font-bold mb-2 uppercase tracking-wide">
-                <span>Hạng: {summary.current_tier}</span>
-                {summary.next_tier && <span>Hạng kế tếp: {summary.next_tier}</span>}
-             </div>
-             <Progress 
-                percent={percentToNext} 
-                showInfo={false} 
-                strokeColor="#ffffff" 
-                trailColor="rgba(255,255,255,0.2)"
-                strokeWidth={8}
-                className="!m-0"
-             />
-             {summary.points_to_next_tier && (
-               <p className="text-[11px] text-white/90 mt-2 flex items-center gap-1.5 font-medium italic">
-                 <GiftOutlined />
-                 Cần thêm {summary.points_to_next_tier.toLocaleString("vi-VN")} điểm để thăng hạng {summary.next_tier}
-               </p>
-             )}
+            <div className="flex justify-between text-xs font-bold mb-2 uppercase tracking-wide">
+              <span>Hạng: {summary.current_tier}</span>
+              {summary.next_tier && <span>Hạng kế tếp: {summary.next_tier}</span>}
+            </div>
+            <Progress
+              percent={percentToNext}
+              showInfo={false}
+              strokeColor="#ffffff"
+              trailColor="rgba(255,255,255,0.2)"
+              strokeWidth={8}
+              className="!m-0"
+            />
+            {summary.points_to_next_tier && (
+              <p className="text-[11px] text-white/90 mt-2 flex items-center gap-1.5 font-medium italic">
+                <GiftOutlined />
+                Cần thêm {summary.points_to_next_tier.toLocaleString("vi-VN")} điểm để thăng hạng {summary.next_tier}
+              </p>
+            )}
           </div>
         </div>
       </div>
 
-      <SWTCard className="!border-none !shadow-sm !rounded-2xl" bodyClassName="p-6 flex flex-col justify-between h-full">
+      <SWTCard className="!border-none !shadow-sm !rounded-2xl" bodyClassName="!p-6 !flex !flex-col !justify-between !h-full">
         <div>
           <h3 className="text-gray-900 font-bold text-lg mb-3">Đổi quà ưu đãi</h3>
           <p className="text-sm text-gray-500 leading-relaxed">
             Sử dụng điểm tích luỹ để đổi lấy các mã giảm giá và quà tặng hấp dẫn từ cửa hàng.
           </p>
         </div>
-        <button className="w-full mt-4 flex items-center justify-between text-brand-500 font-bold text-sm bg-brand-50 hover:bg-brand-100 px-4 py-3 rounded-xl transition-all group">
+        <button className="w-full mt-4 flex items-center justify-between text-brand-500 font-bold text-sm bg-brand-50 px-4 py-3 rounded-xl transition-all group">
           Xem danh sách quà
           <ArrowRightOutlined className="group-hover:translate-x-1 transition-transform" />
         </button>

@@ -34,11 +34,11 @@ export default function POTable({ isPending }: POTableProps) {
 
   const renderStatusTag = (status: POStatus) => {
     const colorMap: Record<POStatus, string> = {
-      DRAFT: "bg-slate-100 text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700",
-      CONFIRMED: "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/40 dark:text-blue-400 dark:border-blue-800",
-      PARTIALLY_RECEIVED: "bg-orange-100 text-orange-700 border-orange-200 dark:bg-orange-900/40 dark:text-orange-400 dark:border-orange-800",
-      COMPLETED: "bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900/40 dark:text-emerald-400 dark:border-emerald-800",
-      CANCELLED: "bg-red-100 text-red-600 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800",
+      DRAFT: "bg-bg-muted text-text-muted border-border-default",
+      CONFIRMED: "bg-status-info-bg/10 text-status-info-text border-status-info-border",
+      PARTIALLY_RECEIVED: "bg-status-warning-bg/10 text-status-warning-text border-status-warning-border",
+      COMPLETED: "bg-status-success-bg/10 text-status-success-text border-status-success-border",
+      CANCELLED: "bg-status-error-bg/10 text-status-error-text border-status-error-border",
     };
     return (
       <div
@@ -51,9 +51,9 @@ export default function POTable({ isPending }: POTableProps) {
 
   const renderPriorityTag = (priority: POPriority) => {
     const colorMap: Record<POPriority, string> = {
-      LOW: "bg-slate-50 text-slate-500 border-slate-200 dark:bg-slate-800/50 dark:text-slate-400 dark:border-slate-700",
-      NORMAL: "bg-blue-50 text-blue-600 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-800/50",
-      HIGH: "bg-red-50 text-red-600 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800/50",
+      LOW: "bg-bg-muted text-text-muted border-border-default",
+      NORMAL: "bg-status-info-bg/10 text-status-info-text border-status-info-border",
+      HIGH: "bg-status-error-bg/10 text-status-error-text border-status-error-border",
     };
     return (
       <div
@@ -70,7 +70,7 @@ export default function POTable({ isPending }: POTableProps) {
       dataIndex: "code",
       key: "code",
       render: (text: string) => (
-        <div className="font-bold text-amber-600 dark:text-amber-400 tracking-wide">{text}</div>
+        <div className="font-bold text-brand-500 tracking-wide">{text}</div>
       ),
     },
     {
@@ -78,7 +78,7 @@ export default function POTable({ isPending }: POTableProps) {
       dataIndex: "brand",
       key: "brand",
       render: (_: unknown, record: POListItemDto) => (
-        <div className="font-semibold text-slate-700 dark:text-slate-300">
+        <div className="font-bold text-text-main">
           {record.brand?.name ?? "N/A"}
         </div>
       ),
@@ -88,7 +88,7 @@ export default function POTable({ isPending }: POTableProps) {
       dataIndex: "totalAmount",
       key: "totalAmount",
       render: (amount: number) => (
-        <div className="font-semibold text-slate-800 dark:text-slate-200">
+        <div className="font-black text-text-main">
           {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(amount)}
         </div>
       ),
@@ -98,7 +98,7 @@ export default function POTable({ isPending }: POTableProps) {
       dataIndex: "createdAt",
       key: "createdAt",
       render: (dateStr: string) => (
-        <div className="text-xs font-medium text-slate-500 dark:text-slate-400">
+        <div className="text-[10px] font-black uppercase tracking-tighter text-text-muted">
           {new Date(dateStr).toLocaleDateString("vi-VN")}
         </div>
       ),
@@ -140,7 +140,7 @@ export default function POTable({ isPending }: POTableProps) {
 
   return (
     <div className="w-full">
-      <div className="!bg-white/90 dark:!bg-slate-900/80 backdrop-blur-xl !rounded-xl overflow-hidden !border !border-slate-100 dark:!border-amber-500/20 !shadow-lg mt-4 transition-colors">
+      <div className="!bg-bg-card/90 backdrop-blur-xl !rounded-xl overflow-hidden !border !border-border-default !shadow-lg mt-4 transition-colors">
         <SWTTable
           columns={columns}
           dataSource={orders}

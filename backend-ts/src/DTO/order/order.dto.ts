@@ -52,6 +52,7 @@ export const OrderQueryFiltersSchema = z.object({
   endDate: z.string().optional(),
   page: z.number().int().positive().optional(),
   pageSize: z.number().int().positive().optional(),
+  userId: z.string().uuid().optional(),
 });
 
 export type OrderQueryFiltersDTO = z.infer<typeof OrderQueryFiltersSchema>;

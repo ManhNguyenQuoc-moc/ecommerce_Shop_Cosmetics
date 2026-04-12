@@ -12,7 +12,7 @@ import ProductListSection from "../components/ProductListSection";
 import { PaginationResponse } from "@/src/services/models/common/PaginationResponse";
 import { ProductListItemDto } from "@/src/services/models/product/output.dto";
 import { CategoryResponseDto } from "@/src/services/models/category/output.dto";
-import { BrandResponseDto } from "@/src/services/customer/server-data";
+import { BrandResponseDto } from "@/src/services/customer/customer.service";
 import { customerCategories, getDynamicCategories, Category } from "@/src/@core/http/routes/customer-categories";
 import { getProducts } from "@/src/services/customer/product.service";
 import { useCustomerCategories } from "@/src/services/customer/category.service";
@@ -206,7 +206,7 @@ export default function ProductsClient({ initialData, initialCategories, initial
                       if (range.max !== undefined) params.set("maxPrice", range.max.toString());
                       else params.delete("maxPrice");
                       params.set("page", "1");
-                      router.push(`${window.location.pathname}?${params.toString()}`);
+                      router.replace(`${window.location.pathname}?${params.toString()}`, { scroll: false });
                     }}
                     className={`text-left text-sm py-1.5 px-3 rounded-lg transition-colors ${isActive ? "bg-brand-50 text-brand-600 font-medium" : "text-gray-600 hover:bg-gray-50"
                       }`}
@@ -238,7 +238,7 @@ export default function ProductsClient({ initialData, initialCategories, initial
                   params.set("isSale", "true");
                 }
                 
-                router.push(`${window.location.pathname}?${params.toString()}`);
+                router.replace(`${window.location.pathname}?${params.toString()}`, { scroll: false });
               }}
               options={[
                 { label: "Tất cả sản phẩm", value: "all" },
@@ -260,7 +260,7 @@ export default function ProductsClient({ initialData, initialCategories, initial
                     if (rating === star) params.delete("rating");
                     else params.set("rating", star.toString());
                     params.set("page", "1");
-                    router.push(`${window.location.pathname}?${params.toString()}`);
+                    router.replace(`${window.location.pathname}?${params.toString()}`, { scroll: false });
                   }}
                   className={`flex items-center gap-2 p-2 rounded-lg transition-colors ${rating === star ? "bg-brand-50 text-brand-600" : "text-gray-600 hover:bg-gray-50"
                     }`}
@@ -302,7 +302,7 @@ export default function ProductsClient({ initialData, initialCategories, initial
                     params.delete("brandId");
                   }
                   params.set("page", "1");
-                  router.push(`${window.location.pathname}?${params.toString()}`);
+                  router.replace(`${window.location.pathname}?${params.toString()}`, { scroll: false });
                 }}
               />
             </div>

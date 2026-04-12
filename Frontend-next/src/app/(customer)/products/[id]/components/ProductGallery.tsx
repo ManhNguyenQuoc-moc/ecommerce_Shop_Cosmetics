@@ -19,17 +19,17 @@ export default function ProductGallery({
   galleryImages,
   setActiveImage,
 }: Props) {
-  const [openPreview ,setOpenPreview] = useState(false);
+  const [openPreview, setOpenPreview] = useState(false);
   return (
     <div className="lg:col-span-5 space-y-4">
       <div className="relative w-full h-[350px] overflow-hidden rounded-lg border bg-white">
         <Image
-          src={activeImage || galleryImages[0]} 
+          src={activeImage || galleryImages[0]}
           alt={productName}
           fill
           priority
           className="object-over transition-all duration-200"
-          onClick ={()=> setOpenPreview(true)}
+          onClick={() => setOpenPreview(true)}
         />
       </div>
       <div className="flex gap-2 overflow-x-auto pb-2 custom-scrollbar mt-2">
@@ -46,12 +46,12 @@ export default function ProductGallery({
               fill
               sizes="80px"
               className="object-cover rounded"
-              
+
             />
           </div>
         ))}
       </div>
-       <Lightbox
+      <Lightbox
         open={openPreview}
         close={() => setOpenPreview(false)}
         slides={galleryImages.map((img) => ({ src: img }))}

@@ -26,7 +26,7 @@ export default function EditPOPage() {
           { title: "Chỉnh sửa phiếu nhập" },
         ]}
       />
-      <div className="bg-white/90 dark:bg-slate-900/80 backdrop-blur-md rounded-3xl p-6 shadow-sm border border-slate-200 dark:border-pink-500/20 transition-colors">
+      <div className="admin-card-form p-6">
         <EditPOForm
           po={po ?? null}
           onCancel={() => router.back()}

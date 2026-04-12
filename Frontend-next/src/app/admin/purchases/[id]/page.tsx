@@ -108,7 +108,7 @@ export default function PODetailPage() {
   if (!po) {
     return (
       <div className="py-20 text-center space-y-4">
-        <div className="text-slate-400 text-lg">Không tìm thấy dữ liệu phiếu nhập</div>
+        <div className="text-text-muted text-lg">Không tìm thấy dữ liệu phiếu nhập</div>
         <SWTButton size="md" className="!w-auto" icon={<ArrowLeft size={16} />} onClick={() => router.back()}>Quay lại</SWTButton>
       </div>
     );

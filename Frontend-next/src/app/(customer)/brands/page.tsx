@@ -1,5 +1,5 @@
 import React from "react";
-import { getServerBrands, getServerCategories } from "@/src/services/customer/server-data";
+import { getServerBrands, getServerCategories } from "@/src/services/customer/customer.service";
 import SWTBreadcrumb from "@/src/@core/component/AntD/SWTBreadcrumb";
 import BrandFeaturedSelection from "./components/BrandFeaturedSelection";
 import BrandGridClient from "./components/BrandGridClient";

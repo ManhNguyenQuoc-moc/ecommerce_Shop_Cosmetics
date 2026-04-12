@@ -39,9 +39,9 @@ const POOrderedItems: React.FC<POOrderedItemsProps> = ({ po, onExport }) => {
   }, [items, search]);
 
   return (
-    <div className="bg-white/90 dark:bg-slate-900/80 backdrop-blur-md rounded-3xl p-6 shadow-sm border border-slate-200 dark:border-pink-500/20 flex flex-col gap-4">
+    <div className="admin-card-form p-6 flex flex-col gap-4">
       <div className="flex items-center justify-between px-2">
-        <h3 className="font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2 text-sm uppercase tracking-wider">
+        <h3 className="admin-section-heading font-bold flex items-center gap-2 text-sm uppercase tracking-wider">
           1. Thông tin đặt hàng (Phiếu Nhập)
         </h3>
         <div className="flex gap-2.5">
@@ -70,11 +70,11 @@ const POOrderedItems: React.FC<POOrderedItemsProps> = ({ po, onExport }) => {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           allowClear
-          className="!rounded-xl !h-9 !bg-slate-50 dark:!bg-slate-800/50 !border-slate-200 dark:!border-slate-700 max-w-sm text-sm"
+          className="!rounded-xl !h-9 max-w-sm text-sm"
         />
       </div>
 
-      <div className="border border-slate-200 dark:border-slate-700 rounded-3xl overflow-hidden bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm p-4">
+      <div className="admin-table-wrap p-4">
         <SWTTable
           rowKey="id"
           dataSource={filteredItems}
@@ -88,7 +88,7 @@ const POOrderedItems: React.FC<POOrderedItemsProps> = ({ po, onExport }) => {
               if (f && f !== pageSize) setPageSize(f);
             }
           }}
-          className="dark:[&_.ant-table]:!bg-transparent dark:[&_.ant-table-thead_th]:!bg-slate-800/80 dark:[&_.ant-table-tbody_tr:hover_td]:!bg-brand-500/5 [&_.ant-table-thead_th]:!py-3 [&_.ant-table-tbody_td]:!py-2"
+          className="dark:[&_.ant-table]:!bg-transparent dark:[&_.ant-table-tbody_tr:hover_td]:!bg-brand-500/5 [&_.ant-table-thead_th]:!py-3 [&_.ant-table-tbody_td]:!py-2"
           columns={[
             {
               title: "Sản phẩm",
@@ -99,7 +99,7 @@ const POOrderedItems: React.FC<POOrderedItemsProps> = ({ po, onExport }) => {
                   className="flex items-center gap-3 overflow-hidden"
                   title={record.variant?.product?.name} // Hover hiển thị full tên
                 >
-                  <div className="w-9 h-9 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center border border-slate-200 dark:border-slate-700 shrink-0 overflow-hidden relative">
+                  <div className="admin-image-placeholder w-9 h-9 rounded-lg flex items-center justify-center shrink-0 overflow-hidden relative">
                     {record.variant?.image ? (
                       <Image
                         src={record.variant.image}
@@ -110,10 +110,10 @@ const POOrderedItems: React.FC<POOrderedItemsProps> = ({ po, onExport }) => {
                         unoptimized
                       />
                     ) : (
-                      <Layers size={16} className="text-slate-400" />
+                      <Layers size={16} className="text-text-muted" />
                     )}
                   </div>
-                  <div className="font-medium text-slate-700 dark:text-slate-200 truncate">
+                  <div className="admin-section-heading font-medium truncate">
                     {record.variant?.product?.name}
                   </div>
                 </div>
@@ -125,7 +125,7 @@ const POOrderedItems: React.FC<POOrderedItemsProps> = ({ po, onExport }) => {
               width: COLUMN_WIDTH.variant,
               render: (_: any, record: any) => {
                 const variantName = [record.variant?.color, record.variant?.size].filter(Boolean).join(" - ") || "Tiêu chuẩn";
-                return <div className="text-slate-600 dark:text-slate-400">{variantName}</div>;
+                return <div className="admin-text-sub">{variantName}</div>;
               }
             },
             {
@@ -134,7 +134,7 @@ const POOrderedItems: React.FC<POOrderedItemsProps> = ({ po, onExport }) => {
               width: COLUMN_WIDTH.sku,
               ellipsis: true, // Cắt chữ cho mã SKU dài
               render: (_: any, record: any) => (
-                <div className="truncate text-slate-600 dark:text-slate-400" title={record.variant?.sku}>
+                <div className="truncate admin-text-sub" title={record.variant?.sku}>
                   {record.variant?.sku || "-"}
                 </div>
               )
@@ -145,7 +145,7 @@ const POOrderedItems: React.FC<POOrderedItemsProps> = ({ po, onExport }) => {
               key: "qty",
               width: COLUMN_WIDTH.qty,
               align: 'right' as const,
-              render: (qty: number) => <div className="text-slate-700 dark:text-slate-300 font-medium">{qty}</div>
+              render: (qty: number) => <div className="admin-section-heading font-medium">{qty}</div>
             },
             {
               title: "Giá nhập",
@@ -153,7 +153,7 @@ const POOrderedItems: React.FC<POOrderedItemsProps> = ({ po, onExport }) => {
               width: COLUMN_WIDTH.price,
               align: 'right' as const,
               render: (_: any, record: any) => (
-                <div className="text-right text-slate-700 dark:text-slate-200 font-medium">
+                <div className="text-right admin-section-heading font-medium">
                   {new Intl.NumberFormat("vi-VN").format(record.costPrice)}
                 </div>
               )
@@ -174,9 +174,9 @@ const POOrderedItems: React.FC<POOrderedItemsProps> = ({ po, onExport }) => {
 
         {/* Tổng hóa đơn — dùng po.totalAmount từ backend (toàn bộ, không phân trang) */}
         {po.totalAmount > 0 && (
-          <div className="flex justify-end pt-4 mt-2 border-t border-slate-200 dark:border-slate-700">
+          <div className="flex justify-end pt-4 mt-2 border-t" style={{ borderColor: 'var(--admin-field-border)' }}>
             <div className="text-right">
-              <div className="text-slate-500 text-sm mb-1 uppercase font-medium">Tổng cộng hóa đơn:</div>
+              <div className="admin-text-muted text-sm mb-1 uppercase font-medium">Tổng cộng hóa đơn:</div>
               <div className="text-2xl font-black text-brand-600 dark:text-brand-400">
                 {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(po.totalAmount)}
               </div>

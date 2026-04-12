@@ -53,7 +53,7 @@ export default function VariantsClient() {
       label: "Đang hoạt động",
       prefix: { value: activeTotal || 0, color: "primary", variant: "light" } as const,
       children: (
-        <div className="bg-white/80 dark:bg-slate-900/50 backdrop-blur-md rounded-2xl shadow-sm border border-slate-200 dark:border-admin-sidebar-border transition-colors p-6 mt-4">
+        <div className="bg-bg-card backdrop-blur-md rounded-2xl shadow-sm border border-border-default dark:border-border-brand transition-colors p-6 mt-4">
           <VariantFilters startTransition={startTransition} onUpdate={() => mutate()} />
           <VariantTable 
             variants={variants} 
@@ -73,7 +73,7 @@ export default function VariantsClient() {
       label: "Đã ẩn",
       prefix: { value: hiddenTotal || 0, color: "error", variant: "light" } as const,
       children: (
-        <div className="bg-white/80 dark:bg-slate-900/50 backdrop-blur-md rounded-2xl shadow-sm border border-slate-200 dark:border-admin-sidebar-border transition-colors p-6 mt-4">
+        <div className="bg-bg-card backdrop-blur-md rounded-2xl shadow-sm border border-border-default dark:border-border-brand transition-colors p-6 mt-4">
           <VariantFilters startTransition={startTransition} onUpdate={() => mutate()} />
           <VariantTable 
             variants={variants} 

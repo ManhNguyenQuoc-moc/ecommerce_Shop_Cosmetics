@@ -18,16 +18,16 @@ import AppSideBar from "./AppSideBar";
 import { customerCategories, getDynamicCategories } from "@/src/@core/http/routes/customer-categories";
 import { useCustomerCategories } from "@/src/services/customer/category.service";
 import { CategoryResponseDto } from "@/src/services/models/category/output.dto";
-import { BrandResponseDto } from "@/src/services/customer/server-data";
+import { BrandResponseDto } from "@/src/services/customer/customer.service";
 
 interface CustomerHeaderProps {
   initialCategories?: CategoryResponseDto[];
   initialBrands?: BrandResponseDto[];
 }
 
-export default function CustomerHeader({ 
-  initialCategories = [], 
-  initialBrands = [] 
+export default function CustomerHeader({
+  initialCategories = [],
+  initialBrands = []
 }: CustomerHeaderProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -40,13 +40,13 @@ export default function CustomerHeader({
     revalidateIfStale: false,
     revalidateOnMount: false,
   });
-  
-  const categoriesToUse = apiCategories && apiCategories.length > 0 
-    ? apiCategories 
+
+  const categoriesToUse = apiCategories && apiCategories.length > 0
+    ? apiCategories
     : (initialCategories.length > 0 ? initialCategories : []);
 
-  const dynamicCategories = categoriesToUse.length > 0 
-    ? getDynamicCategories(categoriesToUse) 
+  const dynamicCategories = categoriesToUse.length > 0
+    ? getDynamicCategories(categoriesToUse)
     : customerCategories;
 
   useEffect(() => {
@@ -63,25 +63,25 @@ export default function CustomerHeader({
       {/* Layout Spacer to prevent content jump - Static height matches initial Header height */}
       <div className="h-[150px] md:h-[160px] lg:h-[180px]" />
 
-    <header
-      className={`fixed top-0 left-0 w-full z-[100] transition-all duration-[250ms] ease-out bg-brand-50
-      ${scrolled 
-        ? "border-b border-brand-200/50 shadow-xl shadow-brand-900/5 py-2.5" 
-        : "py-5 shadow-lg shadow-brand-900/5"}
+      <header
+        className={`fixed top-0 left-0 w-full z-[100] transition-all duration-[250ms] ease-out bg-brand-50
+      ${scrolled
+            ? "border-b border-brand-200/50 shadow-xl shadow-brand-900/5 py-2.5"
+            : "py-5 shadow-lg shadow-brand-900/5"}
     `}
-    >
+      >
 
-      {/* Premium Gradient Overlay - Fades out on scroll for stability */}
-      <div className={`absolute inset-0 bg-gradient-to-r from-brand-25 via-brand-50 to-brand-25 transition-opacity duration-500 ${scrolled ? "opacity-0" : "opacity-100"}`} />
+        {/* Premium Gradient Overlay - Fades out on scroll for stability */}
+        <div className={`absolute inset-0 bg-gradient-to-r from-brand-25 via-brand-50 to-brand-25 transition-opacity duration-500 ${scrolled ? "opacity-0" : "opacity-100"}`} />
 
-      {/* Decorative Cosmetic Icons Layer (Living Background) - High visibility */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-[0.2] z-[1]">
+        {/* Decorative Cosmetic Icons Layer (Living Background) - High visibility */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-[0.2] z-[1]">
           <Sparkles className="absolute top-[20%] left-[12%] w-5 h-5 text-brand-300 animate-pulse" />
           <Heart className="absolute bottom-[35%] left-[22%] w-4 h-4 text-brand-400 animate-bounce delay-700" />
           <Flower className="absolute top-[45%] right-[12%] w-6 h-6 text-brand-500/40 animate-spin duration-[12s]" />
           <Zap className="absolute bottom-[25%] right-[28%] w-4 h-4 text-brand-200 animate-pulse delay-1000" />
           <Sparkles className="absolute top-[15%] left-[55%] w-3 h-3 text-white/40 animate-ping" />
-      </div>
+        </div>
 
 
         {/* Premium Top Accent Bar removed */}

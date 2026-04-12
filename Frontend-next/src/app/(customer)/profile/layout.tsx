@@ -81,10 +81,10 @@ export default function ProfileLayout({
               <SWTCard className="!p-0 !rounded-2xl !border-none !shadow-sm overflow-hidden">
                 <div className="bg-gradient-to-r from-brand-50 to-rose-50 p-6 flex flex-col items-center text-center">
                   <div className="relative mb-3">
-                    <SWTAvatar 
-                      size={80} 
-                      src={currentUser?.avatar} 
-                      className="border-4 border-white shadow-md bg-white" 
+                    <SWTAvatar
+                      size={80}
+                      src={currentUser?.avatar}
+                      className="border-4 border-white shadow-md bg-white"
                     />
                     <div className="absolute bottom-1 right-1 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></div>
                   </div>
@@ -105,15 +105,14 @@ export default function ProfileLayout({
                           key={item.path}
                           href={item.path}
                           className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 group
-                          ${
-                            active
+                          ${active
                               ? "bg-brand-500 text-white font-semibold shadow-md shadow-brand-200 hover:text-white hover:bg-brand-600"
                               : "text-gray-600 hover:bg-gray-50 hover:text-brand-600"
-                          }`}
+                            }`}
                         >
-                          <Icon 
-                            size={18} 
-                            className={`transition-colors duration-300 ${active ? "text-white" : "text-gray-400 group-hover:text-brand-500"}`} 
+                          <Icon
+                            size={18}
+                            className={`transition-colors duration-300 ${active ? "text-white" : "text-gray-400 group-hover:text-brand-500"}`}
                           />
                           <span className="text-sm">{item.name}</span>
                           {active && <div className="ml-auto w-1.5 h-1.5 bg-white rounded-full"></div>}
@@ -138,11 +137,11 @@ export default function ProfileLayout({
             )}
 
             <SWTCard className="!bg-brand-50 !rounded-2xl border-1 !border-brand-100 !mt-4" bodyClassName="!p-4">
-               <p className="text-xs text-brand-700 font-bold mb-1 italic">Bạn cần hỗ trợ?</p>
-               <p className="text-[10px] text-brand-600 leading-relaxed font-medium">Nếu có bất kỳ thắc mắc nào, hãy liên hệ với chúng tôi ngay nhé!</p>
-               <button className="mt-2 text-[10px] text-white bg-brand-500 hover:bg-brand-600 px-3 py-1.5 rounded-full font-bold transition-all">
-                 Liên hệ ngay
-               </button>
+              <p className="text-xs text-brand-700 font-bold mb-1 italic">Bạn cần hỗ trợ?</p>
+              <p className="text-[10px] text-brand-600 leading-relaxed font-medium">Nếu có bất kỳ thắc mắc nào, hãy liên hệ với chúng tôi ngay nhé!</p>
+              <button className="mt-2 text-[10px] text-white bg-brand-500 hover:bg-brand-600 px-3 py-1.5 rounded-full font-bold transition-all">
+                Liên hệ ngay
+              </button>
             </SWTCard>
 
           </div>

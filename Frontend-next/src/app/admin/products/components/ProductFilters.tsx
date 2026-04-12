@@ -107,7 +107,7 @@ export default function ProductFilters({ startTransition }: ProductFiltersProps)
           <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
             {/* Sort */}
             <div className="flex items-center gap-2 rounded-xl px-1 h-11">
-              <span className="text-sm font-bold text-slate-500 dark:text-slate-400 pl-3">
+              <span className="text-sm font-bold text-text-muted pl-3">
                 Sắp xếp:
               </span>
               <SWTSelect 
@@ -132,13 +132,13 @@ export default function ProductFilters({ startTransition }: ProductFiltersProps)
             {/* Action Buttons */}
             <div className="flex items-center gap-2">
               <SWTTooltip title="Nhập dữ liệu từ CSV/XLSX" placement="top">
-                <div className="flex h-11 w-11 items-center justify-center bg-white dark:bg-slate-900/50 hover:bg-emerald-50 dark:hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-slate-200 dark:border-emerald-500/50 rounded-xl shadow-sm transition-all cursor-pointer group">
+                <div className="flex h-11 w-11 items-center justify-center bg-bg-card hover:bg-status-success-bg text-status-success-text border border-border-default dark:border-status-success-border rounded-xl shadow-sm transition-all cursor-pointer group">
                   <FileSpreadsheet size={20} className="group-hover:scale-110 transition-transform duration-300" />
                 </div>
               </SWTTooltip>
               <SWTTooltip title="Thêm Sản Phẩm Mới" placement="top" color="#6366f1">
                 <div 
-                  className="flex h-11 w-11 items-center justify-center bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-500/30 rounded-xl shadow-sm transition-all cursor-pointer group"
+                  className="flex h-11 w-11 items-center justify-center bg-brand-500/10 hover:bg-brand-500/20 text-brand-600 dark:text-brand-500 border border-brand-500/20 rounded-xl shadow-sm transition-all cursor-pointer group"
                   onClick={() => setIsAddModalOpen(true)}
                 >
                   <Plus size={24} className="stroke-[2.5] group-hover:scale-110 group-hover:rotate-90 transition-transform duration-300" />
@@ -155,8 +155,7 @@ export default function ProductFilters({ startTransition }: ProductFiltersProps)
           <div className="flex flex-wrap items-center gap-3 flex-1 w-full">
 
             {/* Title */}
-            <div className="flex items-center gap-2 text-brand-600 dark:text-admin-accent 
-            font-bold md:pr-4 border-b md:border-b-0 md:border-r border-slate-200 dark:border-slate-700 pb-2 md:pb-0 w-full md:w-auto">
+            <div className="flex items-center gap-2 text-brand-500 font-bold md:pr-4 border-b md:border-b-0 md:border-r border-border-default pb-2 md:pb-0 w-full md:w-auto">
               <Filter size={18} className="text-brand-500" />
               <span className="text-xs uppercase tracking-widest whitespace-nowrap">Bộ lọc</span>
             </div>
@@ -210,12 +209,12 @@ export default function ProductFilters({ startTransition }: ProductFiltersProps)
               ]}
             />
           </div>
-          <div className="w-full md:w-auto flex justify-end md:justify-start border-t md:border-t-0 border-slate-100 dark:border-slate-700/50 pt-3 md:pt-0">
+          <div className="w-full md:w-auto flex justify-end md:justify-start border-t md:border-t-0 border-border-default pt-3 md:pt-0">
             <SWTButton
               type="text"
               onClick={clearFilters}
               className="!h-9 !px-4 !text-xs !rounded-xl !w-auto whitespace-nowrap
-              text-slate-400 hover:!text-red-500 hover:!bg-red-50 dark:hover:!bg-red-500/10 transition-all font-bold"
+              text-text-muted hover:!text-status-error-text hover:!bg-status-error-bg transition-all font-bold"
             >
               Xóa bộ lọc
             </SWTButton>

@@ -72,10 +72,10 @@ export default function PointsHistoryTable({ history, loading }: Props) {
         rowKey="id"
         loading={loading}
         pagination={{
-            totalCount: history.length,
-            page: 1,
-            fetch: 5,
-            onChange: () => {}
+          totalCount: history.length,
+          page: 1,
+          fetch: 5,
+          onChange: () => { }
         }}
       />
     </SWTCard>

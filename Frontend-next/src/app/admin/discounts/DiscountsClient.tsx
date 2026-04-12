@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import VoucherTable from "./components/VoucherTable";
 import VoucherFilters from "./components/VoucherFilters";
 import AddVoucherModal from "./components/AddVoucherModal";
@@ -21,15 +21,15 @@ export default function DiscountsClient() {
   };
 
   return (
-    <div className="bg-white/80 dark:bg-slate-900/50 backdrop-blur-md rounded-2xl shadow-sm border border-slate-200 dark:border-admin-sidebar-border transition-colors p-6">
+    <div className="admin-card p-6">
       <VoucherFilters onAdd={handleOpenAdd} />
       <VoucherTable onEdit={handleOpenEdit} />
-      
-      <AddVoucherModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
+
+      <AddVoucherModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
         initialData={editingVoucher}
-      /> 
+      />
     </div>
   );
 }

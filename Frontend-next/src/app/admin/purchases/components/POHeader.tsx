@@ -41,10 +41,10 @@ const POHeader: React.FC<POHeaderProps> = ({
           <div className="flex items-center gap-4 mt-4">
             {type === "detail" ? (
               <div>
-                <h2 className="text-2xl font-black tracking-tight text-slate-800 dark:text-white drop-shadow-md !mb-1">
+                <h2 className="text-2xl font-black tracking-tight text-text-main drop-shadow-md !mb-1 uppercase tracking-tight">
                   {title}
                 </h2>
-                <div className="text-slate-500 dark:text-slate-400 text-sm">
+                <div className="text-text-muted text-sm font-medium">
                   {subtitle}
                 </div>
               </div>
@@ -52,11 +52,11 @@ const POHeader: React.FC<POHeaderProps> = ({
               <div className="flex flex-col">
                 <div className="flex items-center gap-3.5 mt-2 mb-1">
                   {getIcon(32, "text-brand-500")}
-                  <h2 className="!mb-0 text-3xl font-black tracking-tight text-brand-600 dark:text-admin-accent whitespace-nowrap">
+                  <h2 className="!mb-0 text-3xl font-black tracking-tight text-brand-500 whitespace-nowrap">
                     {title}
                   </h2>
                 </div>
-                <p className="text-slate-500 dark:text-slate-400 text-sm font-semibold uppercase tracking-widest">
+                <p className="text-text-muted text-[10px] font-black uppercase tracking-widest opacity-80">
                   {subtitle}
                 </p>
               </div>
@@ -84,7 +84,7 @@ const POHeader: React.FC<POHeaderProps> = ({
           placement="left"
           color="pink"
         >
-          <div className="!h-12 !w-12 flex items-center justify-center bg-brand-50 hover:bg-brand-500/10 dark:bg-slate-800 dark:hover:bg-slate-700 text-brand-600 dark:text-admin-accent rounded-xl cursor-help transition-all shadow-sm border border-brand-200 dark:border-slate-700 group">
+          <div className="!h-12 !w-12 flex items-center justify-center bg-brand-500/10 text-brand-500 rounded-xl cursor-help transition-all shadow-sm border border-brand-500/20 group">
             <Info size={20} className="stroke-[2.5] group-hover:scale-110 transition-transform" />
           </div>
         </SWTTooltip>

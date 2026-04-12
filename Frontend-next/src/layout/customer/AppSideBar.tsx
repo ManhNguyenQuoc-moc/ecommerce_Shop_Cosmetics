@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { X, LayoutGrid } from "lucide-react";
 import SWTIconButton from "@/src/@core/component/SWTIconButton";
 import { Category } from "@/src/@core/type/category";
-import { BrandResponseDto } from "@/src/services/customer/server-data";
+import { BrandResponseDto } from "@/src/services/customer/customer.service";
 import { Sparkles } from "lucide-react";
 
 type Props = {

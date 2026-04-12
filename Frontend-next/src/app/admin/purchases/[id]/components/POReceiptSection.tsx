@@ -125,9 +125,9 @@ const POReceiptSection: React.FC<POReceiptSectionProps> = ({
   if (!hasReceived && !showReceiveForm && po.status === "COMPLETED") return null;
 
   return (
-    <div className="bg-white/90 dark:bg-slate-900/80 backdrop-blur-md rounded-3xl p-6 shadow-sm border border-slate-200 dark:border-emerald-500/20 flex flex-col gap-4 animate-slide-up">
+    <div className="admin-card-form p-6 flex flex-col gap-4 animate-slide-up">
       <div className="flex items-center justify-between px-2">
-        <h3 className="font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2 text-sm uppercase tracking-wider">
+        <h3 className="admin-section-heading font-bold flex items-center gap-2 text-sm uppercase tracking-wider">
           2. Thông tin thực nhận (Stock Receipt)
         </h3>
         {hasReceived && !showReceiveForm && (
@@ -152,12 +152,12 @@ const POReceiptSection: React.FC<POReceiptSectionProps> = ({
 
       {showReceiveForm ? (
         <SWTForm form={form} layout="vertical">
-          <div className="border border-slate-200 dark:border-slate-700 rounded-3xl overflow-hidden bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm shadow-sm p-4">
+          <div className="admin-table-wrap shadow-sm p-4">
             <SWTTable
               dataSource={pendingItems}
               rowKey="variantId"
               pagination={false}
-              className="dark:[&_.ant-table]:!bg-transparent dark:[&_.ant-table-thead_th]:!bg-slate-800/80 [&_.ant-table-thead_th]:!py-3 [&_.ant-table-tbody_td]:!py-2"
+              className="dark:[&_.ant-table]:!bg-transparent [&_.ant-table-thead_th]:!py-3 [&_.ant-table-tbody_td]:!py-2"
               rowClassName={(record: any) => selectedVariantIds.includes(record.variantId) ? "bg-emerald-500/5 transition-all" : "opacity-60 transition-all"}
               scroll={{ x: 1100 }} // Scroll ngang nếu màn hình nhỏ vì bảng này khá nhiều cột
               columns={[
@@ -189,7 +189,7 @@ const POReceiptSection: React.FC<POReceiptSectionProps> = ({
                       className="flex items-center gap-3 overflow-hidden"
                       title={record.variant?.product?.name}
                     >
-                      <div className="w-9 h-9 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center border border-slate-200 dark:border-slate-700 shrink-0 overflow-hidden relative">
+                      <div className="admin-image-placeholder w-9 h-9 rounded-lg flex items-center justify-center shrink-0 overflow-hidden relative">
                         {record.variant?.image ? (
                           <Image
                             src={record.variant.image}
@@ -200,10 +200,10 @@ const POReceiptSection: React.FC<POReceiptSectionProps> = ({
                             unoptimized
                           />
                         ) : (
-                          <Layers size={16} className="text-slate-400" />
+                          <Layers size={16} className="text-text-muted" />
                         )}
                       </div>
-                      <div className="font-medium text-slate-700 dark:text-slate-200 truncate">
+                      <div className="admin-section-heading font-medium truncate">
                         {record.variant?.product?.name}
                       </div>
                     </div>
@@ -215,7 +215,7 @@ const POReceiptSection: React.FC<POReceiptSectionProps> = ({
                   width: COLUMN_WIDTH.variant,
                   render: (_: any, record: any) => {
                     const variantName = [record.variant?.color, record.variant?.size].filter(Boolean).join(" - ") || "Tiêu chuẩn";
-                    return <div className="text-slate-600 dark:text-slate-400">{variantName}</div>;
+                    return <div className="admin-text-sub">{variantName}</div>;
                   }
                 },
                 {
@@ -224,7 +224,7 @@ const POReceiptSection: React.FC<POReceiptSectionProps> = ({
                   width: COLUMN_WIDTH.sku,
                   ellipsis: true,
                   render: (_: any, record: any) => (
-                    <div className="truncate text-slate-600 dark:text-slate-400" title={record.variant?.sku}>
+                    <div className="truncate admin-text-sub" title={record.variant?.sku}>
                       {record.variant?.sku || "-"}
                     </div>
                   )
@@ -235,10 +235,10 @@ const POReceiptSection: React.FC<POReceiptSectionProps> = ({
                   align: "center",
                   width: COLUMN_WIDTH.progress,
                   render: (_: any, record: any) => (
-                    <div className="text-[11px] font-bold bg-slate-100/50 dark:bg-slate-800 py-1 px-2 rounded-lg border border-slate-200 dark:border-slate-700/50 inline-block">
+                    <div className="admin-subsection text-[11px] font-bold py-1 px-2 inline-block">
                       <span className="text-emerald-500 dark:text-emerald-400">{record.receivedQty}</span>
-                      <span className="text-slate-400 mx-1">/</span>
-                      <span className="text-slate-500">{record.orderedQty}</span>
+                      <span className="admin-text-muted mx-1">/</span>
+                      <span className="admin-text-sub">{record.orderedQty}</span>
                     </div>
                   )
                 },
@@ -255,7 +255,7 @@ const POReceiptSection: React.FC<POReceiptSectionProps> = ({
                           min={1}
                           max={record.orderedQty - record.receivedQty}
                           disabled={!isSelected}
-                          className="!w-full !rounded-xl !bg-white dark:!bg-slate-800/50 !border-slate-200 dark:!border-slate-700/50 font-bold !text-center !h-9"
+                          className="!w-full !rounded-xl font-bold !text-center !h-9"
                         />
                       </SWTFormItem>
                     );
@@ -330,7 +330,7 @@ const POReceiptSection: React.FC<POReceiptSectionProps> = ({
               size="sm"
               icon={<X size={16} />}
               onClick={() => setShowReceiveForm(false)}
-              className="!bg-slate-500/10 !border-slate-500/20 !text-slate-500 hover:!bg-slate-500/20 !rounded-xl !w-auto font-bold transition-all px-6"
+              className="!bg-bg-muted !border-border-default !text-text-muted hover:opacity-80 !rounded-xl !w-auto font-bold transition-all px-6"
             >
               Hủy bỏ
             </SWTButton>
@@ -347,7 +347,7 @@ const POReceiptSection: React.FC<POReceiptSectionProps> = ({
           </div>
         </SWTForm>
       ) : (
-        <div className="border border-slate-200 dark:border-slate-700 rounded-3xl overflow-hidden bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm shadow-sm p-4">
+        <div className="admin-table-wrap shadow-sm p-4">
           <SWTTable
             dataSource={receipts}
             loading={isLoadingReceipts}
@@ -362,8 +362,8 @@ const POReceiptSection: React.FC<POReceiptSectionProps> = ({
                 if (f && f !== receiptPageSize) setReceiptPageSize(f);
               }
             }}
-            className="dark:[&_.ant-table]:!bg-transparent dark:[&_.ant-table-thead_th]:!bg-slate-800/80 [&_.ant-table-thead_th]:!py-3 [&_.ant-table-tbody_td]:!py-2"
-            locale={{ emptyText: <div className="py-12 text-center text-slate-400 italic font-medium">Chưa có lịch sử nhập kho thực tế.</div> }}
+            className="dark:[&_.ant-table]:!bg-transparent [&_.ant-table-thead_th]:!py-3 [&_.ant-table-tbody_td]:!py-2"
+            locale={{ emptyText: <div className="py-12 text-center admin-text-muted italic font-medium">Chưa có lịch sử nhập kho thực tế.</div> }}
             columns={[
               {
                 title: "Sản phẩm",
@@ -401,7 +401,7 @@ const POReceiptSection: React.FC<POReceiptSectionProps> = ({
                 width: COLUMN_WIDTH.variant,
                 render: (_: any, record: any) => {
                   const variantName = [record.variant?.color, record.variant?.size].filter(Boolean).join(" - ") || "Tiêu chuẩn";
-                  return <div className="text-slate-600 dark:text-slate-400">{variantName}</div>;
+                  return <div className="admin-text-sub">{variantName}</div>;
                 }
               },
               {
@@ -410,7 +410,7 @@ const POReceiptSection: React.FC<POReceiptSectionProps> = ({
                 width: COLUMN_WIDTH.sku,
                 ellipsis: true,
                 render: (_: any, record: any) => (
-                  <div className="truncate text-slate-600 dark:text-slate-400" title={record.variant?.sku}>
+                  <div className="truncate admin-text-sub" title={record.variant?.sku}>
                     {record.variant?.sku || "-"}
                   </div>
                 )
@@ -420,21 +420,21 @@ const POReceiptSection: React.FC<POReceiptSectionProps> = ({
                 dataIndex: "batchNumber",
                 key: "batch",
                 width: COLUMN_WIDTH.batch,
-                render: (val: string) => <div className="text-slate-600 dark:text-slate-400 font-medium uppercase text-xs">{val || "-"}</div>
+                render: (val: string) => <div className="admin-text-sub font-medium uppercase text-xs">{val || "-"}</div>
               },
               {
                 title: "Ngày sản xuất",
                 dataIndex: "manufacturingDate",
                 key: "mfg",
                 width: COLUMN_WIDTH.date,
-                render: (date: string) => <div className="text-slate-500 dark:text-slate-400 text-sm">{date ? dayjs(date).format("DD/MM/YYYY") : "-"}</div>
+                render: (date: string) => <div className="admin-text-muted text-sm">{date ? dayjs(date).format("DD/MM/YYYY") : "-"}</div>
               },
               {
                 title: "Hạn sử dụng",
                 dataIndex: "expiryDate",
                 key: "expiry",
                 width: COLUMN_WIDTH.date,
-                render: (date: string) => <div className="text-slate-600 dark:text-slate-300 font-medium text-sm">{dayjs(date).format("DD/MM/YYYY")}</div>
+                render: (date: string) => <div className="admin-section-heading font-medium text-sm">{dayjs(date).format("DD/MM/YYYY")}</div>
               },
               {
                 title: "SL nhận",

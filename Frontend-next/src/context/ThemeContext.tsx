@@ -13,9 +13,13 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [isDark, setIsDark] = useState(false);
 
   useEffect(() => {
-    const savedTheme = localStorage.getItem('theme');
+    const isAdmin = window.location.pathname.startsWith('/admin');
+    if (!isAdmin) return;
+
+    const savedTheme = localStorage.getItem('admin-theme');
     const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-    if (savedTheme === 'dark' || (!savedTheme && prefersDark) || document.documentElement.classList.contains('dark')) {
+    
+    if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
       setIsDark(true);
       document.documentElement.classList.add('dark');
     } else {
@@ -27,10 +31,10 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const toggleTheme = () => {
     if (isDark) {
       document.documentElement.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
+      localStorage.setItem('admin-theme', 'light');
     } else {
       document.documentElement.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
+      localStorage.setItem('admin-theme', 'dark');
     }
     setIsDark(!isDark);
   };

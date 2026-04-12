@@ -26,7 +26,7 @@ export class OrderMapper {
       customer_name: user?.full_name || "Khách vãng lai",
       customer_email: user?.email || "",
       customer_phone: user?.phone || "",
-      shipping_address: order.address?.address || "N/A",
+      shipping_address: order.address?.address || order.shipping_address || "N/A",
       total_amount: order.total_amount,
       shipping_fee: order.shipping_fee,
       shipping_method: order.shipping_method,

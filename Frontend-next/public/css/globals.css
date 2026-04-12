@@ -24,6 +24,132 @@
 @import "leaflet/dist/leaflet.css";
 @custom-variant dark (&:is(.dark *));
 
+:root {
+  --background-base: #ffffff;
+  --background-card: rgba(255, 255, 255, 0.9);
+  --background-muted: #f9fafb;
+
+  --text-main: #1f2937;
+  --text-sub: #4b5563;
+  --text-muted: #9ca3af;
+
+  --border-default: #e5e7eb;
+  --border-subtle: #f3f4f6;
+  --border-brand: rgba(255, 77, 148, 0.1);
+
+  --status-success-bg: #ecfdf3;
+  --status-success-text: #027a48;
+  --status-success-border: #abfdf520;
+
+  --status-warning-bg: #fffcf0;
+  --status-warning-text: #b54708;
+  --status-warning-border: #fec84b30;
+
+  --status-error-bg: #fff1f0;
+  --status-error-text: #b42318;
+  --status-error-border: #fda29b30;
+
+  --status-info-bg: #f0f9ff;
+  --status-info-text: #026aa2;
+  --status-info-border: #b9e6fe30;
+
+  --status-neutral-bg: #f9fafb;
+  --status-neutral-text: #374151;
+  --status-neutral-border: #e5e7eb;
+
+  /* --- Admin Card & Container Tokens --- */
+  --admin-card-bg: rgba(255, 255, 255, 0.85);
+  --admin-card-border: #e5e7eb;
+  --admin-card-form-bg: rgba(255, 255, 255, 0.95);
+  --admin-card-form-border: #e5e7eb;
+
+  /* --- Admin Input Tokens --- */
+  --admin-input-bg: #ffffff;
+  --admin-input-border: #e5e7eb;
+  --admin-input-text: #1f2937;
+
+  /* --- Admin Table Tokens --- */
+  --admin-table-header-bg: #f4f7fe;
+  --admin-table-wrap-bg: rgba(255, 255, 255, 0.6);
+  --admin-table-wrap-border: #e5e7eb;
+
+  /* --- Admin Image Placeholder Tokens --- */
+  --admin-img-placeholder-bg: #f1f5f9;
+  --admin-img-placeholder-border: #e2e8f0;
+
+  /* --- Admin Sub-section Tokens --- */
+  --admin-subsection-bg: #f8fafc;
+  --admin-subsection-border: #f1f5f9;
+
+  /* --- Admin Field Display Tokens --- */
+  --admin-field-border: #e5e7eb;
+  --admin-field-text: #1f2937;
+  --admin-field-text-muted: #6b7280;
+}
+
+.dark {
+  --background-base: #030712;
+  --background-card: rgba(15, 23, 42, 0.85);
+  --background-muted: #111827;
+
+  --text-main: #f8fafc;
+  --text-sub: #cbd5e1;
+  --text-muted: #94a3b8;
+
+  --border-default: #1e293b;
+  --border-subtle: #0f172a;
+  --border-brand: rgba(255, 77, 148, 0.15);
+
+  --status-success-bg: rgba(6, 95, 70, 0.2);
+  --status-success-text: #6ee7b7;
+  --status-success-border: rgba(110, 231, 183, 0.2);
+
+  --status-warning-bg: rgba(120, 53, 15, 0.2);
+  --status-warning-text: #fcd34d;
+  --status-warning-border: rgba(252, 211, 77, 0.2);
+
+  --status-error-bg: rgba(153, 27, 27, 0.2);
+  --status-error-text: #fca5a5;
+  --status-error-border: rgba(252, 165, 165, 0.2);
+
+  --status-info-bg: rgba(30, 58, 138, 0.2);
+  --status-info-text: #93c5fd;
+  --status-info-border: rgba(147, 197, 253, 0.2);
+
+  --status-neutral-bg: rgba(31, 41, 55, 0.2);
+  --status-neutral-text: #d1d5db;
+  --status-neutral-border: rgba(209, 213, 221, 0.2);
+
+  /* --- Admin Card & Container Tokens (dark) --- */
+  --admin-card-bg: rgba(15, 23, 42, 0.80);
+  --admin-card-border: rgba(255, 77, 148, 0.15);
+  --admin-card-form-bg: rgba(15, 23, 42, 0.90);
+  --admin-card-form-border: rgba(255, 77, 148, 0.20);
+
+  /* --- Admin Input Tokens (dark) --- */
+  --admin-input-bg: rgba(30, 41, 59, 0.50);
+  --admin-input-border: #334155;
+  --admin-input-text: #f1f5f9;
+
+  /* --- Admin Table Tokens (dark) --- */
+  --admin-table-header-bg: rgba(30, 41, 59, 0.80);
+  --admin-table-wrap-bg: rgba(15, 23, 42, 0.50);
+  --admin-table-wrap-border: #1e293b;
+
+  /* --- Admin Image Placeholder Tokens (dark) --- */
+  --admin-img-placeholder-bg: #1e293b;
+  --admin-img-placeholder-border: #334155;
+
+  /* --- Admin Sub-section Tokens (dark) --- */
+  --admin-subsection-bg: rgba(30, 41, 59, 0.40);
+  --admin-subsection-border: #1e293b;
+
+  /* --- Admin Field Display Tokens (dark) --- */
+  --admin-field-border: rgba(51, 65, 85, 0.50);
+  --admin-field-text: #f1f5f9;
+  --admin-field-text-muted: #94a3b8;
+}
+
 @theme {
   --font-*: initial;
   --font-outfit: var(--font-be-vietnam-pro), sans-serif;
@@ -59,14 +185,46 @@
   --color-transparent: transparent;
   --color-white: #ffffff;
 
-  --color-brand-25:	#fff5f7	;
-  --color-brand-50:	#fff0f3	;
-  --color-brand-100: #ffde05	;
-  --color-brand-200:	#ffc1cc	;
-  --color-brand-500:	#ff4d94	;
-  --color-brand-600:	#f02d7d	;
-  --color-brand-700:	#d61f69	;
-  --color-brand-900:	#831045	;
+  --color-bg-base: var(--background-base);
+  --color-bg-card: var(--background-card);
+  --color-bg-muted: var(--background-muted);
+
+  --color-text-main: var(--text-main);
+  --color-text-sub: var(--text-sub);
+  --color-text-muted: var(--text-muted);
+
+  --color-border-subtle: var(--border-subtle);
+  --color-border-default: var(--border-default);
+  --color-border-brand: var(--border-brand);
+
+  --color-status-success-bg: var(--status-success-bg);
+  --color-status-success-text: var(--status-success-text);
+  --color-status-success-border: var(--status-success-border);
+
+  --color-status-warning-bg: var(--status-warning-bg);
+  --color-status-warning-text: var(--status-warning-text);
+  --color-status-warning-border: var(--status-warning-border);
+
+  --color-status-error-bg: var(--status-error-bg);
+  --color-status-error-text: var(--status-error-text);
+  --color-status-error-border: var(--status-error-border);
+
+  --color-status-info-bg: var(--status-info-bg);
+  --color-status-info-text: var(--status-info-text);
+  --color-status-info-border: var(--status-info-border);
+
+  --color-status-neutral-bg: var(--status-neutral-bg);
+  --color-status-neutral-text: var(--status-neutral-text);
+  --color-status-neutral-border: var(--status-neutral-border);
+
+  --color-brand-25: #fff5f7;
+  --color-brand-50: #fff0f3;
+  --color-brand-100: #ffde05;
+  --color-brand-200: #ffc1cc;
+  --color-brand-500: #ff4d94;
+  --color-brand-600: #f02d7d;
+  --color-brand-700: #d61f69;
+  --color-brand-900: #831045;
 
   --color-blue-light-25: #f5fbff;
   --color-blue-light-50: #f0f9ff;
@@ -188,72 +346,100 @@
 
   --animate-float: float 5s linear 0s infinite normal none running;
   --animate-shake: shake 15s ease 0s infinite normal none running;
+
   @keyframes sweep {
-    0% { transform: translateX(-150%) skewX(-12deg); }
-    20%, 100% { transform: translateX(150%) skewX(-12deg); }
+    0% {
+      transform: translateX(-150%) skewX(-12deg);
+    }
+
+    20%,
+    100% {
+      transform: translateX(150%) skewX(-12deg);
+    }
   }
 
   @keyframes shimmer {
-    0% { transform: translateX(-100%); }
-    100% { transform: translateX(100%); }
+    0% {
+      transform: translateX(-100%);
+    }
+
+    100% {
+      transform: translateX(100%);
+    }
   }
+
   --animate-shimmer: shimmer 1.5s infinite;
 
   @keyframes float {
+
     0%,
     100% {
       transform: translateY(0);
     }
+
     50% {
       transform: translateY(-20px);
     }
   }
+
   @keyframes shake {
+
     0%,
     100% {
       transform: translate3d(100%, 100%, 0) scale(0.3);
       opacity: 0;
     }
+
     5% {
       transform: translate3d(0, 0, 0) scale(1);
       opacity: 1;
     }
+
     6% {
       transform: rotate(-5deg);
       opacity: 1;
     }
+
     6.4% {
       transform: rotate(5deg);
       opacity: 1;
     }
+
     6.8% {
       transform: rotate(-5deg);
       opacity: 1;
     }
+
     7.2% {
       transform: rotate(5deg);
       opacity: 1;
     }
+
     7.4% {
       transform: rotate(-5deg);
       opacity: 1;
     }
+
     7.8% {
       transform: rotate(5deg);
       opacity: 1;
     }
+
     8.2% {
       transform: rotate(-5deg);
       opacity: 1;
     }
+
     8.4% {
       transform: rotate(5deg);
       opacity: 1;
     }
+
     33.33% {
       transform: translate3d(0, 0, 0) scale(1);
       opacity: 1;
     }
+
     40%,
     100% {
       transform: translate3d(100%, 100%, 0) scale(0.3);
@@ -262,13 +448,16 @@
   }
 
   /* --- Admin Unified Pink Theme (Premium & Radiant) --- */
-  --color-admin-bg: #030712; /* Neutral deep slate */
+  --color-admin-bg: #030712;
+  /* Neutral deep slate */
   --color-admin-sidebar-bg: rgba(3, 7, 18, 0.9);
-  --color-admin-sidebar-border: rgba(255, 77, 148, 0.15); /* Soft Brand Pink */
-  --color-admin-sidebar-active: rgba(255, 77, 148, 0.1); 
+  --color-admin-sidebar-border: rgba(255, 77, 148, 0.15);
+  /* Soft Brand Pink */
+  --color-admin-sidebar-active: rgba(255, 77, 148, 0.1);
   --color-admin-sidebar-hover: rgba(255, 77, 148, 0.05);
 
-  --color-admin-accent: #ff4d94; /* Primary Brand Pink */
+  --color-admin-accent: #ff4d94;
+  /* Primary Brand Pink */
   --color-admin-accent-hover: #f02d7d;
   --color-admin-accent-soft: rgba(255, 77, 148, 0.2);
 
@@ -276,37 +465,79 @@
   --color-admin-card-border: rgba(255, 77, 148, 0.1);
 
   --color-admin-text-primary: #f8fafc;
-  --color-admin-text-secondary: #94a3b8; /* slate-400 */
+  --color-admin-text-secondary: #94a3b8;
+  /* slate-400 */
 
   --animate-gradient-flow: gradientFlow 15s ease infinite;
 
   @keyframes gradientFlow {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
+    0% {
+      background-position: 0% 50%;
+    }
+
+    50% {
+      background-position: 100% 50%;
+    }
+
+    100% {
+      background-position: 0% 50%;
+    }
   }
 
   @keyframes orbit {
-    from { transform: rotate(0deg) translateX(var(--orbit-radius, 100px)) rotate(0deg); }
-    to { transform: rotate(360deg) translateX(var(--orbit-radius, 100px)) rotate(-360deg); }
+    from {
+      transform: rotate(0deg) translateX(var(--orbit-radius, 100px)) rotate(0deg);
+    }
+
+    to {
+      transform: rotate(360deg) translateX(var(--orbit-radius, 100px)) rotate(-360deg);
+    }
   }
 
   @keyframes fish-swim {
-    0%, 100% { transform: scaleX(1) translateY(0); }
-    50% { transform: scaleX(0.9) translateY(-2px); }
+
+    0%,
+    100% {
+      transform: scaleX(1) translateY(0);
+    }
+
+    50% {
+      transform: scaleX(0.9) translateY(-2px);
+    }
   }
 
   --animate-orbit: orbit 10s linear infinite;
   --animate-fish: fish-swim 2s ease-in-out infinite;
 
   @keyframes lightning-zap {
-    0% { transform: translateX(-100%) skewX(-15deg); opacity: 0; }
-    20% { opacity: 0.8; }
-    21% { opacity: 0.2; }
-    22% { opacity: 1; }
-    25% { transform: translateX(100%) skewX(-15deg); opacity: 1; }
-    100% { transform: translateX(100%) skewX(-15deg); opacity: 0; }
+    0% {
+      transform: translateX(-100%) skewX(-15deg);
+      opacity: 0;
+    }
+
+    20% {
+      opacity: 0.8;
+    }
+
+    21% {
+      opacity: 0.2;
+    }
+
+    22% {
+      opacity: 1;
+    }
+
+    25% {
+      transform: translateX(100%) skewX(-15deg);
+      opacity: 1;
+    }
+
+    100% {
+      transform: translateX(100%) skewX(-15deg);
+      opacity: 0;
+    }
   }
+
   --animate-lightning: lightning-zap 1.5s ease-in-out infinite;
 }
 
@@ -317,10 +548,115 @@
 }
 
 .admin-glass-sidebar {
-  background: rgba(9, 9, 11, 0.85); /* zinc-950 glass */
+  background: rgba(9, 9, 11, 0.85);
+  /* zinc-950 glass */
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-right: 1px solid rgba(255, 0, 128, 0.2);
+}
+
+/* =========================================
+   Admin Utility Classes — Theme-aware
+   Sử dụng các class này thay vì hardcode
+   Tailwind colors trong admin pages.
+   ========================================= */
+
+/* Card container chính (wrapper lớn, ví dụ DiscountsClient, SuppliersClient) */
+.admin-card {
+  background: var(--admin-card-bg);
+  border: 1px solid var(--admin-card-border);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 1rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+/* Card form (trang tạo/chỉnh sửa phiếu nhập, product detail, v.v.) */
+.admin-card-form {
+  background: var(--admin-card-form-bg);
+  border: 1px solid var(--admin-card-form-border);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 1.5rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+/* Table wrapper (border + bg xung quanh bảng) */
+.admin-table-wrap {
+  background: var(--admin-table-wrap-bg);
+  border: 1px solid var(--admin-table-wrap-border);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border-radius: 1.5rem;
+  overflow: hidden;
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+/* Ảnh placeholder (khi không có ảnh sản phẩm/biến thể) */
+.admin-image-placeholder {
+  background: var(--admin-img-placeholder-bg);
+  border: 1px solid var(--admin-img-placeholder-border);
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+/* Sub-section bên trong card (khung nhỏ, dùng trong PODetailCards, AdminProfileForm) */
+.admin-subsection {
+  background: var(--admin-subsection-bg);
+  border: 1px solid var(--admin-subsection-border);
+  border-radius: 0.75rem;
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+/* Text phụ (subtitle của page header) */
+.admin-page-subtext {
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* Field display (xem thông tin, không edit) — border dưới */
+.admin-field-display {
+  color: var(--admin-field-text);
+  border-bottom: 1px solid var(--admin-field-border);
+  transition: border-color 0.3s ease, color 0.3s ease;
+}
+
+/* Heading trong card (h3, h4 bên trong các section) */
+.admin-section-heading {
+  color: var(--text-main);
+  transition: color 0.3s ease;
+}
+
+/* Text thứ cấp bên trong card */
+.admin-text-sub {
+  color: var(--text-sub);
+  transition: color 0.3s ease;
+}
+.admin-text-muted {
+  color: var(--text-muted);
+  transition: color 0.3s ease;
+}
+
+/* Input trong admin form — override Ant Design */
+.admin-form-input.ant-input,
+.admin-form-input .ant-input,
+.admin-form-input.ant-picker,
+.admin-form-input .ant-select-selector {
+  background: var(--admin-input-bg) !important;
+  border-color: var(--admin-input-border) !important;
+  color: var(--admin-input-text) !important;
+  border-radius: 0.75rem !important;
+  height: 3rem !important;
+}
+
+/* Antd Table header override - dùng CSS var */
+.admin-antd-table.ant-table .ant-table-thead > tr > th,
+.admin-antd-table .ant-table .ant-table-thead > tr > th {
+  background: var(--admin-table-header-bg) !important;
 }
 
 /*
@@ -332,6 +668,7 @@
   color utility to any element that depends on these defaults.
 */
 @layer base {
+
   *,
   ::after,
   ::before,
@@ -364,6 +701,7 @@ body {
 .ant-input {
   background: transparent !important;
 }
+
 .custom-crop-modal .ant-modal-content {
   border-radius: 20px;
   backdrop-filter: blur(10px);

@@ -29,8 +29,8 @@ const AppSideBar = ({ isOpen }) => {
                         key={item.path}
                         to={item.path}
                         className={`
-              flex items-center p-3 rounded-xl transition-all duration-200
-              ${isActive(item.path)
+                                flex items-center p-3 rounded-xl transition-all duration-200
+                                ${isActive(item.path)
                                 ? 'bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400 font-bold'
                                 : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800'}
             `}

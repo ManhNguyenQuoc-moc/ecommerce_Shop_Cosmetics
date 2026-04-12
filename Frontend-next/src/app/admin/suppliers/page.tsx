@@ -20,7 +20,7 @@ export default function SuppliersPage() {
               Quản lý Nhà cung cấp
             </h2>
           </div>
-          <p className="text-slate-500 dark:text-slate-400 text-sm font-semibold uppercase tracking-widest">
+          <p className="admin-page-subtext">
             Danh sách các đối tác, thương hiệu cung cấp sản phẩm.
           </p>
         </div>
@@ -30,7 +30,7 @@ export default function SuppliersPage() {
           placement="left"
           color="pink"
         >
-          <div className="!h-11 !w-11 flex items-center justify-center bg-brand-50 hover:bg-brand-500/10 dark:bg-slate-800 dark:hover:bg-slate-700 text-brand-600 dark:text-admin-accent rounded-xl cursor-help transition-all shadow-sm border border-brand-200 dark:border-slate-700 group">
+          <div className="!h-11 !w-11 flex items-center justify-center bg-brand-50 hover:bg-brand-500/10 dark:bg-brand-500/10 text-brand-600 dark:text-admin-accent rounded-xl cursor-help transition-all shadow-sm border border-brand-200 dark:border-admin-sidebar-border group">
             <Info size={22} className="stroke-[2.5] group-hover:scale-110 transition-transform" />
           </div>
         </SWTTooltip>

@@ -19,6 +19,10 @@ export class OrderRepository implements IOrderRepository {
     if (filters?.status && filters.status !== 'ALL') {
       where.current_status = filters.status;
     }
+    
+    if (filters?.userId) {
+      where.userId = filters.userId;
+    }
 
     if (filters?.startDate || filters?.endDate) {
       where.createdAt = {};
@@ -90,6 +94,7 @@ export class OrderRepository implements IOrderRepository {
       data: {
         userId,
         addressId,
+        shipping_address: data.address?.address || null,
         total_amount: total || 0,
         shipping_fee: shipping_fee || 0,
         shipping_method: shipping_method || null,

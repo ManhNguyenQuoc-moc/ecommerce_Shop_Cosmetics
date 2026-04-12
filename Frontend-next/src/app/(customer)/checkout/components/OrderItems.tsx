@@ -2,14 +2,14 @@
 
 import Image from "next/image";
 import { useCart } from "@/src/hooks/useCart";
-import {useCheckoutStore} from "@/src/stores/useCheckoutStore"
+import { useCheckoutStore } from "@/src/stores/useCheckoutStore"
 
 export default function OrderItems() {
-const mode = useCheckoutStore((s) => s.mode);
-const checkoutItems = useCheckoutStore((s) => s.items);
-const { items: cartItems } = useCart();
+  const mode = useCheckoutStore((s) => s.mode);
+  const checkoutItems = useCheckoutStore((s) => s.items);
+  const { items: cartItems } = useCart();
 
-const items = mode === "buy_now" ? checkoutItems : cartItems;
+  const items = mode === "buy_now" ? checkoutItems : cartItems;
   return (
     <div className="bg-white p-5 rounded-xl shadow space-y-4">
       <h2 className="text-lg font-semibold">Sản phẩm</h2>

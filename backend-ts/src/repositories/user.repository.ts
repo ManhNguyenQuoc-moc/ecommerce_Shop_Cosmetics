@@ -76,19 +76,47 @@ export class UserRepository implements IUserRepository {
     if (birthday !== undefined) updateData.birthday = birthday ? new Date(birthday) : null;
 
     if (addresses) {
-      await db.address.deleteMany({
+      // 1. Get current addresses
+      const currentAddresses = await db.address.findMany({
         where: { userId: id },
       });
 
-      if (addresses.length > 0) {
-        updateData.addresses = {
-          create: addresses.map((addr: any) => ({
-            address: addr.address,
-            lat: addr.lat,
-            lon: addr.lon,
-            isDefault: addr.isDefault || false,
-          })),
-        };
+      const currentAddressStrings = currentAddresses.map(a => a.address);
+      const newAddressStrings = addresses.map((a: any) => a.address);
+
+      // 2. Delete addresses that are no longer in the list
+      const toDelete = currentAddresses.filter(a => !newAddressStrings.includes(a.address));
+      if (toDelete.length > 0) {
+        await db.address.deleteMany({
+          where: { id: { in: toDelete.map(a => a.id) } },
+        });
+      }
+
+      // 3. Update or Create
+      for (const addr of addresses) {
+        const existing = currentAddresses.find(a => a.address === addr.address);
+        if (existing) {
+          // Update existing (mostly just isDefault)
+          await db.address.update({
+            where: { id: existing.id },
+            data: {
+              isDefault: addr.isDefault || false,
+              lat: addr.lat,
+              lon: addr.lon,
+            },
+          });
+        } else {
+          // Create new
+          await db.address.create({
+            data: {
+              userId: id,
+              address: addr.address,
+              lat: addr.lat,
+              lon: addr.lon,
+              isDefault: addr.isDefault || false,
+            },
+          });
+        }
       }
     }
 

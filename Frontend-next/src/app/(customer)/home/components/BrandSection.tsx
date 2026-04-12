@@ -45,41 +45,41 @@ export default function BrandSection({
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* Large Featured Card (Logo Only) */}
         <div className="lg:col-span-6 xl:col-span-5 rounded-[2rem] overflow-hidden group hover:shadow-2xl hover:shadow-brand-500/10 transition-all duration-700 bg-white border-2 border-slate-50">
-           <div className="aspect-[16/9] flex items-center justify-center relative overflow-hidden p-12">
-               {loading ? (
-                 <div className="w-32 h-32 bg-gray-200 animate-pulse rounded-full" />
-               ) : (
-                 <div className="relative w-full h-full transition-transform duration-700 group-hover:scale-110">
-                    <Image
-                      src={featuredBrands[0]?.logo}
-                      alt={featuredBrands[0]?.name}
-                      fill
-                      className="object-contain"
-                    />
-                 </div>
-               )}
-           </div>
-           {!loading && featuredBrands[0] && (
-             <div className="p-8 flex flex-col items-center text-center gap-4 bg-slate-50/50">
-                <div className="flex flex-col items-center gap-1">
-                  <h3 className="text-2xl font-black text-brand-900 group-hover:text-brand-500 transition-colors uppercase tracking-tight">
-                    {featuredBrands[0].name}
-                  </h3>
-                  <span className="inline-block px-3 py-1 bg-brand-500 text-brand-100 text-[10px] font-black uppercase tracking-widest rounded-lg w-fit">
-                    Top Trending
-                  </span>
-                </div>
-                <p className="text-slate-600 font-semibold leading-relaxed max-w-xs text-sm line-clamp-2">
-                  {featuredBrands[0].description || "Dẫn đầu xu hướng mỹ phẩm cao cấp."}
-                </p>
-                <Link
-                  href={`/products?brandId=${featuredBrands[0].id || featuredBrands[0].name}`}
-                  className="inline-flex items-center gap-2 px-8 py-2.5 !bg-brand-600 hover:!bg-brand-700 !text-white font-black rounded-xl shadow-xl shadow-brand-600/20 transition-all hover:-translate-y-1 w-fit text-sm"
-                >
-                  Khám phá ngay
-                </Link>
-             </div>
-           )}
+          <div className="aspect-[16/9] flex items-center justify-center relative overflow-hidden p-12">
+            {loading ? (
+              <div className="w-32 h-32 bg-gray-200 animate-pulse rounded-full" />
+            ) : (
+              <div className="relative w-full h-full transition-transform duration-700 group-hover:scale-110">
+                <Image
+                  src={featuredBrands[0]?.logo}
+                  alt={featuredBrands[0]?.name}
+                  fill
+                  className="object-contain"
+                />
+              </div>
+            )}
+          </div>
+          {!loading && featuredBrands[0] && (
+            <div className="p-8 flex flex-col items-center text-center gap-4 bg-slate-50/50">
+              <div className="flex flex-col items-center gap-1">
+                <h3 className="text-2xl font-black text-brand-900 group-hover:text-brand-500 transition-colors uppercase tracking-tight">
+                  {featuredBrands[0].name}
+                </h3>
+                <span className="inline-block px-3 py-1 bg-brand-500 text-brand-100 text-[10px] font-black uppercase tracking-widest rounded-lg w-fit">
+                  Top Trending
+                </span>
+              </div>
+              <p className="text-slate-600 font-semibold leading-relaxed max-w-xs text-sm line-clamp-2">
+                {featuredBrands[0].description || "Dẫn đầu xu hướng mỹ phẩm cao cấp."}
+              </p>
+              <Link
+                href={`/products?brandId=${featuredBrands[0].id || featuredBrands[0].name}`}
+                className="inline-flex items-center gap-2 px-8 py-2.5 !bg-brand-600 hover:!bg-brand-700 !text-white font-black rounded-xl shadow-xl shadow-brand-600/20 transition-all hover:-translate-y-1 w-fit text-sm"
+              >
+                Khám phá ngay
+              </Link>
+            </div>
+          )}
         </div>
 
         {/* Small Featured Cards (Logo Only Stacks) */}
