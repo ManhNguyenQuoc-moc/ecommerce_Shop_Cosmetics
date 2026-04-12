@@ -13,11 +13,12 @@ export type CheckoutRequestDTO = {
     email: string;
   };
   address: {
+    addressId?: string;
     address: string;
     lat?: number;
     lon?: number;
   };
-  addressId?: string;
+ 
   total: number;
   shippingFee: number;
   shippingMethod: string;
