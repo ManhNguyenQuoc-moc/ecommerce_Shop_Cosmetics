@@ -11,12 +11,47 @@ export class OrderController {
     this.orderService = orderService;
   }
 
-  getOrders = async (req: Request, res: Response): Promise<void> => {
+  getMyOrders = async (req: Request, res: Response): Promise<void> => {
     try {
+      const user = (req as any).user;
+      if (!user?.id) {
+        res.status(401).json({ success: false, message: "Unauthorized" });
+        return;
+      }
+
       const query = OrderQueryFiltersSchema.parse({
         ...req.query,
         page: req.query.page ? parseInt(req.query.page as string) : undefined,
         pageSize: req.query.pageSize ? parseInt(req.query.pageSize as string) : (req.query.limit ? parseInt(req.query.limit as string) : undefined),
+        userId: user.id, // Strictly filter by logged-in user
+      });
+
+      const { items, total } = await this.orderService.getOrders(query.page || 1, query.pageSize || 10, query);
+
+      res.status(200).json({
+        success: true,
+        message: "Get my orders successfully",
+        data: {
+          data: items,
+          total,
+          page: query.page || 1,
+          pageSize: query.pageSize || 10
+        },
+      });
+    } catch (error: any) {
+      this.handleError(res, error);
+    }
+  };
+
+  getOrders = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const user = (req as any).user;
+      const query = OrderQueryFiltersSchema.parse({
+        ...req.query,
+        page: req.query.page ? parseInt(req.query.page as string) : undefined,
+        pageSize: req.query.pageSize ? parseInt(req.query.pageSize as string) : (req.query.limit ? parseInt(req.query.limit as string) : undefined),
+        // If not admin, restrict to own orders. If admin, allow full view or filter by userId.
+        userId: user?.role === 'CUSTOMER' ? user.id : (req.query.userId as string || undefined),
       });
 
       const { items, total } = await this.orderService.getOrders(query.page || 1, query.pageSize || 10, query);
@@ -35,7 +70,7 @@ export class OrderController {
       this.handleError(res, error);
     }
   };
-
+ 
   getOrderById = async (req: Request, res: Response): Promise<void> => {
     try {
       const id = req.params.id as string;

@@ -43,15 +43,15 @@ const CountdownTimer = ({ targetDate }: { targetDate: string }) => {
 
   return (
     <div className="flex gap-2 items-center">
-      <div className="bg-brand-900 text-white px-2.5 py-1.5 rounded-lg font-bold text-sm min-w-[36px] text-center shadow-sm">
+      <div className="bg-brand-900 text-white px-2.5 py-1.5 rounded-lg font-bold text-sm min-w-[36px] text-center shadow-lg">
         {timeLeft.hours.toString().padStart(2, "0")}
       </div>
-      <span className="font-bold text-brand-600">:</span>
-      <div className="bg-brand-900 text-white px-2.5 py-1.5 rounded-lg font-bold text-sm min-w-[36px] text-center shadow-sm">
+      <span className="font-bold text-brand-500">:</span>
+      <div className="bg-brand-900 text-white px-2.5 py-1.5 rounded-lg font-bold text-sm min-w-[36px] text-center shadow-lg">
         {timeLeft.minutes.toString().padStart(2, "0")}
       </div>
-      <span className="font-bold text-brand-600">:</span>
-      <div className="bg-brand-900 text-white px-2.5 py-1.5 rounded-lg font-bold text-sm min-w-[36px] text-center shadow-sm">
+      <span className="font-bold text-brand-500">:</span>
+      <div className="bg-brand-900 text-white px-2.5 py-1.5 rounded-lg font-bold text-sm min-w-[36px] text-center shadow-lg">
         {timeLeft.seconds.toString().padStart(2, "0")}
       </div>
     </div>
@@ -68,42 +68,42 @@ export default function FlashSaleSection({ products, endDate, loading }: Props) 
   }
   return (
     <div className="pt-4">
-     <div className="flex flex-wrap items-center justify-between gap-4 bg-brand-50/50 p-4 sm:p-6 rounded-2xl border border-brand-100 shadow-sm relative overflow-hidden">
+      <div className="flex flex-wrap items-center justify-between gap-4 bg-bg-muted p-4 sm:p-6 rounded-2xl border border-border-default shadow-sm relative overflow-hidden">
         {/* Hiệu ứng quét sáng toàn thanh Flash Sale */}
-        <div className="absolute inset-0 bg-white/40 animate-sweep z-[1] pointer-events-none mix-blend-overlay" />
-        
-  <div className="flex items-center gap-4 relative z-10">
-    <div className="flex items-center gap-2">
-      <div className="w-10 h-10 rounded-full bg-brand-500 flex items-center justify-center text-white shrink-0 shadow-lg shadow-brand-200 relative overflow-hidden">
-        <div className="absolute inset-0 bg-white/40 animate-sweep z-0" />
-        <Zap size={20} fill="currentColor" className="relative z-10 animate-pulse" />
-      </div>
-      <h2 className="text-2xl !mb-0 font-black text-gray-900 tracking-tight uppercase italic relative overflow-hidden px-2 rounded">
-        <div className="absolute inset-0 bg-brand-500/10 animate-sweep z-0" />
-        <span className="relative z-10">Flash Sale</span>
-      </h2>
-    </div>
-    
-    <div className="hidden sm:block h-6 w-px bg-brand-200" />
-    
-    <div className="flex items-center gap-3">
-      {/* Làm đậm nhẹ màu text để dễ đọc hơn trên nền màu */}
-      <span className="text-xs font-bold text-gray-500 uppercase tracking-widest">
-        Kết thúc sau
-      </span>
-      <CountdownTimer targetDate={endDate} />
-    </div>
-  </div>
+        <div className="absolute inset-0 bg-white/10 dark:bg-white/5 animate-sweep z-[1] pointer-events-none mix-blend-overlay" />
 
-  <Link 
-    href="/products" 
-    // Thêm một background trắng mờ hoặc viền cho nút "Xem tất cả" để nó nổi bật như một button
-    className="text-sm font-bold text-brand-600 hover:text-brand-700 bg-white/80 hover:bg-white px-4 py-2 rounded-full flex items-center gap-1 group transition-all shadow-sm hover:shadow border border-brand-100 relative z-10"
-  >
-    Xem tất cả 
-    <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
-  </Link>
-</div>
+        <div className="flex items-center gap-4 relative z-10">
+          <div className="flex items-center gap-2">
+            <div className="w-10 h-10 rounded-full bg-brand-500 flex items-center justify-center text-white shrink-0 shadow-lg shadow-brand-500/20 relative overflow-hidden">
+              <div className="absolute inset-0 bg-white/20 animate-sweep z-0" />
+              <Zap size={20} fill="currentColor" className="relative z-10 animate-pulse" />
+            </div>
+            <h2 className="text-2xl !mb-0 font-black text-text-main tracking-tight uppercase italic relative overflow-hidden px-2 rounded">
+              <div className="absolute inset-0 bg-brand-500/10 animate-sweep z-0" />
+              <span className="relative z-10">Flash Sale</span>
+            </h2>
+          </div>
+
+          <div className="hidden sm:block h-6 w-px bg-brand-200" />
+
+          <div className="flex items-center gap-3">
+            {/* Làm đậm nhẹ màu text để dễ đọc hơn trên nền màu */}
+            <span className="text-xs font-bold text-text-muted uppercase tracking-widest">
+              Kết thúc sau
+            </span>
+            <CountdownTimer targetDate={endDate} />
+          </div>
+        </div>
+
+        <Link
+          href="/products"
+          // Thêm một background trắng mờ hoặc viền cho nút "Xem tất cả" để nó nổi bật như một button
+          className="text-sm font-bold text-brand-500 hover:opacity-80 bg-bg-card px-4 py-2 rounded-full flex items-center gap-1 group transition-all shadow-sm hover:shadow border border-border-default relative z-10"
+        >
+          Xem tất cả
+          <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
+        </Link>
+      </div>
       <div className="pt-2">
         {loading && products.length === 0 ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">

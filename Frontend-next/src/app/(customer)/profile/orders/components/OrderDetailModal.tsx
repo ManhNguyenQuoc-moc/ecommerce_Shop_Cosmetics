@@ -1,51 +1,22 @@
+"use client";
+
 import React from 'react';
 import Image from 'next/image';
-import { Package, MapPin, CreditCard, Clock, User, CheckCircle2, Truck, XCircle, Undo2, ChevronRight } from 'lucide-react';
+import { Clock, CheckCircle2, Truck, XCircle, Undo2 } from 'lucide-react';
 import SWTModal from '@/src/@core/component/AntD/SWTModal';
 import SWTCard from '@/src/@core/component/AntD/SWTCard';
 import SWTSteps from '@/src/@core/component/AntD/SWTSteps';
 import SWTTimeline from '@/src/@core/component/AntD/SWTTimeline';
 import SWTSpin from '@/src/@core/component/AntD/SWTSpin';
-import SWTDivider from '@/src/@core/component/AntD/SWTDivider';
 import { OrderDTO, OrderStatus } from '@/src/services/models/customer/order.dto';
 import { useFetchSWR } from '@/src/@core/hooks/useFetchSWR';
 import { getOrderDetails } from '@/src/services/customer/order.service';
 
-interface Props {
-  orderId: string | null;
+export type Props = {
+  orderId: string;
   isOpen: boolean;
   onClose: () => void;
 }
-
-const statusLabels: Record<OrderStatus, string> = {
-  PENDING: "Chờ xác nhận",
-  CONFIRMED: "Đã xác nhận",
-  SHIPPING: "Đang giao hàng",
-  DELIVERED: "Đã giao hàng",
-  CANCELLED: "Đã hủy",
-  RETURNED: "Trả hàng/Hoàn tiền",
-};
-
-const statusIcons: Record<OrderStatus, React.ReactNode> = {
-  PENDING: <Clock size={16} />,
-  CONFIRMED: <CheckCircle2 size={16} />,
-  SHIPPING: <Truck size={16} />,
-  DELIVERED: <CheckCircle2 size={16} />,
-  CANCELLED: <XCircle size={16} />,
-  RETURNED: <Undo2 size={16} />,
-};
-
-const getStatusClasses = (status: OrderStatus) => {
-  const mapping: Record<OrderStatus, string> = {
-    PENDING: "border-blue-100 bg-blue-50 text-blue-600 dark:border-blue-500/20 dark:bg-blue-500/10 dark:text-blue-400",
-    CONFIRMED: "border-amber-100 bg-amber-50 text-amber-600 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-400",
-    SHIPPING: "border-cyan-100 bg-cyan-50 text-cyan-600 dark:border-cyan-500/20 dark:bg-cyan-500/10 dark:text-cyan-400",
-    DELIVERED: "border-emerald-100 bg-emerald-50 text-emerald-600 dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-400",
-    CANCELLED: "border-rose-100 bg-rose-50 text-rose-600 dark:border-rose-500/20 dark:bg-rose-500/10 dark:text-rose-400",
-    RETURNED: "border-fuchsia-100 bg-fuchsia-50 text-fuchsia-600 dark:border-fuchsia-500/20 dark:bg-fuchsia-500/10 dark:text-fuchsia-400",
-  };
-  return mapping[status] || "";
-};
 
 export default function OrderDetailModal({ orderId, isOpen, onClose }: Props) {
   const { data: order, isLoading } = useFetchSWR(
@@ -58,13 +29,17 @@ export default function OrderDetailModal({ orderId, isOpen, onClose }: Props) {
   return (
     <SWTModal
       title={
-        <div className="flex items-center justify-between w-full pr-10">
-          <div className="flex flex-col">
-            <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-0.5">Chi tiết đơn hàng</span>
-            <span className="text-xl font-black text-gray-900">#{order?.code || "..."}</span>
+        <div className="flex flex-row items-center justify-between w-full pl-6 pt-5 pb-3 pr-12">
+          <div className="flex items-center gap-3">
+            <div className="flex flex-col gap-0.5">
+              <span className="text-xs text-text-muted font-medium">Chi tiết đơn hàng</span>
+              <span className="text-base font-bold text-text-main leading-none">
+                #{order?.code || "..."}
+              </span>
+            </div>
           </div>
           {order && (
-            <div className={`px-4 py-1.5 rounded-full border text-[11px] font-black uppercase tracking-tight ${getStatusClasses(order.current_status)}`}>
+            <div className={`px-3 py-1.5 rounded-full text-xs font-semibold shadow-sm border ${getStatusClasses(order.current_status as any)}`}>
               {statusLabels[order.current_status]}
             </div>
           )}
@@ -73,128 +48,210 @@ export default function OrderDetailModal({ orderId, isOpen, onClose }: Props) {
       open={isOpen}
       onCancel={onClose}
       footer={null}
-      width={800}
+      width={1000}
       centered
-      bodyClassName="!p-0"
+      bodyClassName="!p-0 !bg-bg-muted/5"
     >
-      <div className="max-h-[80vh] overflow-y-auto custom-scrollbar">
+      <div className="max-h-[80vh] overflow-y-auto custom-scrollbar p-6 sm:p-8 flex flex-col gap-6">
         {isLoading ? (
-          <div className="p-20 flex flex-col items-center justify-center gap-4">
+          <div className="py-32 flex flex-col items-center justify-center gap-4">
             <SWTSpin size="large" />
-            <p className="text-sm text-gray-400 font-medium">Đang tải thông tin đơn hàng...</p>
+            <p className="text-sm text-text-muted font-medium animate-pulse">Đang tải dữ liệu...</p>
           </div>
         ) : order ? (
-          <div className="p-6 space-y-8">
-            {/* Status Progress */}
-            <SWTCard bodyClassName="!p-8 bg-white border-gray-100 shadow-sm rounded-2xl">
+          <>
+            {/* 1. Progress Bar */}
+            <SWTCard bodyClassName="!p-6 sm:!p-8">
               <SWTSteps
-                sizeVariant="lg"
                 current={order.current_status === "DELIVERED" ? 4 : ["PENDING", "CONFIRMED", "SHIPPING", "DELIVERED"].indexOf(order.current_status)}
                 status={(order.current_status === "CANCELLED" || order.current_status === "RETURNED") ? "error" : "process"}
                 items={[
                   { title: "Chờ xác nhận" },
                   { title: "Đã xác nhận" },
-                  { title: "Giao nhận" },
+                  { title: "Đang giao" },
                   { title: "Hoàn tất" },
                 ]}
               />
             </SWTCard>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Shipping Address */}
-              <div className="space-y-3">
-                <h4 className="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-widest border-l-2 border-brand-500 pl-2">
-                  <MapPin size={14} className="text-brand-500" />
-                  Địa chỉ nhận hàng
-                </h4>
-                <SWTCard bodyClassName="p-5 bg-gray-50/50 border-gray-100 rounded-xl">
-                  <p className="text-sm text-gray-700 font-medium leading-relaxed">
-                    {order.shipping_address}
-                  </p>
-                </SWTCard>
-              </div>
-
-              {/* Payment Info */}
-              <div className="space-y-3">
-                <h4 className="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-widest border-l-2 border-brand-500 pl-2">
-                  <CreditCard size={14} className="text-brand-500" />
-                  Thanh toán
-                </h4>
-                <SWTCard bodyClassName="p-5 flex flex-col gap-3 bg-gray-50/50 border-gray-100 rounded-xl">
-                  <div className="flex justify-between items-center">
-                    <span className="text-xs text-gray-400 font-bold uppercase tracking-tighter">Phương thức:</span>
-                    <span className="text-xs font-black text-gray-700">{order.payment_method}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-xs text-gray-400 font-bold uppercase tracking-tighter">Trạng thái:</span>
-                    <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase border ${order.payment_status === 'PAID' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-orange-50 text-orange-600 border-orange-100'}`}>
-                      {order.payment_status === 'PAID' ? 'Đã thanh toán' : 'Chưa thanh toán'}
-                    </span>
-                  </div>
-                </SWTCard>
-              </div>
-            </div>
-
-            {/* Product List */}
-            <div className="space-y-4">
-              <h4 className="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-widest border-l-2 border-brand-500 pl-2">
-                <Package size={14} className="text-brand-500" />
-                Sản phẩm đã chọn
-              </h4>
-              <SWTCard bodyClassName="overflow-hidden bg-white border-gray-100 shadow-sm rounded-2xl">
-                <div className="divide-y divide-gray-50">
-                  {order.items.map((item) => (
-                    <div key={item.id} className="flex items-center gap-5 p-5 hover:bg-gray-50/30 transition-colors">
-                      <div className="w-16 h-16 rounded-xl bg-gray-50 overflow-hidden relative border border-gray-100 flex-shrink-0 shadow-sm">
-                        <Image src={item.product_image || "/images/placeholder.png"} alt={item.product_name} fill className="object-cover" unoptimized />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-bold text-gray-900 text-sm leading-tight mb-1 truncate">{item.product_name}</p>
-                        <div className="flex items-center gap-3">
-                          {item.variant_name && <span className="text-[10px] font-bold text-gray-400 uppercase">Loại: {item.variant_name}</span>}
-                          <span className="text-[10px] text-gray-400 font-bold uppercase">x{item.quantity}</span>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-black text-brand-500 text-sm">{formatVND(item.price)}</p>
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
+              
+              {/* LEFT: Info Panels (Address & Payment) */}
+              <div className="md:col-span-5 flex flex-col gap-6">
+                <SWTCard className="!rounded-2xl !border-border-default/40 shadow-sm" bodyClassName="!p-6">
+                <h4 className="text-xl font-bold text-text-main mb-4">
+                    Thông tin nhận hàng
+                  </h4>
+                 <div className="flex flex-col gap-4 mb-4 pb-4 border-b border-border-default/20">
+                    <div className="flex flex-col gap-1">
+                      <span className="text-sm text-text-muted font-medium">Người nhận</span>
+                      <span className="text-sm font-bold text-text-main">
+                        {order.customer_name || "Khách hàng"}
+                      </span>
+                    </div>
+                    
+                    <div className="flex flex-row justify-between gap-4">
+                      <div className="flex flex-col gap-1">
+                        <span className="text-sm text-text-muted font-medium">Điện thoại</span>
+                        <span className="text-sm font-bold text-text-main">
+                          {order.customer_phone || "Đang cập nhật"}
+                        </span>
+                         <span className="text-sm text-text-muted font-medium">Email</span>
+                        <span className="text-sm font-bold text-text-main" title={order.customer_email}>
+                          {order.customer_email || "Đang cập nhật"}
+                        </span>
                       </div>
                     </div>
-                  ))}
-                </div>
-                {/* Total Summary */}
-                <div className="bg-gray-50/50 p-6 flex justify-between items-center border-t border-gray-100">
-                  <span className="text-xs text-gray-400 font-black uppercase tracking-[0.2em]">Tổng cộng:</span>
-                  <div className="text-right">
-                    <p className="text-2xl font-black text-brand-600">{formatVND(order.final_amount)}</p>
                   </div>
-                </div>
-              </SWTCard>
+                </SWTCard>
+                
+                {/* Payment Method */}
+                <SWTCard className="!rounded-2xl !border-border-default/40 shadow-sm" bodyClassName="!p-6">
+                <h4 className="text-xl font-bold text-text-main mb-4">
+                    Thanh toán và giao hàng
+                  </h4>
+                  <div className="flex flex-col gap-4">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-text-muted font-medium">Phương thức</span>
+                      <span className="text-sm font-bold text-text-main uppercase">{order.payment_method}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-text-muted font-medium">Trạng thái</span>
+                      <span className={`px-3 py-1 rounded-md text-xs font-bold ${order.payment_status === 'PAID' ? 'bg-[#e6f4ea] text-[#137333]' : 'bg-status-warning-bg text-status-warning-text'}`}>
+                        {order.payment_status === 'PAID' ? 'Đã thanh toán' : 'Chờ thanh toán'}
+                      </span>
+                    </div>
+                  </div>
+                  <h4 className="text-xl font-bold text-text-main mt-6 mb-4">
+                    Địa chỉ nhận hàng
+                  </h4>
+                   <div className="flex flex-col gap-1.5">
+                    <p className="text-sm text-text-main leading-relaxed font-medium">
+                      {order.shipping_address}
+                    </p>
+                  </div>
+                </SWTCard>
+              </div>
+
+              {/* RIGHT: Line Items & Total */}
+              <div className="md:col-span-7">
+                <SWTCard className="!rounded-2xl !border-border-default/40 shadow-sm overflow-hidden" bodyClassName="!p-0 flex flex-col">
+                  {/* Header */}
+                  <div className="p-6 pb-2">
+                    <h4 className="text-xl font-bold text-text-main">
+                      Danh sách sản phẩm ({order.items.length})
+                    </h4>
+                  </div>
+                  
+                  {/* Items List */}
+                  <div className="flex flex-col max-h-[320px] overflow-y-auto custom-scrollbar">
+                    {order.items.map((item) => (
+                      <div key={item.id} className="flex items-start sm:items-center gap-4 px-6 py-4 hover:bg-bg-muted/5 transition-colors">
+                        {/* Thumbnail */}
+                        <div className="relative w-16 h-16 rounded-xl border border-border-default/30 overflow-hidden shrink-0 bg-white">
+                          <Image src={item.product_image || "/images/placeholder.png"} alt={item.product_name} fill className="object-cover p-0.5" unoptimized />
+                        </div>
+                        {/* Info */}
+                        <div className="flex-1 min-w-0 flex flex-col sm:flex-row justify-between gap-4">
+                          <div className="flex flex-col gap-1.5 flex-1">
+                            <p className="font-bold text-text-main text-sm line-clamp-2 leading-tight">{item.product_name}</p>
+                            <div className="flex items-center gap-2">
+                              <span className="text-[13px] bg-bg-muted/30 text-text-muted px-2 py-0.5 rounded-md border border-border-default/30 font-medium">
+                                {item.variant_name || "Mặc định"}
+                              </span>
+                              <span className="text-[13px] text-text-muted font-medium">x{item.quantity}</span>
+                            </div>
+                          </div>
+                          {/* Price */}
+                          <div className="text-left sm:text-right shrink-0">
+                            <p className="font-bold text-text-main text-[15px] tabular-nums">{formatVND(item.price)}</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="px-6 py-5 border-t border-border-default/30 flex justify-between items-end gap-4 mt-2">
+                    <div className="flex flex-col gap-1">
+                      <span className="text-[15px] text-text-muted font-bold">Tổng thanh toán</span>
+                      <span className="text-[11px] text-text-muted italic">* Đã bao gồm thuế phí</span>
+                    </div>
+                    {/* Bôi màu hồng đậm (hoặc lấy màu thương hiệu) cho giá tiền */}
+                    <p className="text-[26px] font-bold text-[#F83A7E] tracking-tight tabular-nums leading-none">
+                      {formatVND(order.final_amount)}
+                    </p>
+                  </div>
+                </SWTCard>
+              </div>
             </div>
 
-            {/* Timeline */}
-            <div className="space-y-4 pb-4">
-               <h4 className="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-widest border-l-2 border-brand-500 pl-2">
-                <Clock size={14} className="text-brand-500" />
-                Dòng thời gian
+            {/* 3. Status Timeline */}
+            <SWTCard className="!rounded-2xl !border-border-default/40 shadow-sm" bodyClassName="!p-6 !sm:p-8 !flex flex-col gap-6">
+              <h4 className="flex items-center gap-2 text-[15px] font-bold text-text-main pb-2">
+                <Clock size={18} className="text-text-muted" />
+                Lịch sử hành trình
               </h4>
-               <SWTCard bodyClassName="p-6 bg-white border-gray-100 rounded-2xl">
-                 <SWTTimeline
-                  className="mt-2"
+              <div className="pt-2 pl-2">
+                <SWTTimeline
                   items={(order as any).status_history?.map((h: any) => ({
-                    dot: <div className={`p-1 rounded-full border ${getStatusClasses(h.status)}`}>{statusIcons[h.status as OrderStatus]}</div>,
+                    dot: (
+                      <div className={`p-1.5 rounded-full border shadow-sm bg-white ${getStatusClasses(h.status)}`}>
+                        {statusIcons[h.status as OrderStatus]}
+                      </div>
+                    ),
                     children: (
-                      <div className="ml-2 flex justify-between items-start">
-                        <span className="text-sm font-bold text-gray-700">{statusLabels[h.status as OrderStatus]}</span>
-                        <span className="text-[10px] text-gray-400 font-mono">{new Date(h.createdAt || h.timestamp).toLocaleString("vi-VN")}</span>
+                      <div className="ml-4 pb-6 flex flex-col sm:flex-row justify-between items-start gap-2 sm:gap-6">
+                        <div className="flex flex-col gap-1.5 flex-1">
+                          <span className="text-sm font-bold text-text-main">{statusLabels[h.status as OrderStatus]}</span>
+                          {h.note && (
+                            <p className="text-xs text-text-muted bg-bg-muted/30 p-2.5 rounded-lg border border-border-default/40">
+                              {h.note}
+                            </p>
+                          )}
+                        </div>
+                        <div className="shrink-0 text-left sm:text-right text-xs text-text-muted">
+                          <span className="font-medium">{new Date(h.createdAt || h.timestamp).toLocaleTimeString("vi-VN", { timeStyle: 'short' })}</span>
+                          <span className="mx-1.5">-</span>
+                          <span>{new Date(h.createdAt || h.timestamp).toLocaleDateString("vi-VN", { dateStyle: 'medium' })}</span>
+                        </div>
                       </div>
                     )
                   }))}
                 />
-               </SWTCard>
-            </div>
-          </div>
+              </div>
+            </SWTCard>
+          </>
         ) : null}
       </div>
     </SWTModal>
   );
 }
+
+const statusLabels: Record<OrderStatus, string> = {
+  PENDING: "Chờ xác nhận",
+  CONFIRMED: "Đã xác nhận",
+  SHIPPING: "Đang giao hàng",
+  DELIVERED: "Đã giao hàng",
+  CANCELLED: "Đã hủy",
+  RETURNED: "Trả hàng",
+};
+
+const statusIcons: Record<OrderStatus, React.ReactNode> = {
+  PENDING: <Clock size={14} />,
+  CONFIRMED: <CheckCircle2 size={14} />,
+  SHIPPING: <Truck size={14} />,
+  DELIVERED: <CheckCircle2 size={14} />,
+  CANCELLED: <XCircle size={14} />,
+  RETURNED: <Undo2 size={14} />,
+};
+
+const getStatusClasses = (status: OrderStatus) => {
+  const mapping: Record<string, string> = {
+    PENDING: "bg-status-info-bg text-status-info-text border-status-info-border",
+    CONFIRMED: "bg-status-warning-bg text-status-warning-text border-status-warning-border",
+    SHIPPING: "bg-status-info-bg text-status-info-text border-status-info-border",
+    DELIVERED: "bg-status-success-bg text-status-success-text border-status-success-border",
+    CANCELLED: "bg-status-error-bg text-status-error-text border-status-error-border",
+    RETURNED: "bg-status-neutral-bg text-status-neutral-text border-status-neutral-border",
+  };
+  return mapping[status] || "";
+};

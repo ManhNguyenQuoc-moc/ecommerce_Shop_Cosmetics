@@ -25,53 +25,53 @@ const HeroBanner = ({ banners }: Props) => {
     <div className="container mx-auto">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
         <div className="lg:col-span-3 flex flex-col">
-          <SWTCard 
+          <SWTCard
             className="flex-1 !rounded-3xl !border-none !shadow-lg overflow-hidden relative group/card"
             bodyClassName="!h-full !p-5 md:p-6 !flex !flex-col !justify-between relative overflow-hidden"
           >
             {/* Hiệu ứng quét sáng toàn thẻ */}
             <div className="absolute inset-0 bg-white/20 animate-sweep z-[1] pointer-events-none" />
-            
+
             <div className="absolute inset-0 bg-gradient-to-br from-brand-900 via-brand-700 to-brand-600 opacity-90 transition-all duration-1000 group-hover/card:scale-110" />
             <div className="absolute top-0 right-0 w-32 h-32 bg-white/20 blur-[40px] rounded-full -translate-y-1/2 translate-x-1/2 animate-pulse" />
             <div className="absolute bottom-0 left-0 w-24 h-24 bg-brand-900/30 blur-[30px] rounded-full translate-y-1/2 -translate-x-1/2" />
             <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-20">
-               <Sparkles className="absolute top-[10%] left-[15%] w-4 h-4 animate-bounce" />
-               <Trophy className="absolute bottom-[15%] right-[10%] w-5 h-5 animate-pulse" />
+              <Sparkles className="absolute top-[10%] left-[15%] w-4 h-4 animate-bounce" />
+              <Trophy className="absolute bottom-[15%] right-[10%] w-5 h-5 animate-pulse" />
             </div>
-          <div className="relative z-10 flex flex-col gap-3">
-          <div className="inline-flex items-center w-fit gap-1.5 px-3 py-1.5 rounded-full bg-brand-500/90 border border-brand-300 text-white text-[10px] sm:text-xs font-bold uppercase tracking-wider shadow-sm backdrop-blur-sm relative overflow-hidden">
-            <div className="absolute inset-0 bg-white/30 animate-sweep" />
-            <span className="relative z-10">HOT ITEM</span>
-          </div>
-          <div>
-            <h2 className="text-2xl md:text-3xl font-black text-white leading-tight drop-shadow-lg">
-              Săn Sale <br className="block sm:hidden" /> Ngay
-            </h2>
-          </div>
-          <div className="flex items-center gap-3 bg-white/10 w-fit p-1.5 rounded-xl backdrop-blur-md border border-white/20 shadow-lg mt-1">
-            <div className="relative overflow-hidden bg-white text-brand-600 px-5 py-1.5 rounded-lg text-lg md:text-xl font-black shadow-sm flex items-center justify-center">
-              <div className="absolute inset-0 bg-brand-500/20 animate-sweep z-0" />
-              <span className="relative z-10">-50%</span>
+            <div className="relative z-10 flex flex-col gap-3">
+              <div className="inline-flex items-center w-fit gap-1.5 px-3 py-1.5 rounded-full bg-brand-500/90 border border-brand-300 text-white text-[10px] sm:text-xs font-bold uppercase tracking-wider shadow-sm backdrop-blur-sm relative overflow-hidden">
+                <div className="absolute inset-0 bg-white/30 animate-sweep" />
+                <span className="relative z-10">HOT ITEM</span>
+              </div>
+              <div>
+                <h2 className="text-2xl md:text-3xl font-black text-white leading-tight drop-shadow-lg">
+                  Săn Sale <br className="block sm:hidden" /> Ngay
+                </h2>
+              </div>
+              <div className="flex items-center gap-3 bg-white/10 w-fit p-1.5 rounded-xl backdrop-blur-md border border-white/20 shadow-lg mt-1">
+                <div className="relative overflow-hidden bg-white text-brand-600 px-5 py-1.5 rounded-lg text-lg md:text-xl font-black shadow-sm flex items-center justify-center">
+                  <div className="absolute inset-0 bg-brand-500/20 animate-sweep z-0" />
+                  <span className="relative z-10">-50%</span>
+                </div>
+                <div className="flex flex-col pr-4">
+                  <p className="text-[10px] font-semibold text-white/90 uppercase tracking-wider mb-0.5">
+                    Ưu đãi có hạn
+                  </p>
+                  <button className="text-xs md:text-sm font-black text-white hover:text-brand-200 transition-colors duration-200 flex items-center gap-1 group cursor-pointer">
+                    Lấy mã ngay
+                    <svg
+                      className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
             </div>
-            <div className="flex flex-col pr-4">
-              <p className="text-[10px] font-semibold text-white/90 uppercase tracking-wider mb-0.5">
-                Ưu đãi có hạn
-              </p>
-              <button className="text-xs md:text-sm font-black text-white hover:text-brand-200 transition-colors duration-200 flex items-center gap-1 group cursor-pointer">
-                Lấy mã ngay
-                <svg 
-                  className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" 
-                  fill="none" 
-                  viewBox="0 0 24 24" 
-                  stroke="currentColor"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M9 5l7 7-7 7" />
-                </svg>
-              </button>
-            </div>
-          </div>
-        </div>
             <div className="relative z-10">
               <SWTButton
                 type="primary"
@@ -86,13 +86,13 @@ const HeroBanner = ({ banners }: Props) => {
 
         {/* Right: Standard High-Quality Image Carousel (Expanded) */}
         <div className="lg:col-span-9">
-          <SWTCard 
+          <SWTCard
             className="!h-full !rounded-3xl !border-none !shadow-lg !overflow-hidden relative"
             bodyClassName="!p-0 h-full relative"
           >
             {/* Hiệu ứng quét sáng toàn ảnh Carousel */}
             <div className="absolute inset-0 bg-white/20 animate-sweep z-50 pointer-events-none mix-blend-overlay" />
-            
+
             <Carousel
               autoplay
               autoplaySpeed={5000}

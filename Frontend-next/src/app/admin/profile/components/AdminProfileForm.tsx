@@ -110,7 +110,7 @@ export default function AdminProfileForm({ initialData }: Props) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-fade-in pb-10">
       {/* Left Column - Profile Card */}
-      <div className="lg:col-span-1 p-8 bg-white/80 dark:bg-slate-900/50 backdrop-blur-md rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 flex flex-col items-center text-center relative overflow-hidden transition-all duration-300">
+      <div className="lg:col-span-1 p-8 admin-card flex flex-col items-center text-center relative overflow-hidden transition-all duration-300">
         <div className="absolute top-0 right-0 w-32 h-32 bg-brand-500/10 blur-[50px] rounded-full pointer-events-none" />
 
         <div className="relative group mt-4 mb-2">
@@ -121,7 +121,7 @@ export default function AdminProfileForm({ initialData }: Props) {
           />
         </div>
 
-        <h3 className="mt-8 text-2xl font-black text-slate-800 dark:text-white tracking-tight">
+        <h3 className="mt-8 text-2xl font-black admin-section-heading tracking-tight">
           {initialData.full_name || "Quản trị viên"}
         </h3>
 
@@ -138,22 +138,22 @@ export default function AdminProfileForm({ initialData }: Props) {
         <Divider className="!my-8 dark:!border-slate-800" />
 
         <div className="w-full space-y-4 px-2">
-          <div className="flex flex-col items-center gap-1.5 p-4 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/50">
+          <div className="flex flex-col items-center gap-1.5 p-4 rounded-xl admin-subsection">
             <Shield className="text-brand-500 mb-1" size={24} />
-            <span className="text-[10px] uppercase font-black text-slate-400 tracking-widest">Quyền hệ thống</span>
-            <span className="text-sm font-bold text-slate-700 dark:text-slate-200 italic">Toàn quyền truy cập</span>
+            <span className="text-[10px] uppercase font-black admin-text-muted tracking-widest">Quyền hệ thống</span>
+            <span className="text-sm font-bold admin-section-heading italic">Toàn quyền truy cập</span>
           </div>
         </div>
       </div>
 
       {/* Right Column - Detailed Info */}
-      <div className="lg:col-span-2 p-8 bg-white/80 dark:bg-slate-900/50 backdrop-blur-md rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 relative overflow-hidden transition-all duration-300">
+      <div className="lg:col-span-2 p-8 admin-card relative overflow-hidden transition-all duration-300">
         <div className="absolute bottom-0 left-0 w-40 h-40 bg-brand-500/5 blur-[50px] rounded-full pointer-events-none" />
 
         <div className="flex justify-between items-center mb-10 relative z-10">
           <div className="flex items-center gap-3">
             <div className="w-1.5 h-6 bg-brand-500 rounded-full" />
-            <h3 className="text-xl font-black text-slate-800 dark:text-white uppercase tracking-wider !m-0">Thông tin chi tiết</h3>
+            <h3 className="text-xl font-black admin-section-heading uppercase tracking-wider !m-0">Thông tin chi tiết</h3>
           </div>
 
           <div className="flex gap-2">
@@ -171,7 +171,7 @@ export default function AdminProfileForm({ initialData }: Props) {
                 <SWTButton
                   onClick={handleCancel}
                   startIcon={<X size={18} />}
-                  className="!rounded-full !px-6 !font-black !h-11 !bg-slate-100 dark:!bg-slate-800 border-none !text-slate-600 dark:!text-slate-300"
+                  className="!rounded-full !px-6 !font-black !h-11 !bg-bg-muted dark:!bg-bg-muted border-none !text-text-sub"
                 >
                   Huỷ
                 </SWTButton>
@@ -202,10 +202,10 @@ export default function AdminProfileForm({ initialData }: Props) {
                   className="!mb-0"
                   rules={[{ required: true, message: "Vui lòng nhập họ và tên" }]}
                 >
-                  <SWTInput className="!h-12 !rounded-xl dark:!bg-slate-800/50 dark:!border-slate-700 dark:!text-white" />
+                  <SWTInput className="!h-12 !rounded-xl" />
                 </SWTFormItem>
               ) : (
-                <div className="flex items-center gap-4 text-slate-800 dark:text-slate-100 border-b border-slate-200 dark:border-slate-700/50 pb-3">
+                <div className="admin-field-display flex items-center gap-4 pb-3">
                   <span className="font-bold text-lg">{initialData.full_name || "—"}</span>
                 </div>
               )}
@@ -235,10 +235,10 @@ export default function AdminProfileForm({ initialData }: Props) {
                     { pattern: /^[0-9+]{10,12}$/, message: "Số điện thoại không hợp lệ" }
                   ]}
                 >
-                  <SWTInput className="!h-12 !rounded-xl dark:!bg-slate-800/50 dark:!border-slate-700 dark:!text-white" />
+                  <SWTInput className="!h-12 !rounded-xl" />
                 </SWTFormItem>
               ) : (
-                <div className="flex items-center gap-4 text-slate-800 dark:text-slate-100 border-b border-slate-200 dark:border-slate-700/50 pb-3">
+                <div className="admin-field-display flex items-center gap-4 pb-3">
                   <span className="font-bold text-lg">{initialData.phone || "—"}</span>
                 </div>
               )}
@@ -268,10 +268,10 @@ export default function AdminProfileForm({ initialData }: Props) {
                     },
                   ]}
                 >
-                  <SWTDatePicker className="w-full !h-12 !rounded-xl dark:!bg-slate-800/50 dark:!border-slate-700 dark:!text-white" />
+                  <SWTDatePicker className="w-full !h-12 !rounded-xl" />
                 </SWTFormItem>
               ) : (
-                <div className="flex items-center gap-4 text-slate-800 dark:text-slate-100 border-b border-slate-200 dark:border-slate-700/50 pb-3">
+                <div className="admin-field-display flex items-center gap-4 pb-3">
                   <span className="font-bold text-lg">
                     {initialData.birthday ? dayjs(initialData.birthday).format("DD/MM/YYYY") : "—"}
                   </span>
@@ -301,7 +301,7 @@ export default function AdminProfileForm({ initialData }: Props) {
                   />
                 </SWTFormItem>
               ) : (
-                <div className="flex items-center gap-4 text-slate-800 dark:text-slate-100 border-b border-slate-200 dark:border-slate-700/50 pb-3">
+                <div className="admin-field-display flex items-center gap-4 pb-3">
                   <span className="font-bold text-lg">{genderLabel(initialData.gender)}</span>
                 </div>
               )}
@@ -318,10 +318,10 @@ export default function AdminProfileForm({ initialData }: Props) {
                   className="!mb-0"
                   rules={[{ required: true, message: "Vui lòng nhập địa chỉ làm việc" }]}
                 >
-                  <SWTInput className="!h-12 !rounded-xl dark:!bg-slate-800/50 dark:!border-slate-700 dark:!text-white" />
+                  <SWTInput className="!h-12 !rounded-xl" />
                 </SWTFormItem>
               ) : (
-                <div className="flex items-center gap-4 text-slate-800 dark:text-slate-100 border-b border-slate-200 dark:border-slate-700/50 pb-3">
+                <div className="admin-field-display flex items-center gap-4 pb-3">
                   <span className="font-bold text-lg truncate">
                     {initialData.addresses?.[0]?.address || "—"}
                   </span>

@@ -7,54 +7,59 @@ import SWTBreadcrumb from "@/src/@core/component/AntD/SWTBreadcrumb";
 import { useEffect, useState } from "react";
 
 export default function WishlistPage() {
-  const { items: products } = useWishlist();
+  const { items: products, isLoading } = useWishlist();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  if (!mounted) {
-    return (
-        <div className="max-w-7xl mx-auto py-10 px-4 min-h-[60vh]">
-            <div className="animate-pulse flex flex-col gap-8">
-                <div className="h-8 bg-slate-200 rounded-md w-48"></div>
-                <div className="grid grid-cols-[repeat(auto-fill,minmax(240px,1fr))] gap-6">
-                    {[1, 2, 3, 4].map(i => (
-                        <div key={i} className="h-80 bg-slate-100 rounded-2xl"></div>
-                    ))}
-                </div>
-            </div>
-        </div>
-    );
-  }
-
   return (
-    <div className="max-w-7xl mx-auto py-10 px-4">
+    <div className="max-w-7xl mx-auto py-10 px-6 sm:px-10 lg:px-16 animate-fade-in">
       <SWTBreadcrumb
         items={[
           { title: "Trang chủ", href: "/" },
-          { title: "Wishlist" },
+          { title: "Sản phẩm yêu thích" },
         ]}
+        className="mb-8"
       />
 
-      <div className="flex items-center gap-3 mb-8 mt-6">
-        <Heart className="text-red-500 fill-red-500" size={28} />
-        <h1 className="text-2xl font-bold m-0 text-slate-900">
-          Danh sách yêu thích
-        </h1>
-        <span className="text-gray-500 font-medium">
-          ({products.length} sản phẩm)
-        </span>
+      <div className="flex flex-row items-center gap-5 mb-10">
+        <div className="p-3 bg-red-500/10 rounded-2xl shadow-sm">
+            <Heart className="text-red-500 fill-red-500" size={32} />
+        </div>
+        <div className="flex flex-col">
+            <h1 className="text-3xl font-black text-slate-900 uppercase tracking-tight m-0">
+                Lưu trữ yêu thích
+            </h1>
+            <span className="text-slate-500 font-bold text-xs uppercase tracking-widest opacity-60 mt-1">
+                Lưu giữ phong cách bạn mong muốn ({mounted ? products.length : "..."} sản phẩm)
+            </span>
+        </div>
       </div>
 
-      {products.length === 0 ? (
-        <div className="text-center py-20 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
-          <Heart className="mx-auto mb-4 text-slate-300" size={48} />
-          <p className="text-gray-500">Chưa có sản phẩm nào trong danh sách yêu thích của bạn.</p>
+      {!mounted || isLoading ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+            {[1, 2, 3, 4, 5, 6, 7, 8].map(i => (
+                <div key={i} className="flex flex-col gap-4">
+                    <div className="aspect-[3/4] bg-slate-100 rounded-[32px] animate-pulse"></div>
+                    <div className="h-5 bg-slate-100 rounded-full w-3/4 animate-pulse"></div>
+                    <div className="h-4 bg-slate-100 rounded-full w-1/2 animate-pulse"></div>
+                </div>
+            ))}
+        </div>
+      ) : products.length === 0 ? (
+        <div className="text-center py-32 bg-slate-50/50 rounded-[40px] border border-dashed border-slate-200 flex flex-col items-center justify-center gap-6">
+          <div className="p-6 bg-white rounded-full shadow-xl shadow-slate-200/50">
+            <Heart className="text-slate-200" size={48} />
+          </div>
+          <div className="flex flex-col gap-2">
+            <p className="text-slate-900 font-black uppercase tracking-widest text-sm">Kho lưu trữ đang trống</p>
+            <p className="text-slate-400 text-xs font-bold max-w-[300px] leading-relaxed">Hãy khám phá các sản phẩm tuyệt vời của chúng tôi để thêm chúng vào danh sách yêu thích của bạn.</p>
+          </div>
         </div>
       ) : (
-        <div className="grid grid-cols-[repeat(auto-fill,minmax(240px,1fr))] gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
           {products.map((product: any) => (
             <ProductCard
               key={product.id}

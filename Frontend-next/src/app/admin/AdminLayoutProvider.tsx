@@ -23,7 +23,7 @@ const AdminLayoutWrapper = ({ children }: { children: React.ReactNode }) => {
   }
 
   return (
-    <div className="flex h-screen overflow-hidden bg-slate-50 dark:bg-slate-950 relative transition-colors duration-500">
+    <div className="flex h-screen overflow-hidden bg-bg-base relative transition-colors duration-500">
       <div className="hidden dark:block absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-brand-500/10 rounded-full blur-[120px] pointer-events-none" />
       <div className="hidden dark:block absolute bottom-[-10%] right-[-5%] w-[35%] h-[35%] bg-fuchsia-600/10 rounded-full blur-[120px] pointer-events-none" />
       <div className="hidden dark:block absolute top-[20%] right-[15%] w-[25%] h-[25%] bg-purple-600/10 rounded-full blur-[100px] pointer-events-none" />
@@ -41,7 +41,7 @@ const AdminLayoutWrapper = ({ children }: { children: React.ReactNode }) => {
       <div className="relative flex flex-1 flex-col overflow-y-auto overflow-x-hidden z-10">
         <AdminHeader />
         <main className="flex-1 w-full p-4 md:p-6 lg:px-20 lg:py-10">
-          <Suspense fallback={<div className="animate-pulse bg-slate-100 dark:bg-slate-900 rounded-2xl w-full h-full" />}>
+          <Suspense fallback={<div className="animate-pulse bg-bg-muted rounded-2xl w-full h-full" />}>
             {children}
           </Suspense>
         </main>

@@ -32,7 +32,7 @@ export default function CartTable() {
             {record.price.toLocaleString()} đ
           </p>
           {record.originalPrice && (
-            <p className="text-sm line-through text-gray-400">
+            <p className="text-sm line-through text-text-muted">
               {record.originalPrice.toLocaleString()} đ
             </p>
           )}
@@ -48,7 +48,7 @@ export default function CartTable() {
           quantity={record.quantity}
           max={record.availableStock}
           onChange={(val) => {
-            const quantity = Number(val) || 1; 
+            const quantity = Number(val) || 1;
             updateQuantity(record.id, record.variantId, quantity);
           }}
         />

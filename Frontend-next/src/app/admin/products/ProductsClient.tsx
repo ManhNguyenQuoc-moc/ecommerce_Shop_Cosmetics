@@ -35,7 +35,7 @@ export default function ProductsClient() {
       label: "Đang hoạt động",
       prefix: { value: activeTotal || 0, color: "primary" as any, variant: "light" as any },
       children: (
-        <div className="mt-4 p-6 bg-white/80 dark:bg-slate-900/50 backdrop-blur-md rounded-2xl shadow-sm border border-slate-200 dark:border-admin-sidebar-border transition-colors">
+        <div className="mt-4 p-6 bg-bg-card backdrop-blur-md rounded-2xl shadow-sm border border-border-default dark:border-border-brand transition-colors">
           <ProductFilters startTransition={startTransition} />
           <ProductTable isPending={isPending} />
         </div>
@@ -46,7 +46,7 @@ export default function ProductsClient() {
       label: "Đã ẩn",
       prefix: { value: hiddenTotal || 0, color: "error" as any, variant: "light" as any },
       children: (
-        <div className="mt-4 p-6 bg-white/80 dark:bg-slate-900/50 backdrop-blur-md rounded-2xl shadow-sm border border-slate-200 dark:border-admin-sidebar-border transition-colors">
+        <div className="mt-4 p-6 bg-bg-card backdrop-blur-md rounded-2xl shadow-sm border border-border-default dark:border-border-brand transition-colors">
           <ProductFilters startTransition={startTransition} />
           <ProductTable isPending={isPending} />
         </div>

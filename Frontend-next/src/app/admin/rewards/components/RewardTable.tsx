@@ -28,10 +28,10 @@ export default function RewardTable() {
       key: 'customer',
       render: (text: string, record: any) => (
         <div className="flex items-center gap-3">
-          <SWTAvatar src={record.avatar} size={40} className="shrink-0 border-pink-500/50 shadow-[0_0_8px_rgba(255,0,128,0.3)]" />
+          <SWTAvatar src={record.avatar} size={40} className="shrink-0 border-brand-500/50 shadow-[0_0_8px_rgba(255,105,180,0.3)]" />
           <div className="flex flex-col">
-            <div className="font-bold text-slate-800 dark:text-white dark:drop-shadow-[0_0_2px_rgba(255,255,255,0.5)]">{record.customer}</div>
-            <span className="text-slate-500 dark:text-slate-400 font-medium text-xs">ID: {record.id}</span>
+            <div className="font-bold text-text-main leading-tight">{record.customer}</div>
+            <span className="text-text-muted font-bold text-[10px] uppercase tracking-widest mt-0.5">ID: {record.id}</span>
           </div>
         </div>
       ),
@@ -41,14 +41,14 @@ export default function RewardTable() {
       dataIndex: 'tier',
       key: 'tier',
       render: (tier: string) => {
-        let colorClass = "bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700";
-        if (tier === "Diamond") colorClass = "bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-900/40 dark:text-purple-400 dark:border-purple-500/30 dark:shadow-[0_0_8px_rgba(168,85,247,0.2)]";
-        else if (tier === "Gold") colorClass = "bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-900/40 dark:text-yellow-400 dark:border-yellow-500/30 dark:shadow-[0_0_8px_rgba(234,179,8,0.2)]";
-        else if (tier === "Silver") colorClass = "bg-gray-100 text-gray-700 border-gray-200 dark:bg-slate-700/60 dark:text-slate-300 dark:border-slate-600/50 dark:shadow-[0_0_8px_rgba(148,163,184,0.2)]";
-        else if (tier === "Bronze") colorClass = "bg-orange-50 text-orange-700 border-orange-200 dark:bg-amber-900/40 dark:text-amber-500 dark:border-amber-700/30 dark:shadow-[0_0_8px_rgba(245,158,11,0.2)]";
+        let colorClass = "bg-bg-muted text-text-muted border-border-default";
+        if (tier === "Diamond") colorClass = "bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-900/40 dark:text-purple-400 dark:border-purple-500/30";
+        else if (tier === "Gold") colorClass = "bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/40 dark:text-amber-400 dark:border-amber-500/30";
+        else if (tier === "Silver") colorClass = "bg-bg-muted text-text-sub border-border-default";
+        else if (tier === "Bronze") colorClass = "bg-emerald-50 text-emerald-700 border-emerald-100 dark:bg-emerald-900/40 dark:text-emerald-400 dark:border-emerald-500/30";
 
         return (
-          <div className={`text-xs font-bold px-2.5 py-1 rounded-md border inline-block ${colorClass}`}>
+          <div className={`text-[10px] font-black px-2.5 py-1 rounded-md border inline-block uppercase tracking-wider ${colorClass}`}>
             {tier}
           </div>
         );
@@ -58,13 +58,13 @@ export default function RewardTable() {
       title: 'Điểm hiện tại',
       dataIndex: 'points',
       key: 'points',
-      render: (points: number) => <div className="font-bold text-brand-600 dark:text-cyan-400 text-sm">{points.toLocaleString('vi-VN')}</div>,
+      render: (points: number) => <div className="font-black text-brand-500 text-sm">{points.toLocaleString('vi-VN')}</div>,
     },
     {
       title: 'Điểm đã dùng',
       dataIndex: 'usedPoints',
       key: 'usedPoints',
-      render: (usedPoints: number) => <div className="font-semibold text-slate-500 text-sm">{usedPoints.toLocaleString('vi-VN')}</div>,
+      render: (usedPoints: number) => <div className="font-bold text-text-muted text-[11px] uppercase tracking-tighter">{usedPoints.toLocaleString('vi-VN')}</div>,
     },
     {
       title: 'Trạng thái ví',
@@ -72,11 +72,11 @@ export default function RewardTable() {
       key: 'status',
       render: (status: string) => {
         const colorClass = status === "Hoạt động" 
-          ? "bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900/40 dark:text-emerald-400 dark:border-emerald-500/30 dark:shadow-[0_0_8px_rgba(16,185,129,0.2)]" 
-          : "bg-red-100 text-red-700 border-red-200 dark:bg-red-900/40 dark:text-red-500 dark:border-red-500/30 dark:shadow-[0_0_8px_rgba(239,68,68,0.2)]";
+          ? "bg-status-success-bg text-status-success-text border-status-success-border" 
+          : "bg-status-error-bg text-status-error-text border-status-error-border";
         return (
-          <div className={`text-xs font-semibold px-2.5 py-1 rounded-full border flex items-center justify-center gap-1.5 w-max ${colorClass}`}>
-            <span className={`w-1.5 h-1.5 rounded-full ${status === "Hoạt động" ? "bg-emerald-500 dark:bg-emerald-400 dark:shadow-[0_0_5px_#34d399]" : "bg-red-500 dark:shadow-[0_0_5px_#ef4444]"}`} />
+          <div className={`text-[10px] font-black px-2.5 py-1 rounded-full border flex items-center justify-center gap-1.5 w-max uppercase tracking-wider ${colorClass}`}>
+            <span className={`w-1.5 h-1.5 rounded-full ${status === "Hoạt động" ? "bg-status-success-text animate-pulse" : "bg-status-error-text"}`} />
             {status}
           </div>
         );
@@ -98,7 +98,7 @@ export default function RewardTable() {
 
   return (
     <div className="w-full">
-      <div className="!bg-white/90 dark:!bg-slate-900/80 backdrop-blur-xl !rounded-xl overflow-hidden !border !border-slate-100 dark:!border-fuchsia-500/20 !shadow-lg dark:!shadow-[0_0_15px_rgba(0,0,0,0.5)] mt-4 transition-colors">
+      <div className="!bg-bg-card/90 backdrop-blur-xl !rounded-xl overflow-hidden !border !border-border-default !shadow-lg dark:!shadow-[0_0_15px_rgba(0,0,0,0.5)] mt-4 transition-colors">
         <SWTTable 
           columns={columns} 
           dataSource={paginatedData} 

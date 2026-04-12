@@ -25,6 +25,7 @@ export const mapCheckoutModelToDTO = (
       lat: model.selectedAddress.lat,
       lon: model.selectedAddress.lon,
     },
+    addressId: model.selectedAddress.id,
     total: model.total,
     shippingFee: model.shippingFee,
     shippingMethod: model.shippingMethod,

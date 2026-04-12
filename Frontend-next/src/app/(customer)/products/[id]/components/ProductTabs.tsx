@@ -11,10 +11,9 @@ type Props = {
 export default function ProductTabs({ product }: Props) {
   const [tab, setTab] = useState("desc");
   const tabClass = (key: string) =>
-    `pb-3 border-b-2 transition ${
-      tab === key
-        ? "border-brand-500 text-brand-600 font-semibold"
-        : "border-transparent text-gray-500 hover:text-gray-700"
+    `pb-3 border-b-2 transition ${tab === key
+      ? "border-brand-500 text-brand-600 font-semibold"
+      : "border-transparent text-gray-500 hover:text-gray-700"
     }`;
   return (
     <SWTCard className="!p-6 !mt-3">

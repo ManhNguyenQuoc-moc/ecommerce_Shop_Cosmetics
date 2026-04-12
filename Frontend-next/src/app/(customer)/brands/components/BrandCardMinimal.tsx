@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { BrandResponseDto } from "@/src/services/customer/server-data";
+import { BrandResponseDto } from "@/src/services/customer/customer.service";
 
 interface BrandCardMinimalProps {
   brand: BrandResponseDto;

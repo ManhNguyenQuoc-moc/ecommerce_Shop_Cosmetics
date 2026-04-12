@@ -3,7 +3,7 @@
 import SWTCard from "@/src/@core/component/AntD/SWTCard";
 import SWTButton from "@/src/@core/component/AntD/SWTButton";
 import Image from "next/image";
-import { useRouter } from "next/navigation"; 
+import { useRouter } from "next/navigation";
 import SWTLoading from "@/src/@core/component/AntD/SWTLoading";
 import { useState } from "react";
 import { useCart } from "@/src/hooks/useCart";
@@ -25,7 +25,7 @@ export default function CartSummary() {
 
   const formatPrice = (value: number) =>
     value.toLocaleString("vi-VN") + " đ";
-  const  handleCheckout = async () => {
+  const handleCheckout = async () => {
     if (items.length === 0) return;
 
     // Kiểm tra sản phẩm hết hàng
@@ -47,8 +47,8 @@ export default function CartSummary() {
     }));
 
     useCheckoutStore.getState().setCartMode(checkoutItems);
-    setLoading(true); 
-    
+    setLoading(true);
+
     await new Promise((resolve) => setTimeout(resolve, 800));
 
     router.push("/checkout");
@@ -56,16 +56,16 @@ export default function CartSummary() {
 
   return (
     <>
-    <SWTCard
-      title="Hóa đơn của bạn"
-      className="!rounded-xl !shadow-md !border-0"
-      bodyClassName="!p-4 !space-y-4"
-    >
-      <div className="space-y-3 max-h-60 overflow-auto pr-1 pb-3 border-b">
-        {items.map((item) => (
-          <div key={item.id} className="flex gap-3 items-start">
-            <div className="w-12 h-12 relative flex-shrink-0">
-              <div className="w-full h-full relative border rounded overflow-hidden">
+      <SWTCard
+        title="Hóa đơn của bạn"
+        className="!rounded-xl !shadow-md !border border-border-default !bg-bg-card"
+        bodyClassName="!p-4 !space-y-4"
+      >
+        <div className="space-y-3 max-h-60 overflow-auto pr-1 pb-3 border-b border-border-default">
+          {items.map((item) => (
+            <div key={item.id} className="flex gap-3 items-start">
+              <div className="w-12 h-12 relative flex-shrink-0">
+                <div className="w-full h-full relative border border-border-default rounded overflow-hidden">
                   <Image
                     src={item.image || "/placeholder-image.png"}
                     alt={item.productName}
@@ -73,70 +73,70 @@ export default function CartSummary() {
                     sizes="48px"
                     className="object-cover"
                   />
+                </div>
+              </div>
+
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-text-main line-clamp-1 break-words">
+                  {item.productName}
+                </p>
+                <p className="text-xs text-text-muted font-bold">
+                  x{item.quantity}
+                </p>
+              </div>
+
+              <div className="text-right whitespace-nowrap self-start">
+                <p className="text-sm font-bold text-text-main">
+                  {formatPrice(item.price * item.quantity)}
+                </p>
+
+                {item.originalPrice &&
+                  item.originalPrice > item.price && (
+                    <p className="text-xs text-text-muted line-through">
+                      {formatPrice(
+                        item.originalPrice * item.quantity
+                      )}
+                    </p>
+                  )}
               </div>
             </div>
-
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium line-clamp-1 break-words">
-                {item.productName}
-              </p>
-              <p className="text-xs text-gray-500">
-                x{item.quantity}
-              </p>
-            </div>
-
-            <div className="text-right whitespace-nowrap self-start">
-              <p className="text-sm font-medium">
-                {formatPrice(item.price * item.quantity)}
-              </p>
-
-              {item.originalPrice &&
-                item.originalPrice > item.price && (
-                  <p className="text-xs text-gray-400 line-through">
-                    {formatPrice(
-                      item.originalPrice * item.quantity
-                    )}
-                  </p>
-                )}
-            </div>
-          </div>
-        ))}
-      </div>
-      
-      <div className="space-y-2 pt-1">
-        <div className="flex justify-between text-sm">
-          <span>Tạm tính:</span>
-          <span>{formatPrice(subtotal)}</span>
+          ))}
         </div>
 
-        <div className="flex justify-between text-sm">
-          <span>Giảm giá:</span>
-          <span className="text-green-600">
-            -{formatPrice(discount)}
+        <div className="space-y-2 pt-1">
+          <div className="flex justify-between text-sm text-text-sub">
+            <span>Tạm tính:</span>
+            <span className="font-semibold">{formatPrice(subtotal)}</span>
+          </div>
+
+          <div className="flex justify-between text-sm text-text-sub">
+            <span>Giảm giá:</span>
+            <span className="text-status-success-text font-bold">
+              -{formatPrice(discount)}
+            </span>
+          </div>
+        </div>
+
+        <div className="border-t border-border-default pt-3 flex justify-between font-bold text-base mt-2">
+          <span className="text-text-main">Tổng cộng:</span>
+          <span className="text-brand-500 text-lg">
+            {formatPrice(total)}
           </span>
         </div>
-      </div>
-      
-      <div className="border-t pt-3 flex justify-between font-semibold text-base mt-2">
-        <span>Tổng cộng:</span>
-        <span className="text-orange-500 text-lg">
-          {formatPrice(total)}
-        </span>
-      </div>
 
-      <SWTButton
-        type="primary"
-        block
-        size="lg"
-        onClick={handleCheckout} 
-        disabled={!items.length}
-        className="!bg-brand-500 hover:!bg-brand-600 !border-none"
-      >
-        Tiến hành đặt hàng
-      </SWTButton>
-    </SWTCard>
+        <SWTButton
+          type="primary"
+          block
+          size="lg"
+          onClick={handleCheckout}
+          disabled={!items.length}
+          className="!bg-brand-500 hover:!bg-brand-600 !border-none"
+        >
+          Tiến hành đặt hàng
+        </SWTButton>
+      </SWTCard>
       {loading && <SWTLoading fullPage tip="Đang chuẩn bị thanh toán..." />}
-     </>
+    </>
   );
-   
+
 }

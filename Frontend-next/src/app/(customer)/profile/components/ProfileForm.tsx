@@ -121,8 +121,11 @@ export default function ProfileForm({ initialData }: Props) {
       }
 
       // Update SWR cache immediately with the new data
+
       await mutate("/users/me", updatedUserFromApi, false);
+
       showNotificationSuccess("Cập nhật thành công");
+
       setIsEdit(false);
     } catch (err: any) {
       showNotificationError(err.message || "Đã có lỗi xảy ra");
@@ -141,7 +144,6 @@ export default function ProfileForm({ initialData }: Props) {
     setIsEdit(false);
     form.resetFields();
     setAvatarUrl(initialData.avatar);
-    // Reset to initial values explicitly to be safe
     syncFormValues();
   };
 
@@ -158,7 +160,7 @@ export default function ProfileForm({ initialData }: Props) {
   };
 
   return (
-    <SWTCard className=" !rounded-2xl !border-none !shadow-sm" bodyClassName="p-0">
+    <SWTCard className="!rounded-2xl !border !border-border-default !shadow-sm !bg-bg-card transition-colors" bodyClassName="!p-0">
       <div
         className="h-44 sm:h-52 rounded-t-2xl bg-cover bg-center relative group"
         style={{ backgroundImage: "url('/images/main/background.jpg')" }}
@@ -172,7 +174,7 @@ export default function ProfileForm({ initialData }: Props) {
               size="sm"
               onClick={handleEdit}
               startIcon={<EditOutlined className="!text-brand-500" />}
-              className="!flex !items-center !gap-1.5 !bg-white/80 !backdrop-blur !text-gray-700 hover:!bg-white !text-sm !font-medium !px-3 !py-1.5 !rounded-full !shadow !transition-all !h-[40px]"
+              className="!flex !items-center !gap-1.5 !bg-bg-card/80 !backdrop-blur !text-text-main hover:!bg-bg-card !text-sm !font-bold !px-3 !py-1.5 !rounded-full !shadow !transition-all !h-[40px] !border !border-border-default"
             >
               Chỉnh sửa
             </SWTButton>
@@ -208,11 +210,11 @@ export default function ProfileForm({ initialData }: Props) {
             />
           </div>
           <div className="pb-1 mt-25 flex-1 min-w-0">
-            <h1 className="text-xl md:text-2xl font-bold text-gray-900 leading-tight truncate">
+            <h1 className="text-xl md:text-2xl font-black text-text-main leading-tight truncate uppercase tracking-tight">
               {initialData.full_name || "Chưa cập nhật"}
             </h1>
-            <p className="text-sm text-gray-500 mt-0.5 flex items-center gap-1.5">
-              <MailOutlined className="text-gray-400" />
+            <p className="text-sm text-text-muted mt-0.5 flex items-center gap-1.5 font-medium">
+              <MailOutlined className="text-text-muted opacity-70" />
               {initialData.email || "—"}
             </p>
           </div>
@@ -225,9 +227,9 @@ export default function ProfileForm({ initialData }: Props) {
             </div>
           </div>
         </div>
-        <Divider className="!my-4" />
+        <Divider className="!my-4 !border-border-default" />
         <SWTForm form={form} layout="vertical" onFinish={onFinish}>
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-4">
+          <p className="text-xs font-bold text-text-muted uppercase tracking-widest mb-4 opacity-70">
             Thông tin cơ bản
           </p>
 
@@ -235,41 +237,42 @@ export default function ProfileForm({ initialData }: Props) {
 
             {/* Họ và tên */}
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+              <label className="text-xs font-black text-text-muted uppercase tracking-wider opacity-60">
                 Họ và tên
               </label>
               {isEdit ? (
                 <SWTFormItem name="full_name" className="!mb-0">
-                  <SWTInput prefix={<UserOutlined className="text-gray-400" />} />
+                  <SWTInput prefix={<UserOutlined className="text-text-muted" />} className="!bg-bg-muted !border-border-default text-text-main" />
                 </SWTFormItem>
               ) : (
-                <p className="text-gray-800 font-semibold text-base">
+                <p className="text-text-main font-bold text-base">
                   {initialData.full_name || "—"}
                 </p>
               )}
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+              <label className="text-xs font-black text-text-muted uppercase tracking-wider opacity-60">
                 Số điện thoại
               </label>
               {isEdit ? (
                 <SWTFormItem name="phone" className="!mb-0">
-                  <SWTInput prefix={<PhoneOutlined className="text-gray-400" />} />
+                  <SWTInput prefix={<PhoneOutlined className="text-text-muted" />} className="!bg-bg-muted !border-border-default text-text-main" />
                 </SWTFormItem>
               ) : (
-                <p className="text-gray-800 font-semibold text-base">
+                <p className="text-text-main font-bold text-base">
                   {initialData.phone || "—"}
                 </p>
               )}
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+              <label className="text-xs font-black text-text-muted uppercase tracking-wider opacity-60">
                 Giới tính
               </label>
               {isEdit ? (
                 <SWTFormItem name="gender" className="!mb-0">
                   <SWTSelect
                     placeholder="Chọn giới tính"
+                    className="[&_.ant-select-selector]:!bg-bg-muted [&_.ant-select-selector]:!border-border-default [&_.ant-select-selection-item]:!text-text-main"
                     options={[
                       { label: "Nam", value: "MALE" },
                       { label: "Nữ", value: "FEMALE" },
@@ -278,7 +281,7 @@ export default function ProfileForm({ initialData }: Props) {
                   />
                 </SWTFormItem>
               ) : (
-                <p className="text-gray-800 font-semibold text-base">
+                <p className="text-text-main font-bold text-base">
                   {genderLabel(initialData.gender)}
                 </p>
               )}
@@ -286,7 +289,7 @@ export default function ProfileForm({ initialData }: Props) {
 
             {/* Ngày sinh */}
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+              <label className="text-xs font-black text-text-muted uppercase tracking-wider opacity-60">
                 Ngày sinh
               </label>
               {isEdit ? (
@@ -308,16 +311,15 @@ export default function ProfileForm({ initialData }: Props) {
                   ]}
                 >
                   <SWTDatePicker
-                    className="w-full h-10 !rounded-md"
+                    className="w-full h-10 !rounded-md !bg-bg-muted !border-border-default !text-text-main"
                     label="Ngày sinh"
                     disabledDate={(current) => {
-                      // Cannot select future dates or dates that would make user < 18 years old
                       return current && (current > dayjs().endOf('day') || current > dayjs().subtract(16, 'year'));
                     }}
                   />
                 </SWTFormItem>
               ) : (
-                <p className="text-gray-800 font-semibold text-base">
+                <p className="text-text-main font-bold text-base">
                   {initialData.birthday
                     ? new Date(initialData.birthday).toLocaleDateString("vi-VN")
                     : "—"}
@@ -326,10 +328,10 @@ export default function ProfileForm({ initialData }: Props) {
             </div>
           </div>
 
-          <Divider className="!my-6" />
+          <Divider className="!my-6 !border-border-default" />
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest flex items-center gap-2">
+              <p className="text-xs font-bold text-text-muted uppercase tracking-widest flex items-center gap-2 opacity-70">
                 Địa chỉ giao hàng
               </p>
               {isEdit && (
@@ -351,15 +353,15 @@ export default function ProfileForm({ initialData }: Props) {
               {addresses.map((addr: any, idx: number) => (
                 <div
                   key={idx}
-                  className="flex items-start justify-between bg-gray-50 hover:bg-gray-100 border border-gray-100 rounded-xl px-4 py-3 transition-all my-3"
+                  className="flex items-start justify-between bg-bg-muted/50 hover:bg-bg-muted border border-border-default rounded-xl px-4 py-3 transition-all my-3"
                 >
                   <div className="flex items-center gap-2 flex-1 min-w-0">
-                    <EnvironmentOutlined className="text-brand-400 shrink-0" />
-                    <span className="text-gray-700 text-sm font-medium truncate">{addr.address}</span>
+                    <EnvironmentOutlined className="text-brand-500 shrink-0" />
+                    <span className="text-text-main text-sm font-bold truncate tracking-tight">{addr.address}</span>
                     {addr.isDefault && (
                       <Tag
                         icon={<CheckCircleFilled />}
-                        className="!rounded-full !px-2 !py-0 !m-0 !text-[10px] !border-none !bg-blue-50 !text-blue-500 shrink-0"
+                        className="!rounded-full !px-2 !py-0 !m-0 !text-xs !font-black !uppercase !tracking-widest !border-none !bg-status-info-bg !text-status-info-text shrink-0"
                       >
                         Mặc định
                       </Tag>

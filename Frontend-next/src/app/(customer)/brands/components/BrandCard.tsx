@@ -1,8 +1,8 @@
 import React from "react";
 import Link from "next/link";
-import { BrandResponseDto } from "@/src/services/customer/server-data";
+import { BrandResponseDto } from "@/src/services/customer/customer.service";
 import { ArrowRight, Sparkles } from "lucide-react";
-
+import Image from "next/image";
 interface BrandCardProps {
   brand: BrandResponseDto;
 }
@@ -16,10 +16,11 @@ export default function BrandCard({ brand }: BrandCardProps) {
       {/* Banner Background */}
       <div className="absolute inset-0 z-0">
         {brand.banner?.url ? (
-          <img
+          <Image
             src={brand.banner.url}
             alt={brand.name}
             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
+            fill  
           />
         ) : (
           <div className="w-full h-full bg-gradient-to-br from-brand-100 to-rose-50 flex items-center justify-center">
@@ -34,10 +35,11 @@ export default function BrandCard({ brand }: BrandCardProps) {
       <div className="absolute top-3 right-3 sm:top-4 sm:right-4 z-20">
         <div className="w-12 h-12 sm:w-16 sm:h-16 bg-white rounded-full p-1.5 shadow-xl shadow-black/20 flex items-center justify-center transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 border-[3px] border-white/50 backdrop-blur-sm">
           {brand.logo?.url ? (
-            <img
+            <Image
               src={brand.logo.url}
               alt={`${brand.name} logo`}
               className="w-full h-full object-contain"
+              fill
             />
           ) : (
             <span className="text-brand-500 font-black text-2xl italic">

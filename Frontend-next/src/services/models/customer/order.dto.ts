@@ -17,10 +17,14 @@ export interface OrderDTO {
   createdAt: string;
   total_amount: number;
   final_amount: number;
+  customer_name : string;
+  customer_phone?: string;
+  customer_email?: string;
   items: OrderItemDTO[];
   payment_method: string;
   payment_status: string;
   shipping_address: string;
+  shipping_method: string;
 }
 
 export interface OrderListResponseDTO {

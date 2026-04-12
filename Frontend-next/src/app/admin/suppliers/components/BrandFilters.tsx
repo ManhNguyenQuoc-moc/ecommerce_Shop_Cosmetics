@@ -23,9 +23,9 @@ export default function BrandFilters({ onAdd, onSearch }: BrandFiltersProps) {
         </div>
 
         <div className="flex items-center gap-2">
-          <SWTTooltip title="Thêm Nhà Cung Cấp Mới" placement="top" color="#6366f1">
+          <SWTTooltip title="Thêm Nhà Cung Cấp Mới" placement="top" color="#ec4899">
             <div 
-              className="flex h-11 w-11 items-center justify-center bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-500/30 rounded-xl shadow-sm transition-all cursor-pointer group"
+              className="flex h-11 w-11 items-center justify-center bg-brand-500/10 hover:bg-brand-500/20 text-brand-500 border border-brand-500/20 rounded-xl shadow-sm transition-all cursor-pointer group"
               onClick={onAdd}
             >
               <Plus size={24} className="stroke-[2.5] group-hover:scale-110 group-hover:rotate-90 transition-transform duration-300" />
@@ -37,12 +37,12 @@ export default function BrandFilters({ onAdd, onSearch }: BrandFiltersProps) {
       {/* FILTER BAR (Optional, matching table style) */}
       <div className="flex flex-col md:flex-row md:items-center gap-4 w-full p-4 lg:p-5 transition-all duration-300">
         
-        <div className="flex items-center gap-2 text-brand-600 dark:text-admin-accent 
-        font-bold md:pr-4 border-b md:border-b-0 md:border-r border-slate-200 dark:border-slate-700 pb-2 md:pb-0 w-full md:w-auto">
+        <div className="flex items-center gap-2 text-brand-500 
+        font-bold md:pr-4 border-b md:border-b-0 md:border-r border-border-default pb-2 md:pb-0 w-full md:w-auto">
           <Filter size={18} className="text-brand-500" />
           <span className="text-xs uppercase tracking-widest whitespace-nowrap">Bộ lọc</span>
         </div>
-        <div className="flex-1 italic text-slate-400 text-xs">Phát triển thêm bộ lọc theo khu vực, trạng thái...</div>
+        <div className="flex-1 italic text-text-muted text-xs">Phát triển thêm bộ lọc theo khu vực, trạng thái...</div>
       </div>
     </div>
   );

@@ -56,11 +56,11 @@ export default function CheckoutForm() {
 
   return (
     <SWTCard
-      className="!border-none !shadow-md !rounded-2xl !p-6 flex flex-col gap-6 min-h-[450px]"
+      className="!border border-border-default !shadow-md !rounded-2xl !p-6 !bg-bg-card flex flex-col gap-6 min-h-[450px]"
     >
       <div className="flex flex-col gap-4">
-        <div className="flex items-center gap-2 border-l-4 border-blue-600 pl-4">
-          <h2 className="text-lg font-bold text-gray-800 uppercase">
+        <div className="flex items-center gap-2 border-l-4 border-brand-500 pl-4">
+          <h2 className="text-lg font-bold text-text-main uppercase">
             Thông tin người nhận hàng
           </h2>
         </div>
@@ -102,18 +102,18 @@ export default function CheckoutForm() {
         </SWTForm>
       </div>
 
-      <Divider className="!my-2" />
+      <Divider className="!my-2 border-border-default" />
 
       <div className="flex flex-col gap-3">
         <div className="flex items-center justify-between">
-          <h3 className="font-semibold flex items-center gap-2 text-gray-700">
-            <EnvironmentOutlined className="text-red-500" />
+          <h3 className="font-bold flex items-center gap-2 text-text-sub uppercase text-sm">
+            <EnvironmentOutlined className="text-status-error-text" />
             Địa chỉ giao hàng
           </h3>
           {addresses.length > 0 && (
             <button
               onClick={() => setAddingNew(!addingNew)}
-              className="text-sm text-blue-600 hover:text-blue-700"
+              className="text-sm text-brand-500 hover:opacity-80 font-bold"
             >
               {addingNew ? "Hủy" : "Thêm"}
             </button>
@@ -131,14 +131,13 @@ export default function CheckoutForm() {
                 <div
                   key={idx}
                   onClick={() => handleSelectAddress(addr)}
-                  className={`border rounded-xl p-4 my-2 cursor-pointer transition flex items-start gap-3 ${
-                    isActive
-                      ? "border-blue-500 bg-blue-50 shadow-sm"
-                      : "border-gray-200 hover:border-gray-300"
-                  }`}
+                  className={`border rounded-xl p-4 my-2 cursor-pointer transition flex items-start gap-3 ${isActive
+                      ? "border-brand-500 bg-brand-500/5 shadow-sm"
+                      : "border-border-default hover:border-brand-500/50"
+                    }`}
                 >
                   <Radio value={addr.address} />
-                  <div className="flex-1 text-sm text-gray-700 leading-relaxed">
+                  <div className="flex-1 text-sm text-text-sub leading-relaxed">
                     {addr.address}
                   </div>
                 </div>
@@ -147,9 +146,9 @@ export default function CheckoutForm() {
           </Radio.Group>
         )}
         {(addingNew || addresses.length === 0) && (
-          <div className="border-2 border-dashed border-blue-200 rounded-xl p-4 bg-blue-50/20">
+          <div className="border-2 border-dashed border-brand-500/20 rounded-xl p-4 bg-bg-muted">
             <AddressAutocomplete onChange={handleAddNewAddress} />
-            <p className="text-[11px] text-gray-400 mt-2">
+            <p className="text-[11px] text-text-muted mt-2">
               * Chọn từ gợi ý để tính phí ship chính xác
             </p>
           </div>

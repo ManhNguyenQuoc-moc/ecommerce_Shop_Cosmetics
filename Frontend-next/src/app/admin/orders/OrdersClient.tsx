@@ -33,8 +33,8 @@ export default function OrdersClient() {
   };
 
   return (
-    <div className="p-0 bg-white/80 dark:bg-slate-900/50 backdrop-blur-md rounded-2xl shadow-sm border border-slate-200 dark:border-admin-sidebar-border transition-colors overflow-hidden">
-      <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800">
+    <div className="p-0 bg-bg-card backdrop-blur-md rounded-2xl shadow-sm border border-border-default dark:border-border-brand transition-colors overflow-hidden">
+      <div className="px-6 py-4 border-b border-border-default dark:border-border-brand/20">
          <SWTTabs
           activeKey={params.status || "ALL"}
           onChange={(key) => handleParamChange({ status: key === "ALL" ? undefined : key as any })}

@@ -14,7 +14,7 @@ export default function ProductQuantity({ qty, setQty, max = 5 }: Props) {
       </span>
       <SWTInputNumber
         value={qty}
-        mode ="spinner"
+        mode="spinner"
         min={1}
         max={max}
         onChange={(v) => setQty(Number(v) || 1)}
@@ -28,4 +28,4 @@ export default function ProductQuantity({ qty, setQty, max = 5 }: Props) {
       )}
     </div>
   );
-}
+}

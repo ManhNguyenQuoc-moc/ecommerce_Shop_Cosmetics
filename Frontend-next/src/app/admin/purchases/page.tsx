@@ -11,7 +11,7 @@ export const metadata = {
 
 export default function PurchasesPage() {
   return (
-    <div className="space-y-6 animate-fade-in text-slate-900">
+    <div className="space-y-6 animate-fade-in text-text-main">
       <POHeader
         title="Quản lý Nhập hàng (PO)"
         subtitle="Tạo phiếu nhập, duyệt và theo dõi trạng thái biên nhận hàng hóa."
@@ -20,7 +20,7 @@ export default function PurchasesPage() {
           { title: "Quản lý Nhập hàng" },
         ]}
       />
-      <div className="p-6 bg-white/80 dark:bg-slate-900/50 backdrop-blur-md rounded-2xl shadow-sm border border-slate-200 dark:border-admin-sidebar-border transition-colors">
+      <div className="admin-card p-6">
         <Suspense>
           <PurchasesClient />
         </Suspense>

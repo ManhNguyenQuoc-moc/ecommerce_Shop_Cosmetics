@@ -1,17 +1,14 @@
 import { get, put } from "../api";
 import { OrderDTO, OrderListResponseDTO, OrderStatus } from "../models/customer/order.dto";
 
-export const getOrders = async (status?: OrderStatus, page: number = 1, pageSize: number = 10): Promise<OrderListResponseDTO> => {
+export const getOrders = async (status?: OrderStatus, page: number = 1, pageSize: number = 6): Promise<OrderListResponseDTO> => {
   const query = new URLSearchParams({
     page: page.toString(),
     pageSize: pageSize.toString(),
   });
   if (status) query.append("status", status);
-
-  const response = await get<any>(`/orders?${query.toString()}`);
-  
-  // Transform backend items to match DTO if needed
-  const orders = (response.data || []).map((order: any) => transformOrder(order));
+  const response = await get<OrderListResponseDTO>(`/orders/me?${query.toString()}`);
+  const orders = (response.data || []).map((order: OrderDTO) => transformOrder(order));
 
   return {
     data: orders,
@@ -20,7 +17,7 @@ export const getOrders = async (status?: OrderStatus, page: number = 1, pageSize
 };
 
 export const getOrderDetails = async (id: string): Promise<OrderDTO> => {
-  const order = await get<any>(`/orders/${id}`);
+  const order = await get<OrderDTO>(`/orders/${id}`);
   return transformOrder(order);
 };
 
@@ -35,9 +32,9 @@ const transformOrder = (order: any): OrderDTO => {
       id: item.id,
       variantId: item.variantId,
       product_name: item.variant?.product?.name || "Sản phẩm",
-      product_image: item.variant?.image?.url || "",
+      product_image: item.variant?.image?.url || item.variant?.image || item.variant?.product?.image || item.variant?.product?.thumbnail || "",
       variant_name: [item.variant?.color, item.variant?.size].filter(Boolean).join(" - "),
-      price: item.price_at_purchase,
+      price: item.price || item.price_at_purchase,
       quantity: item.quantity,
     })),
     shipping_address: order.address?.address || order.shipping_address || "N/A",

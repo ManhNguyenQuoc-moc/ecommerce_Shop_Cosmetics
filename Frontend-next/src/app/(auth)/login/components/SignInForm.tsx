@@ -38,6 +38,7 @@ export default function SignInForm() {
       if (error) throw error;
       
       if (data.session && data.user) {
+        
         const authUser = {
           id: data.user.id,
           name: data.user.user_metadata.full_name || "User",

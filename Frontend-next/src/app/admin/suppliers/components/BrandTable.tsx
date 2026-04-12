@@ -43,13 +43,13 @@ export default function BrandTable({ onEdit, searchTerm }: BrandTableProps) {
           <SWTAvatar
             src={record.logo?.url}
             size={45}
-            className="rounded-xl border border-slate-200 bg-white"
+            className="rounded-xl border border-border-default bg-bg-card"
           >
             {record.name.charAt(0)}
           </SWTAvatar>
           <div className="flex flex-col">
-            <span className="font-bold text-slate-800 dark:text-white leading-tight">{record.name}</span>
-            <span className="text-xs text-slate-500 font-medium mt-0.5">Slug: {record.slug}</span>
+            <span className="font-bold text-text-main leading-tight">{record.name}</span>
+            <span className="text-xs text-text-muted font-medium mt-0.5">Slug: {record.slug}</span>
           </div>
         </div>
       ),
@@ -60,14 +60,14 @@ export default function BrandTable({ onEdit, searchTerm }: BrandTableProps) {
       render: (_: any, record: any) => (
         <div className="space-y-1">
           {record.email && (
-            <div className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-400">
-              <Mail size={12} className="text-emerald-500" />
+            <div className="flex items-center gap-1.5 text-xs text-text-sub font-medium">
+              <Mail size={12} className="text-status-success-text" />
               {record.email}
             </div>
           )}
           {record.phone && (
-            <div className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-400">
-              <Phone size={12} className="text-emerald-500" />
+            <div className="flex items-center gap-1.5 text-xs text-text-sub font-medium">
+              <Phone size={12} className="text-status-success-text" />
               {record.phone}
             </div>
           )}
@@ -79,8 +79,8 @@ export default function BrandTable({ onEdit, searchTerm }: BrandTableProps) {
       dataIndex: 'address',
       key: 'address',
       render: (text: string) => (
-        <div className="max-w-[200px] truncate text-xs text-slate-600 dark:text-slate-400 flex items-center gap-1.5">
-          {text ? <><MapPin size={12} className="text-emerald-500 shrink-0" /> {text}</> : "N/A"}
+        <div className="max-w-[200px] truncate text-xs text-text-sub flex items-center gap-1.5 font-medium">
+          {text ? <><MapPin size={12} className="text-status-success-text shrink-0" /> {text}</> : "N/A"}
         </div>
       )
     },
@@ -89,7 +89,7 @@ export default function BrandTable({ onEdit, searchTerm }: BrandTableProps) {
       dataIndex: 'createdAt',
       key: 'createdAt',
       render: (date: string) => (
-        <div className="text-xs font-medium text-slate-500">
+        <div className="text-xs font-bold text-text-muted uppercase tracking-tighter">
           {new Date(date).toLocaleDateString("vi-VN")}
         </div>
       )
@@ -119,7 +119,7 @@ export default function BrandTable({ onEdit, searchTerm }: BrandTableProps) {
 
   return (
     <div className="w-full">
-      <div className="!bg-white/90 dark:!bg-slate-900/80 backdrop-blur-xl !rounded-xl overflow-hidden !border !border-slate-100 dark:!border-emerald-500/20 !shadow-lg mt-4 transition-colors">
+      <div className="!bg-bg-card/90 backdrop-blur-xl !rounded-xl overflow-hidden !border !border-border-default !shadow-lg mt-4 transition-colors">
         <SWTTable
           columns={columns}
           dataSource={brands}

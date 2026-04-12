@@ -58,7 +58,7 @@ export default function CategorySection({ categories, loading }: Props) {
                     duration-300
                     hover:-translate-y-1
                   "
-                    >
+                  >
                     <div className="relative h-[140px]">
                       <Image
                         src={item.image}
@@ -75,13 +75,13 @@ export default function CategorySection({ categories, loading }: Props) {
                       <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
                     </div>
                     <div className="absolute bottom-3 left-1/2 -translate-x-1/2">
-                <div className="w-[160px] h-[42px] flex items-center justify-center
+                      <div className="w-[160px] h-[42px] flex items-center justify-center
                   bg-white/40 backdrop-blur-md border border-white/20
                   rounded-lg text-xs font-bold text-center
                   shadow-lg px-2 leading-tight text-gray-900 group-hover:bg-white/80 transition-all">
-                    {item.name}
-                  </div>
-                </div>
+                        {item.name}
+                      </div>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -89,6 +89,6 @@ export default function CategorySection({ categories, loading }: Props) {
           ))}
         </Carousel>
       </div>
-      </>
+    </>
   );
 }

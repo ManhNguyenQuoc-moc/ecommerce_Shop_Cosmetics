@@ -80,7 +80,7 @@ export default function ProfileAvatarUpload({
   return (
     <div className="flex flex-col items-center gap-3">
       <div
-        className="relative group inline-block rounded-full bg-white dark:bg-slate-800 shadow-md overflow-hidden"
+        className="relative group inline-block rounded-full bg-bg-card shadow-md overflow-hidden"
         style={{ width: size, height: size }}
       >
         <SWTAvatar
@@ -88,15 +88,15 @@ export default function ProfileAvatarUpload({
           alt={displayName || "Avatar"}
           size={size}
           shape="circle"
-          className="!rounded-full border-2 border-slate-100 dark:border-slate-800"
+          className="!rounded-full border-2 border-border-default"
         />
 
         {/* Persistent Loading Overlay for Profile Avatar */}
         {isLoading && (
-          <div className="absolute inset-1 rounded-full flex items-center justify-center bg-white/70 z-10 transition-all duration-300">
+          <div className="absolute inset-1 rounded-full flex items-center justify-center bg-bg-card/70 backdrop-blur-[2px] z-10 transition-all duration-300">
             <div className="flex flex-col items-center gap-2">
               <LoadingOutlined className="text-brand-500 text-3xl animate-spin" />
-              <span className="text-[10px] font-bold text-brand-600 uppercase tracking-tighter">Đang tải</span>
+              <span className="text-[10px] font-bold text-brand-500 uppercase tracking-tighter">Đang tải</span>
             </div>
           </div>
         )}
@@ -123,8 +123,8 @@ export default function ProfileAvatarUpload({
       </div>
       {displayName && (
         <div className="text-center">
-          <p className="font-bold text-slate-800 text-lg leading-tight mb-1">{displayName}</p>
-          <p className="text-xs font-medium text-brand-600 uppercase tracking-wider">Hồ sơ cá nhân</p>
+          <p className="font-bold text-text-main text-lg leading-tight mb-1">{displayName}</p>
+          <p className="text-xs font-black text-brand-500 uppercase tracking-widest opacity-80">Hồ sơ cá nhân</p>
         </div>
       )}
     </div>

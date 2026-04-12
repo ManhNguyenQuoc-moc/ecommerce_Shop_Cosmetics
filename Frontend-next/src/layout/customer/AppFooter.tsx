@@ -8,13 +8,13 @@ export default function AppFooter() {
   return (
     <footer className="bg-brand-25">
       <div className="border-t border-brand-200/50 pt-16 pb-12">
-        
+
         {/* Grid */}
         <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-12 gap-8 lg:gap-y-12">
-          
+
           {/* LEFT */}
           <div className="lg:col-span-4 lg:row-span-2 flex flex-col justify-between h-full max-w-md space-y-10 lg:space-y-0">
-            
+
             <div>
               {/* Logo */}
               <Link href="/" className="group flex items-center gap-3 w-fit">
@@ -30,15 +30,15 @@ export default function AppFooter() {
 
               {/* Description */}
               <p className="text-sm text-brand-900/70 leading-loose font-medium pr-4 mt-5">
-                Tự hào là điểm đến mua sắm mỹ phẩm chính hãng cực kỳ uy tín. 
-                Chúng tôi cam kết mang lại vẻ đẹp tỏa sáng và sự tự tin cho bạn 
+                Tự hào là điểm đến mua sắm mỹ phẩm chính hãng cực kỳ uy tín.
+                Chúng tôi cam kết mang lại vẻ đẹp tỏa sáng và sự tự tin cho bạn
                 với những sản phẩm chăm sóc sắc đẹp hàng đầu.
               </p>
             </div>
 
             {/* Social + Payment */}
             <div className="flex flex-col gap-8">
-              
+
               {/* Social */}
               <div>
                 <p className="text-xs text-brand-500 font-bold uppercase tracking-wider mb-4">
@@ -63,7 +63,7 @@ export default function AppFooter() {
                   Phương thức thanh toán
                 </p>
                 <div className="flex flex-wrap gap-3">
-                  
+
                   {/* Mastercard */}
                   <div className="bg-white px-2 py-1 rounded shadow-sm border border-gray-100 flex items-center justify-center h-9 w-14 transition-transform hover:-translate-y-1 cursor-default">
                     <div className="flex -space-x-1.5">
@@ -138,7 +138,7 @@ export default function AppFooter() {
 
         </div>
       </div>
-      
+
       {/* Bottom */}
       <div className="bg-brand-50 border-t border-brand-200/50 py-6">
         <div className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-4">

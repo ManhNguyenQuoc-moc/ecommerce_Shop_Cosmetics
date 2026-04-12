@@ -26,7 +26,7 @@ export default function SuppliersClient() {
   };
 
   return (
-    <div className="p-6 bg-white/80 dark:bg-slate-900/50 backdrop-blur-md rounded-2xl shadow-sm border border-slate-200 dark:border-admin-sidebar-border transition-colors">
+    <div className="admin-card p-6">
       <BrandFilters onAdd={handleOpenAddModal} onSearch={setSearchTerm} />
       <BrandTable onEdit={handleOpenEditModal} searchTerm={searchTerm} />
       

@@ -35,14 +35,14 @@ export default function ProductVariants({
         <p className="text-sm mt-2">
           {isColorVariant && (
             <>
-              <span className ="text-xl font-semibold">Màu sắc:</span>
+              <span className="text-xl font-semibold">Màu sắc:</span>
               <span className="text-xl font-semibold ml-1">{variant?.color || "Chưa chọn"}</span>
             </>
           )}
 
           {isSizeVariant && (
             <>
-              <span className ="text-xl font-semibold">Dung tích:</span>
+              <span className="text-xl font-semibold">Dung tích:</span>
               <span className="text-xl font-semibold ml-1">{variant?.size || "Chưa chọn"}</span>
             </>
           )}
@@ -61,13 +61,12 @@ export default function ProductVariants({
                 disabled={outOfStock}
                 title={outOfStock ? "Sản phẩm này đã hết hàng" : undefined}
                 className={`px-4 py-2 rounded-full border text-sm transition-all relative flex flex-col items-center leading-tight
-                ${
-                  outOfStock
+                ${outOfStock
                     ? "border-gray-200 text-gray-300 cursor-not-allowed bg-gray-50"
                     : active
-                    ? "border-brand-500 text-brand-500 bg-brand-50 shadow-sm"
-                    : "border-gray-300 hover:border-brand-500 text-gray-700"
-                }`}
+                      ? "border-brand-500 text-brand-500 bg-brand-50 shadow-sm"
+                      : "border-gray-300 hover:border-brand-500 text-gray-700"
+                  }`}
               >
                 {v.color || v.size}
                 {outOfStock && (

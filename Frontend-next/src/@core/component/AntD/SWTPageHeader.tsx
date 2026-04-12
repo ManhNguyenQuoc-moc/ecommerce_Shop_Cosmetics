@@ -41,7 +41,7 @@ const SWTPageHeader: React.FC<SWTPageHeaderProps> = ({
   };
 
   return (
-    <div className={`mb-6 space-y-4 ${className}`}>
+    <div className={`${className}`}>
       {/* Breadcrumbs */}
       {breadcrumbs && breadcrumbs.length > 0 && (
         <Breadcrumb
@@ -68,11 +68,11 @@ const SWTPageHeader: React.FC<SWTPageHeaderProps> = ({
             />
           )}
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-3xl">
+            <h1 className="text-2xl font-bold tracking-tight text-brand-500 dark:text-white sm:text-3xl">
               {title}
             </h1>
             {subtitle && (
-              <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+              <p className="text-xl text-slate-500 dark:text-slate-400">
                 {subtitle}
               </p>
             )}

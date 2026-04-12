@@ -7,9 +7,10 @@ import { UserService } from "../services/user.service";
 import { InventoryRepository } from "../repositories/inventory.repository";
 import { MailService } from "../services/mail.service";
 
+import { authenticate } from "../middlewares/auth.middleware";
+
 const router = Router();
 
-// Dependency Injection Assembly
 const orderRepository = new OrderRepository();
 const userRepository = new UserRepository();
 const userService = new UserService(userRepository);
@@ -25,6 +26,10 @@ const orderService = new OrderService(
 
 const orderController = new OrderController(orderService);
 
+// Apply authenticate to all routes below
+router.use(authenticate);
+
+router.get("/me", orderController.getMyOrders);
 router.get("/", orderController.getOrders);
 router.get("/:id", orderController.getOrderById);
 router.post("/checkout", orderController.createOrder); 

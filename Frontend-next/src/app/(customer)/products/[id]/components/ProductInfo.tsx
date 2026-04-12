@@ -15,16 +15,16 @@ export default function ProductInfo({ product }: Props) {
       </h1>
       <div className="flex items-center gap-2 text-xl mb-1.5">
         <span className="text-gray-500">Thương hiệu:</span>
-       <span className="px-2 py-0.5 rounded bg-blue-100 text-gray-700 font-medium">
+        <span className="px-2 py-0.5 rounded bg-blue-100 text-gray-700 font-medium">
           {brandName}
-      </span>
+        </span>
       </div>
       <div className="flex flex-wrap items-center gap-3 text-md text-gray-600">
         <div className="flex items-center gap-1 bg-orange-500 rounded-xl p-2">
           <span className="font-medium text-white">
             {product.rating ?? "0"}
           </span>
-          <Star className="text-white fill-white" size={16}/>
+          <Star className="text-white fill-white" size={16} />
         </div>
         <span className="text-gray-300">|</span>
         <span className=" p-2 rounded-xl ">

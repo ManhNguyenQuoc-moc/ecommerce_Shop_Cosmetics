@@ -9,7 +9,7 @@ export default function NewsletterSection() {
     <div className="relative overflow-hidden bg-gradient-to-br from-brand-500 to-brand-700 rounded-2xl p-6 sm:p-8 text-white shadow-lg shadow-brand-200/50 border border-brand-400/30">
       {/* Hiệu ứng quét sáng giống HeroBanner */}
       <div className="absolute inset-0 bg-white/30 animate-sweep z-[1] pointer-events-none mix-blend-overlay" />
-      
+
       <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 blur-3xl rounded-full translate-x-1/2 -translate-y-1/2 pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-40 h-40 bg-brand-900/20 blur-2xl rounded-full -translate-x-1/2 translate-y-1/2 pointer-events-none" />
       <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6 md:gap-8">
@@ -36,14 +36,14 @@ export default function NewsletterSection() {
               className="!h-[48px] !w-full sm:!w-auto !rounded-xl !bg-white !text-brand-500 !border-none !text-sm !font-bold flex items-center justify-center gap-2 shadow-lg"
             >
               <Send size={16} />
-              Đăng ký 
+              Đăng ký
             </SWTButton>
           </div>
           <p className="text-white/60 text-[10px] italic font-medium px-1">
             * Cam kết bảo mật thông tin, không spam.
           </p>
         </div>
-        
+
       </div>
     </div>
   );
