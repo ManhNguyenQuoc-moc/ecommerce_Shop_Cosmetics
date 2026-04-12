@@ -89,11 +89,12 @@ export const useCheckout = () => {
           email: customer.email,
         },
         address: {
+          addressId: (selectedAddress as any).id,
           address: selectedAddress.address,
           lat: selectedAddress.lat,
           lon: selectedAddress.lon,
         },
-        addressId: (selectedAddress as any).id,
+       
         total: subtotal,
         shippingFee: shippingFee,
         shippingMethod: shippingMethod || "standard",

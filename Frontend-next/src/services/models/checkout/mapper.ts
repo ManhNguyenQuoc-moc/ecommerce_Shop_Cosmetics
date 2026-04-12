@@ -21,11 +21,11 @@ export const mapCheckoutModelToDTO = (
       email: model.customer.email,
     },
     address: {
+      addressId: model.selectedAddress.id,
       address: model.selectedAddress.address,
       lat: model.selectedAddress.lat,
       lon: model.selectedAddress.lon,
     },
-    addressId: model.selectedAddress.id,
     total: model.total,
     shippingFee: model.shippingFee,
     shippingMethod: model.shippingMethod,
