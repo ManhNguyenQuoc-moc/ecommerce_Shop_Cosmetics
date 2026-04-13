@@ -1,7 +1,7 @@
 import { get, put } from "@/src/services/api";
 import { useFetchSWR } from "@/src/@core/hooks/useFetchSWR";
 import { OrderDto, OrderListResponseDto } from "@/src/services/models/order/output.dto";
-import { buildQueryString } from "@/src/utils/query.util";
+import { buildQueryString } from "@/src/@core/utils/query.util";
 
 export const ORDER_API_ENDPOINT = "/orders";
 

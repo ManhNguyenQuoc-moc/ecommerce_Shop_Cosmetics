@@ -1,7 +1,7 @@
 // order.service.ts
 import { get, put } from "../api";
 import { OrderDto, OrderListResponseDto } from "../models/order/output.dto";
-import { buildQueryString } from "../../utils/query.util";
+import { buildQueryString } from "../../@core/utils/query.util";
 
 export const ORDER_API_ENDPOINT = "/orders";
 

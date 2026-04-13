@@ -3,7 +3,7 @@ import { mutate as globalMutate } from "swr";
 import { ProductListResponseDto, ProductDetailDto, ProductVariantDto, VariantListResponseDto, VariantDetailDto } from "@/src/services/models/product/output.dto";
 import { PaginationResponse } from "@/src/services/models/common/PaginationResponse";
 import { ProductQueryParams } from "@/src/services/models/product/input.dto";
-import { buildQueryString } from "@/src/utils/query.util";
+import { buildQueryString } from "@/src/@core/utils/query.util";
 import { get } from "@/src/services/api";
 
 const PRODUCT_API_ENDPOINT = "/products";

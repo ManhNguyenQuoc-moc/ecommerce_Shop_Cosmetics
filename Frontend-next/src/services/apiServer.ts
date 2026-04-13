@@ -1,5 +1,5 @@
 import { ApiResponse } from "@/src/@core/type/api";
-import { buildQueryString } from "../utils/query.util";
+import { buildQueryString } from "../@core/utils/query.util";
 import { API_BASE_URL } from "../@core/const";
 
 const baseURL = API_BASE_URL;

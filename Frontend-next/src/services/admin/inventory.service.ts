@@ -1,7 +1,7 @@
 import { get } from "../api";
 import { InventoryBatchDto } from "../models/inventory/output.dto";
 import { InventoryQueryParams } from "../models/inventory/input.dto";
-import { buildQueryString } from "../../utils/query.util";
+import { buildQueryString } from "../../@core/utils/query.util";
 import { PaginationResponse } from "../models/common/PaginationResponse";
 
 export const INVENTORY_API_ENDPOINT = "/inventory";
