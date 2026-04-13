@@ -6,6 +6,8 @@ import { UserRepository } from "../repositories/user.repository";
 import { UserService } from "../services/user.service";
 import { InventoryRepository } from "../repositories/inventory.repository";
 import { MailService } from "../services/mail.service";
+import { SettingRepository } from "../repositories/setting.repository";
+import { SettingService } from "../services/setting.service";
 
 import { authenticate } from "../middlewares/auth.middleware";
 
@@ -16,12 +18,15 @@ const userRepository = new UserRepository();
 const userService = new UserService(userRepository);
 const inventoryRepository = new InventoryRepository();
 const mailService = new MailService();
+const settingRepository = new SettingRepository();
+const settingService = new SettingService(settingRepository);
 
 const orderService = new OrderService(
   orderRepository, 
   userService, 
   inventoryRepository, 
-  mailService
+  mailService,
+  settingService
 );
 
 const orderController = new OrderController(orderService);

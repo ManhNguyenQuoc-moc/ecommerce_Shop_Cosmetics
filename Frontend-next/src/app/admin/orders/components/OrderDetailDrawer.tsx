@@ -1,8 +1,9 @@
 import { OrderStatus } from "@/src/services/models/order/output.dto";
-import { useOrder, updateOrderStatus, updateOrderPaymentStatus } from "@/src/services/admin/order.service";
+import { useOrder } from "@/src/hooks/admin/order.hook";
+import { updateOrderStatus, updateOrderPaymentStatus } from "@/src/services/admin/order.service";
 import { showNotificationSuccess, showNotificationError } from "@/src/@core/utils/message";
 import { useState } from "react";
-import { Package, User, CreditCard, Clock, CheckCircle2, Truck, XCircle, Undo2, ChevronRight, Hash, ShieldCheck, MapPin } from "lucide-react";
+import { Package, User, CreditCard, Clock, CheckCircle2, Truck, XCircle, Undo2, ChevronRight, Hash, ShieldCheck, MapPin, Ticket } from "lucide-react";
 import Image from "next/image";
 import SWTCard from "@/src/@core/component/AntD/SWTCard";
 import SWTButton from "@/src/@core/component/AntD/SWTButton";
@@ -51,7 +52,7 @@ const getStatusClasses = (status: OrderStatus) => {
 export default function OrderDetailDrawer({ orderId, open, onClose, onUpdate }: OrderDetailDrawerProps) {
   const { order, isLoading, mutate } = useOrder(orderId || undefined);
   const [updating, setUpdating] = useState(false);
-  
+
   const formatVND = (v: number) => new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(v || 0);
 
   const handleStatusUpdate = async (newStatus: OrderStatus) => {
@@ -110,7 +111,7 @@ export default function OrderDetailDrawer({ orderId, open, onClose, onUpdate }: 
     const canConfirmPayment = order.payment_status === "UNPAID" && (order.current_status === "DELIVERED" || order.current_status === "SHIPPING");
 
     if (nextStatuses.length === 0 && !canConfirmPayment) return null;
-    
+
     return (
       <div className="mt-5 pt-5 border-t border-border-default flex flex-wrap items-center justify-between gap-4">
         <span className="text-xs font-semibold text-text-muted uppercase tracking-wider">
@@ -119,9 +120,9 @@ export default function OrderDetailDrawer({ orderId, open, onClose, onUpdate }: 
         <div className="flex flex-row items-center gap-3">
           {nextStatuses.map((s) => (
             <SWTButton
-              key={s} 
-              size="sm" 
-              loading={updating} 
+              key={s}
+              size="sm"
+              loading={updating}
               variant="outlined"
               onClick={() => handleStatusUpdate(s)}
               startIcon={statusIcons[s]}
@@ -130,11 +131,11 @@ export default function OrderDetailDrawer({ orderId, open, onClose, onUpdate }: 
               {statusLabels[s]}
             </SWTButton>
           ))}
-          
+
           {canConfirmPayment && (
             <SWTButton
-              size="sm" 
-              loading={updating} 
+              size="sm"
+              loading={updating}
               variant="outlined"
               onClick={() => handlePaymentUpdate("PAID")}
               startIcon={<ShieldCheck size={16} />}
@@ -156,9 +157,9 @@ export default function OrderDetailDrawer({ orderId, open, onClose, onUpdate }: 
               <span className="text-xl text-brand-500 font-bold uppercase tracking-widest">Chi tiết đơn hàng</span>
             </div>
             <div className="flex items-center gap-1 font-black text-lg text-text-main">
-                <Hash size={16} className="text-brand-500" />
-                <span>{order?.code || "..."}</span>
-              </div>
+              <Hash size={16} className="text-brand-500" />
+              <span>{order?.code || "..."}</span>
+            </div>
           </div>
           {order && (
             <div className={`px-3 py-1.5 rounded-lg border text-xs font-bold uppercase shadow-sm ${getStatusClasses(order.current_status)}`}>
@@ -177,10 +178,10 @@ export default function OrderDetailDrawer({ orderId, open, onClose, onUpdate }: 
         </div>
       ) : order ? (
         <div className="flex flex-col gap-6 pb-10">
-          
+
           {/* Progress & Actions Section */}
-          <SWTCard 
-            className=" !m-2 !rounded-2xl !border !border-border-default dark:!border-border-brand !shadow-sm !overflow-hidden" 
+          <SWTCard
+            className=" !m-2 !rounded-2xl !border !border-border-default dark:!border-border-brand !shadow-sm !overflow-hidden"
             bodyClassName="!p-6 !bg-bg-card"
           >
             <SWTSteps
@@ -199,8 +200,8 @@ export default function OrderDetailDrawer({ orderId, open, onClose, onUpdate }: 
           <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
             {/* LEFT COLUMN: Customer & Shipping */}
             <div className="md:col-span-5 flex flex-col gap-6">
-              <SWTCard 
-                className="!ml-2 !rounded-2xl !border !border-border-default dark:!border-border-brand !shadow-sm !overflow-hidden" 
+              <SWTCard
+                className="!ml-2 !rounded-2xl !border !border-border-default dark:!border-border-brand !shadow-sm !overflow-hidden"
                 bodyClassName="!p-0 !bg-bg-card"
               >
                 {/* Customer Info */}
@@ -251,7 +252,7 @@ export default function OrderDetailDrawer({ orderId, open, onClose, onUpdate }: 
                       </span>
                     </div>
                     <div className="pt-3 border-t border-border-default">
-                      <span className="text-xs text-text-muted flex items-center gap-1 mb-1"><MapPin size={12}/> Địa chỉ nhận:</span>
+                      <span className="text-xs text-text-muted flex items-center gap-1 mb-1"><MapPin size={12} /> Địa chỉ nhận:</span>
                       <p className="text-sm text-text-sub font-medium leading-relaxed">{order.shipping_address}</p>
                     </div>
                   </div>
@@ -261,13 +262,13 @@ export default function OrderDetailDrawer({ orderId, open, onClose, onUpdate }: 
 
             {/* RIGHT COLUMN: Order Items */}
             <div className="md:col-span-7 flex flex-col gap-6">
-              <SWTCard 
-                className=" !mr-2 !rounded-2xl !border !border-border-default dark:!border-border-brand !shadow-sm !overflow-hidden" 
+              <SWTCard
+                className=" !mr-2 !rounded-2xl !border !border-border-default dark:!border-border-brand !shadow-sm !overflow-hidden"
                 bodyClassName="!p-0 !bg-bg-card flex flex-col h-full"
               >
                 {/* Header Items */}
                 <div className="p-4 border-b border-border-default bg-bg-muted">
-                   <h4 className="flex items-center gap-2 text-sm font-bold text-text-main uppercase m-0">
+                  <h4 className="flex items-center gap-2 text-sm font-bold text-text-main uppercase m-0">
                     <Package size={18} className="text-brand-500" /> Danh sách sản phẩm ({order.items.length})
                   </h4>
                 </div>
@@ -296,19 +297,33 @@ export default function OrderDetailDrawer({ orderId, open, onClose, onUpdate }: 
                     </div>
                   ))}
                 </div>
-                
+
                 {/* Summary Section */}
                 <div className="p-5 bg-bg-muted border-t border-border-default">
-                  <div className="space-y-2">
+                  <div className="space-y-3">
                     <div className="flex justify-between text-sm text-text-muted">
-                      <span>Tạm tính:</span>
+                      <span>Tạm tính (giá niêm yết):</span>
                       <span className="font-semibold text-text-sub">{formatVND(order.total_amount)}</span>
                     </div>
+
+                    {order.discount_amount && order.discount_amount > 0 && (
+                      <div className="flex justify-between items-center text-sm">
+                        <div className="flex items-center gap-2">
+                           <span className="text-text-muted">Mã giảm giá:</span>
+                           <span className="text-[10px] font-black text-brand-500 bg-brand-50 px-2 py-0.5 rounded border border-brand-100 flex items-center gap-1">
+                              <Ticket size={10} /> {order.voucher_code}
+                           </span>
+                        </div>
+                        <span className="font-bold text-brand-500">-{formatVND(order.discount_amount)}</span>
+                      </div>
+                    )}
+
                     <div className="flex justify-between text-sm text-text-muted">
                       <span>Phí vận chuyển:</span>
-                      <span className="font-semibold text-status-success-text">{formatVND(order.shipping_fee)}</span>
+                      <span className="font-semibold text-status-success-text">+{formatVND(order.shipping_fee)}</span>
                     </div>
-                    <div className="pt-3 mt-3 border-t border-border-default flex justify-between items-center">
+
+                    <div className="pt-4 mt-4 border-t border-dashed border-border-default flex justify-between items-center">
                       <span className="text-sm font-bold text-text-main uppercase">Tổng thanh toán:</span>
                       <span className="text-2xl font-black text-brand-500">{formatVND(order.final_amount)}</span>
                     </div>
@@ -319,8 +334,8 @@ export default function OrderDetailDrawer({ orderId, open, onClose, onUpdate }: 
           </div>
 
           {/* Activity Timeline Section */}
-          <SWTCard 
-            className="!mx-2 !rounded-2xl !border !border-border-default dark:!border-border-brand !shadow-sm" 
+          <SWTCard
+            className="!mx-2 !rounded-2xl !border !border-border-default dark:!border-border-brand !shadow-sm"
             bodyClassName="!p-6 !bg-bg-card"
           >
             <h4 className="flex items-center gap-2 text-sm font-bold text-text-main mb-6 uppercase">

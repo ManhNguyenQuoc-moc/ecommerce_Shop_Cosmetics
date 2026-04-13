@@ -6,13 +6,10 @@ import { Edit } from "lucide-react";
 import SWTIconButton from "@/src/@core/component/SWTIconButton";
 import { VoucherResponseDto } from "@/src/services/models/voucher/output.dto";
 
-const mockVouchers = [
-  { id: "VCH-SUMMER23", name: "Sale Hè Rực Rỡ", type: "Giảm theo %", value: "15%", minOrder: "500.000đ", usage: "124/500", status: "Đang diễn ra", end: "30/08/2023" },
-  { id: "VCH-NEWBIE", name: "Mừng Bạn Mới", type: "Giảm cố định", value: "50.000đ", minOrder: "0đ", usage: "3408/∞", status: "Hoạt động", end: "Không giới hạn" },
-  { id: "VCH-FREESHIP", name: "Freeship Đơn 300k", type: "Miễn phí vận chuyển", value: "30.000đ", minOrder: "300.000đ", usage: "89/100", status: "Đang diễn ra", end: "15/10/2023" },
-  { id: "VCH-FLASH10", name: "Flash Sale Đêm", type: "Giảm theo %", value: "20%", minOrder: "1.000.000đ", usage: "50/50", status: "Hết lượt", end: "10/10/2023" },
-  { id: "VCH-VIP", name: "Tri Ân Khách VIP", type: "Đồng giá", value: "Giảm 100k", minOrder: "VIP Tier", usage: "12/100", status: "Chờ kích hoạt", end: "01/12/2023" },
-];
+import { useGetVouchers, useDeleteVoucher } from "@/src/hooks/admin/voucher.hook";
+import { showNotificationSuccess, showNotificationError } from "@/src/@core/utils/message";
+import { Popconfirm, Tag } from "antd";
+import { Trash } from "lucide-react";
 
 interface VoucherTableProps {
   onEdit?: (voucher: VoucherResponseDto) => void;
@@ -21,54 +18,80 @@ interface VoucherTableProps {
 export default function VoucherTable({ onEdit }: VoucherTableProps) {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
+  const { vouchers, isLoading, mutate } = useGetVouchers();
+  const { trigger: deleteVoucher } = useDeleteVoucher();
 
-  const paginatedData = mockVouchers.slice((page - 1) * pageSize, page * pageSize);
+  const paginatedData = vouchers.slice((page - 1) * pageSize, page * pageSize);
+
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteVoucher(id);
+      showNotificationSuccess("Xóa Voucher thành công!");
+      mutate();
+    } catch (e: any) {
+      showNotificationError(e.message || "Xóa Voucher thất bại");
+    }
+  };
 
   const columns = useMemo(() => [
     {
       title: 'Mã Voucher',
-      dataIndex: 'id',
-      key: 'id',
+      dataIndex: 'code',
+      key: 'code',
       render: (text: string) => <div className="font-bold text-brand-600 bg-brand-50 border border-brand-200 px-2 py-0.5 rounded-md inline-block dark:bg-brand-900/40 dark:border-brand-500/30 text-xs">{text}</div>,
     },
     {
       title: 'Tên Chương trình',
-      dataIndex: 'name',
-      key: 'name',
+      dataIndex: 'program_name',
+      key: 'program_name',
       render: (text: string, record: any) => (
         <div className="flex flex-col">
           <div className="font-bold text-slate-800 dark:text-white dark:drop-shadow-[0_0_2px_rgba(255,255,255,0.5)]">{text}</div>
-          <span className="text-slate-500 dark:text-slate-400 font-medium text-xs">{record.type}</span>
+          <span className="text-slate-500 dark:text-slate-400 font-medium text-xs">{record.type === 'PERCENTAGE' ? 'Giảm theo %' : (record.type === 'FLAT_AMOUNT' ? 'Giảm số tiền' : 'N/A')}</span>
+          {record.point_cost > 0 && <Tag color="blue" className="mt-1 w-max border-none font-bold">Đổi bằng {record.point_cost} điểm</Tag>}
         </div>
       ),
     },
     {
       title: 'Mức giảm',
-      dataIndex: 'value',
-      key: 'value',
-      render: (text: string) => <div className="font-bold text-rose-500 text-sm">{text}</div>,
+      dataIndex: 'discount',
+      key: 'discount',
+      render: (val: number, record: any) => <div className="font-bold text-rose-500 text-sm">{record.type === 'PERCENTAGE' ? `${val}%` : `${val}đ`}</div>,
     },
     {
       title: 'Đơn Tối thiểu',
-      dataIndex: 'minOrder',
-      key: 'minOrder',
-      render: (text: string) => <div className="text-slate-600 font-medium text-sm">{text}</div>,
+      dataIndex: 'min_order_value',
+      key: 'min_order_value',
+      render: (val: number) => <div className="text-slate-600 font-medium text-sm">{val > 0 ? `${val}đ` : 'Không'}</div>,
     },
     {
       title: 'Lượt dùng',
-      dataIndex: 'usage',
-      key: 'usage',
-      render: (text: string) => <div className="text-slate-500 text-sm font-medium">{text}</div>,
+      dataIndex: 'usage_limit',
+      key: 'usage_limit',
+      render: (val: number, record: any) => <div className="text-slate-500 text-sm font-medium">{record.used_count}/{val}</div>,
     },
     {
       title: 'Trạng thái',
-      dataIndex: 'status',
-      key: 'status',
-      render: (status: string) => {
-        let colorClass = "bg-slate-100 text-slate-600 border-slate-200";
-        if (status === "Đang diễn ra" || status === "Hoạt động") colorClass = "bg-green-100 text-green-700 border-green-200 dark:bg-emerald-900/40 dark:text-emerald-400 dark:border-emerald-500/30";
-        if (status === "Hết lượt") colorClass = "bg-red-50 text-red-600 border-red-100 dark:bg-red-900/40 dark:text-red-500 dark:border-red-500/30";
-        if (status === "Chờ kích hoạt") colorClass = "bg-amber-50 text-amber-600 border-amber-100 dark:bg-amber-900/40 dark:text-amber-400 dark:border-amber-500/30";
+      dataIndex: 'isActive',
+      key: 'isActive',
+      render: (isActive: boolean, record: any) => {
+        const now = new Date();
+        const endDate = new Date(record.valid_until);
+        const startDate = new Date(record.valid_from);
+        
+        let status = "Đang diễn ra";
+        let colorClass = "bg-green-100 text-green-700 border-green-200 dark:bg-emerald-900/40 dark:text-emerald-400 dark:border-emerald-500/30";
+
+        if (!isActive) {
+          status = "Đã khóa";
+          colorClass = "bg-red-50 text-red-600 border-red-100 dark:bg-red-900/40 dark:text-red-500 dark:border-red-500/30";
+        } else if (now < startDate) {
+          status = "Sắp diễn ra";
+          colorClass = "bg-amber-50 text-amber-600 border-amber-100 dark:bg-amber-900/40 dark:text-amber-400 dark:border-amber-500/30";
+        } else if (now > endDate) {
+          status = "Hết hạn";
+          colorClass = "bg-slate-100 text-slate-600 border-slate-200";
+        }
 
         return (
           <div className={`text-xs font-semibold px-2.5 py-1 rounded-full border inline-block whitespace-nowrap ${colorClass}`}>
@@ -79,20 +102,35 @@ export default function VoucherTable({ onEdit }: VoucherTableProps) {
     },
     {
       title: 'Hạn dùng',
-      dataIndex: 'end',
-      key: 'end',
-      render: (text: string) => <div className="text-slate-500 text-xs whitespace-nowrap">{text}</div>,
+      dataIndex: 'valid_until',
+      key: 'valid_until',
+      render: (date: string) => <div className="text-slate-500 text-xs whitespace-nowrap">{new Date(date).toLocaleDateString('vi-VN')}</div>,
     },
     {
       title: '',
       key: 'actions',
       render: (_: any, record: any) => (
-        <SWTIconButton 
-          variant="edit"
-          icon={<Edit size={18} />}
-          onClick={() => onEdit?.(record)}
-          tooltip="Chỉnh sửa Voucher"
-        />
+        <div className="flex items-center gap-2">
+          <SWTIconButton 
+            variant="edit"
+            icon={<Edit size={18} />}
+            onClick={() => onEdit?.(record)}
+            tooltip="Chỉnh sửa Voucher"
+          />
+          <Popconfirm
+            title="Bạn có chắc chặn xóa?"
+            onConfirm={() => handleDelete(record.id)}
+            okText="Xóa"
+            cancelText="Hủy"
+          >
+            <SWTIconButton
+              variant="custom"
+              icon={<Trash size={18} />}
+              className="text-red-500 hover:text-red-700 border-transparent w-[34px] h-[34px]"
+              tooltip="Xóa Voucher"
+            />
+          </Popconfirm>
+        </div>
       )
     }
   ], [onEdit]);
@@ -104,8 +142,9 @@ export default function VoucherTable({ onEdit }: VoucherTableProps) {
           columns={columns} 
           dataSource={paginatedData} 
           rowKey="id" 
+          loading={isLoading}
           pagination={{
-            totalCount: mockVouchers.length,
+            totalCount: vouchers.length,
             page: page,
             fetch: pageSize,
             onChange: (p: number, f: number) => {

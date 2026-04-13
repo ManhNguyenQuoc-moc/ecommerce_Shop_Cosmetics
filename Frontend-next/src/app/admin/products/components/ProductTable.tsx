@@ -4,7 +4,8 @@ import SWTTable from "@/src/@core/component/AntD/SWTTable";
 import SWTStatusTag from "@/src/@core/component/SWTStatusTag";
 import SWTIconButton from "@/src/@core/component/SWTIconButton";
 import { showNotificationSuccess, showNotificationError } from "@/src/@core/utils/message";
-import { useProducts, softDeleteProducts, restoreProducts, PRODUCT_API_ENDPOINT } from "@/src/services/admin/product.service";
+import { softDeleteProducts, restoreProducts, PRODUCT_API_ENDPOINT } from "@/src/services/admin/product.service";
+import { useProducts } from "@/src/hooks/admin/product.hook";
 import { mutate as globalMutate } from "swr";
 import { RotateCcw, Edit, Eye, Trash2, Layers } from "lucide-react";
 import EditProductModal from "./EditProductModal";
@@ -105,20 +106,20 @@ export default function ProductTable({ isPending }: ProductTableProps) {
       key: "name",
       render: (text: string, record: any) => (
         <div className="flex items-center gap-3">
-         <div className="w-10 h-10 rounded-lg bg-bg-muted flex items-center justify-center border border-border-default shrink-0 overflow-hidden relative">
-  {record.image ? (
-    <Image
-      src={record.image}
-      alt={text}
-      fill
-      className="object-cover"
-      sizes="40px"
-      unoptimized
-    />
-  ) : (
-    <Layers size={20} className="text-slate-400" />
-  )}
-</div>
+          <div className="w-10 h-10 rounded-lg bg-bg-muted flex items-center justify-center border border-border-default shrink-0 overflow-hidden relative">
+            {record.image ? (
+              <Image
+                src={record.image}
+                alt={text}
+                fill
+                className="object-cover"
+                sizes="40px"
+                unoptimized
+              />
+            ) : (
+              <Layers size={20} className="text-slate-400" />
+            )}
+          </div>
           <div className="flex flex-col gap-1">
             <div className="font-bold text-text-main">{text}</div>
             <span className="text-text-muted font-medium text-xs">{(record.category as any)?.name || "Chưa phân loại"}</span>
@@ -247,7 +248,7 @@ export default function ProductTable({ isPending }: ProductTableProps) {
         open={confirmSingle.open}
         variant={isHiddenTab ? "info" : "warning"}
         title={isHiddenTab ? "Khôi phục sản phẩm?" : "Ẩn sản phẩm này?"}
-        description={isHiddenTab 
+        description={isHiddenTab
           ? `Sản phẩm "${confirmSingle.record?.name}" sẽ được hiển thị lại trên cửa hàng.`
           : `Sản phẩm "${confirmSingle.record?.name}" sẽ bị ẩn khỏi cửa hàng. Bạn có thể khôi phục lại sau.`
         }
@@ -263,7 +264,7 @@ export default function ProductTable({ isPending }: ProductTableProps) {
         open={confirmBulk}
         variant={isHiddenTab ? "info" : "danger"}
         title={isHiddenTab ? `Khôi phục ${selectedRowKeys.length} sản phẩm?` : `Ẩn ${selectedRowKeys.length} sản phẩm?`}
-        description={isHiddenTab 
+        description={isHiddenTab
           ? "Các sản phẩm đã chọn sẽ được hiển thị lại trên cửa hàng."
           : "Các sản phẩm đã chọn sẽ bị ẩn khỏi cửa hàng. Bạn có thể khôi phục lại sau."
         }

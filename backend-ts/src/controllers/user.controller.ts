@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { IUserService } from "../interfaces/IUserService";
+import { UserService as IUserService } from "../interfaces/IUserService";
 import { CreateUserSchema, UpdateUserSchema, UserQueryFiltersSchema } from "../DTO/user/user.dto";
 import { z } from "zod";
 
@@ -127,6 +127,31 @@ export class UserController {
       }
       const history = await this.userService.getPointHistory(id);
       res.status(200).json({ success: true, data: history });
+    } catch (error: any) {
+      this.handleError(res, error);
+    }
+  };
+
+  getCustomerPointsHistory = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const id = req.params.id as string;
+      const history = await this.userService.getPointHistory(id);
+      res.status(200).json({ success: true, data: history });
+    } catch (error: any) {
+      this.handleError(res, error);
+    }
+  };
+
+  toggleWalletLock = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const id = req.params.id as string;
+      const { isLocked } = req.body;
+      if (typeof isLocked !== 'boolean') {
+        res.status(400).json({ success: false, message: "isLocked must be a boolean" });
+        return;
+      }
+      const user = await this.userService.togglePointWalletStatus(id, isLocked);
+      res.status(200).json({ success: true, message: "Cập nhật trạng thái ví thành công", data: user });
     } catch (error: any) {
       this.handleError(res, error);
     }

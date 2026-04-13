@@ -9,7 +9,8 @@ import SWTInputNumber from "@/src/@core/component/AntD/SWTInputNumber";
 import SWTSelect from "@/src/@core/component/AntD/SWTSelect";
 import SWTModal from "@/src/@core/component/AntD/SWTModal";
 import SWTUpload from "@/src/@core/component/AntD/SWTUpload";
-import { useProducts, createVariant } from "@/src/services/admin/product.service";
+import { useProducts } from "@/src/hooks/admin/product.hook";
+import { createVariant } from "@/src/services/admin/product.service";
 import { showNotificationError, showNotificationSuccess } from "@/src/@core/utils/message";
 import { uploadFileToCloudinary } from "@/src/services/admin/upload.service";
 import { CreateVariantInput } from "@/src/services/models/product/input.dto";
@@ -19,7 +20,7 @@ interface AddVariantFormValues {
   color: string;
   size?: string;
   sku?: string;
-  costPrice?: number; 
+  costPrice?: number;
   price: number;
   salePrice?: number;
   statusName?: 'BEST_SELLING' | 'TRENDING' | 'NEW' | 'SALE';
@@ -82,7 +83,7 @@ export default function AddVariantModal({ isOpen, onClose, onAdd }: AddVariantMo
   return (
     <SWTModal
       title={
-         <span className="text-xl font-black text-brand-500">
+        <span className="text-xl font-black text-brand-500">
           Tạo Phiên Bản (Variant) Mới
         </span>
       }
@@ -119,8 +120,8 @@ export default function AddVariantModal({ isOpen, onClose, onAdd }: AddVariantMo
           onChange={(val) => setSelectedProductId(val)}
         />
         <div className="mt-3 p-3 bg-status-warning-bg/10 border border-status-warning-border animate-fade-in rounded-xl">
-           <p className="text-xs text-status-warning-text font-bold mb-0 leading-relaxed uppercase tracking-tighter">
-            * Lưu ý: Chỉ được phép thêm biến thể cho các sản phẩm đã tồn tại trên hệ thống. 
+          <p className="text-xs text-status-warning-text font-bold mb-0 leading-relaxed uppercase tracking-tighter">
+            * Lưu ý: Chỉ được phép thêm biến thể cho các sản phẩm đã tồn tại trên hệ thống.
             Nếu muốn thêm biến thể cho các sản phẩm đang bị ẩn, vui lòng khôi phục sản phẩm đó trước.
           </p>
         </div>
@@ -164,12 +165,12 @@ export default function AddVariantModal({ isOpen, onClose, onAdd }: AddVariantMo
             >
               <SWTInput placeholder="Vd: Đỏ Ruby..." className="!bg-bg-muted !border-border-default text-text-main" />
             </SWTFormItem>
- 
+
             <SWTFormItem
               name="size"
               label="Kích cỡ / Dung tích"
             >
-               <SWTInput placeholder="Vd: 30ml..." className="!bg-bg-muted !border-border-default text-text-main" />
+              <SWTInput placeholder="Vd: 30ml..." className="!bg-bg-muted !border-border-default text-text-main" />
             </SWTFormItem>
           </div>
 
@@ -260,10 +261,10 @@ export default function AddVariantModal({ isOpen, onClose, onAdd }: AddVariantMo
               beforeUpload={() => false}
               className="[&_.ant-upload-drag]:!bg-bg-muted/50 [&_.ant-upload-drag]:!border-border-default mt-4"
             >
-               <div className="flex flex-col items-center justify-center py-4">
-                  <Plus size={24} className="text-text-muted mb-2" />
-                  <span className="text-sm font-bold text-text-sub uppercase tracking-tight">Tải 1 ảnh đại diện</span>
-               </div>
+              <div className="flex flex-col items-center justify-center py-4">
+                <Plus size={24} className="text-text-muted mb-2" />
+                <span className="text-sm font-bold text-text-sub uppercase tracking-tight">Tải 1 ảnh đại diện</span>
+              </div>
             </SWTUpload>
           </SWTFormItem>
         </SWTForm>

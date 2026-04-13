@@ -14,7 +14,8 @@ import SWTInputNumber from "@/src/@core/component/AntD/SWTInputNumber";
 import SWTDatePicker from "@/src/@core/component/AntD/SWTDatePicker";
 import SWTCheckbox from "@/src/@core/component/AntD/SWTCheckbox";
 import { showNotificationSuccess, showNotificationError, showNotificationWarning } from "@/src/@core/utils/message";
-import { receiveStock, usePurchaseOrderReceipts } from "@/src/services/admin/purchase.service";
+import {usePurchaseOrderReceipts } from "@/src/hooks/admin/purchase.hook";
+import { receiveStock } from "@/src/services/admin/purchase.service";
 
 const COLUMN_WIDTH = {
   product : 200,

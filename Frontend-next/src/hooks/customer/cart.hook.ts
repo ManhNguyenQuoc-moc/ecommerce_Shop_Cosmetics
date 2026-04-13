@@ -1,3 +1,5 @@
+"use client";
+
 import { useCartStore } from "@/src/stores/useCartStore";
 import { cartService } from "@/src/services/customer/cart.service";
 import { authStorage } from "@/src/@core/utils/authStorage";

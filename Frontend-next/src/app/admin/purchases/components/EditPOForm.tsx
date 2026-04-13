@@ -6,8 +6,8 @@ import {
   updatePurchaseOrder,
   PURCHASE_API_ENDPOINT,
 } from "@/src/services/admin/purchase.service";
-import { useBrands } from "@/src/services/admin/brand.service";
-import { useVariants } from "@/src/services/admin/product.service";
+import { useBrands } from "@/src/hooks/admin/brand.hook";
+import { useVariants } from "@/src/hooks/admin/product.hook";
 import { mutate } from "swr";
 
 import SWTForm from "@/src/@core/component/AntD/SWTForm";
@@ -193,8 +193,8 @@ export default function EditPOForm({ po, onCancel, onSuccess }: Props) {
   return (
     <div className="py-4 flex flex-col gap-6">
       {/* FORM */}
-      <SWTForm 
-        form={form} 
+      <SWTForm
+        form={form}
         layout="vertical"
         className="[&_.ant-form-item-label>label]:font-semibold [&_.ant-form-item-label>label]:text-slate-700 dark:[&_.ant-form-item-label>label]:!text-slate-300"
       >
@@ -239,8 +239,8 @@ export default function EditPOForm({ po, onCancel, onSuccess }: Props) {
           </SWTFormItem>
 
           <SWTFormItem name="note" label="Ghi chú">
-            <SWTInput 
-              placeholder="Vd: Đơn hàng nhập cuối tháng..." 
+            <SWTInput
+              placeholder="Vd: Đơn hàng nhập cuối tháng..."
               className="dark:!bg-slate-800/80 dark:!border-slate-700 dark:!text-white"
             />
           </SWTFormItem>
@@ -272,7 +272,7 @@ export default function EditPOForm({ po, onCancel, onSuccess }: Props) {
             </div>
           </div>
           <div className="p-4">
-            
+
             {/* BẢNG 1: CHỌN BIẾN THỂ */}
             {showVariantPicker && selectedBrandId && (
               <div className="mb-4">
@@ -301,7 +301,7 @@ export default function EditPOForm({ po, onCancel, onSuccess }: Props) {
                                 };
                                 setSelectedItems((prev) => [...prev, newItem]);
                                 setNewlyAddedIds([record.variant.id]);
-                                
+
                                 setTimeout(() => selectedItemsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 150);
                                 setTimeout(() => setNewlyAddedIds([]), 2700);
                               } else {
@@ -319,7 +319,7 @@ export default function EditPOForm({ po, onCancel, onSuccess }: Props) {
                       width: COLUMN_WIDTH.product,
                       ellipsis: true,
                       render: (text: string, record: any) => (
-                        <div 
+                        <div
                           className="flex items-center min-h-[40px] font-medium text-slate-700 dark:text-slate-200"
                           title={record.product.name}
                         >
@@ -342,9 +342,9 @@ export default function EditPOForm({ po, onCancel, onSuccess }: Props) {
                         </div>
                       ),
                     },
-                    { 
-                      title: "SKU", 
-                      dataIndex: ["variant", "sku"], 
+                    {
+                      title: "SKU",
+                      dataIndex: ["variant", "sku"],
                       key: "sku",
                       width: COLUMN_WIDTH.sku,
                       ellipsis: true,
@@ -431,8 +431,8 @@ export default function EditPOForm({ po, onCancel, onSuccess }: Props) {
                       width: COLUMN_WIDTH.product,
                       ellipsis: true,
                       render: (text: string) => (
-                        <div 
-                          className="font-medium text-slate-700 dark:text-slate-200 truncate" 
+                        <div
+                          className="font-medium text-slate-700 dark:text-slate-200 truncate"
                           title={text}
                         >
                           {text}
@@ -510,14 +510,14 @@ export default function EditPOForm({ po, onCancel, onSuccess }: Props) {
             )}
 
             <div className="flex justify-end gap-3 mt-6">
-              <SWTButton 
-                onClick={handleCancel} 
+              <SWTButton
+                onClick={handleCancel}
                 className="!bg-slate-500/10 !border-slate-500/20 !text-slate-500 hover:!bg-slate-500/20 !rounded-xl !w-auto font-bold transition-all px-6 py-2"
               >
                 Hủy
               </SWTButton>
-              <SWTButton 
-                onClick={handleSubmit} 
+              <SWTButton
+                onClick={handleSubmit}
                 loading={saving}
                 className="!bg-brand-500/10 !border-brand-500/20 !text-brand-500 hover:!bg-brand-500/20 !rounded-xl !font-bold shadow-sm !w-auto transition-all px-8 py-2"
               >

@@ -6,7 +6,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import SWTLoading from "@/src/@core/component/AntD/SWTLoading";
 import { useState } from "react";
-import { useCart } from "@/src/hooks/useCart";
+import { useCart } from "@/src/hooks/customer/cart.hook";
 import { useCheckoutStore } from "@/src/stores/useCheckoutStore";
 import { showNotificationError } from "@/src/@core/utils/message";
 

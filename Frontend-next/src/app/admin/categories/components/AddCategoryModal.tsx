@@ -8,8 +8,8 @@ import SWTFormItem from "@/src/@core/component/AntD/SWTFormItem";
 import SWTInput, { SWTInputTextArea } from "@/src/@core/component/AntD/SWTInput";
 import SWTUpload from "@/src/@core/component/AntD/SWTUpload";
 import SWTIconButton from "@/src/@core/component/SWTIconButton";
-import { useCreateCategory, useUpdateCategory, CATEGORY_API_ENDPOINT } from "@/src/services/admin/category.service";
-import { useCategoryGroups } from "@/src/services/admin/category-group.service";
+import { useCreateCategory, useUpdateCategory, CATEGORY_API_ENDPOINT } from "@/src/hooks/admin/category.hook";
+import { useCategoryGroups } from "@/src/hooks/admin/category-group.hook";
 import { uploadFileToCloudinary as uploadImage } from "@/src/services/admin/upload.service";
 import { Select } from "antd";
 import { showNotificationError, showNotificationSuccess } from "@/src/@core/utils/message";
@@ -28,10 +28,10 @@ export default function AddCategoryModal({ isOpen, onClose, initialData }: Props
   const { trigger: updateCategory, isMutating: updating } = useUpdateCategory();
 
   const [fileList, setFileList] = useState<any[]>([]);
-  const [imageUrl, setImageUrl] = useState<string>(""); // Lưu ảnh cũ (nếu có từ initialData)
+  const [imageUrl, setImageUrl] = useState<string>("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
-  const { categoryGroups } = useCategoryGroups(1, 100); // Lấy danh sách nhóm
+  const { categoryGroups } = useCategoryGroups(1, 100);
 
   useEffect(() => {
     if (initialData) {

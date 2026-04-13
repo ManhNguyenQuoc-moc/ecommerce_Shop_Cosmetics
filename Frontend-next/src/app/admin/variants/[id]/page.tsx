@@ -28,7 +28,7 @@ import SWTBreadcrumb from "@/src/@core/component/AntD/SWTBreadcrumb";
 import useSWTTitle from "@/src/@core/hooks/useSWTTitle";
 import Link from "next/link";
 import SWTButton from "@/src/@core/component/AntD/SWTButton";
-import { useVariant, useVariantBatches } from "@/src/services/admin/product.service";
+import { useVariant, useVariantBatches } from "@/src/hooks/admin/product.hook";
 import Image from "next/image";
 import SWTCard from "@/src/@core/component/AntD/SWTCard";
 import SWTTable from "@/src/@core/component/AntD/SWTTable";
@@ -60,10 +60,10 @@ export default function VariantDetailPage({
 
   const [currentBatchPage, setCurrentBatchPage] = useState(1);
   const batchPageSize = 6;
-  const { 
-    batches: paginatedBatches, 
-    total: batchesTotal, 
-    isLoading: isBatchesLoading 
+  const {
+    batches: paginatedBatches,
+    total: batchesTotal,
+    isLoading: isBatchesLoading
   } = useVariantBatches(id, currentBatchPage, batchPageSize);
 
   const isLoading = isVariantLoading || isBatchesLoading;
@@ -170,7 +170,7 @@ export default function VariantDetailPage({
                 <h3 className="text-3xl font-black text-slate-800 dark:text-white mb-2 leading-tight">
                   {variantName}
                 </h3>
-                
+
                 <div className="flex items-center gap-2 text-slate-400 text-sm mb-6">
                   <Hash size={14} />
                   <span className="font-mono tracking-tighter uppercase font-medium">SKU: {variant.sku || "N/A"}</span>
@@ -270,11 +270,10 @@ export default function VariantDetailPage({
                   render: (date: string) => {
                     const isExpiringSoon = moment(date).diff(moment(), 'months') < 6;
                     return (
-                      <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg border font-bold text-xs ${
-                        isExpiringSoon 
-                        ? "bg-red-50 text-red-600 border-red-100 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20" 
-                        : "bg-slate-50 text-slate-600 border-slate-100 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700"
-                      }`}>
+                      <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg border font-bold text-xs ${isExpiringSoon
+                          ? "bg-red-50 text-red-600 border-red-100 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20"
+                          : "bg-slate-50 text-slate-600 border-slate-100 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700"
+                        }`}>
                         <Calendar size={12} />
                         {moment(date).format("DD/MM/YYYY")}
                       </div>
@@ -310,8 +309,8 @@ export default function VariantDetailPage({
 
         {/* RIGHT COLUMN */}
         <div className="flex flex-col gap-6">
-           {/* QUICK STATS */}
-           <SWTCard
+          {/* QUICK STATS */}
+          <SWTCard
             className="!bg-brand-500/10 !backdrop-blur-md !rounded-3xl !text-brand-600 dark:!text-brand-400 !border !border-brand-500/20 shadow-lg shadow-brand-500/5"
             bodyClassName="!p-6"
           >
@@ -329,66 +328,66 @@ export default function VariantDetailPage({
 
           {/* INFO DETAILS -> RECHART */}
           <SWTCard className={CARD_BASE} bodyClassName="!p-6">
-             <div className="space-y-6">
-                <div>
-                   <h5 className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-4 border-b border-slate-100 dark:border-slate-800 pb-2 flex items-center gap-2">
-                     <TrendingUp size={12} />
-                     Thống kê nhập/xuất theo lô
-                   </h5>
-                   
-                   <div className="w-full h-[300px] mt-4">
-                     <ResponsiveContainer width="100%" height="100%">
-                       <BarChart
-                         data={variant.batches?.map(b => ({
-                           name: b.batchNumber,
-                           "Nhập": b.totalIn,
-                           "Bán": b.totalOut,
-                         })) || []}
-                         margin={{ top: 20, right: 0, left: -20, bottom: 0 }}
-                       >
-                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                         <XAxis 
-                           dataKey="name" 
-                           axisLine={false} 
-                           tickLine={false} 
-                           tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 700 }}
-                         />
-                         <YAxis 
-                           axisLine={false} 
-                           tickLine={false} 
-                           tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 700 }}
-                         />
-                         <ReTooltip 
-                           cursor={{ fill: '#f8fafc' }}
-                           contentStyle={{ 
-                             borderRadius: '16px', 
-                             border: 'none', 
-                             boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)',
-                             fontSize: '12px',
-                             fontWeight: 700
-                           }}
-                         />
-                         <Legend 
-                           verticalAlign="top" 
-                           align="right" 
-                           iconType="circle"
-                           wrapperStyle={{ fontSize: '10px', fontWeight: 800, textTransform: 'uppercase', marginBottom: '20px' }}
-                         />
-                         <Bar dataKey="Nhập" fill="#6366f1" radius={[4, 4, 0, 0]} barSize={16} />
-                         <Bar dataKey="Bán" fill="#f43f5e" radius={[4, 4, 0, 0]} barSize={16} />
-                       </BarChart>
-                     </ResponsiveContainer>
-                   </div>
-                </div>
+            <div className="space-y-6">
+              <div>
+                <h5 className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-4 border-b border-slate-100 dark:border-slate-800 pb-2 flex items-center gap-2">
+                  <TrendingUp size={12} />
+                  Thống kê nhập/xuất theo lô
+                </h5>
 
-                <div className="bg-brand-50/50 dark:bg-brand-500/5 p-4 rounded-2xl border border-brand-100/50 dark:border-brand-500/10">
-                   <p className="text-[10px] font-black text-brand-600 dark:text-brand-400 uppercase tracking-tighter mb-2">Lời nhắc kho</p>
-                   <p className="text-xs text-slate-500 leading-relaxed font-medium">
-                      Biến thể này hiện có <strong>{variant.batches?.length || 0}</strong> lô hàng trong kho. 
-                      Dựa trên biểu đồ, hãy ưu tiên xuất các lô có tỷ lệ <strong>"Nhập"</strong> cao nhưng <strong>"Bán"</strong> còn thấp.
-                   </p>
+                <div className="w-full h-[300px] mt-4">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart
+                      data={variant.batches?.map((b: any) => ({
+                        name: b.batchNumber,
+                        "Nhập": b.totalIn,
+                        "Bán": b.totalOut,
+                      })) || []}
+                      margin={{ top: 20, right: 0, left: -20, bottom: 0 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                      <XAxis
+                        dataKey="name"
+                        axisLine={false}
+                        tickLine={false}
+                        tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 700 }}
+                      />
+                      <YAxis
+                        axisLine={false}
+                        tickLine={false}
+                        tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 700 }}
+                      />
+                      <ReTooltip
+                        cursor={{ fill: '#f8fafc' }}
+                        contentStyle={{
+                          borderRadius: '16px',
+                          border: 'none',
+                          boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)',
+                          fontSize: '12px',
+                          fontWeight: 700
+                        }}
+                      />
+                      <Legend
+                        verticalAlign="top"
+                        align="right"
+                        iconType="circle"
+                        wrapperStyle={{ fontSize: '10px', fontWeight: 800, textTransform: 'uppercase', marginBottom: '20px' }}
+                      />
+                      <Bar dataKey="Nhập" fill="#6366f1" radius={[4, 4, 0, 0]} barSize={16} />
+                      <Bar dataKey="Bán" fill="#f43f5e" radius={[4, 4, 0, 0]} barSize={16} />
+                    </BarChart>
+                  </ResponsiveContainer>
                 </div>
-             </div>
+              </div>
+
+              <div className="bg-brand-50/50 dark:bg-brand-500/5 p-4 rounded-2xl border border-brand-100/50 dark:border-brand-500/10">
+                <p className="text-[10px] font-black text-brand-600 dark:text-brand-400 uppercase tracking-tighter mb-2">Lời nhắc kho</p>
+                <p className="text-xs text-slate-500 leading-relaxed font-medium">
+                  Biến thể này hiện có <strong>{variant.batches?.length || 0}</strong> lô hàng trong kho.
+                  Dựa trên biểu đồ, hãy ưu tiên xuất các lô có tỷ lệ <strong>"Nhập"</strong> cao nhưng <strong>"Bán"</strong> còn thấp.
+                </p>
+              </div>
+            </div>
           </SWTCard>
         </div>
       </div>

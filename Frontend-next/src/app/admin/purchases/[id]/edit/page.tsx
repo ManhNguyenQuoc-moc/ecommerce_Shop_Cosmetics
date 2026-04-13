@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import EditPOForm from "../../components/EditPOForm";
-import { usePurchaseOrderById } from "@/src/services/admin/purchase.service";
+import { usePurchaseOrderById } from "@/src/hooks/admin/purchase.hook";
 import { useParams } from "next/navigation";
 
 import POHeader from "../../components/POHeader";

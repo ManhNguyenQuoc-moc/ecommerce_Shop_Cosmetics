@@ -23,6 +23,7 @@ export const UpdateUserSchema = CreateUserSchema.partial().extend({
     lon: z.number().optional().nullable(),
     isDefault: z.boolean().default(false),
   })).optional(),
+  is_point_wallet_locked: z.boolean().optional(),
 });
 
 export type UpdateUserDTO = z.infer<typeof UpdateUserSchema>;

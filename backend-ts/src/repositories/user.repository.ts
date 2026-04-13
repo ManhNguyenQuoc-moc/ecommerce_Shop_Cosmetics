@@ -64,7 +64,7 @@ export class UserRepository implements IUserRepository {
 
   async update(id: string, data: UpdateUserDTO, tx?: Prisma.TransactionClient): Promise<User> {
     const db = tx || prisma;
-    const { full_name, phone, gender, birthday, avatar, addresses, is_verified, role } = data;
+    const { full_name, phone, gender, birthday, avatar, addresses, is_verified, role, is_point_wallet_locked } = data;
     
     const updateData: any = {};
     if (full_name !== undefined) updateData.full_name = full_name;
@@ -74,6 +74,7 @@ export class UserRepository implements IUserRepository {
     if (is_verified !== undefined) updateData.is_verified = is_verified;
     if (role !== undefined) updateData.role = role;
     if (birthday !== undefined) updateData.birthday = birthday ? new Date(birthday) : null;
+    if (is_point_wallet_locked !== undefined) updateData.is_point_wallet_locked = is_point_wallet_locked;
 
     if (addresses) {
       // 1. Get current addresses

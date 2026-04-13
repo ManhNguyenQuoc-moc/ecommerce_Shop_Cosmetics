@@ -3,6 +3,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { CheckoutItemModel, AddressModel } from "@/src/services/models/checkout/model";
+import { VoucherResponseDto as VoucherDTO } from "@/src/services/models/voucher/output.dto";
 
 type CheckoutState = {
   mode: "cart" | "buy_now";
@@ -16,11 +17,13 @@ type CheckoutState = {
   selectedAddress: AddressModel | null;
   shippingMethod: "standard" | "express";
   paymentMethod: "COD" | "VNPAY";
+  appliedVoucher: VoucherDTO | null;
   setCustomer: (data: Partial<CheckoutState["customer"]>) => void;
   setAddresses: (list: AddressModel[]) => void;
   setSelectedAddress: (addr: AddressModel) => void;
   setShipping: (v: CheckoutState["shippingMethod"]) => void;
   setPayment: (v: CheckoutState["paymentMethod"]) => void;
+  setVoucher: (v: VoucherDTO | null) => void;
   setBuyNow: (item: CheckoutItemModel) => void;
   setCartMode: (items: CheckoutItemModel[]) => void;
   reset: () => void;
@@ -40,6 +43,7 @@ export const useCheckoutStore = create<CheckoutState>()(
       selectedAddress: null,
       shippingMethod: "standard",
       paymentMethod: "COD",
+      appliedVoucher: null,
       setCustomer: (data) =>
         set((state) => ({
           customer: { ...state.customer, ...data },
@@ -54,6 +58,7 @@ export const useCheckoutStore = create<CheckoutState>()(
         })),
       setShipping: (v) => set({ shippingMethod: v }),
       setPayment: (v) => set({ paymentMethod: v }),
+      setVoucher: (v) => set({ appliedVoucher: v }),
       setBuyNow: (item) =>
         set({
           mode: "buy_now",
@@ -73,6 +78,7 @@ export const useCheckoutStore = create<CheckoutState>()(
           selectedAddress: null,
           shippingMethod: "standard",
           paymentMethod: "COD",
+          appliedVoucher: null,
         }),
     }),
     {
@@ -83,6 +89,7 @@ export const useCheckoutStore = create<CheckoutState>()(
         items: state.items,
         addresses: state.addresses,
         selectedAddress: state.selectedAddress,
+        appliedVoucher: state.appliedVoucher,
       }),
     }
   )

@@ -15,8 +15,8 @@ import { CategoryResponseDto } from "@/src/services/models/category/output.dto";
 import { BrandResponseDto } from "@/src/services/customer/customer.service";
 import { customerCategories, getDynamicCategories, Category } from "@/src/@core/http/routes/customer-categories";
 import { getProducts } from "@/src/services/customer/product.service";
-import { useCustomerCategories } from "@/src/services/customer/category.service";
-import { useCustomerBrands } from "@/src/services/customer/brand.service";
+import { useCustomerCategories } from "@/src/hooks/customer/category.hook";
+import { useCustomerBrands } from "@/src/hooks/customer/brand.hook";
 import SWTCheckboxGroup from "@/src/@core/component/AntD/SWTCheckboxGroup";
 import SWTSelect from "@/src/@core/component/AntD/SWTSelect";
 import { SWTInput } from "@/src/@core/component/AntD/SWTInput";
@@ -46,7 +46,7 @@ export default function ProductsClient({ initialData, initialCategories, initial
   const isSale = searchParams.get("isSale") === "true";
   const inStock = searchParams.get("inStock") === "true";
   const rating = searchParams.get("rating") ? Number(searchParams.get("rating")) : undefined;
-  
+
   const [brandSearch, setBrandSearch] = React.useState("");
   const debouncedBrandSearch = useDebounce(brandSearch, 500);
 
@@ -226,7 +226,7 @@ export default function ProductsClient({ initialData, initialCategories, initial
               onChange={(val) => {
                 const params = new URLSearchParams(searchParams.toString());
                 params.set("page", "1");
-                
+
                 // Clear existing
                 params.delete("inStock");
                 params.delete("isSale");
@@ -237,7 +237,7 @@ export default function ProductsClient({ initialData, initialCategories, initial
                   params.set("inStock", "true");
                   params.set("isSale", "true");
                 }
-                
+
                 router.replace(`${window.location.pathname}?${params.toString()}`, { scroll: false });
               }}
               options={[
@@ -277,7 +277,7 @@ export default function ProductsClient({ initialData, initialCategories, initial
           </div>
           <div className="border-t pt-4">
             <h3 className="font-semibold mb-3">Thương hiệu</h3>
-            
+
             <div className="mb-3">
               <SWTInput
                 size="small"

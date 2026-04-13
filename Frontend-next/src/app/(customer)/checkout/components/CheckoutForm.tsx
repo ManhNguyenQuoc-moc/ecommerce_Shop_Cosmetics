@@ -6,7 +6,7 @@ import SWTForm from "@/src/@core/component/AntD/SWTForm";
 import SWTFormItem from "@/src/@core/component/AntD/SWTFormItem";
 import SWTCard from "@/src/@core/component/AntD/SWTCard";
 import { SWTInput } from "@/src/@core/component/AntD/SWTInput";
-import { useCheckout } from "@/src/hooks/useCheckout";
+import { useCheckout } from "@/src/hooks/customer/checkout.hook";
 import AddressAutocomplete from "./AddressAutocomplete";
 import {
   UserOutlined,

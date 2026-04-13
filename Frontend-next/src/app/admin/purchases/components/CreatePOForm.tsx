@@ -3,8 +3,8 @@
 import { Plus, Search } from "lucide-react";
 import { useState, useRef, useMemo } from "react";
 import { createPurchaseOrder, PURCHASE_API_ENDPOINT } from "@/src/services/admin/purchase.service";
-import { useBrands } from "@/src/services/admin/brand.service";
-import { useVariants } from "@/src/services/admin/product.service";
+import { useBrands } from "@/src/hooks/admin/brand.hook";
+import { useVariants } from "@/src/hooks/admin/product.hook";
 import { mutate } from "swr";
 import SWTButton from "@/src/@core/component/AntD/SWTButton";
 
@@ -17,7 +17,7 @@ import SWTSelect from "@/src/@core/component/AntD/SWTSelect";
 import { showNotificationError, showNotificationSuccess, showNotificationWarning } from "@/src/@core/utils/message";
 import { CreatePOInput, POItemInput } from "@/src/services/models/purchase/input.dto";
 import SWTCheckbox from "@/src/@core/component/AntD/SWTCheckbox";
-import { useAuth} from "@/src/context/AuthContext";
+import { useAuth } from "@/src/context/AuthContext";
 
 
 
@@ -55,20 +55,20 @@ export default function CreatePOForm({ onSuccess }: Props) {
   const [form] = SWTForm.useForm<FormValues>();
   const [selectedItems, setSelectedItems] = useState<SelectedPOItem[]>([]);
   const [selectedBrandId, setSelectedBrandId] = useState<string | null>(null);
-  
+
   const [savedByBrand, setSavedByBrand] = useState<Record<string, { selectedItems: SelectedPOItem[] }>>({});
-  
+
   const [saving, setSaving] = useState(false);
   const submitCreatePO = createPurchaseOrder;
   const [page, setPage] = useState(1);
   const pageSize = 6;
   const [itemSearch, setItemSearch] = useState("");
   const [sourceVariantSearch, setSourceVariantSearch] = useState("");
-  
+
   const { variants, total, isLoading: variantsLoading } = useVariants(
-    page, 
-    pageSize, 
-    { 
+    page,
+    pageSize,
+    {
       brandId: selectedBrandId || undefined,
       search: sourceVariantSearch || undefined
     }
@@ -143,9 +143,9 @@ export default function CreatePOForm({ onSuccess }: Props) {
 
   return (
     <div className="py-4 space-y-6">
-      <SWTForm 
-        form={form} 
-        layout="vertical" 
+      <SWTForm
+        form={form}
+        layout="vertical"
         className="[&_.ant-form-item-label>label]:font-semibold [&_.ant-form-item-label>label]:text-slate-700 dark:[&_.ant-form-item-label>label]:!text-slate-300"
         initialValues={{ priority: 'NORMAL' }}
       >
@@ -236,7 +236,7 @@ export default function CreatePOForm({ onSuccess }: Props) {
             </div>
           </div>
         </div>
-        
+
         <div className="p-4">
           {/* BẢNG 1: Danh sách sản phẩm */}
           {selectedBrandId && (
@@ -266,7 +266,7 @@ export default function CreatePOForm({ onSuccess }: Props) {
                               };
                               setSelectedItems((prev) => [...prev, newItem]);
                               setNewlyAddedIds([record.variant.id]);
-                              
+
                               setTimeout(() => selectedItemsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 150);
                               setTimeout(() => setNewlyAddedIds([]), 2700);
                             } else {
@@ -284,7 +284,7 @@ export default function CreatePOForm({ onSuccess }: Props) {
                     width: COLUMN_WIDTH.product,
                     ellipsis: true, // Cắt chữ nếu quá dài
                     render: (text: string, record: any) => (
-                      <div 
+                      <div
                         className="flex items-center min-h-[40px] font-medium text-slate-700 dark:text-slate-200"
                         title={record.product.name} // Hover để xem full tên
                       >
@@ -312,10 +312,10 @@ export default function CreatePOForm({ onSuccess }: Props) {
                     dataIndex: ["variant", "sku"],
                     key: "sku",
                     width: COLUMN_WIDTH.sku,
-                    ellipsis: true, 
+                    ellipsis: true,
                     render: (text: string) => (
-                      <div 
-                        className="truncate text-slate-600 dark:text-slate-400" 
+                      <div
+                        className="truncate text-slate-600 dark:text-slate-400"
                         title={text} // Hover vào sẽ hiện full text
                       >
                         {text || "-"}
@@ -360,7 +360,7 @@ export default function CreatePOForm({ onSuccess }: Props) {
               />
             </div>
           )}
-          
+
           {/* Search bar for selected items */}
           {selectedItems.length > 0 && (
             <div className="mb-3 px-1">
@@ -374,7 +374,7 @@ export default function CreatePOForm({ onSuccess }: Props) {
               />
             </div>
           )}
-          
+
           {selectedItems.length === 0 ? (
             <div className="text-center py-8 text-slate-400 dark:text-slate-600 italic text-sm">
               Chưa có sản phẩm nào được thêm vào phiếu.
@@ -411,8 +411,8 @@ export default function CreatePOForm({ onSuccess }: Props) {
                     width: COLUMN_WIDTH.product,
                     ellipsis: true, // Cắt chữ nếu quá dài
                     render: (text: string) => (
-                      <div 
-                        className="font-medium text-slate-700 dark:text-slate-200 truncate" 
+                      <div
+                        className="font-medium text-slate-700 dark:text-slate-200 truncate"
                         title={text} // Hover để xem full tên
                       >
                         {text}
@@ -434,8 +434,8 @@ export default function CreatePOForm({ onSuccess }: Props) {
                     width: COLUMN_WIDTH.sku,
                     ellipsis: true, // Ép AntD xử lý cắt chữ cho cột này
                     render: (text: string) => (
-                      <div 
-                        className="truncate text-slate-600 dark:text-slate-400" 
+                      <div
+                        className="truncate text-slate-600 dark:text-slate-400"
                         title={text} // Hover vào sẽ hiện full text
                       >
                         {text || "-"}

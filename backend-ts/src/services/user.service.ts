@@ -1,6 +1,6 @@
 import { IUserRepository } from "../interfaces/IUserRepository";
-import { IUserService } from "../interfaces/IUserService";
-import { User, Prisma } from "@prisma/client";
+import { UserService as IUserService } from "../interfaces/IUserService"; // Fixed export
+import { User, Prisma, PointTransaction } from "@prisma/client";
 import { supabase } from "../config/supabase";
 import { CreateUserDTO, UpdateUserDTO, UserQueryFiltersDTO } from "../DTO/user/user.dto";
 
@@ -103,13 +103,30 @@ export class UserService implements IUserService {
     if (age < 16) throw new Error("Bạn phải đủ 16 tuổi.");
   }
 
-  async getUsers(page?: number, limit?: number, filters?: UserQueryFiltersDTO): Promise<{ items: User[], total: number }> {
+  async getUsers(page?: number, limit?: number, filters?: UserQueryFiltersDTO): Promise<{ items: any[], total: number }> {
     const skip = page && limit ? (page - 1) * limit : undefined;
     const [items, total] = await this.userRepository.findAll(skip, limit, filters);
-    return { items, total };
+    
+    const mappedItems = items.map(user => ({
+      ...user,
+      member_rank: this.calculateRank(user.lifetime_points),
+      used_points: user.lifetime_points - user.loyalty_points,
+    }));
+    return { items: mappedItems, total };
   }
 
-  async getPointHistory(userId: string): Promise<any[]> {
+  async getPointHistory(userId: string): Promise<PointTransaction[]> {
     return this.userRepository.findPointTransactions(userId);
+  }
+
+  async togglePointWalletStatus(userId: string, isLocked: boolean): Promise<User> {
+    return this.userRepository.update(userId, { is_point_wallet_locked: isLocked });
+  }
+
+  calculateRank(lifetimePoints: number): string {
+    if (lifetimePoints >= 10000) return "Kim Cương";
+    if (lifetimePoints >= 5000) return "Vàng";
+    if (lifetimePoints >= 1000) return "Bạc";
+    return "Đồng";
   }
 }

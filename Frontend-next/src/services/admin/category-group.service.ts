@@ -1,51 +1,26 @@
 import { get, post, put, del } from "../api";
-import { useFetchSWR } from "@/src/@core/hooks/useFetchSWR";
-import useSWRMutation from "swr/mutation";
-import { CreateCategoryGroupDto, UpdateCategoryGroupDto, CategoryGroupQueryFilters } from "../models/category-group/input.dto";
+import { CreateCategoryGroupDto, UpdateCategoryGroupDto } from "../models/category-group/input.dto";
 import { CategoryGroupResponseDto } from "../models/category-group/output.dto";
 
 export const CATEGORY_GROUP_API_ENDPOINT = "/category-groups";
 
-export const useCategoryGroups = (page: number | null = null, pageSize: number | null = null, filters: CategoryGroupQueryFilters = {}) => {
+export const getCategoryGroups = (page?: number, pageSize?: number, search?: string) => {
   const query = new URLSearchParams();
   if (page) query.append("page", page.toString());
   if (pageSize) query.append("pageSize", pageSize.toString());
-  
-  if (filters.search) query.append("search", filters.search);
+  if (search) query.append("search", search);
 
-  const url = `${CATEGORY_GROUP_API_ENDPOINT}?${query.toString()}`;
-
-  const { data, isLoading, error, mutate } = useFetchSWR(
-    url,
-    () => get(url)
-  );
-
-  const categoryGroups = Array.isArray(data) ? data : (data as any)?.data?.data || (data as any)?.data || [];
-  const total = Array.isArray(data) ? data.length : (data as any)?.data?.total || (data as any)?.total || 0;
-
-  return {
-    categoryGroups: categoryGroups as CategoryGroupResponseDto[],
-    total,
-    isLoading,
-    isError: error,
-    mutate
-  };
+  return get<CategoryGroupResponseDto[]>(`${CATEGORY_GROUP_API_ENDPOINT}?${query.toString()}`);
 };
 
-export const useCreateCategoryGroup = () => {
-  return useSWRMutation(CATEGORY_GROUP_API_ENDPOINT, (_, { arg }: { arg: CreateCategoryGroupDto }) => post(CATEGORY_GROUP_API_ENDPOINT, arg));
+export const createCategoryGroup = (data: CreateCategoryGroupDto) => {
+  return post<CategoryGroupResponseDto>(CATEGORY_GROUP_API_ENDPOINT, data);
 };
 
-export const useUpdateCategoryGroup = () => {
-  return useSWRMutation(
-    CATEGORY_GROUP_API_ENDPOINT,
-    (_, { arg }: { arg: { id: string; data: UpdateCategoryGroupDto } }) => put(`${CATEGORY_GROUP_API_ENDPOINT}/${arg.id}`, arg.data)
-  );
+export const updateCategoryGroup = (id: string, data: UpdateCategoryGroupDto) => {
+  return put<CategoryGroupResponseDto>(`${CATEGORY_GROUP_API_ENDPOINT}/${id}`, data);
 };
 
-export const useDeleteCategoryGroup = () => {
-  return useSWRMutation(
-    CATEGORY_GROUP_API_ENDPOINT,
-    (_, { arg }: { arg: string }) => del(`${CATEGORY_GROUP_API_ENDPOINT}/${arg}`)
-  );
+export const deleteCategoryGroup = (id: string) => {
+  return del<void>(`${CATEGORY_GROUP_API_ENDPOINT}/${id}`);
 };

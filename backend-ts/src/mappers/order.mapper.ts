@@ -10,6 +10,7 @@ type OrderWithRelations = Order & {
     }) | null;
   })[];
   status_history: OrderStatusHistory[];
+  discountCode: any;
 };
 
 export class OrderMapper {
@@ -34,6 +35,9 @@ export class OrderMapper {
       current_status: order.current_status,
       payment_method: order.payment_method,
       payment_status: order.payment_status,
+      discount_amount: Math.max(0, (order.total_amount || 0) - ((order.final_amount || 0) - (order.shipping_fee || 0))),
+      voucher_code: order.discountCode?.code || null,
+      voucher_name: order.discountCode?.program_name || order.discountCode?.name || null,
       createdAt: order.createdAt,
       updatedAt: order.updatedAt,
       items: order.items?.map((item: any) => ({

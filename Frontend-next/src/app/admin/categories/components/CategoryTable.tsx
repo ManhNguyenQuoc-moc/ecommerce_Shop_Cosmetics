@@ -6,7 +6,7 @@ import { Edit, Trash2, Plus } from "lucide-react";
 import SWTTooltip from "@/src/@core/component/AntD/SWTTooltip";
 import SWTConfirmModal from "@/src/@core/component/AntD/SWTConfirmModal";
 import { showNotificationError, showNotificationSuccess } from "@/src/@core/utils/message";
-import { useCategories, useDeleteCategory } from "@/src/services/admin/category.service";
+import { useCategories, useDeleteCategory } from "@/src/hooks/admin/category.hook";
 import SWTAvatar from "@/src/@core/component/AntD/SWTAvatar";
 import { CategoryResponseDto } from "@/src/services/models/category/output.dto";
 import SWTIconButton from "@/src/@core/component/SWTIconButton";
@@ -42,9 +42,9 @@ export default function CategoryTable({ onEdit, onAdd }: CategoryTableProps) {
       key: 'name',
       render: (text: string, record: CategoryResponseDto) => (
         <div className="flex items-center gap-3">
-          <SWTAvatar 
-            src={(record as any).image?.url || ""} 
-            size={45} 
+          <SWTAvatar
+            src={(record as any).image?.url || ""}
+            size={45}
             className="rounded-xl border border-slate-200 bg-emerald-50 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 font-bold object-cover"
           >
             {record.name.charAt(0)}
@@ -99,13 +99,13 @@ export default function CategoryTable({ onEdit, onAdd }: CategoryTableProps) {
       width: 120,
       render: (_: any, record: CategoryResponseDto) => (
         <div className="flex items-center gap-2 justify-center">
-          <SWTIconButton 
+          <SWTIconButton
             variant="edit"
             tooltip="Chỉnh sửa danh mục"
             icon={<Edit size={18} />}
             onClick={() => onEdit?.(record)}
           />
-          <SWTIconButton 
+          <SWTIconButton
             variant="delete"
             tooltip="Xóa danh mục"
             icon={<Trash2 size={18} />}
@@ -127,7 +127,7 @@ export default function CategoryTable({ onEdit, onAdd }: CategoryTableProps) {
         </div>
 
         <SWTTooltip title="Thêm Danh Mục" placement="top" color="#10b981">
-          <div 
+          <div
             className="flex h-11 w-11 items-center justify-center bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-500/30 rounded-xl shadow-sm transition-all cursor-pointer group"
             onClick={onAdd}
           >
@@ -147,8 +147,8 @@ export default function CategoryTable({ onEdit, onAdd }: CategoryTableProps) {
             page: page,
             fetch: pageSize,
             onChange: (p: number, f: number) => {
-                setPage(p);
-                setPageSize(f);
+              setPage(p);
+              setPageSize(f);
             }
           }}
         />

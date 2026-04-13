@@ -14,10 +14,10 @@ import SWTIconButton from "@/src/@core/component/SWTIconButton";
 import { useState } from "react";
 import { showNotificationSuccess, showNotificationError } from "@/src/@core/utils/message";
 import { uploadFileToCloudinary, deleteUploads } from "@/src/services/admin/upload.service";
-import { useBrands } from "@/src/services/admin/brand.service";
-import { useCategories } from "@/src/services/admin/category.service";
+import { useBrands } from "@/src/hooks/admin/brand.hook";
+import { useCategories } from "@/src/hooks/admin/category.hook";
 
-import { CreateProductInput, ProductSpecificationInput ,CreateVariantInput } from "@/src/services/models/product/input.dto";
+import { CreateProductInput, ProductSpecificationInput, CreateVariantInput } from "@/src/services/models/product/input.dto";
 
 interface AddProductFormValues {
   name: string;
@@ -90,7 +90,7 @@ export default function AddProductModal({ isOpen, onClose, onAdd }: AddProductMo
             color: v.color,
             size: v.size,
             sku: v.sku,
-            costPrice: v.costPrice || null, 
+            costPrice: v.costPrice || null,
             price: v.price,
             salePrice: v.salePrice || null,
             statusName: v.statusName,
@@ -232,7 +232,7 @@ export default function AddProductModal({ isOpen, onClose, onAdd }: AddProductMo
             className="md:col-span-1"
           >
             <SWTSelect
-              disabled = {true}
+              disabled={true}
               placeholder="Chọn trạng thái"
               options={[
                 { label: "Đang bán (ACTIVE)", value: "ACTIVE" },
@@ -419,7 +419,7 @@ export default function AddProductModal({ isOpen, onClose, onAdd }: AddProductMo
                         >
                           <SWTInputNumber min={0} max={1000000000} placeholder="0" style={{ width: "100%" }} className="dark:[&_.ant-input-number-input]:!text-white dark:!bg-slate-900/50 dark:!border-slate-700" />
                         </SWTFormItem>
-                        
+
                         <SWTFormItem
                           {...restField}
                           name={[name, 'salePrice']}

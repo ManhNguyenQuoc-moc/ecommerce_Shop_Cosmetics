@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Image from 'next/image';
-import { Clock, CheckCircle2, Truck, XCircle, Undo2 } from 'lucide-react';
+import { Clock, CheckCircle2, Truck, XCircle, Undo2, MapPin, CreditCard, ShoppingBag, Mail, Phone, User } from 'lucide-react';
 import SWTModal from '@/src/@core/component/AntD/SWTModal';
 import SWTCard from '@/src/@core/component/AntD/SWTCard';
 import SWTSteps from '@/src/@core/component/AntD/SWTSteps';
@@ -29,18 +29,14 @@ export default function OrderDetailModal({ orderId, isOpen, onClose }: Props) {
   return (
     <SWTModal
       title={
-        <div className="flex flex-row items-center justify-between w-full pl-6 pt-5 pb-3 pr-12">
-          <div className="flex items-center gap-3">
-            <div className="flex flex-col gap-0.5">
-              <span className="text-xs text-text-muted font-medium">Chi tiết đơn hàng</span>
-              <span className="text-base font-bold text-text-main leading-none">
-                #{order?.code || "..."}
-              </span>
-            </div>
+        <div className="flex flex-row items-center justify-between w-full px-6 py-4">
+          <div className="flex flex-col gap-1">
+            <span className="text-[11px] text-text-muted font-bold uppercase tracking-wider">Chi tiết đơn hàng</span>
+            <span className="text-lg font-black text-text-main leading-none">#{order?.code || "..."}</span>
           </div>
           {order && (
-            <div className={`px-3 py-1.5 rounded-full text-xs font-semibold shadow-sm border ${getStatusClasses(order.current_status as any)}`}>
-              {statusLabels[order.current_status]}
+            <div className={`px-4 py-1.5 rounded-full text-[11px] font-black shadow-sm border ${getStatusClasses(order.current_status as any)}`}>
+              {statusLabels[order.current_status].toUpperCase()}
             </div>
           )}
         </div>
@@ -50,9 +46,9 @@ export default function OrderDetailModal({ orderId, isOpen, onClose }: Props) {
       footer={null}
       width={1000}
       centered
-      bodyClassName="!p-0 !bg-bg-muted/5"
+      bodyClassName="!p-0 !bg-[#f8f9fa]" // Màu nền nhẹ để nổi bật các Card trắng
     >
-      <div className="max-h-[80vh] overflow-y-auto custom-scrollbar p-6 sm:p-8 flex flex-col gap-6">
+      <div className="max-h-[85vh] overflow-y-auto custom-scrollbar p-6 flex flex-col gap-6">
         {isLoading ? (
           <div className="py-32 flex flex-col items-center justify-center gap-4">
             <SWTSpin size="large" />
@@ -60,8 +56,8 @@ export default function OrderDetailModal({ orderId, isOpen, onClose }: Props) {
           </div>
         ) : order ? (
           <>
-            {/* 1. Progress Bar */}
-            <SWTCard bodyClassName="!p-6 sm:!p-8">
+            {/* 1. Progress Bar - Giảm padding để tập trung vào nội dung */}
+            <SWTCard bodyClassName="!p-8 sm:!px-12">
               <SWTSteps
                 current={order.current_status === "DELIVERED" ? 4 : ["PENDING", "CONFIRMED", "SHIPPING", "DELIVERED"].indexOf(order.current_status)}
                 status={(order.current_status === "CANCELLED" || order.current_status === "RETURNED") ? "error" : "process"}
@@ -76,121 +72,146 @@ export default function OrderDetailModal({ orderId, isOpen, onClose }: Props) {
 
             <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
               
-              {/* LEFT: Info Panels (Address & Payment) */}
+              {/* LEFT: Information Panel */}
               <div className="md:col-span-5 flex flex-col gap-6">
-                <SWTCard className="!rounded-2xl !border-border-default/40 shadow-sm" bodyClassName="!p-6">
-                <h4 className="text-xl font-bold text-text-main mb-4">
-                    Thông tin nhận hàng
+                <SWTCard className="!rounded-2xl !border-none shadow-sm" bodyClassName="!p-6">
+                  <h4 className="flex items-center gap-2 text-base font-black text-text-main mb-5 border-b border-slate-50 pb-3">
+                    <User size={18} className="text-blue-500" />
+                    THÔNG TIN NHẬN HÀNG
                   </h4>
-                 <div className="flex flex-col gap-4 mb-4 pb-4 border-b border-border-default/20">
-                    <div className="flex flex-col gap-1">
-                      <span className="text-sm text-text-muted font-medium">Người nhận</span>
-                      <span className="text-sm font-bold text-text-main">
-                        {order.customer_name || "Khách hàng"}
-                      </span>
+                  
+                  <div className="space-y-5">
+                    <div className="flex flex-col gap-1.5">
+                      <span className="text-[11px] text-text-muted font-bold uppercase">Người nhận</span>
+                      <span className="text-sm font-bold text-text-main">{order.customer_name || "N/A"}</span>
                     </div>
                     
-                    <div className="flex flex-row justify-between gap-4">
-                      <div className="flex flex-col gap-1">
-                        <span className="text-sm text-text-muted font-medium">Điện thoại</span>
-                        <span className="text-sm font-bold text-text-main">
-                          {order.customer_phone || "Đang cập nhật"}
-                        </span>
-                         <span className="text-sm text-text-muted font-medium">Email</span>
-                        <span className="text-sm font-bold text-text-main" title={order.customer_email}>
-                          {order.customer_email || "Đang cập nhật"}
-                        </span>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="flex flex-col gap-1.5">
+                        <span className="text-[11px] text-text-muted font-bold uppercase">Điện thoại</span>
+                        <div className="flex items-center gap-2 text-sm font-bold text-text-main">
+                        {order.customer_phone}
+                        </div>
+                      </div>
+                    </div>
+                      <div className="flex flex-col gap-1.5">
+                        <span className="text-[11px] text-text-muted font-bold uppercase">Email</span>
+                        <div className="flex items-center gap-2 text-sm font-bold text-text-main">
+                           {order.customer_email || "N/A"}
+                        </div>
+                      </div>
+                    <div className="flex flex-col gap-1.5 pt-2 border-t border-slate-50">
+                      <span className="text-[11px] text-text-muted font-bold uppercase">Địa chỉ giao hàng</span>
+                      <div className="flex gap-2">
+                        <p className="text-sm text-text-main leading-relaxed font-medium">
+                          {order.shipping_address}
+                        </p>
                       </div>
                     </div>
                   </div>
                 </SWTCard>
                 
-                {/* Payment Method */}
-                <SWTCard className="!rounded-2xl !border-border-default/40 shadow-sm" bodyClassName="!p-6">
-                <h4 className="text-xl font-bold text-text-main mb-4">
-                    Thanh toán và giao hàng
+                <SWTCard className="!rounded-2xl !border-none shadow-sm" bodyClassName="!p-6">
+                  <h4 className="flex items-center gap-2 text-base font-black text-text-main mb-5 border-b border-slate-50 pb-3">
+                    <CreditCard size={18} className="text-emerald-500" />
+                    THANH TOÁN
                   </h4>
-                  <div className="flex flex-col gap-4">
+                  <div className="space-y-4">
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-text-muted font-medium">Phương thức</span>
-                      <span className="text-sm font-bold text-text-main uppercase">{order.payment_method}</span>
+                      <span className="text-sm text-text-muted font-medium">Hình thức</span>
+                      <span className="text-sm font-black text-text-main px-2 py-0.5 bg-slate-100 rounded uppercase">{order.payment_method}</span>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-text-muted font-medium">Trạng thái</span>
-                      <span className={`px-3 py-1 rounded-md text-xs font-bold ${order.payment_status === 'PAID' ? 'bg-[#e6f4ea] text-[#137333]' : 'bg-status-warning-bg text-status-warning-text'}`}>
+                      <span className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase ${order.payment_status === 'PAID' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'}`}>
                         {order.payment_status === 'PAID' ? 'Đã thanh toán' : 'Chờ thanh toán'}
                       </span>
                     </div>
                   </div>
-                  <h4 className="text-xl font-bold text-text-main mt-6 mb-4">
-                    Địa chỉ nhận hàng
-                  </h4>
-                   <div className="flex flex-col gap-1.5">
-                    <p className="text-sm text-text-main leading-relaxed font-medium">
-                      {order.shipping_address}
-                    </p>
-                  </div>
                 </SWTCard>
               </div>
 
-              {/* RIGHT: Line Items & Total */}
-              <div className="md:col-span-7">
-                <SWTCard className="!rounded-2xl !border-border-default/40 shadow-sm overflow-hidden" bodyClassName="!p-0 flex flex-col">
-                  {/* Header */}
-                  <div className="p-6 pb-2">
-                    <h4 className="text-xl font-bold text-text-main">
-                      Danh sách sản phẩm ({order.items.length})
+              {/* RIGHT: Products List */}
+              <div className="md:col-span-7 h-full">
+                <SWTCard className="!rounded-2xl !border-none shadow-sm h-full flex flex-col" bodyClassName="!p-0">
+                  <div className="p-6 border-b border-slate-50 flex justify-between items-center">
+                    <h4 className="flex items-center gap-2 text-base font-black text-text-main">
+                      <ShoppingBag size={18} className="text-indigo-500" />
+                      DANH SÁCH SẢN PHẨM
                     </h4>
+                    <span className="text-[11px] font-black px-2 py-1 bg-slate-100 text-slate-500 rounded-md">
+                      {order.items.length} MẶT HÀNG
+                    </span>
                   </div>
                   
-                  {/* Items List */}
-                  <div className="flex flex-col max-h-[320px] overflow-y-auto custom-scrollbar">
-                    {order.items.map((item) => (
-                      <div key={item.id} className="flex items-start sm:items-center gap-4 px-6 py-4 hover:bg-bg-muted/5 transition-colors">
-                        {/* Thumbnail */}
-                        <div className="relative w-16 h-16 rounded-xl border border-border-default/30 overflow-hidden shrink-0 bg-white">
-                          <Image src={item.product_image || "/images/placeholder.png"} alt={item.product_name} fill className="object-cover p-0.5" unoptimized />
+                  <div className="flex flex-col max-h-[420px] overflow-y-auto custom-scrollbar">
+                    {order.items.map((item, idx) => (
+                      <div key={item.id} className={`flex items-center gap-4 px-6 py-5 ${idx !== order.items.length - 1 ? 'border-b border-slate-50' : ''} hover:bg-slate-50/50 transition-colors`}>
+                        <div className="relative w-16 h-16 rounded-xl border border-slate-100 overflow-hidden shrink-0 bg-white shadow-sm">
+                          <Image src={item.product_image || "/images/placeholder.png"} alt={item.product_name} fill className="object-cover p-1" unoptimized />
                         </div>
-                        {/* Info */}
-                        <div className="flex-1 min-w-0 flex flex-col sm:flex-row justify-between gap-4">
-                          <div className="flex flex-col gap-1.5 flex-1">
-                            <p className="font-bold text-text-main text-sm line-clamp-2 leading-tight">{item.product_name}</p>
-                            <div className="flex items-center gap-2">
-                              <span className="text-[13px] bg-bg-muted/30 text-text-muted px-2 py-0.5 rounded-md border border-border-default/30 font-medium">
-                                {item.variant_name || "Mặc định"}
-                              </span>
-                              <span className="text-[13px] text-text-muted font-medium">x{item.quantity}</span>
-                            </div>
+                        <div className="flex-1 min-w-0 flex flex-col gap-1.5">
+                          <p className="font-bold text-text-main text-[14px] line-clamp-1 leading-tight">{item.product_name}</p>
+                          <div className="flex items-center gap-3">
+                            <span className="text-[11px] font-black text-slate-400">SL: {item.quantity}</span>
+                            <span className="text-[11px] bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded font-bold">
+                              {item.variant_name || "Mặc định"}
+                            </span>
                           </div>
-                          {/* Price */}
-                          <div className="text-left sm:text-right shrink-0">
-                            <p className="font-bold text-text-main text-[15px] tabular-nums">{formatVND(item.price)}</p>
-                          </div>
+                        </div>
+                        <div className="text-right shrink-0">
+                          <p className="font-black text-text-main text-[15px] tabular-nums">{formatVND(item.price)}</p>
                         </div>
                       </div>
                     ))}
                   </div>
-                  <div className="px-6 py-5 border-t border-border-default/30 flex justify-between items-end gap-4 mt-2">
-                    <div className="flex flex-col gap-1">
-                      <span className="text-[15px] text-text-muted font-bold">Tổng thanh toán</span>
-                      <span className="text-[11px] text-text-muted italic">* Đã bao gồm thuế phí</span>
+
+                  <div className="mt-auto p-6 bg-white border-t border-slate-100 flex flex-col gap-4">
+                    <div className="flex flex-col gap-3">
+                      <div className="flex justify-between items-center text-sm">
+                        <span className="text-slate-500 font-medium">Tạm tính ({order.items.length} sản phẩm)</span>
+                        <span className="text-slate-800 font-bold">{formatVND(order.total_amount)}</span>
+                      </div>
+
+                      {order.discount_amount && order.discount_amount > 0 && (
+                        <div className="flex justify-between items-center text-sm">
+                          <div className="flex items-center gap-2">
+                             <span className="text-slate-500 font-medium">Mã giảm giá</span>
+                             <span className="text-[10px] font-black text-brand-500 bg-brand-50 px-2 py-0.5 rounded flex items-center gap-1 border border-brand-100">
+                                <ShoppingBag size={10} /> {order.voucher_code}
+                             </span>
+                          </div>
+                          <span className="text-brand-500 font-bold">-{formatVND(order.discount_amount)}</span>
+                        </div>
+                      )}
+
+                      <div className="flex justify-between items-center text-sm">
+                        <span className="text-slate-500 font-medium">Phí giao hàng ({order.shipping_method === 'express' ? 'Nhanh' : 'Tiêu chuẩn'})</span>
+                        <span className="text-slate-800 font-bold">{formatVND(order.shipping_fee)}</span>
+                      </div>
                     </div>
-                    {/* Bôi màu hồng đậm (hoặc lấy màu thương hiệu) cho giá tiền */}
-                    <p className="text-[26px] font-bold text-[#F83A7E] tracking-tight tabular-nums leading-none">
-                      {formatVND(order.final_amount)}
-                    </p>
+
+                    <div className="pt-4 border-t border-slate-100 flex justify-between items-center">
+                      <div className="flex flex-col">
+                        <span className="text-[11px] text-text-muted font-black uppercase tracking-widest">Tổng thanh toán</span>
+                        <span className="text-[10px] text-slate-400 italic">Giá đã bao gồm VAT</span>
+                      </div>
+                      <p className="text-[28px] font-black text-brand-500 tracking-tighter tabular-nums leading-none">
+                        {formatVND(order.final_amount)}
+                      </p>
+                    </div>
                   </div>
                 </SWTCard>
               </div>
             </div>
 
-            {/* 3. Status Timeline */}
-            <SWTCard className="!rounded-2xl !border-border-default/40 shadow-sm" bodyClassName="!p-6 !sm:p-8 !flex flex-col gap-6">
-              <h4 className="flex items-center gap-2 text-[15px] font-bold text-text-main pb-2">
-                <Clock size={18} className="text-text-muted" />
-                Lịch sử hành trình
+            {/* 3. Status Timeline - Padding đồng nhất với Card trên */}
+            <SWTCard className="!rounded-2xl !border-none shadow-sm" bodyClassName="!p-8">
+              <h4 className="flex items-center gap-2 text-base font-black text-text-main mb-8 border-b border-slate-50 pb-4">
+                <Clock size={18} className="text-slate-400" />
+                HÀNH TRÌNH ĐƠN HÀNG
               </h4>
-              <div className="pt-2 pl-2">
+              <div className="pl-4">
                 <SWTTimeline
                   items={(order as any).status_history?.map((h: any) => ({
                     dot: (
@@ -199,19 +220,20 @@ export default function OrderDetailModal({ orderId, isOpen, onClose }: Props) {
                       </div>
                     ),
                     children: (
-                      <div className="ml-4 pb-6 flex flex-col sm:flex-row justify-between items-start gap-2 sm:gap-6">
-                        <div className="flex flex-col gap-1.5 flex-1">
-                          <span className="text-sm font-bold text-text-main">{statusLabels[h.status as OrderStatus]}</span>
+                      <div className="ml-6 pb-8 flex flex-col sm:flex-row justify-between items-start gap-4">
+                        <div className="flex flex-col gap-2 flex-1">
+                          <span className="text-sm font-black text-text-main uppercase tracking-tight">{statusLabels[h.status as OrderStatus]}</span>
                           {h.note && (
-                            <p className="text-xs text-text-muted bg-bg-muted/30 p-2.5 rounded-lg border border-border-default/40">
+                            <p className="text-xs text-text-muted bg-white border border-slate-100 p-3 rounded-xl shadow-sm max-w-2xl leading-relaxed">
                               {h.note}
                             </p>
                           )}
                         </div>
-                        <div className="shrink-0 text-left sm:text-right text-xs text-text-muted">
-                          <span className="font-medium">{new Date(h.createdAt || h.timestamp).toLocaleTimeString("vi-VN", { timeStyle: 'short' })}</span>
-                          <span className="mx-1.5">-</span>
-                          <span>{new Date(h.createdAt || h.timestamp).toLocaleDateString("vi-VN", { dateStyle: 'medium' })}</span>
+                        <div className="shrink-0 flex items-center gap-2 px-3 py-1 bg-slate-50 rounded-lg text-[11px] font-bold text-slate-400">
+                          <Clock size={12} />
+                          <span>{new Date(h.createdAt || h.timestamp).toLocaleTimeString("vi-VN", { hour: '2-digit', minute: '2-digit' })}</span>
+                          <span className="opacity-30">|</span>
+                          <span>{new Date(h.createdAt || h.timestamp).toLocaleDateString("vi-VN")}</span>
                         </div>
                       </div>
                     )
@@ -223,9 +245,10 @@ export default function OrderDetailModal({ orderId, isOpen, onClose }: Props) {
         ) : null}
       </div>
     </SWTModal>
-  );
-}
 
+  );
+  
+}
 const statusLabels: Record<OrderStatus, string> = {
   PENDING: "Chờ xác nhận",
   CONFIRMED: "Đã xác nhận",
@@ -235,6 +258,7 @@ const statusLabels: Record<OrderStatus, string> = {
   RETURNED: "Trả hàng",
 };
 
+// Đây là phần bạn đang bị thiếu:
 const statusIcons: Record<OrderStatus, React.ReactNode> = {
   PENDING: <Clock size={14} />,
   CONFIRMED: <CheckCircle2 size={14} />,
@@ -246,12 +270,12 @@ const statusIcons: Record<OrderStatus, React.ReactNode> = {
 
 const getStatusClasses = (status: OrderStatus) => {
   const mapping: Record<string, string> = {
-    PENDING: "bg-status-info-bg text-status-info-text border-status-info-border",
-    CONFIRMED: "bg-status-warning-bg text-status-warning-text border-status-warning-border",
-    SHIPPING: "bg-status-info-bg text-status-info-text border-status-info-border",
-    DELIVERED: "bg-status-success-bg text-status-success-text border-status-success-border",
-    CANCELLED: "bg-status-error-bg text-status-error-text border-status-error-border",
-    RETURNED: "bg-status-neutral-bg text-status-neutral-text border-status-neutral-border",
+    PENDING: "bg-blue-50 text-blue-600 border-blue-100",
+    CONFIRMED: "bg-amber-50 text-amber-600 border-amber-100",
+    SHIPPING: "bg-indigo-50 text-indigo-600 border-indigo-100",
+    DELIVERED: "bg-emerald-50 text-emerald-600 border-emerald-100",
+    CANCELLED: "bg-rose-50 text-rose-600 border-rose-100",
+    RETURNED: "bg-slate-50 text-slate-600 border-slate-100",
   };
   return mapping[status] || "";
 };

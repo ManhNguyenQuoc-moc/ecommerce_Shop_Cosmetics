@@ -3,7 +3,8 @@ import { OrderStatus, PaymentMethod, PaymentStatus } from "@prisma/client";
 
 export const CreateOrderSchema = z.object({
   paymentMethod: z.nativeEnum(PaymentMethod).default(PaymentMethod.COD),
-  total: z.number().min(0).optional(), // Frontend might send total, but we should re-calculate
+  total: z.number().min(0).optional(), // Final amount
+  total_amount: z.number().min(0).optional(), // Subtotal (items only)
   shipping_fee: z.number().min(0).optional(),
   shippingFee: z.number().min(0).optional(),
   shipping_method: z.string().optional(),
@@ -29,6 +30,7 @@ export const CreateOrderSchema = z.object({
   })).min(1),
   
   userId: z.string().uuid().optional(),
+  discountCodeId: z.string().optional().nullable(),
 });
 
 export type CreateOrderDTO = z.infer<typeof CreateOrderSchema>;

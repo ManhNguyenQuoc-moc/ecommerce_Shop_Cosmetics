@@ -3,7 +3,7 @@
 import SWTButton from "@/src/@core/component/AntD/SWTButton";
 import { ProductDetailDto, ProductDetailVariantDto } from "@/src/services/models/product/output.dto";
 import { useCheckoutStore } from "@/src/stores/useCheckoutStore";
-import { useCart } from "@/src/hooks/useCart";
+import { useCart } from "@/src/hooks/customer/cart.hook";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import SWTLoading from "@/src/@core/component/AntD/SWTLoading";

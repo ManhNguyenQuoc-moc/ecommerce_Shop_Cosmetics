@@ -7,7 +7,7 @@ import SWTSelect from "@/src/@core/component/AntD/SWTSelect";
 import SWTTooltip from "@/src/@core/component/AntD/SWTTooltip";
 import { useState, useEffect, TransitionStartFunction } from "react";
 import { useSearchParams, usePathname } from "next/navigation";
-import { useBrands } from "@/src/services/admin/brand.service";
+import { useBrands } from "@/src/hooks/admin/brand.hook";
 import { useDebounce } from "@/src/@core/hooks/useDebounce";
 import { useRouter } from "next/navigation";
 
@@ -126,7 +126,7 @@ export default function POFilters({ startTransition }: POFiltersProps) {
 
         {/* FILTER BAR */}
         <div className="flex flex-col md:flex-row md:items-center gap-4 w-full p-4 lg:p-5 transition-all duration-300">
-          
+
           <div className="flex flex-wrap items-center gap-3 flex-1 w-full">
             <div className="flex items-center gap-2 text-brand-500 
             font-bold md:pr-4 border-b md:border-b-0 md:border-r border-border-default pb-2 md:pb-0 w-full md:w-auto">

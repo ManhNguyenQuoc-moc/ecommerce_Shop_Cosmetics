@@ -2,8 +2,8 @@
 
 import { useWishlistStore } from "@/src/stores/useWishlistStore";
 import { ProductListItemDto } from "@/src/services/models/product/output.dto";
-import { wishlistService } from "../services/customer/wishlist.service";
-import { WishlistProductDto } from "../services/models/customer/wishlist.dto";
+import { wishlistService } from "@/src/services/customer/wishlist.service";
+import { WishlistProductDto } from "@/src/services/models/customer/wishlist.dto";
 import { showNotificationSuccess, showNotificationWarning, showNotificationError } from "@/src/@core/utils/message";
 import { authStorage } from "@/src/@core/utils/authStorage";
 import { useEffect, useMemo } from "react";

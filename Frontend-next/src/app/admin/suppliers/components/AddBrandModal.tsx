@@ -9,7 +9,7 @@ import SWTFormItem from "@/src/@core/component/AntD/SWTFormItem";
 import SWTInput, { SWTInputTextArea } from "@/src/@core/component/AntD/SWTInput";
 import SWTUpload from "@/src/@core/component/AntD/SWTUpload";
 import SWTButton from "@/src/@core/component/AntD/SWTButton";
-import { useCreateBrand, useUpdateBrand } from "@/src/services/admin/brand.service";
+import { useCreateBrand, useUpdateBrand } from "@/src/hooks/admin/brand.hook";
 import { uploadFileToCloudinary as uploadImage } from "@/src/services/admin/upload.service";
 import { showNotificationError, showNotificationSuccess } from "@/src/@core/utils/message";
 
@@ -23,7 +23,7 @@ export default function AddBrandModal({ isOpen, onClose, initialData }: Props) {
   const [form] = SWTForm.useForm();
   const { trigger: createBrand, isMutating: creating } = useCreateBrand();
   const { trigger: updateBrand, isMutating: updating } = useUpdateBrand();
-  
+
   const [logoFileList, setLogoFileList] = useState<any[]>([]);
   const [bannerFileList, setBannerFileList] = useState<any[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -108,9 +108,9 @@ export default function AddBrandModal({ isOpen, onClose, initialData }: Props) {
       }}
       className="[&_.ant-modal-header]:!px-6 [&_.ant-modal-header]:!pt-6 [&_.ant-modal-body]:!px-6 [&_.ant-modal-footer]:!px-6 [&_.ant-modal-footer]:!pb-6 sm:[&_.ant-modal-header]:!px-8 sm:[&_.ant-modal-header]:!pt-8 sm:[&_.ant-modal-body]:!px-8 sm:[&_.ant-modal-footer]:!px-8 sm:[&_.ant-modal-footer]:!pb-8 [&_.ant-modal-content]:!bg-bg-card/90 [&_.ant-modal-content]:!backdrop-blur-xl [&_.ant-modal-content]:!border [&_.ant-modal-content]:!border-border-default [&_.ant-modal-header]:!bg-transparent [&_.ant-modal-title]:!bg-transparent"
     >
-      <SWTForm 
-        form={form} 
-        layout="vertical" 
+      <SWTForm
+        form={form}
+        layout="vertical"
         onFinish={handleFinish}
         className="mt-6 [&_.ant-form-item-label>label]:font-bold [&_.ant-form-item-label>label]:text-text-sub uppercase text-xs tracking-tight"
       >
@@ -118,24 +118,24 @@ export default function AddBrandModal({ isOpen, onClose, initialData }: Props) {
           <SWTFormItem name="name" label="Tên nhà cung cấp / Thương hiệu" rules={[{ required: true, message: "Vui lòng nhập tên" }]}>
             <SWTInput placeholder="Vd: L'Oréal, Rohto..." prefix={<Info size={16} className="text-text-muted" />} className="!bg-bg-muted !border-border-default text-text-main" />
           </SWTFormItem>
-          
+
           <SWTFormItem name="email" label="Email liên hệ">
             <SWTInput placeholder="example@brand.com" prefix={<Mail size={16} className="text-text-muted" />} className="!bg-bg-muted !border-border-default text-text-main" />
           </SWTFormItem>
- 
+
           <SWTFormItem name="phone" label="Số điện thoại">
             <SWTInput placeholder="0987..." prefix={<Phone size={16} className="text-text-muted" />} className="!bg-bg-muted !border-border-default text-text-main" />
           </SWTFormItem>
- 
+
           <SWTFormItem name="address" label="Địa chỉ văn phòng">
             <SWTInput placeholder="Quận 1, TP.HCM..." prefix={<MapPin size={16} className="text-text-muted" />} className="!bg-bg-muted !border-border-default text-text-main" />
           </SWTFormItem>
         </div>
- 
+
         <SWTFormItem name="description" label="Giới thiệu thương hiệu / Ghi chú">
           <SWTInputTextArea rows={3} placeholder="Thông tin chi tiết về nhà cung cấp..." className="!bg-bg-muted !border-border-default text-text-main" />
         </SWTFormItem>
- 
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 mt-4">
           {/* Logo Upload */}
           <SWTFormItem label="Logo Thương hiệu">
@@ -153,14 +153,14 @@ export default function AddBrandModal({ isOpen, onClose, initialData }: Props) {
               className="[&_.ant-upload-drag]:!bg-bg-muted/50 [&_.ant-upload-drag]:!border-border-default [&_.ant-upload-list-item]:!border-border-default [&_.ant-upload-list-item-name]:!text-text-sub"
             >
               <div className="py-4">
-                 <p className="ant-upload-drag-icon flex justify-center text-brand-500 mb-2">
-                   <UploadIcon size={32} className="stroke-[1.5]" />
-                 </p>
-                 <p className="ant-upload-text text-sm font-bold text-text-main">Nhấp hoặc kéo thả Logo</p>
+                <p className="ant-upload-drag-icon flex justify-center text-brand-500 mb-2">
+                  <UploadIcon size={32} className="stroke-[1.5]" />
+                </p>
+                <p className="ant-upload-text text-sm font-bold text-text-main">Nhấp hoặc kéo thả Logo</p>
               </div>
             </SWTUpload>
           </SWTFormItem>
- 
+
           {/* Banner Upload */}
           <SWTFormItem label="Ảnh Bìa (Banner)">
             <SWTUpload
@@ -177,10 +177,10 @@ export default function AddBrandModal({ isOpen, onClose, initialData }: Props) {
               className="[&_.ant-upload-drag]:!bg-bg-muted/50 [&_.ant-upload-drag]:!border-border-default [&_.ant-upload-list-item]:!border-border-default [&_.ant-upload-list-item-name]:!text-text-sub"
             >
               <div className="py-4">
-                 <p className="ant-upload-drag-icon flex justify-center text-brand-500 mb-2">
-                   <ImageIcon size={32} className="stroke-[1.5]" />
-                 </p>
-                 <p className="ant-upload-text text-sm font-bold text-text-main">Nhấp hoặc kéo thả Banner</p>
+                <p className="ant-upload-drag-icon flex justify-center text-brand-500 mb-2">
+                  <ImageIcon size={32} className="stroke-[1.5]" />
+                </p>
+                <p className="ant-upload-text text-sm font-bold text-text-main">Nhấp hoặc kéo thả Banner</p>
               </div>
             </SWTUpload>
           </SWTFormItem>

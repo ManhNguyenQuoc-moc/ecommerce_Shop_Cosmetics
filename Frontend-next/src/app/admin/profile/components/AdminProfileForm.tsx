@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useSWRConfig } from "swr";
+import useSWRMutation from "swr/mutation";
 import { Form, Tag, Divider } from "antd";
 import {
   User,
@@ -28,9 +28,10 @@ import { updateCustomerInfo } from "@/src/services/customer/user.service";
 import { UserProfileDTO } from "@/src/services/models/user/output.dto";
 import ProfileAvatarUpload from "@/src/app/(customer)/profile/components/ProfileAvatarUpload";
 import { useAuth } from "@/src/context/AuthContext";
+import { useUserProfile } from "@/src/hooks/admin/user.hook";
 
 type Props = {
-  initialData: UserProfileDTO;
+  initialData?: UserProfileDTO;
 };
 
 const genderLabel = (g?: string) =>
@@ -40,25 +41,32 @@ export default function AdminProfileForm({ initialData }: Props) {
   const [form] = Form.useForm();
   const [isEdit, setIsEdit] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [avatarUrl, setAvatarUrl] = useState(initialData.avatar);
-  const { mutate } = useSWRConfig();
+  const [avatarUrl, setAvatarUrl] = useState<string>("");
   const { currentUser, updateUser } = useAuth();
+  
+  // Use the hook to fetch profile data with real-time updates
+  const { data: profileData, mutate: mutateProfile } = useUserProfile();
+  const profileInfo = profileData || initialData;
 
   const syncFormValues = () => {
-    const firstAddress = initialData.addresses?.[0]?.address || "";
+    if (!profileInfo) return;
+    
+    const firstAddress = profileInfo.addresses?.[0]?.address || "";
     form.setFieldsValue({
-      full_name: initialData.full_name || initialData.email?.split("@")[0],
-      phone: initialData.phone,
-      gender: initialData.gender,
-      birthday: initialData.birthday ? dayjs(initialData.birthday) : undefined,
+      full_name: profileInfo.full_name || profileInfo.email?.split("@")[0],
+      phone: profileInfo.phone,
+      gender: profileInfo.gender,
+      birthday: profileInfo.birthday ? dayjs(profileInfo.birthday) : undefined,
       work_address: firstAddress,
     });
   };
 
   useEffect(() => {
-    syncFormValues();
-    setAvatarUrl(initialData.avatar);
-  }, [initialData, form]);
+    if (profileInfo) {
+      syncFormValues();
+      setAvatarUrl(profileInfo.avatar || "");
+    }
+  }, [profileInfo, form]);
 
   const onFinish = async (values: any) => {
     try {
@@ -85,7 +93,8 @@ export default function AdminProfileForm({ initialData }: Props) {
         avatar: updatedUserFromApi.avatar || avatarUrl || currentUser?.avatar,
       });
 
-      await mutate("/users/me", updatedUserFromApi, false);
+      // Revalidate the profile data immediately to ensure UI updates
+      await mutateProfile(updatedUserFromApi, false);
       showNotificationSuccess("Cập nhật thông tin quản trị viên thành công");
       setIsEdit(false);
     } catch (err: any) {
@@ -103,7 +112,7 @@ export default function AdminProfileForm({ initialData }: Props) {
   const handleCancel = () => {
     setIsEdit(false);
     form.resetFields();
-    setAvatarUrl(initialData.avatar);
+    setAvatarUrl(profileInfo?.avatar || "");
     syncFormValues();
   };
 
@@ -122,7 +131,7 @@ export default function AdminProfileForm({ initialData }: Props) {
         </div>
 
         <h3 className="mt-8 text-2xl font-black admin-section-heading tracking-tight">
-          {initialData.full_name || "Quản trị viên"}
+          {initialData?.full_name || "Quản trị viên"}
         </h3>
 
         <div className="mt-4 flex flex-col gap-3 w-full">
@@ -206,7 +215,7 @@ export default function AdminProfileForm({ initialData }: Props) {
                 </SWTFormItem>
               ) : (
                 <div className="admin-field-display flex items-center gap-4 pb-3">
-                  <span className="font-bold text-lg">{initialData.full_name || "—"}</span>
+                  <span className="font-bold text-lg">{initialData?.full_name || "—"}</span>
                 </div>
               )}
             </div>
@@ -217,7 +226,7 @@ export default function AdminProfileForm({ initialData }: Props) {
                 <Mail size={14} /> Email hệ thống
               </label>
               <div className="flex items-center gap-4 text-slate-400 dark:text-slate-500 border-b border-slate-200 dark:border-slate-700/50 pb-3 cursor-not-allowed">
-                <span className="font-bold text-lg">{initialData.email || "—"}</span>
+                <span className="font-bold text-lg">{initialData?.email || "—"}</span>
               </div>
             </div>
 
@@ -239,7 +248,7 @@ export default function AdminProfileForm({ initialData }: Props) {
                 </SWTFormItem>
               ) : (
                 <div className="admin-field-display flex items-center gap-4 pb-3">
-                  <span className="font-bold text-lg">{initialData.phone || "—"}</span>
+                  <span className="font-bold text-lg">{initialData?.phone || "—"}</span>
                 </div>
               )}
             </div>
@@ -273,7 +282,7 @@ export default function AdminProfileForm({ initialData }: Props) {
               ) : (
                 <div className="admin-field-display flex items-center gap-4 pb-3">
                   <span className="font-bold text-lg">
-                    {initialData.birthday ? dayjs(initialData.birthday).format("DD/MM/YYYY") : "—"}
+                    {initialData?.birthday ? dayjs(initialData?.birthday).format("DD/MM/YYYY") : "—"}
                   </span>
                 </div>
               )}
@@ -302,7 +311,7 @@ export default function AdminProfileForm({ initialData }: Props) {
                 </SWTFormItem>
               ) : (
                 <div className="admin-field-display flex items-center gap-4 pb-3">
-                  <span className="font-bold text-lg">{genderLabel(initialData.gender)}</span>
+                  <span className="font-bold text-lg">{genderLabel(initialData?.gender)}</span>
                 </div>
               )}
             </div>
@@ -323,7 +332,7 @@ export default function AdminProfileForm({ initialData }: Props) {
               ) : (
                 <div className="admin-field-display flex items-center gap-4 pb-3">
                   <span className="font-bold text-lg truncate">
-                    {initialData.addresses?.[0]?.address || "—"}
+                    {initialData?.addresses?.[0]?.address || "—"}
                   </span>
                 </div>
               )}
