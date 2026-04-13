@@ -2,7 +2,7 @@ import { get } from "@/src/services/api";
 import { useFetchSWR } from "@/src/@core/hooks/useFetchSWR";
 import { InventoryBatchDto } from "@/src/services/models/inventory/output.dto";
 import { InventoryQueryParams } from "@/src/services/models/inventory/input.dto";
-import { buildQueryString } from "@/src/utils/query.util";
+import { buildQueryString } from "@/src/@core/utils/query.util";
 import { PaginationResponse } from "@/src/services/models/common/PaginationResponse";
 
 export const INVENTORY_API_ENDPOINT = "/inventory";

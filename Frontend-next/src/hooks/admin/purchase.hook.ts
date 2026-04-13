@@ -3,7 +3,7 @@ import { useFetchSWR } from "@/src/@core/hooks/useFetchSWR";
 import { CreatePOInput, UpdatePOInput, POQueryParams } from "@/src/services/models/purchase/input.dto";
 import { PODetailDto, POListItemDto } from "@/src/services/models/purchase/output.dto";
 import { PaginationResponse } from "@/src/services/models/common/PaginationResponse";
-import { buildQueryString } from "@/src/utils/query.util";
+import { buildQueryString } from "@/src/@core/utils/query.util";
 import { getPurchaseOrders, getPurchaseOrderById } from "@/src/services/admin/purchase.service";
 
 export const PURCHASE_API_ENDPOINT = "/purchases";

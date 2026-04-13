@@ -3,7 +3,7 @@ import { useFetchSWR } from "@/src/@core/hooks/useFetchSWR";
 import useSWRMutation from "swr/mutation";
 import { CreateCategoryDto, UpdateCategoryDto, CategoryQueryFilters } from "@/src/services/models/category/input.dto";
 import { CategoryResponseDto } from "@/src/services/models/category/output.dto";
-import { buildQueryString } from "@/src/utils/query.util";
+import { buildQueryString } from "@/src/@core/utils/query.util";
 import { PaginationResponse } from "@/src/services/models/common/PaginationResponse";
 
 export const CATEGORY_API_ENDPOINT = "/categories";
