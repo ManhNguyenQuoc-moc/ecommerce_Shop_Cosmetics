@@ -8,8 +8,10 @@ interface Props {
 }
 
 export default function PointsSummary({ summary }: Props) {
-  const percentToNext = summary.points_to_next_tier && summary.total_points > 0
-    ? Math.min(100, (summary.total_points / (summary.total_points + summary.points_to_next_tier)) * 100)
+  const percentToNext = summary.points_to_next_tier !== undefined
+    ? (summary.points_to_next_tier === 0 
+        ? 100 
+        : Math.min(100, (summary.total_points / (summary.total_points + summary.points_to_next_tier)) * 100))
     : 0;
 
   return (
@@ -22,18 +24,18 @@ export default function PointsSummary({ summary }: Props) {
           <div className="flex justify-between items-start">
             <div>
               <p className="text-white/80 text-sm font-medium uppercase tracking-widest">Điểm tích luỹ hiện có</p>
-              <h2 className="text-4xl font-bold mt-1 flex items-baseline gap-2">
+              <h2 className="text-4xl font-bold mt-1 flex items-baseline gap-2 text-white">
                 {summary.total_points.toLocaleString("vi-VN")}
-                <span className="text-lg opacity-80">điểm</span>
+                <span className="text-base font-bold text-white/70">điểm</span>
               </h2>
             </div>
-            <div className="w-12 h-12 bg-white/20 backdrop-blur rounded-2xl flex items-center justify-center shadow-inner">
-              <StarFilled className="text-amber-300 text-2xl" />
+            <div className="w-10 h-10 bg-white/20 backdrop-blur rounded-xl flex items-center justify-center shadow-inner">
+              <StarFilled className="text-amber-300 text-xl" />
             </div>
           </div>
 
           <div className="mt-8">
-            <div className="flex justify-between text-xs font-bold mb-2 uppercase tracking-wide">
+            <div className="flex justify-between text-xs font-bold mb-2 uppercase tracking-wide text-white/80">
               <span>Hạng: {summary.current_tier}</span>
               {summary.next_tier && <span>Hạng kế tếp: {summary.next_tier}</span>}
             </div>
@@ -45,7 +47,7 @@ export default function PointsSummary({ summary }: Props) {
               strokeWidth={8}
               className="!m-0"
             />
-            {summary.points_to_next_tier && (
+            {summary.points_to_next_tier !== undefined && summary.points_to_next_tier > 0 && (
               <p className="text-[11px] text-white/90 mt-2 flex items-center gap-1.5 font-medium italic">
                 <GiftOutlined />
                 Cần thêm {summary.points_to_next_tier.toLocaleString("vi-VN")} điểm để thăng hạng {summary.next_tier}

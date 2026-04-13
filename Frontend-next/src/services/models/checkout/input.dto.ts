@@ -23,4 +23,5 @@ export type CheckoutRequestDTO = {
   shippingFee: number;
   shippingMethod: string;
   paymentMethod: "COD" | "VNPAY";
+  discountCodeId?: string;
 };

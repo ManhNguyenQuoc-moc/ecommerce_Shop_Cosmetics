@@ -47,6 +47,9 @@ export interface OrderDto {
   payment_method: string;
   payment_status: string;
   note?: string;
+  discount_amount?: number;
+  voucher_code?: string;
+  voucher_name?: string;
   createdAt: string;
   updatedAt: string;
   

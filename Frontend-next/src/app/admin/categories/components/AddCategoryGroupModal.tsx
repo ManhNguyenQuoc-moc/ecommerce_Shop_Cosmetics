@@ -6,7 +6,8 @@ import SWTModal from "@/src/@core/component/AntD/SWTModal";
 import SWTForm from "@/src/@core/component/AntD/SWTForm";
 import SWTFormItem from "@/src/@core/component/AntD/SWTFormItem";
 import SWTInput, { SWTInputTextArea } from "@/src/@core/component/AntD/SWTInput";
-import { useCreateCategoryGroup, useUpdateCategoryGroup, CATEGORY_GROUP_API_ENDPOINT } from "@/src/services/admin/category-group.service";
+import { useCreateCategoryGroup, useUpdateCategoryGroup } from "@/src/hooks/admin/category-group.hook";
+import { CATEGORY_GROUP_API_ENDPOINT } from "@/src/services/admin/category-group.service";
 import { showNotificationError, showNotificationSuccess } from "@/src/@core/utils/message";
 import { CategoryGroupResponseDto } from "@/src/services/models/category-group/output.dto";
 import { mutate } from "swr";
@@ -36,7 +37,7 @@ export default function AddCategoryGroupModal({ isOpen, onClose, initialData }: 
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields();
-      
+
       const payload = {
         name: values.name,
         description: values.description,
@@ -49,7 +50,7 @@ export default function AddCategoryGroupModal({ isOpen, onClose, initialData }: 
         await createGroup(payload);
         showNotificationSuccess("Thêm nhóm danh mục mới thành công!");
       }
-      
+
       mutate(
         (key: any) => typeof key === 'string' && key.startsWith(CATEGORY_GROUP_API_ENDPOINT),
         undefined,

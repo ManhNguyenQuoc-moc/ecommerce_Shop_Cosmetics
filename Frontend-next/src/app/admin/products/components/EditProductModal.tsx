@@ -14,9 +14,10 @@ import SWTIconButton from "@/src/@core/component/SWTIconButton";
 import { useState, useEffect } from "react";
 import { showNotificationSuccess, showNotificationError } from "@/src/@core/utils/message";
 import { uploadFileToCloudinary } from "@/src/services/admin/upload.service";
-import { useBrands } from "@/src/services/admin/brand.service";
-import { useCategories } from "@/src/services/admin/category.service";
-import { useProduct, updateProduct, PRODUCT_API_ENDPOINT } from "@/src/services/admin/product.service";
+import { useBrands } from "@/src/hooks/admin/brand.hook";
+import { useCategories } from "@/src/hooks/admin/category.hook";
+import { useProduct } from "@/src/hooks/admin/product.hook";
+import { updateProduct, PRODUCT_API_ENDPOINT } from "@/src/services/admin/product.service";
 import { mutate as globalMutate } from "swr";
 
 import { UpdateProductInput, ProductSpecificationInput, UpdateVariantInput } from "@/src/services/models/product/input.dto";
@@ -225,7 +226,7 @@ export default function EditProductModal({ isOpen, onClose, productId, onUpdated
   return (
     <SWTModal
       title={
-         <span className="text-xl font-black text-brand-500">
+        <span className="text-xl font-black text-brand-500">
           Chỉnh Sửa Sản Phẩm
         </span>
       }
@@ -471,7 +472,7 @@ export default function EditProductModal({ isOpen, onClose, productId, onUpdated
                         <SWTFormItem {...restField} name={[name, 'size']} label="Kích cỡ" className="!mb-4">
                           <SWTInput placeholder="Vd: 30ml..." className="dark:!bg-slate-900/50 dark:!border-slate-700 dark:!text-white" />
                         </SWTFormItem>
-                        
+
                         <SWTFormItem {...restField} name={[name, 'statusName']} label="Nhãn sự kiện" className="!mb-4" initialValue="NEW">
                           <SWTSelect
                             options={[

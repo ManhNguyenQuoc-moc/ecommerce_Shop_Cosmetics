@@ -6,8 +6,9 @@ import { authStorage } from "@/src/@core/utils/authStorage";
 import { showNotificationSuccess, showNotificationError } from "@/src/@core/utils/message";
 import { checkoutService } from "@/src/services/customer/checkout.service";
 import { useRouter } from "next/navigation";
-import { useCart } from "./useCart";
+import { useCart } from "./cart.hook";
 import { CheckoutRequestDTO } from "@/src/services/models/checkout/input.dto";
+import { getVoucherByCode } from "@/src/services/customer/voucher.service";
 
 export const useCheckout = () => {
   const router = useRouter();
@@ -20,11 +21,13 @@ export const useCheckout = () => {
     selectedAddress,
     shippingMethod,
     paymentMethod,
+    appliedVoucher,
     setCustomer,
     setAddresses,
     setSelectedAddress,
     setShipping,
     setPayment,
+    setVoucher,
     reset,
   } = useCheckoutStore();
 
@@ -55,14 +58,62 @@ export const useCheckout = () => {
   const calculateShipping = () => {
     return shippingMethod === "express" ? 30000 : 0;
   };
+  
+  const calculateDiscount = () => {
+    if (!appliedVoucher) return 0;
+    const subtotal = calculateSubtotal();
+    
+    // Check min order value again in UI
+    if (subtotal < (appliedVoucher.min_order_value || 0)) return 0;
+
+    let discount = 0;
+    if (appliedVoucher.type === "PERCENTAGE") {
+      discount = (subtotal * appliedVoucher.value) / 100;
+      if (appliedVoucher.max_discount_amount && discount > appliedVoucher.max_discount_amount) {
+        discount = appliedVoucher.max_discount_amount;
+      }
+    } else {
+      discount = appliedVoucher.value;
+    }
+    return Math.min(discount, subtotal);
+  };
 
   const calculateTotal = () => {
-    return calculateSubtotal() + calculateShipping();
+    return calculateSubtotal() + calculateShipping() - calculateDiscount();
+  };
+
+  const applyVoucher = async (code: string) => {
+    try {
+      if (!code) return;
+      const voucher = await getVoucherByCode(code);
+      if (!voucher) {
+        showNotificationError("Mã giảm giá không tồn tại");
+        return;
+      }
+
+      if (voucher.is_expired) {
+        showNotificationError("Mã giảm giá đã hết hạn");
+        return;
+      }
+
+      if (calculateSubtotal() < (voucher.min_order_value || 0)) {
+        showNotificationError(`Đơn hàng tối thiểu ${voucher.min_order_value?.toLocaleString()}đ để dùng mã này`);
+        return;
+      }
+
+      setVoucher(voucher);
+      showNotificationSuccess("Áp dụng mã giảm giá thành công");
+    } catch (err) {
+      showNotificationError("Không thể kiểm tra mã giảm giá");
+    }
+  };
+
+  const removeVoucher = () => {
+    setVoucher(null);
   };
 
   const placeOrder = async () => {
     const user = authStorage.getUser();
-    // Guest checkout is allowed, backend will handle getOrCreateCustomer if user.id is missing
 
 
     if (!customer.name || !customer.phone || !selectedAddress) {
@@ -95,10 +146,11 @@ export const useCheckout = () => {
           lon: selectedAddress.lon,
         },
        
-        total: subtotal,
+        total: calculateTotal(), // Send final amount calculated by UI (re-verified by server)
         shippingFee: shippingFee,
         shippingMethod: shippingMethod || "standard",
         paymentMethod,
+        discountCodeId: appliedVoucher?.id,
       };
 
       const res = await checkoutService.createOrder(payload);
@@ -139,7 +191,11 @@ export const useCheckout = () => {
     calculateSubtotal,
     calculateShipping,
     calculateTotal,
+    calculateDiscount,
+    applyVoucher,
+    removeVoucher,
     placeOrder,
     reset,
+    appliedVoucher,
   };
 };

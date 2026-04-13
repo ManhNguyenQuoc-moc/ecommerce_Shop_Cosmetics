@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Plus, Ticket, Calendar, DollarSign, Info } from "lucide-react";
 import SWTForm from "@/src/@core/component/AntD/SWTForm";
 import SWTFormItem from "@/src/@core/component/AntD/SWTFormItem";
@@ -8,17 +8,22 @@ import SWTInput, { SWTInputTextArea } from "@/src/@core/component/AntD/SWTInput"
 import SWTInputNumber from "@/src/@core/component/AntD/SWTInputNumber";
 import SWTSelect from "@/src/@core/component/AntD/SWTSelect";
 import SWTModal from "@/src/@core/component/AntD/SWTModal";
-import { showNotificationSuccess } from "@/src/@core/utils/message";
+import { showNotificationError, showNotificationSuccess } from "@/src/@core/utils/message";
 import { VoucherResponseDto, VoucherType } from "@/src/services/models/voucher/output.dto";
+import { useCreateVoucher, useUpdateVoucher, VOUCHER_API_ENDPOINT } from "@/src/hooks/admin/voucher.hook";
+import { useSWRConfig } from "swr";
+import dayjs from "dayjs";
+import SWTDatePicker from "@/src/@core/component/AntD/SWTDatePicker";
 
 interface AddVoucherFormValues {
   code: string;
-  name: string;
+  program_name: string;
   description: string;
-  type: VoucherType;
-  value: number;
+  type: VoucherType | "";
+  discount: number;
   min_order_value?: number;
-  max_discount_amount?: number;
+  max_discount?: number;
+  point_cost?: number;
   usage_limit?: number;
   valid_from: string;
   valid_until: string;
@@ -33,20 +38,57 @@ interface AddVoucherModalProps {
 export default function AddVoucherModal({ isOpen, onClose, initialData }: AddVoucherModalProps) {
   const [form] = SWTForm.useForm();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { trigger: createVoucher } = useCreateVoucher();
+  const { trigger: updateVoucher } = useUpdateVoucher();
+  const { mutate } = useSWRConfig();
 
   const isEdit = !!initialData;
+
+  useEffect(() => {
+    if (isOpen) {
+      if (initialData) {
+        form.setFieldsValue({
+          ...initialData,
+          valid_from: initialData.valid_from ? dayjs(initialData.valid_from) : undefined,
+          valid_until: initialData.valid_until ? dayjs(initialData.valid_until) : undefined,
+        });
+      } else {
+        form.resetFields();
+        form.setFieldsValue({ type: "PERCENTAGE" });
+      }
+    }
+  }, [isOpen, initialData, form]);
 
   const handleFinish = async (values: AddVoucherFormValues) => {
     setIsSubmitting(true);
     try {
-      // Logic call API sẽ ở đây
-      console.log(">>> [Voucher] Submission Data:", values);
+      const payload = {
+        ...values,
+        discount: Number(values.discount),
+        min_order_value: Number(values.min_order_value || 0),
+        max_discount: values.max_discount ? Number(values.max_discount) : undefined,
+        point_cost: Number(values.point_cost || 0),
+        usage_limit: Number(values.usage_limit || 100),
+        valid_from: values.valid_from ? dayjs(values.valid_from).toISOString() : "",
+        valid_until: values.valid_until ? dayjs(values.valid_until).toISOString() : "",
+      };
+
+      if (isEdit) {
+        await updateVoucher({ id: initialData!.id, data: payload });
+      } else {
+        await createVoucher(payload);
+      }
       
       showNotificationSuccess(isEdit ? "Cập nhật Voucher thành công" : "Tạo Voucher thành công");
       form.resetFields();
+      mutate(`${VOUCHER_API_ENDPOINT}?all=true`);
       onClose();
     } catch (err: any) {
-      console.error(err);
+      if (err.errors && Array.isArray(err.errors)) {
+        err.errors.forEach((e: any) => showNotificationError(`${e.path || 'Lỗi'}: ${e.message}`));
+      } else {
+        showNotificationError(err.message || "Có lỗi xảy ra");
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -79,7 +121,11 @@ export default function AddVoucherModal({ isOpen, onClose, initialData }: AddVou
         form={form}
         layout="vertical"
         onFinish={handleFinish}
-        initialValues={initialData || { type: "PERCENTAGE" }}
+        initialValues={initialData ? {
+          ...initialData,
+          valid_from: initialData.valid_from ? dayjs(initialData.valid_from) : undefined,
+          valid_until: initialData.valid_until ? dayjs(initialData.valid_until) : undefined,
+        } : { type: "PERCENTAGE" }}
         className="animate-fade-in mt-4 [&_.ant-form-item-label>label]:font-semibold [&_.ant-form-item-label>label]:text-slate-700 dark:[&_.ant-form-item-label>label]:!text-slate-300"
       >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6">
@@ -96,7 +142,7 @@ export default function AddVoucherModal({ isOpen, onClose, initialData }: AddVou
           </SWTFormItem>
 
           <SWTFormItem
-            name="name"
+            name="program_name"
             label="Tên Chương trình"
             rules={[{ required: true, message: 'Vui lòng nhập tên chương trình' }]}
           >
@@ -125,15 +171,14 @@ export default function AddVoucherModal({ isOpen, onClose, initialData }: AddVou
               <SWTSelect
                 options={[
                   { label: "Giảm theo phần trăm (%)", value: "PERCENTAGE" },
-                  { label: "Giảm số tiền cố định (đ)", value: "FIXED_AMOUNT" },
-                  { label: "Miễn phí vận chuyển", value: "FREE_SHIPPING" },
+                  { label: "Giảm số tiền cố định (đ)", value: "FLAT_AMOUNT" },
                 ]}
                 className="w-full dark:[&_.ant-select-selector]:!bg-slate-800/80 dark:[&_.ant-select-selector]:!border-slate-700 dark:[&_.ant-select-selection-item]:!text-white"
               />
             </SWTFormItem>
 
             <SWTFormItem
-              name="value"
+              name="discount"
               label="Giá trị giảm"
               rules={[{ required: true, message: 'Nhập giá trị giảm' }]}
             >
@@ -160,9 +205,36 @@ export default function AddVoucherModal({ isOpen, onClose, initialData }: AddVou
             </SWTFormItem>
 
             <SWTFormItem
-              name="max_discount_amount"
+              name="max_discount"
               label="Giảm tối đa (đ)"
               tooltip="Chỉ áp dụng cho loại giảm theo %"
+            >
+              <SWTInputNumber
+                min={0}
+                placeholder="0"
+                style={{ width: "100%" }}
+                className="dark:[&_.ant-input-number-input]:!text-white dark:!bg-slate-800/80 dark:!border-slate-700"
+              />
+            </SWTFormItem>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6">
+            <SWTFormItem
+              name="usage_limit"
+              label="Giới hạn số lượt dùng"
+            >
+              <SWTInputNumber
+                min={1}
+                placeholder="100"
+                style={{ width: "100%" }}
+                className="dark:[&_.ant-input-number-input]:!text-white dark:!bg-slate-800/80 dark:!border-slate-700"
+              />
+            </SWTFormItem>
+
+            <SWTFormItem
+              name="point_cost"
+              label="Điểm yêu cầu đổi (tùy chọn)"
+              tooltip="Khách hàng phải có đủ số điểm này mới dùng được voucher"
             >
               <SWTInputNumber
                 min={0}
@@ -178,17 +250,17 @@ export default function AddVoucherModal({ isOpen, onClose, initialData }: AddVou
           <SWTFormItem
             name="valid_from"
             label="Ngày bắt đầu"
-            rules={[{ required: true }]}
+            rules={[{ required: true, message: 'Vui lòng chọn ngày bắt đầu' }]}
           >
-            <SWTInput type="date" className="dark:!bg-slate-800/80 dark:!border-slate-700 dark:!text-white" />
+            <SWTDatePicker className="w-full !h-10 dark:!bg-slate-800/80 dark:!border-slate-700 dark:!text-white" format="DD/MM/YYYY" placeholder="Chọn ngày" />
           </SWTFormItem>
 
           <SWTFormItem
             name="valid_until"
             label="Ngày kết thúc"
-            rules={[{ required: true }]}
+            rules={[{ required: true, message: 'Vui lòng chọn ngày kết thúc' }]}
           >
-             <SWTInput type="date" className="dark:!bg-slate-800/80 dark:!border-slate-700 dark:!text-white" />
+             <SWTDatePicker className="w-full !h-10 dark:!bg-slate-800/80 dark:!border-slate-700 dark:!text-white" format="DD/MM/YYYY" placeholder="Chọn ngày" />
           </SWTFormItem>
         </div>
 

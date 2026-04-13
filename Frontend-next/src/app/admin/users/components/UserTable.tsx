@@ -7,7 +7,7 @@ import type { MenuProps } from "antd";
 import { UserCog, Ban, Unlock, MoreVertical } from "lucide-react";
 import SWTIconButton from "@/src/@core/component/SWTIconButton";
 import React, { useState, useMemo } from "react";
-import { useUsers, useUpdateUserStatus } from "@/src/services/admin/user.service";
+import { useUsers, useUpdateUserStatus } from "@/src/hooks/admin/user.hook";
 import { showNotificationSuccess, showNotificationError } from "@/src/@core/utils/message";
 
 interface UserTableProps {
@@ -41,7 +41,7 @@ export default function UserTable({ searchTerm }: UserTableProps) {
           <SWTAvatar src={record.avatar} size={40} className="shrink-0 border-brand-500/50 shadow-[0_0_8px_rgba(255,105,180,0.3)]" />
           <div className="flex flex-col">
             <div className="font-bold text-text-main">
-               {record.full_name || "N/A"}
+              {record.full_name || "N/A"}
             </div>
             <span className="text-text-muted font-medium">{record.email}</span>
           </div>
@@ -77,8 +77,8 @@ export default function UserTable({ searchTerm }: UserTableProps) {
       key: 'status',
       render: (status: string) => {
         const isActive = status === 'ACTIVE';
-        const colorClass = isActive 
-          ? "bg-status-success-bg text-status-success-text border-status-success-border" 
+        const colorClass = isActive
+          ? "bg-status-success-bg text-status-success-text border-status-success-border"
           : "bg-status-error-bg text-status-error-text border-status-error-border";
         return (
           <div className={`text-[10px] font-bold px-2 py-0.5 rounded-full border flex items-center justify-center gap-1.5 w-max ${colorClass}`}>
@@ -87,13 +87,6 @@ export default function UserTable({ searchTerm }: UserTableProps) {
           </div>
         );
       }
-    },
-    {
-      title: 'Điểm tích lũy',
-      dataIndex: 'loyalty_points',
-      key: 'loyalty_points',
-      align: 'center' as const,
-      render: (points: number) => <div className="font-bold text-amber-500">{points || 0}</div>
     },
     {
       title: 'Thao tác',
@@ -114,7 +107,7 @@ export default function UserTable({ searchTerm }: UserTableProps) {
           {
             key: 'toggle_status',
             label: (
-              <div 
+              <div
                 className={`flex items-center gap-2 font-medium px-1 py-1 ${isBanned ? 'text-status-success-text' : 'text-status-error-text'}`}
                 onClick={() => handleToggleStatus(record)}
               >
@@ -127,7 +120,7 @@ export default function UserTable({ searchTerm }: UserTableProps) {
 
         return (
           <Dropdown menu={{ items: actionItems }} trigger={['click']} placement="bottomRight">
-            <SWTIconButton 
+            <SWTIconButton
               variant="custom"
               icon={<MoreVertical size={18} />}
               className="text-text-muted hover:text-brand-500 border-transparent hover:border-brand-500/30"
@@ -140,20 +133,20 @@ export default function UserTable({ searchTerm }: UserTableProps) {
 
   return (
     <div className="overflow-hidden !border !border-border-default dark:!border-border-brand !rounded-2xl !bg-bg-card backdrop-blur-xl !shadow-sm overflow-x-auto">
-      <SWTTable 
-        columns={columns} 
-        dataSource={users} 
-        rowKey="id" 
+      <SWTTable
+        columns={columns}
+        dataSource={users}
+        rowKey="id"
         loading={isLoading}
-        className="min-w-[700px]" 
+        className="min-w-[700px]"
         pagination={{
-            totalCount: total,
-            page: page,
-            fetch: pageSize,
-            onChange: (p: number, f: number) => {
-              setPage(p);
-              setPageSize(f);
-            }
+          totalCount: total,
+          page: page,
+          fetch: pageSize,
+          onChange: (p: number, f: number) => {
+            setPage(p);
+            setPageSize(f);
+          }
         }}
       />
     </div>

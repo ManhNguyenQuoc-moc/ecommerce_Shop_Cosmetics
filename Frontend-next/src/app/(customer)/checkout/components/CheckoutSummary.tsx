@@ -4,12 +4,16 @@ import { useState } from "react";
 import SWTButton from "@/src/@core/component/AntD/SWTButton";
 import SWTCard from "@/src/@core/component/AntD/SWTCard";
 import SWTSelect from "@/src/@core/component/AntD/SWTSelect";
-import { Modal } from "antd";
-import { useCheckout } from "@/src/hooks/useCheckout";
+import { Modal, Tag } from "antd";
+import { useCheckout } from "@/src/hooks/customer/checkout.hook";
+import { useFetchSWR } from "@/src/@core/hooks/useFetchSWR";
+import { getVouchers } from "@/src/services/customer/voucher.service";
+import { Ticket } from "lucide-react";
 
 export default function CheckoutSummary() {
   const [loadingPay, setLoadingPay] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [couponCode, setCouponCode] = useState("");
 
   const {
     items,
@@ -20,12 +24,42 @@ export default function CheckoutSummary() {
     calculateSubtotal,
     calculateShipping,
     calculateTotal,
+    calculateDiscount,
+    applyVoucher,
+    removeVoucher,
     placeOrder,
+    appliedVoucher,
   } = useCheckout();
 
   const subtotal = calculateSubtotal();
   const shippingFee = calculateShipping();
   const total = calculateTotal();
+
+  const { data: allVouchers } = useFetchSWR("vouchers", () => getVouchers());
+  
+  // Filter vouchers that are VALID (not used by user, not expired) 
+  // and meet the min_order_value
+  const availableVouchers = (allVouchers || []).filter(v => 
+    !v.is_used && 
+    !v.is_expired && 
+    subtotal >= (v.min_order_value || 0)
+  );
+
+  const voucherOptions = availableVouchers.map(v => ({
+    value: v.code,
+    label: v.code,
+    children: (
+      <div className="flex flex-col py-1">
+        <div className="flex justify-between items-center">
+             <span className="font-bold text-xs text-brand-600">{v.name}</span>
+             <span className="text-[10px] bg-brand-50 px-1.5 py-0.5 rounded text-brand-500 font-black">
+                {v.type === 'PERCENTAGE' ? `-${v.value}%` : `-${v.value.toLocaleString()}đ`}
+             </span>
+        </div>
+        <span className="text-[10px] text-text-muted">Đơn từ {v.min_order_value?.toLocaleString()}đ • {v.used_count}/{v.usage_limit} lượt dùng</span>
+      </div>
+    )
+  }));
 
   const handleConfirm = async () => {
     setConfirmOpen(false);
@@ -103,6 +137,45 @@ export default function CheckoutSummary() {
         />
       </div>
 
+      <div className="flex flex-col gap-2 mb-3">
+        <p className="text-sm font-bold text-text-sub uppercase tracking-wider">
+          Mã giảm giá
+        </p>
+        {!appliedVoucher ? (
+          <div className="flex gap-2">
+            <SWTSelect
+              showSearch
+              placeholder="Chọn mã giảm giá..."
+              className="flex-1"
+              optionLabelProp="label"
+              options={voucherOptions as any}
+              onChange={(val: any) => setCouponCode(val)}
+              value={couponCode || undefined}
+            />
+            <SWTButton
+              onClick={() => applyVoucher(couponCode)}
+              disabled={!couponCode}
+              className="!h-[45px] !w-[100px] !rounded-xl !bg-brand-500 !text-white !text-xs !font-bold"
+            >
+              Áp dụng
+            </SWTButton>
+          </div>
+        ) : (
+          <div className="flex justify-between items-center bg-brand-50 dark:bg-brand-900/20 border border-brand-200 dark:border-brand-500/30 px-4 py-2 rounded-xl">
+            <div className="flex flex-col">
+              <span className="text-brand-600 font-black text-xs uppercase tracking-widest">{appliedVoucher.code}</span>
+              <span className="text-[10px] text-brand-600/70 font-bold">{appliedVoucher.description}</span>
+            </div>
+            <button
+              onClick={removeVoucher}
+              className="text-brand-500 hover:text-rose-500 p-1"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+            </button>
+          </div>
+        )}
+      </div>
+
       <div className="flex flex-col gap-2 text-sm text-text-muted border-t border-border-default pt-3">
         <div className="flex justify-between">
           <span>Tạm tính</span>
@@ -116,6 +189,12 @@ export default function CheckoutSummary() {
             {shippingFee.toLocaleString()}đ
           </span>
         </div>
+        {calculateDiscount() > 0 && (
+          <div className="flex justify-between text-brand-500 font-bold">
+            <span>Giảm giá</span>
+            <span>-{calculateDiscount().toLocaleString()}đ</span>
+          </div>
+        )}
       </div>
 
       <div className="flex justify-between font-black text-xl text-text-main mt-3">

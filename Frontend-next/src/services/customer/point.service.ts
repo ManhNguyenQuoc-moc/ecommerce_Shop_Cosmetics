@@ -6,7 +6,6 @@ const path = "/users/me";
 export const getPointsSummary = async (): Promise<PointSummaryDTO> => {
   const user = await get<any>(path);
   
-  // Real points from user profile, mock tier logic for now as it's not in DB yet
   const points = user.loyalty_points || 0;
   
   return {

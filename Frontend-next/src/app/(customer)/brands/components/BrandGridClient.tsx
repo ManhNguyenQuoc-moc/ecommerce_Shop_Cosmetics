@@ -3,7 +3,7 @@
 import React, { useState, useMemo } from "react";
 import { BrandResponseDto } from "@/src/services/customer/customer.service";
 import { CategoryResponseDto } from "@/src/services/models/category/output.dto";
-import { useCustomerBrands } from "@/src/services/customer/brand.service";
+import { useCustomerBrands } from "@/src/hooks/customer/brand.hook";
 import BrandCardMinimal from "./BrandCardMinimal";
 import { Search, Sparkles } from "lucide-react";
 

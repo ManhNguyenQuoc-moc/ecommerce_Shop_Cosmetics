@@ -3,9 +3,9 @@ import { Spin } from "antd";
 import { useState } from "react";
 import {
   usePurchaseOrderById,
-  confirmPurchaseOrder,
-  cancelPurchaseOrder,
-} from "@/src/services/admin/purchase.service";
+} from "@/src/hooks/admin/purchase.hook";
+import {  confirmPurchaseOrder,
+  cancelPurchaseOrder} from "@/src/services/admin/purchase.service";
 import { exportPOTopdf, exportPOToExcel } from "@/src/utils/exportPO";
 import {
   CheckCircle2,
@@ -184,9 +184,9 @@ export default function PODetailPage() {
 
       <POOrderedItems po={po} onExport={handleExport} />
 
-      <POReceiptSection 
-        po={po} 
-        showReceiveForm={showReceiveForm} 
+      <POReceiptSection
+        po={po}
+        showReceiveForm={showReceiveForm}
         setShowReceiveForm={setShowReceiveForm}
         onReceiveSuccess={() => mutate()}
         onExport={handleExport}

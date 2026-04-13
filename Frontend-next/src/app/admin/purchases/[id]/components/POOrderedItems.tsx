@@ -7,7 +7,7 @@ import { PODetailDto } from "@/src/services/models/purchase/output.dto";
 import SWTButton from "@/src/@core/component/AntD/SWTButton";
 import SWTTable from "@/src/@core/component/AntD/SWTTable";
 import { SWTInput } from "@/src/@core/component/AntD/SWTInput";
-import { usePurchaseOrderItems } from "@/src/services/admin/purchase.service";
+import { usePurchaseOrderItems } from "@/src/hooks/admin/purchase.hook";
 
 const COLUMN_WIDTH = {
   variant: 160,

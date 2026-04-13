@@ -600,6 +600,7 @@ import purchaseRoute from "./routes/purchase.route";
 import inventoryRoute from "./routes/inventory.route";
 import wishlistRoute from "./routes/wishlist.route";
 import voucherRoute from "./routes/voucher.route";
+import settingRoute from "./routes/setting.route";
 
 const app = express();
 
@@ -640,6 +641,7 @@ app.use("/purchases", purchaseRoute);
 app.use("/inventory", inventoryRoute);
 app.use("/wishlist", wishlistRoute);
 app.use("/vouchers", voucherRoute);
+app.use("/settings", settingRoute);
 
 const PORT = process.env.PORT || 3000;
 

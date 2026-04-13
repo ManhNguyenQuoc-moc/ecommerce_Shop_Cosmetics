@@ -61,12 +61,15 @@ export default function VoucherCard({ voucher }: Props) {
             </div>
             {voucher.min_order_value && (
               <div className="flex items-center gap-1.5 text-gray-400 text-[11px]">
-                <Info size={13} />
-                <span>Đơn từ {voucher.min_order_value.toLocaleString("vi-VN")}₫</span>
-              </div>
-            )}
+               <Info size={13} />
+               <span>Đơn từ {voucher.min_order_value.toLocaleString("vi-VN")}₫</span>
+            </div>
+          )}
+          <div className="flex items-center gap-1.5 text-brand-500 font-bold text-[11px] bg-brand-50 px-2 py-0.5 rounded-full border border-brand-100">
+             <span>Đã dùng: {voucher.used_count || 0}/{voucher.usage_limit || 100}</span>
           </div>
         </div>
+      </div>
 
         <div className="flex items-center justify-between gap-4">
           <div className={`px-3 py-1.5 rounded-lg border border-dashed font-mono font-bold text-sm tracking-widest ${isDisabled ? "bg-gray-50 text-gray-400 border-gray-200" : "bg-brand-50 text-brand-600 border-brand-200"}`}>

@@ -5,7 +5,7 @@ import ProductFilters from "./components/ProductFilters";
 import ProductTable from "./components/ProductTable";
 import SWTTabs from "@/src/@core/component/AntD/SWTTabs";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
-import { useProducts } from "@/src/services/admin/product.service";
+import { useProducts } from "@/src/hooks/admin/product.hook";
 
 export default function ProductsClient() {
   const searchParams = useSearchParams();

@@ -3,17 +3,19 @@ import { IOrderRepository } from "../interfaces/IOrderRepository";
 import { IOrderService } from "../interfaces/IOrderService";
 import { OrderMapper } from "../mappers/order.mapper";
 import { CreateOrderDTO, OrderQueryFiltersDTO, UpdateOrderDTO } from "../DTO/order/order.dto";
-import { IUserService } from "../interfaces/IUserService";
+import { UserService as IUserService } from "../interfaces/IUserService";
 import { IInventoryRepository } from "../interfaces/IInventoryRepository";
 import { MailService } from "./mail.service";
 import { prisma } from "../config/prisma";
+import { SettingService } from "./setting.service";
 
 export class OrderService implements IOrderService {
   constructor(
     private readonly orderRepository: IOrderRepository,
     private readonly userService: IUserService,
     private readonly inventoryRepository: IInventoryRepository,
-    private readonly mailService: MailService
+    private readonly mailService: MailService,
+    private readonly settingService: SettingService
   ) {}
 
   async getOrders(page?: number, pageSize?: number, filters?: OrderQueryFiltersDTO): Promise<{ items: any[], total: number }> {
@@ -62,8 +64,83 @@ export class OrderService implements IOrderService {
         addressId = addrRecord.id;
       }
 
-      // 3. Create Order
-      const order = await this.orderRepository.create({ ...data, userId, addressId }, tx);
+      // 3. Calculate Discount and Deduct Points if DiscountCode exists
+      let subtotal = data.items.reduce((sum, item) => sum + (item.price || 0) * item.quantity, 0);
+      let discountAmount = 0;
+
+      if (data.discountCodeId) {
+        const discountCode = await tx.discountCode.findUnique({ where: { id: data.discountCodeId } });
+        if (!discountCode || !discountCode.isActive) {
+           throw new Error("Mã giảm giá không tồn tại hoặc đã bị vô hiệu hóa.");
+        }
+        
+        const now = new Date();
+        if (discountCode.valid_from > now || discountCode.valid_until < now) {
+           throw new Error("Mã giảm giá đã hết hạn hoặc chưa đến thời gian sử dụng.");
+        }
+
+        // Check if user has already used this voucher
+        const existingOrder = await tx.order.findFirst({
+          where: {
+            userId,
+            discountCodeId: discountCode.id,
+            current_status: { not: 'CANCELLED' }
+          }
+        });
+
+        if (existingOrder) {
+          throw new Error("Bạn đã sử dụng mã giảm giá này cho một đơn hàng khác rồi.");
+        }
+
+        if (discountCode.usage_limit <= discountCode.used_count) {
+           throw new Error("Mã giảm giá đã hết lượt sử dụng.");
+        }
+
+        if (subtotal < discountCode.min_order_value) {
+           throw new Error(`Đơn hàng tối thiểu để sử dụng mã này là ${discountCode.min_order_value.toLocaleString()}đ`);
+        }
+
+        // Calculate discount
+        if (discountCode.type === 'PERCENTAGE') {
+          discountAmount = (subtotal * discountCode.discount) / 100;
+          if (discountCode.max_discount && discountAmount > discountCode.max_discount) {
+            discountAmount = discountCode.max_discount;
+          }
+        } else {
+          discountAmount = discountCode.discount;
+        }
+
+        // 3a. Deduct Points if required
+        if (discountCode.point_cost > 0) {
+          const userObj = await tx.user.findUnique({ where: { id: userId } });
+          if (!userObj) throw new Error("User doesn't exist");
+          if (userObj.is_point_wallet_locked) throw new Error("Ví điểm của bạn đã bị khóa.");
+          if (userObj.loyalty_points < discountCode.point_cost) throw new Error("Không đủ điểm để đổi mã giảm giá này.");
+          
+          await tx.user.update({
+            where: { id: userId },
+            data: { loyalty_points: { decrement: discountCode.point_cost } }
+          });
+          
+          await tx.pointTransaction.create({
+            data: { userId, amount: discountCode.point_cost, reason: `Đổi mã giảm giá ${discountCode.code}`, type: "SPEND" }
+          });
+        }
+        // Update usage of voucher
+        await tx.discountCode.update({ where: { id: discountCode.id }, data: { used_count: { increment: 1 } } });
+      }
+
+      const shippingFee = data.shipping_fee ?? data.shippingFee ?? 0;
+      const finalAmount = Math.max(0, subtotal - discountAmount) + shippingFee;
+
+      // 4. Create Order
+      const order = await this.orderRepository.create({ 
+        ...data, 
+        userId, 
+        addressId, 
+        total: finalAmount, 
+        total_amount: subtotal 
+      }, tx);
 
       // 4. Deduct Stock (FEFO)
       for (const item of data.items) {
@@ -98,13 +175,38 @@ export class OrderService implements IOrderService {
 
       // Status transition logic
       if (data.current_status && oldOrder.current_status !== data.current_status) {
-        // Stock Restoration
+        // Stock Restoration and Voucher Restoration
         if (data.current_status === 'CANCELLED' && oldOrder.current_status !== 'CANCELLED') {
           await this.inventoryRepository.restoreStock(id, tx);
+          
+          // Restore voucher usage count if exists
+          if (oldOrder.discountCodeId) {
+            await tx.discountCode.update({
+              where: { id: oldOrder.discountCodeId },
+              data: { used_count: { decrement: 1 } }
+            });
+          }
         }
 
         // Sync Sold Counts (Could be in a ProductService)
         await this.syncSoldCounts(id, oldOrder.current_status, data.current_status, tx);
+        
+        // Grant Points on Delivery
+        if (data.current_status === 'DELIVERED' && oldOrder.current_status !== 'DELIVERED') {
+           const pointPercentage = await this.settingService.getPointPercentage();
+           if (pointPercentage > 0) {
+             const pointsEarned = Math.floor(updatedOrder.final_amount * (pointPercentage / 100));
+             if (pointsEarned > 0) {
+               await tx.user.update({
+                 where: { id: updatedOrder.userId },
+                 data: { loyalty_points: { increment: pointsEarned }, lifetime_points: { increment: pointsEarned } }
+               });
+               await tx.pointTransaction.create({
+                 data: { userId: updatedOrder.userId, amount: pointsEarned, reason: `Tích điểm từ đơn hàng ${updatedOrder.id}`, type: "EARN" }
+               });
+             }
+           }
+        }
       }
 
       return updatedOrder;

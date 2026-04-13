@@ -5,7 +5,7 @@ import SWTTable from "@/src/@core/component/AntD/SWTTable";
 import { Edit, Trash2, Globe, Phone, Mail, MapPin } from "lucide-react";
 import SWTConfirmModal from "@/src/@core/component/AntD/SWTConfirmModal";
 import { showNotificationError, showNotificationSuccess } from "@/src/@core/utils/message";
-import { useBrands, useDeleteBrand } from "@/src/services/admin/brand.service";
+import { useBrands, useDeleteBrand } from "@/src/hooks/admin/brand.hook";
 import SWTAvatar from "@/src/@core/component/AntD/SWTAvatar";
 import SWTIconButton from "@/src/@core/component/SWTIconButton";
 
@@ -100,13 +100,13 @@ export default function BrandTable({ onEdit, searchTerm }: BrandTableProps) {
       align: 'center' as const,
       render: (_: any, record: any) => (
         <div className="flex items-center gap-2 justify-center">
-          <SWTIconButton 
+          <SWTIconButton
             variant="edit"
             tooltip="Chỉnh sửa nhà cung cấp"
             icon={<Edit size={18} />}
             onClick={() => onEdit?.(record)}
           />
-          <SWTIconButton 
+          <SWTIconButton
             variant="delete"
             tooltip="Xóa nhà cung cấp"
             icon={<Trash2 size={18} />}

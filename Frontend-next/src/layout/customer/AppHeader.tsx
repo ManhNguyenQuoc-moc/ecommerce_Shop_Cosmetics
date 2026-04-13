@@ -16,7 +16,7 @@ import SWTIconButton from "@/src/@core/component/SWTIconButton";
 import MenuCustomer from "../components/header/MenuCustomer"
 import AppSideBar from "./AppSideBar";
 import { customerCategories, getDynamicCategories } from "@/src/@core/http/routes/customer-categories";
-import { useCustomerCategories } from "@/src/services/customer/category.service";
+import { useCustomerCategories } from "@/src/hooks/customer/category.hook";
 import { CategoryResponseDto } from "@/src/services/models/category/output.dto";
 import { BrandResponseDto } from "@/src/services/customer/customer.service";
 

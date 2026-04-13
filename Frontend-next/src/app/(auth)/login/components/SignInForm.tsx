@@ -13,7 +13,7 @@ import { Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/src/@core/utils/supabase";
 import { useAuth } from "@/src/context/AuthContext";
-import { useCart } from "@/src/hooks/useCart";
+import { useCart } from "@/src/hooks/customer/cart.hook";
 type LoginFormValues = {
   email: string;
   password: string;

@@ -50,11 +50,11 @@ export default function PointsHistoryTable({ history, loading }: Props) {
       key: "amount",
       align: "right" as const,
       width: 100,
-      render: (amount: number) => {
-        const isPositive = amount > 0;
+      render: (amount: number, record: PointLogDTO) => {
+        const isPositive = record.type === "EARN" || record.type === "REFUND";
         return (
           <span className={`text-base font-bold whitespace-nowrap ${isPositive ? "text-green-500" : "text-red-500"}`}>
-            {isPositive ? "+" : ""}{amount.toLocaleString("vi-VN")}
+            {isPositive ? "+" : "-"}{Math.abs(amount).toLocaleString("vi-VN")}
           </span>
         );
       },

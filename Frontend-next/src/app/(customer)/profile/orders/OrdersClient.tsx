@@ -65,24 +65,24 @@ export default function OrdersClient({ initialData, initialTab, initialPage }: O
   return (
     <div className="flex flex-col gap-6 ">
       <SWTCard 
-        className="!border-none !shadow-2xl !rounded-3xl overflow-hidden !bg-bg-card/80 backdrop-blur-xl transition-all duration-500"
+        className="!border !border-border-default/50 !shadow-sm !rounded-2xl overflow-hidden !bg-bg-card/50 backdrop-blur-md transition-all duration-500"
         bodyClassName="!p-0"
       >
-        <div className="px-6 py-5 border-b border-border-default/30 bg-bg-muted/10">
+        <div className="px-6 py-3 border-b border-border-default/20">
           <SWTTabs
             activeKey={activeTab}
             onChange={handleTabChange}
             items={tabItems}
-            className="admin-tabs-compact"
+            className="admin-tabs-compact !border-none"
           />
         </div>
-        <div className={`min-h-[500px] p-4 transition-all duration-300 ${isValidating ? "opacity-60 grayscale-[0.2]" : "opacity-100"}`}>
+        <div className={`min-h-[400px] p-4 transition-all duration-300 ${isValidating ? "opacity-60 grayscale-[0.2]" : "opacity-100"}`}>
           {showLoading ? (
             <div className="p-8">
               <ProfileListSkeleton/>
             </div>
           ) : orders.length > 0 ? (
-            <div className="divide-y divide-border-default/20">
+            <div className="flex flex-col gap-3">
               {orders.map((order: OrderDTO) => (
                 <OrderCard key={order.id} order={order} onUpdate={mutate} />
               ))}
@@ -108,7 +108,7 @@ export default function OrdersClient({ initialData, initialTab, initialPage }: O
             </div>
           )}
         </div>
-        <div className="px-8 py-5 border-t border-border-default/20 bg-bg-muted/5 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="px-6 py-4 border-t border-border-default/20 bg-bg-muted/5 flex flex-col sm:flex-row items-center justify-between gap-4">
           {total > pageSize && !showLoading && (
             <SWTPagination 
               current={page}

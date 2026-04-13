@@ -23,8 +23,12 @@ export interface OrderDTO {
   items: OrderItemDTO[];
   payment_method: string;
   payment_status: string;
+  shipping_fee: number;
   shipping_address: string;
   shipping_method: string;
+  discount_amount?: number;
+  voucher_code?: string;
+  voucher_name?: string;
 }
 
 export interface OrderListResponseDTO {

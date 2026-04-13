@@ -63,9 +63,9 @@ export const adminNavItems: NavItem[] = [
     path: "/admin/discounts",
     icon: Ticket,
   },
-  // {
-  //   name: "Settings",
-  //   path: "/admin/settings",
-  //   icon: Settings,
-  // },
+  {
+    name: "Cấu hình điểm",
+    path: "/admin/settings/points",
+    icon: Settings,
+  },
 ];

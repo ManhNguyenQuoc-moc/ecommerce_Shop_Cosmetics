@@ -4,7 +4,7 @@ import React, { useTransition } from 'react';
 import VariantTable from "./components/VariantTable";
 import VariantFilters from "./components/VariantFilters";
 import SWTTabs from "@/src/@core/component/AntD/SWTTabs";
-import { useVariants } from "@/src/services/admin/product.service";
+import { useVariants } from "@/src/hooks/admin/product.hook";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { ProductQueryParams } from "@/src/services/models/product/input.dto";
 
@@ -25,7 +25,7 @@ export default function VariantsClient() {
 
   const page = Number(searchParams.get("page") ?? 1);
   const pageSize = Number(searchParams.get("pageSize") ?? 6);
-  
+
   const filters: ProductQueryParams = {
     status: activeTab,
     search: searchParams.get("search") || undefined,
@@ -55,13 +55,13 @@ export default function VariantsClient() {
       children: (
         <div className="bg-bg-card backdrop-blur-md rounded-2xl shadow-sm border border-border-default dark:border-border-brand transition-colors p-6 mt-4">
           <VariantFilters startTransition={startTransition} onUpdate={() => mutate()} />
-          <VariantTable 
-            variants={variants} 
-            total={total} 
-            isLoading={isLoading} 
+          <VariantTable
+            variants={variants}
+            total={total}
+            isLoading={isLoading}
             isPending={isPending}
-            page={page} 
-            pageSize={pageSize} 
+            page={page}
+            pageSize={pageSize}
             onPaginationChange={handlePaginationChange}
             mutate={mutate}
           />
@@ -75,13 +75,13 @@ export default function VariantsClient() {
       children: (
         <div className="bg-bg-card backdrop-blur-md rounded-2xl shadow-sm border border-border-default dark:border-border-brand transition-colors p-6 mt-4">
           <VariantFilters startTransition={startTransition} onUpdate={() => mutate()} />
-          <VariantTable 
-            variants={variants} 
-            total={total} 
-            isLoading={isLoading} 
+          <VariantTable
+            variants={variants}
+            total={total}
+            isLoading={isLoading}
             isPending={isPending}
-            page={page} 
-            pageSize={pageSize} 
+            page={page}
+            pageSize={pageSize}
             onPaginationChange={handlePaginationChange}
             mutate={mutate}
           />

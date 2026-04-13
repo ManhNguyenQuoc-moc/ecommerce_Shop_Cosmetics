@@ -3,8 +3,7 @@ import SWTBreadcrumb from "@/src/@core/component/AntD/SWTBreadcrumb";
 import SWTInput from "@/src/@core/component/AntD/SWTInput";
 import { Award, Info } from "lucide-react";
 import SWTTooltip from "@/src/@core/component/AntD/SWTTooltip";
-import RewardTable from "./components/RewardTable";
-import RewardFilters from "./components/RewardFilters";
+import RewardsClient from "./RewardsClient";
 import useSWTTitle from "@/src/@core/hooks/useSWTTitle";
 
 export default function AdminRewardsPage() {
@@ -39,10 +38,9 @@ export default function AdminRewardsPage() {
       </div>
 
       {/* Main Content */}
-      <div className="admin-card p-6">
-        <RewardFilters />
-        <RewardTable />
-        </div>
+      <div className="mt-8">
+        <RewardsClient />
+      </div>
     </div>
   );
 }

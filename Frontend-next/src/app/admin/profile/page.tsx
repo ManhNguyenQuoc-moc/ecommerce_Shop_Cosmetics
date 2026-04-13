@@ -1,20 +1,24 @@
-import { getProfile } from "@/src/services/customer/user.service";
+"use client";
+
 import AdminProfileForm from "./components/AdminProfileForm";
+import { useUserProfile } from "@/src/hooks/admin/user.hook";
+import { Spin } from "antd";
 
-export const metadata = {
-  title: "Hồ Sơ Quản Trị Viên | Admin",
-};
+export default function AdminProfilePage() {
+  const { data: profile, isLoading } = useUserProfile();
 
-export const dynamic = "force-dynamic";
-
-export default async function AdminProfilePage() {
-  const profile = await getProfile();
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-[400px]">
+        <Spin size="large" tip="Đang tải hồ sơ..." />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 animate-fade-in pb-10">
-      {profile && (
-        <AdminProfileForm initialData={profile} />
-      )}
+      <AdminProfileForm initialData={profile} />
     </div>
   );
 }
+

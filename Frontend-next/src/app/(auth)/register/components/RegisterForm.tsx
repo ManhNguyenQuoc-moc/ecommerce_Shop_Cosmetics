@@ -12,7 +12,7 @@ import { GoogleIcon as GoogleIco, FacebookIcon as FacebookIco } from "@/src/@cor
 import { Eye, EyeOff } from "lucide-react";
 import { supabase } from "@/src/@core/utils/supabase";
 import { authService } from "@/src/services/customer/auth.service";
-import { useCart } from "@/src/hooks/useCart";
+import { useCart } from "@/src/hooks/customer/cart.hook";
 
 export default function RegisterForm() {
     const router = useRouter();

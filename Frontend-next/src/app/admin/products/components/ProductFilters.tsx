@@ -9,8 +9,8 @@ import AntSpin from "@/src/@core/component/AntD/AntSpin";
 import { showMessageError, showMessageSuccess } from "@/src/@core/utils/message";
 import { useState, useEffect, TransitionStartFunction } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
-import { useCategories } from "@/src/services/admin/category.service";
-import { useBrands } from "@/src/services/admin/brand.service";
+import { useCategories } from "@/src/hooks/admin/category.hook";
+import { useBrands } from "@/src/hooks/admin/brand.hook";
 import AddProductModal from "./AddProductModal";
 import { mutate } from "swr";
 import { PRODUCT_API_ENDPOINT, createProduct } from "@/src/services/admin/product.service";
@@ -22,7 +22,7 @@ interface ProductFiltersProps {
 
 export default function ProductFilters({ startTransition }: ProductFiltersProps) {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  
+
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -95,8 +95,8 @@ export default function ProductFilters({ startTransition }: ProductFiltersProps)
       <div className="flex flex-col gap-5 mb-6">
         <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-5">
           <div className="flex-1 w-full max-w-2xl">
-            <SWTInputSearch 
-              placeholder="Tìm kiếm tên sản phẩm, mã SKU..." 
+            <SWTInputSearch
+              placeholder="Tìm kiếm tên sản phẩm, mã SKU..."
               className="w-full !h-11 !rounded-2xl shadow-sm"
               value={localSearch}
               onChange={(e) => setLocalSearch(e.target.value)}
@@ -110,7 +110,7 @@ export default function ProductFilters({ startTransition }: ProductFiltersProps)
               <span className="text-sm font-bold text-text-muted pl-3">
                 Sắp xếp:
               </span>
-              <SWTSelect 
+              <SWTSelect
                 placeholder="Sắp xếp theo"
                 className="min-w-[180px] !h-full 
                 [&_.ant-select-selector]:!bg-transparent 
@@ -137,7 +137,7 @@ export default function ProductFilters({ startTransition }: ProductFiltersProps)
                 </div>
               </SWTTooltip>
               <SWTTooltip title="Thêm Sản Phẩm Mới" placement="top" color="#6366f1">
-                <div 
+                <div
                   className="flex h-11 w-11 items-center justify-center bg-brand-500/10 hover:bg-brand-500/20 text-brand-600 dark:text-brand-500 border border-brand-500/20 rounded-xl shadow-sm transition-all cursor-pointer group"
                   onClick={() => setIsAddModalOpen(true)}
                 >
@@ -163,7 +163,7 @@ export default function ProductFilters({ startTransition }: ProductFiltersProps)
             {/* Category */}
             <SWTSelect
               placeholder="Danh mục"
-              showSearch ={true}
+              showSearch={true}
               className="w-full sm:w-[180px] !h-11"
               value={categoryVal}
               onChange={(v) => updateFilter("categoryId", v)}
@@ -173,7 +173,7 @@ export default function ProductFilters({ startTransition }: ProductFiltersProps)
             {/* Brand */}
             <SWTSelect
               placeholder="Thương hiệu"
-              showSearch ={true}
+              showSearch={true}
               className="w-full sm:w-[180px] !h-11"
               value={brandVal}
               onChange={(v) => updateFilter("brandId", v)}
@@ -221,9 +221,9 @@ export default function ProductFilters({ startTransition }: ProductFiltersProps)
           </div>
         </div>
       </div>
-      <AddProductModal 
-        isOpen={isAddModalOpen} 
-        onClose={() => setIsAddModalOpen(false)} 
+      <AddProductModal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
         onAdd={async (data) => {
           try {
             await createProduct(data);

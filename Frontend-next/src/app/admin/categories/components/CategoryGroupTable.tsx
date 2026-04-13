@@ -6,7 +6,7 @@ import { Edit, Trash2, Layers, Plus } from "lucide-react";
 import SWTTooltip from "@/src/@core/component/AntD/SWTTooltip";
 import SWTConfirmModal from "@/src/@core/component/AntD/SWTConfirmModal";
 import { showNotificationError, showNotificationSuccess } from "@/src/@core/utils/message";
-import { useCategoryGroups, useDeleteCategoryGroup } from "@/src/services/admin/category-group.service";
+import { useCategoryGroups, useDeleteCategoryGroup } from "@/src/hooks/admin/category-group.hook";
 import { CategoryGroupResponseDto } from "@/src/services/models/category-group/output.dto";
 import SWTAvatar from "@/src/@core/component/AntD/SWTAvatar";
 import SWTIconButton from "@/src/@core/component/SWTIconButton";
@@ -82,13 +82,13 @@ export default function CategoryGroupTable({ onEdit, onAdd }: CategoryGroupTable
       width: 120,
       render: (_: any, record: CategoryGroupResponseDto) => (
         <div className="flex items-center gap-2 justify-center">
-          <SWTIconButton 
+          <SWTIconButton
             variant="edit"
             tooltip="Chỉnh sửa nhóm"
             icon={<Edit size={18} />}
             onClick={() => onEdit?.(record)}
           />
-          <SWTIconButton 
+          <SWTIconButton
             variant="delete"
             tooltip="Xóa nhóm"
             icon={<Trash2 size={18} />}

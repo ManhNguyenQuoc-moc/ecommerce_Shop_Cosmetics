@@ -24,7 +24,7 @@ import {
 import SWTBreadcrumb from "@/src/@core/component/AntD/SWTBreadcrumb";
 import useSWTTitle from "@/src/@core/hooks/useSWTTitle";
 import Link from "next/link";
-import { useProduct, useVariants } from "@/src/services/admin/product.service";
+import { useProduct, useVariants } from "@/src/hooks/admin/product.hook";
 import EditProductModal from "@/src/app/admin/products/components/EditProductModal";
 import Image from "next/image";
 import SWTCard from "@/src/@core/component/AntD/SWTCard";
@@ -62,10 +62,10 @@ export default function ProductDetailPage({
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 6;
 
-  const { 
-    variants: paginatedVariants, 
-    total: variantsTotal, 
-    isLoading: isVariantsLoading 
+  const {
+    variants: paginatedVariants,
+    total: variantsTotal,
+    isLoading: isVariantsLoading
   } = useVariants(currentPage, pageSize, { productId: id });
 
   const isLoading = isProductLoading || isVariantsLoading;
@@ -252,20 +252,20 @@ export default function ProductDetailPage({
                   children: (
                     <div className="space-y-6 pt-2">
                       {product.short_description && (
-                         <div className="bg-slate-50 dark:bg-slate-900/40 p-4 rounded-2xl border border-slate-100 dark:border-slate-800">
-                            <h5 className="text-[10px] uppercase font-black text-slate-400 tracking-widest mb-3 flex items-center gap-2">
-                               <Activity size={14} className="text-brand-500" /> Mô tả ngắn
-                            </h5>
-                            <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">{product.short_description}</p>
-                         </div>
+                        <div className="bg-slate-50 dark:bg-slate-900/40 p-4 rounded-2xl border border-slate-100 dark:border-slate-800">
+                          <h5 className="text-[10px] uppercase font-black text-slate-400 tracking-widest mb-3 flex items-center gap-2">
+                            <Activity size={14} className="text-brand-500" /> Mô tả ngắn
+                          </h5>
+                          <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">{product.short_description}</p>
+                        </div>
                       )}
                       <div className="p-4">
-                         <h5 className="text-[10px] uppercase font-black text-slate-400 tracking-widest mb-4 flex items-center gap-2">
-                            <Layers size={14} className="text-brand-500" /> Chi tiết sản phẩm
-                         </h5>
-                         <div className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed whitespace-pre-wrap space-y-4">
-                            {product.long_description || "Chưa có mô tả chi tiết cho sản phẩm này."}
-                         </div>
+                        <h5 className="text-[10px] uppercase font-black text-slate-400 tracking-widest mb-4 flex items-center gap-2">
+                          <Layers size={14} className="text-brand-500" /> Chi tiết sản phẩm
+                        </h5>
+                        <div className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed whitespace-pre-wrap space-y-4">
+                          {product.long_description || "Chưa có mô tả chi tiết cho sản phẩm này."}
+                        </div>
                       </div>
                     </div>
                   )
@@ -276,17 +276,17 @@ export default function ProductDetailPage({
                   prefix: { value: product.specifications?.length || 0, color: "info" },
                   children: (
                     <div className="pt-4">
-                       <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-2">
-                          {product.specifications?.map((spec: any, idx: number) => (
-                            <div key={idx} className="flex items-center justify-between py-3 border-b border-slate-100 dark:border-slate-800/60 last:border-0 hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-colors px-3 rounded-xl">
-                              <span className="text-slate-500 dark:text-slate-400 text-xs font-medium uppercase tracking-tight">{spec.label}</span>
-                              <span className="text-slate-800 dark:text-slate-200 text-sm font-bold">{spec.value}</span>
-                            </div>
-                          ))}
-                       </div>
-                       {(!product.specifications || product.specifications.length === 0) && (
-                          <div className="text-center py-10 text-slate-400 italic text-sm">Chưa có thông số kỹ thuật</div>
-                       )}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-2">
+                        {product.specifications?.map((spec: any, idx: number) => (
+                          <div key={idx} className="flex items-center justify-between py-3 border-b border-slate-100 dark:border-slate-800/60 last:border-0 hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-colors px-3 rounded-xl">
+                            <span className="text-slate-500 dark:text-slate-400 text-xs font-medium uppercase tracking-tight">{spec.label}</span>
+                            <span className="text-slate-800 dark:text-slate-200 text-sm font-bold">{spec.value}</span>
+                          </div>
+                        ))}
+                      </div>
+                      {(!product.specifications || product.specifications.length === 0) && (
+                        <div className="text-center py-10 text-slate-400 italic text-sm">Chưa có thông số kỹ thuật</div>
+                      )}
                     </div>
                   )
                 },
@@ -295,52 +295,52 @@ export default function ProductDetailPage({
                   label: "Đánh giá",
                   prefix: { value: product.reviewCount || 0, color: "warning" },
                   children: (
-                     <div className="space-y-4 pt-4">
-                        {product.reviews && product.reviews.length > 0 ? (
-                           product.reviews.map((review: any) => (
-                              <div key={review.id} className="p-5 rounded-2xl bg-white dark:bg-slate-900 shadow-sm border border-slate-100 dark:border-slate-800 hover:border-brand-500/30 transition-all">
-                                 <div className="flex justify-between items-start mb-3">
-                                    <div className="flex items-center gap-3">
-                                       <div className="w-10 h-10 rounded-full bg-brand-500/10 flex items-center justify-center text-brand-500 font-black text-sm border border-brand-500/20 shadow-inner">
-                                          {review.user?.full_name?.charAt(0) || "U"}
-                                       </div>
-                                       <div>
-                                          <p className="text-sm font-black text-slate-800 dark:text-slate-200">{review.user?.full_name || "Người dùng ẩn danh"}</p>
-                                          <div className="flex items-center gap-0.5 text-amber-500">
-                                             {[...Array(5)].map((_, i) => (
-                                                <Star key={i} size={12} fill={i < review.rating ? "currentColor" : "none"} strokeWidth={i < review.rating ? 0 : 2} />
-                                             ))}
-                                          </div>
-                                       </div>
-                                    </div>
-                                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest bg-slate-50 dark:bg-slate-800 px-2 py-1 rounded-md">
-                                       {new Date(review.createdAt).toLocaleDateString("vi-VN")}
-                                    </span>
-                                 </div>
-                                 <div className="pl-[52px]">
-                                    <p className="text-sm text-slate-600 dark:text-slate-400 font-medium leading-relaxed italic">"{review.comment || "Không có nhận xét bổ sung."}"</p>
-                                 </div>
+                    <div className="space-y-4 pt-4">
+                      {product.reviews && product.reviews.length > 0 ? (
+                        product.reviews.map((review: any) => (
+                          <div key={review.id} className="p-5 rounded-2xl bg-white dark:bg-slate-900 shadow-sm border border-slate-100 dark:border-slate-800 hover:border-brand-500/30 transition-all">
+                            <div className="flex justify-between items-start mb-3">
+                              <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-full bg-brand-500/10 flex items-center justify-center text-brand-500 font-black text-sm border border-brand-500/20 shadow-inner">
+                                  {review.user?.full_name?.charAt(0) || "U"}
+                                </div>
+                                <div>
+                                  <p className="text-sm font-black text-slate-800 dark:text-slate-200">{review.user?.full_name || "Người dùng ẩn danh"}</p>
+                                  <div className="flex items-center gap-0.5 text-amber-500">
+                                    {[...Array(5)].map((_, i) => (
+                                      <Star key={i} size={12} fill={i < review.rating ? "currentColor" : "none"} strokeWidth={i < review.rating ? 0 : 2} />
+                                    ))}
+                                  </div>
+                                </div>
                               </div>
-                           ))
-                        ) : (
-                           <div className="py-12 text-center text-slate-400 italic">Sản phẩm này chưa có lượt đánh giá nào.</div>
-                        )}
-                     </div>
+                              <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest bg-slate-50 dark:bg-slate-800 px-2 py-1 rounded-md">
+                                {new Date(review.createdAt).toLocaleDateString("vi-VN")}
+                              </span>
+                            </div>
+                            <div className="pl-[52px]">
+                              <p className="text-sm text-slate-600 dark:text-slate-400 font-medium leading-relaxed italic">"{review.comment || "Không có nhận xét bổ sung."}"</p>
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="py-12 text-center text-slate-400 italic">Sản phẩm này chưa có lượt đánh giá nào.</div>
+                      )}
+                    </div>
                   )
                 },
                 {
-                   key: "qa",
-                   label: "Hỏi đáp",
-                   prefix: { value: product.commentCount || 0, color: "primary" },
-                   children: (
-                      <div className="py-16 text-center bg-slate-50/50 dark:bg-slate-900/40 rounded-3xl border-2 border-dashed border-slate-200 dark:border-slate-800 mt-4">
-                         <div className="w-16 h-16 bg-white dark:bg-slate-800 rounded-2xl shadow-xl flex items-center justify-center mx-auto mb-6">
-                            <MessageSquare size={32} className="text-brand-500/50 animate-pulse" />
-                         </div>
-                         <h5 className="font-bold text-slate-800 dark:text-white uppercase tracking-widest text-sm mb-2">Trung tâm Hỏi đáp</h5>
-                         <p className="text-xs text-slate-400 max-w-xs mx-auto leading-relaxed">Tính năng tương tác trực tiếp qua WebSocket đang được phát triển để phục vụ cho các phiên bản tiếp theo.</p>
+                  key: "qa",
+                  label: "Hỏi đáp",
+                  prefix: { value: product.commentCount || 0, color: "primary" },
+                  children: (
+                    <div className="py-16 text-center bg-slate-50/50 dark:bg-slate-900/40 rounded-3xl border-2 border-dashed border-slate-200 dark:border-slate-800 mt-4">
+                      <div className="w-16 h-16 bg-white dark:bg-slate-800 rounded-2xl shadow-xl flex items-center justify-center mx-auto mb-6">
+                        <MessageSquare size={32} className="text-brand-500/50 animate-pulse" />
                       </div>
-                   )
+                      <h5 className="font-bold text-slate-800 dark:text-white uppercase tracking-widest text-sm mb-2">Trung tâm Hỏi đáp</h5>
+                      <p className="text-xs text-slate-400 max-w-xs mx-auto leading-relaxed">Tính năng tương tác trực tiếp qua WebSocket đang được phát triển để phục vụ cho các phiên bản tiếp theo.</p>
+                    </div>
+                  )
                 }
               ]}
             />

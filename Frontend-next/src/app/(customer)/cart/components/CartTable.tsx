@@ -4,7 +4,7 @@ import SWTTable from "@/src/@core/component/AntD/SWTTable";
 import SWTCard from "@/src/@core/component/AntD/SWTCard";
 import CartItemProduct from "./CartItemProduct";
 import CartQuantity from "./CartQuantity";
-import { useCart } from "@/src/hooks/useCart";
+import { useCart } from "@/src/hooks/customer/cart.hook";
 import type { ColumnsType } from "antd/es/table";
 
 export default function CartTable() {
