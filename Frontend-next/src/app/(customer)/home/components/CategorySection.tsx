@@ -54,7 +54,7 @@ export default function CategorySection({ categories, loading }: Props) {
                   >
                     <div className="relative h-[140px]">
                      <Image
-                        src={item.image?.url || "/images/placeholder.png"} 
+                        src={item.image || "/images/placeholder.png"} 
                         alt={item.name}
                         fill
                         sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 16vw"
