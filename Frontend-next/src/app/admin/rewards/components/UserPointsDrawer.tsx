@@ -1,7 +1,7 @@
 import React from "react";
 import SWTDrawer from "@/src/@core/component/AntD/SWTDrawer";
 import SWTTable from "@/src/@core/component/AntD/SWTTable";
-import { usePointHistory } from "@/src/hooks/admin/user.hook";
+import { usePointHistory } from "@/src/services/admin/user/user.hook";
 
 interface UserPointsDrawerProps {
   open: boolean;

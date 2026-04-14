@@ -10,4 +10,6 @@ export interface UserService {
   getOrCreateCustomer(customer: { email?: string, phone: string, name: string }, tx: Prisma.TransactionClient): Promise<{ user: User, rawPassword?: string }>;
   getPointHistory(userId: string): Promise<PointTransaction[]>;
   togglePointWalletStatus(userId: string, isLocked: boolean): Promise<User>;
+  updateUserStatus(userId: string, is_banned: boolean): Promise<User>;
+  updateUserRole(userId: string, role: string): Promise<User>;
 }

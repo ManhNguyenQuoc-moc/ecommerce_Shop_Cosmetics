@@ -1,4 +1,4 @@
-import { get, post, put, del } from "../api";
+import { get, post, put, del } from "../../@core/utils/api";
 import { BrandResponseDto } from "../models/brand/output.dto";
 
 export const BRAND_API_ENDPOINT = "/brands";

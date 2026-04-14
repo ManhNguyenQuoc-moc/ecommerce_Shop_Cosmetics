@@ -137,4 +137,18 @@ export class UserRepository implements IUserRepository {
       take: 20, // Limit to recent transactions
     });
   }
+
+  async updateStatus(id: string, is_banned: boolean): Promise<User> {
+    return prisma.user.update({
+      where: { id },
+      data: { is_banned },
+    });
+  }
+
+  async updateRole(id: string, role: any): Promise<User> {
+    return prisma.user.update({
+      where: { id },
+      data: { role },
+    });
+  }
 }

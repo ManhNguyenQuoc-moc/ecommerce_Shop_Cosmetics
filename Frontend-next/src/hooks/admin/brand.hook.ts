@@ -1,6 +1,6 @@
 import { useFetchSWR } from "@/src/@core/hooks/useFetchSWR";
 import useSWRMutation from "swr/mutation";
-import { get, post, put, del } from "@/src/services/api";
+import { get, post, put, del } from "@/src/@core/utils/api";
 import { PaginationResponse } from "@/src/@core/http/models/PaginationResponse";
 import { buildQueryString } from "@/src/@core/utils/query.util";
 import { BrandResponseDto } from "@/src/services/models/brand/output.dto";

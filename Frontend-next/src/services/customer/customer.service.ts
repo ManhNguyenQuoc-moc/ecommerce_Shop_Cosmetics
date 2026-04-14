@@ -1,4 +1,4 @@
-import { getServer } from "../apiServer";
+import { getServer } from "../../@core/utils/apiServer";
 import { CategoryResponseDto } from "../models/category/output.dto";
 import { BrandResponseDto } from "../models/brand/output.dto";
 

@@ -1,4 +1,4 @@
-import { get } from "../../api";
+import { get } from "../../../@core/utils/api";
 import { DashboardResponseDTO, DashboardQueryDTO } from "./models/output.model";
 
 export const DASHBOARD_API_ENDPOINT = "/admin/dashboard/summary";

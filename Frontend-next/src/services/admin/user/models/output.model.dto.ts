@@ -14,4 +14,5 @@ export type UserProfileDTO = {
   is_verified?: boolean;
   createdAt?: string;
   updatedAt?: string;
+  is_banned?: boolean;
 };

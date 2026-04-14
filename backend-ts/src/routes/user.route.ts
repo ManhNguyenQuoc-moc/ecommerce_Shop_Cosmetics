@@ -22,5 +22,7 @@ router.post("/", userController.create);
 router.get("/:id", userController.getUserById);
 router.get("/:id/points", userController.getCustomerPointsHistory);
 router.patch("/:id/wallet-status", userController.toggleWalletLock);
+router.put("/:id/status", userController.updateStatus);
+router.put("/:id/role", userController.updateRole);
 
 export default router;

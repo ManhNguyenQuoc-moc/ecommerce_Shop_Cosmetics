@@ -1,4 +1,4 @@
-import { get, post } from "../api";
+import { get, post } from "../../@core/utils/api";
 import { WishlistProductDto } from "../models/customer/wishlist.dto";
 
 const path = "/wishlist";

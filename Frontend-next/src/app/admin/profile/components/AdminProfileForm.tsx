@@ -24,11 +24,11 @@ import SWTDatePicker from "@/src/@core/component/AntD/SWTDatePicker";
 import dayjs from "dayjs";
 
 import { showNotificationError, showNotificationSuccess } from "@/src/@core/utils/message";
-import { updateCustomerInfo } from "@/src/services/customer/user.service";
-import { UserProfileDTO } from "@/src/services/models/user/output.dto";
+import { updateCustomerInfo } from "@/src/services/customer/user/user.service";
+import { UserProfileDTO } from "@/src/services/admin/user/models/output.model.dto";
 import ProfileAvatarUpload from "@/src/app/(customer)/profile/components/ProfileAvatarUpload";
 import { useAuth } from "@/src/context/AuthContext";
-import { useUserProfile } from "@/src/hooks/admin/user.hook";
+import { useUserProfile } from "@/src/services/admin/user/user.hook";
 
 type Props = {
   initialData?: UserProfileDTO;

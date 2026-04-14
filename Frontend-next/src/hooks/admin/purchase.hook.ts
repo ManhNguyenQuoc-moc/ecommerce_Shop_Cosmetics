@@ -1,4 +1,4 @@
-import { get } from "@/src/services/api";
+import { get } from "@/src/@core/utils/api";
 import { useFetchSWR } from "@/src/@core/hooks/useFetchSWR";
 import { CreatePOInput, UpdatePOInput, POQueryParams } from "@/src/services/models/purchase/input.dto";
 import { PODetailDto, POListItemDto } from "@/src/services/models/purchase/output.dto";

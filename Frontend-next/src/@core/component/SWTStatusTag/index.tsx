@@ -17,6 +17,11 @@ const tagConfig: Record<string, { label: string; color: string; dot: string }> =
     color: "bg-status-success-bg text-status-success-text border-status-success-border",
     dot: "bg-status-success-text",
   },
+  BANNED: {
+    label: "Bị khóa",
+    color: "bg-status-error-bg text-status-error-text border-status-error-border",
+    dot: "bg-status-error-text",
+  },
   HIDDEN: {
     label: "Đang ẩn",
     color: "bg-status-warning-bg text-status-warning-text border-status-warning-border",

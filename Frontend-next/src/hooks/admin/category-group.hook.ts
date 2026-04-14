@@ -2,7 +2,7 @@ import { useFetchSWR } from "@/src/@core/hooks/useFetchSWR";
 import useSWRMutation from "swr/mutation";
 import { CreateCategoryGroupDto, UpdateCategoryGroupDto, CategoryGroupQueryFilters } from "@/src/services/models/category-group/input.dto";
 import { CategoryGroupResponseDto } from "@/src/services/models/category-group/output.dto";
-import { get, post, put, del } from "@/src/services/api";
+import { get, post, put, del } from "@/src/@core/utils/api";
 
 const CATEGORY_GROUP_API_ENDPOINT = "/category-groups";
 

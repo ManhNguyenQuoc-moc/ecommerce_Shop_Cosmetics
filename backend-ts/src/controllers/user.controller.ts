@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { UserService as IUserService } from "../interfaces/IUserService";
-import { CreateUserSchema, UpdateUserSchema, UserQueryFiltersSchema } from "../DTO/user/user.dto";
+import { CreateUserSchema, UpdateUserSchema, UserQueryFiltersSchema, UpdateUserStatusSchema, UpdateUserRoleSchema } from "../DTO/user/user.dto";
 import { z } from "zod";
 
 export class UserController {
@@ -107,7 +107,7 @@ export class UserController {
         success: true,
         message: "Get users successfully",
         data: {
-          items: result.items,
+          data: result.items,
           total: result.total,
           page,
           pageSize: limit,
@@ -152,6 +152,40 @@ export class UserController {
       }
       const user = await this.userService.togglePointWalletStatus(id, isLocked);
       res.status(200).json({ success: true, message: "Cập nhật trạng thái ví thành công", data: user });
+    } catch (error: any) {
+      this.handleError(res, error);
+    }
+  };
+
+  updateStatus = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const id = req.params.id as string;
+      const { is_banned } = UpdateUserStatusSchema.parse(req.body);
+      
+      const user = await this.userService.updateUserStatus(id, is_banned);
+      
+      res.status(200).json({ 
+        success: true, 
+        message: is_banned ? "Khóa người dùng thành công" : "Mở khóa người dùng thành công", 
+        data: user 
+      });
+    } catch (error: any) {
+      this.handleError(res, error);
+    }
+  };
+
+  updateRole = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const id = req.params.id as string;
+      const { role } = UpdateUserRoleSchema.parse(req.body);
+      
+      const user = await this.userService.updateUserRole(id, role);
+      
+      res.status(200).json({ 
+        success: true, 
+        message: "Cập nhật quyền người dùng thành công", 
+        data: user 
+      });
     } catch (error: any) {
       this.handleError(res, error);
     }

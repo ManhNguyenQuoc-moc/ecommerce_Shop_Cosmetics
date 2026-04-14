@@ -1,4 +1,4 @@
-import { get, post, patch, del } from "@/src/services/api";
+import { get, post, patch, del } from "@/src/@core/utils/api";
 import { useFetchSWR } from "@/src/@core/hooks/useFetchSWR";
 import useSWRMutation from "swr/mutation";
 

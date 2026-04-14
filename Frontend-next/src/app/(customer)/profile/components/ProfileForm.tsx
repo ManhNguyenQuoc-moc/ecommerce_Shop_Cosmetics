@@ -27,9 +27,9 @@ import SWTDatePicker from "@/src/@core/component/AntD/SWTDatePicker";
 import dayjs from "dayjs";
 
 import { showNotificationError, showNotificationSuccess } from "@/src/@core/utils/message";
-import { updateCustomerInfo } from "@/src/services/customer/user.service";
+import { updateCustomerInfo } from "@/src/services/customer/user/user.service";
 import AddressAutocomplete from "../../checkout/components/AddressAutocomplete";
-import { UserProfileDTO } from "@/src/services/models/user/output.dto";
+import { UserProfileDTO } from "@/src/services/admin/user/models/output.model.dto";
 import ProfileAvatarUpload from "./ProfileAvatarUpload";
 import { supabase } from "@/src/@core/utils/supabase";
 import { useAuth } from "@/src/context/AuthContext";

@@ -109,6 +109,7 @@ export class UserService implements IUserService {
     
     const mappedItems = items.map(user => ({
       ...user,
+      status: user.is_banned ? "BANNED" : "ACTIVE",
       member_rank: this.calculateRank(user.lifetime_points),
       used_points: user.lifetime_points - user.loyalty_points,
     }));
@@ -121,6 +122,18 @@ export class UserService implements IUserService {
 
   async togglePointWalletStatus(userId: string, isLocked: boolean): Promise<User> {
     return this.userRepository.update(userId, { is_point_wallet_locked: isLocked });
+  }
+
+  async updateUserStatus(userId: string, is_banned: boolean): Promise<User> {
+    const targetUser = await this.userRepository.findById(userId);
+    if (targetUser?.role === "ADMIN") {
+      throw new Error("Không thể khóa tài khoản của Quản trị viên.");
+    }
+    return this.userRepository.updateStatus(userId, is_banned);
+  }
+
+  async updateUserRole(userId: string, role: string): Promise<User> {
+    return this.userRepository.updateRole(userId, role);
   }
 
   calculateRank(lifetimePoints: number): string {

@@ -1,7 +1,7 @@
 "use client";
 
 import AdminProfileForm from "./components/AdminProfileForm";
-import { useUserProfile } from "@/src/hooks/admin/user.hook";
+import { useUserProfile } from "@/src/services/admin/user/user.hook";
 import { Spin } from "antd";
 
 export default function AdminProfilePage() {

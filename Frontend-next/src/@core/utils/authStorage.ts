@@ -43,4 +43,4 @@ export const authStorage = {
   setUser: (user: AuthUser): void => {
     Cookies.set(USER_KEY, JSON.stringify(user), { expires: 7 });
   }
-};
+}

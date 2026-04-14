@@ -1,9 +1,9 @@
-import { get, post, put, patch } from "@/src/services/api";
+import { get, put, patch } from "@/src/@core/utils/api";
 import { useFetchSWR } from "@/src/@core/hooks/useFetchSWR";
 import useSWRMutation from "swr/mutation";
 import { buildQueryString } from "@/src/@core/utils/query.util";
 import { PaginationResponse } from "@/src/@core/http/models/PaginationResponse";
-
+import { UserProfileDTO } from "./models/output.model.dto";
 export const USER_API_ENDPOINT = "/users";
 
 export const useUsers = (page: number = 1, pageSize: number = 6, filters: any = {}) => {
@@ -13,13 +13,13 @@ export const useUsers = (page: number = 1, pageSize: number = 6, filters: any = 
     ...filters
   });
 
-  const { data, isLoading, error, mutate } = useFetchSWR<PaginationResponse<any>>(
+  const { data, isLoading, error, mutate } = useFetchSWR<PaginationResponse<UserProfileDTO>>(
     `${USER_API_ENDPOINT}${query}`,
     () => get(`${USER_API_ENDPOINT}${query}`)
   );
 
   return {
-    users: (data as any)?.items || [],
+    users: (data as PaginationResponse<UserProfileDTO>)?.data || [],
     total: data?.total || 0,
     isLoading,
     isError: error,
@@ -30,13 +30,21 @@ export const useUsers = (page: number = 1, pageSize: number = 6, filters: any = 
 export const useUpdateUserStatus = () => {
   return useSWRMutation(
     USER_API_ENDPOINT,
-    (_, { arg }: { arg: { id: string; status: string } }) =>
-      put(`${USER_API_ENDPOINT}/${arg.id}/status`, { status: arg.status })
+    (_, { arg }: { arg: { id: string; is_banned: boolean } }) =>
+      put(`${USER_API_ENDPOINT}/${arg.id}/status`, { is_banned: arg.is_banned })
+  );
+};
+
+export const useUpdateUserRole = () => {
+  return useSWRMutation(
+    USER_API_ENDPOINT,
+    (_, { arg }: { arg: { id: string; role: string } }) =>
+      put(`${USER_API_ENDPOINT}/${arg.id}/role`, { role: arg.role })
   );
 };
 
 export const useUserProfile = () => {
-  return useFetchSWR<any>(
+  return useFetchSWR<UserProfileDTO>(
     `${USER_API_ENDPOINT}/me`,
     () => get(`${USER_API_ENDPOINT}/me`)
   );

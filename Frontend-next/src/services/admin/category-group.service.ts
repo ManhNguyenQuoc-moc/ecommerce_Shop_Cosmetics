@@ -1,4 +1,4 @@
-import { get, post, put, del } from "../api";
+import { get, post, put, del } from "../../@core/utils/api";
 import { CreateCategoryGroupDto, UpdateCategoryGroupDto } from "../models/category-group/input.dto";
 import { CategoryGroupResponseDto } from "../models/category-group/output.dto";
 

@@ -1,4 +1,4 @@
-import { get, post, put, del } from "@/src/services/api";
+import { get, post, put, del } from "@/src/@core/utils/api";
 import { useFetchSWR } from "@/src/@core/hooks/useFetchSWR";
 import useSWRMutation from "swr/mutation";
 import { CreateCategoryDto, UpdateCategoryDto, CategoryQueryFilters } from "@/src/services/models/category/input.dto";

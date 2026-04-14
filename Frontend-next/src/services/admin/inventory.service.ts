@@ -1,4 +1,4 @@
-import { get } from "../api";
+import { get } from "../../@core/utils/api";
 import { InventoryBatchDto } from "../models/inventory/output.dto";
 import { InventoryQueryParams } from "../models/inventory/input.dto";
 import { buildQueryString } from "../../@core/utils/query.util";

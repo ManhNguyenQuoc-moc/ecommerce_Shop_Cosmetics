@@ -1,4 +1,4 @@
-import { get } from "@/src/services/api";
+import { get } from "@/src/@core/utils/api";
 import { useFetchSWR } from "@/src/@core/hooks/useFetchSWR";
 import { InventoryBatchDto } from "@/src/services/models/inventory/output.dto";
 import { InventoryQueryParams } from "@/src/services/models/inventory/input.dto";

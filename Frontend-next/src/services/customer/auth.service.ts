@@ -1,4 +1,4 @@
-import { post } from "../api";
+import { post } from "../../@core/utils/api";
 import {
   LoginInputDto,
   LogoutInputDto,

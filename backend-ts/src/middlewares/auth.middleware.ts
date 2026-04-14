@@ -49,6 +49,14 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
       return;
     }
 
+    if (dbUser.is_banned) {
+      res.status(403).json({ 
+        success: false, 
+        message: "Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên để được hỗ trợ." 
+      });
+      return;
+    }
+
     console.log(`[Auth] Authenticated user: ${dbUser.id}, Role: ${dbUser.role}`);
 
     // Gán dữ liệu vào req.user (đã có Type hỗ trợ)
