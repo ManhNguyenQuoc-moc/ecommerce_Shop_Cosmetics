@@ -1,4 +1,4 @@
-import { getServer } from "../apiServer";
+import { getServer } from "../../@core/utils/apiServer";
 import { PaginationResponse } from "../../@core/http/models/PaginationResponse";
 import { ProductListItemDto, ProductDetailDto } from "../models/product/output.dto";
 

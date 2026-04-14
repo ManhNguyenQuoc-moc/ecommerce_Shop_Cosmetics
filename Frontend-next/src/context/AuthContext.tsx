@@ -7,7 +7,7 @@ import { useCartStore } from "@/src/stores/useCartStore";
 import { useWishlistStore } from "@/src/stores/useWishlistStore";
 import { supabase } from "@/src/@core/utils/supabase";
 import { Session } from "@supabase/supabase-js";
-import { getProfile } from "@/src/services/customer/user.service";
+import { getProfile } from "@/src/services/customer/user/user.service";
 
 type AuthContextType = {
   currentUser: AuthUser | null;
@@ -67,7 +67,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         user.role = profile.role || user.role;
         authStorage.setUser(user);
       }
-    } catch (err) {
+    } catch (err: any) {
+      if (err?.message?.includes("bị khóa") || err?.status === 403) {
+        console.error("User is banned, logging out...");
+        await logout();
+        return;
+      }
       console.warn("Failed to enrichment user profile from backend:", err);
     }
     setCurrentUser(user);
@@ -101,7 +106,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             user.name = profile.full_name || user.name;
             user.phone = profile.phone || user.phone;
         }
-    } catch (err) {}
+    } catch (err: any) {
+        if (err?.message?.includes("bị khóa") || err?.status === 403) {
+            await logout();
+            throw err; // Re-throw to be caught by the Login form
+        }
+    }
     
     authStorage.login(token, user);
     setCurrentUser(user);

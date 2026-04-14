@@ -7,7 +7,7 @@ import type { MenuProps } from "antd";
 import { History, Ban, Unlock, MoreVertical } from "lucide-react";
 import SWTIconButton from "@/src/@core/component/SWTIconButton";
 import React, { useState, useMemo } from "react";
-import { useUsers, useToggleWalletLock } from "@/src/hooks/admin/user.hook";
+import { useUsers, useToggleWalletLock } from "@/src/services/admin/user/user.hook";
 import { showNotificationSuccess, showNotificationError } from "@/src/@core/utils/message";
 import UserPointsDrawer from "./UserPointsDrawer";
 

@@ -34,3 +34,15 @@ export const UserQueryFiltersSchema = z.object({
 });
 
 export type UserQueryFiltersDTO = z.infer<typeof UserQueryFiltersSchema>;
+
+export const UpdateUserStatusSchema = z.object({
+  is_banned: z.boolean(),
+});
+
+export type UpdateUserStatusDTO = z.infer<typeof UpdateUserStatusSchema>;
+
+export const UpdateUserRoleSchema = z.object({
+  role: z.nativeEnum(Role),
+});
+
+export type UpdateUserRoleDTO = z.infer<typeof UpdateUserRoleSchema>;

@@ -1,4 +1,4 @@
-import { get, post } from "../api";
+import { get, post } from "../../@core/utils/api";
 import axios from "axios";
 
 export const getUploadSignature = (folder: string = "products") => {

@@ -1,4 +1,4 @@
-import { get, put } from "../api";
+import { get, put } from "../../@core/utils/api";
 import { OrderDTO, OrderListResponseDTO, OrderStatus } from "../models/customer/order.dto";
 
 export const getOrders = async (status?: OrderStatus, page: number = 1, pageSize: number = 6): Promise<OrderListResponseDTO> => {

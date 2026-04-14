@@ -1,0 +1,42 @@
+1. Mối quan hệ bao bọc (Hierarchy)
+Thằng cha (index.tsx): Bọc EmployeeDetailsProvider ở ngoài cùng. Nó tạo ra một "vùng không gian" mà ở đó dữ liệu nhân sự luôn tồn tại.
+
+Thằng giữa (provider.tsx): Nằm bên trong thằng cha, nó bắt đầu "bơm" dữ liệu vào không gian đó (gọi API lấy detail, chuẩn bị hàm update).
+
+Thằng con (EmployeeDetailPage.tsx): Nằm trong cùng. Nhờ được bọc bởi Provider, nó và các con của nó (EmployeeDetailTab, EmployeeDetailHistory) có thể "với tay" lấy dữ liệu từ Provider ra dùng mà không cần truyền qua lại.
+
+2. Mối quan hệ về Dữ liệu (Data Flow)
+Provider giữ biến employeeDetail.
+
+EmployeeDetailPage chia layout thành 2 cột (col-span-2 và col-span-1).
+
+Tab và History (nằm trong Page) sẽ cùng gọi hook useEmployeeDetails().
+
+Thằng Tab lấy thông tin cá nhân để hiện Form.
+
+Thằng History lấy thông tin lịch sử để hiện Timeline.
+=> Cả hai thằng này đều dùng chung một nguồn dữ liệu duy nhất từ Provider.
+
+Tại sao cấu trúc này lại cực kỳ thông minh?
+Tính đồng bộ: Khi bạn thực hiện một Action (ví dụ: Cập nhật nhân sự) ở trong EmployeeDetailTab:
+
+Nó gọi hàm updateEmployee.action từ Provider.
+
+Sau khi thành công, Provider có thể tự động gọi lại hàm getEmployeeDetail để làm mới dữ liệu.
+
+Ngay lập tức, thằng EmployeeDetailHistory ở cột bên cạnh cũng sẽ tự cập nhật theo vì nó dùng chung dữ liệu. Người dùng không cần load lại trang.
+
+Sạch sẽ (Clean UI): File Page của bạn cực kỳ ngắn gọn và dễ đọc. Nhìn vào là biết ngay trang này gồm có: Breadcrumb -> Grid 2 cột -> Cột trái là Tab, Cột phải là History.
+
+Một điểm nhỏ cần lưu ý:
+Trong file EmployeeDetailPage, bạn lại dùng useParams một lần nữa để lấy id làm link Breadcrumb. Điều này hoàn toàn ổn, nhưng vì trong Provider bạn đã có employeeId: id rồi, nên sau này nếu muốn, bạn có thể lấy id trực tiếp từ useEmployeeDetails() cho đồng bộ nhất.
+
+Tóm lại:
+
+Provider: Làm việc nặng (API, Logic).
+
+Page (file này): Làm việc chia khung (Layout, Grid).
+
+Tab/History: Làm việc hiển thị chi tiết (UI nhỏ).
+
+Bạn có thấy cách chia này giúp bạn dễ dàng thay đổi giao diện (ví dụ muốn chuyển Lịch sử sang cột trái) mà không cần động vào code xử lý API không?

@@ -1,4 +1,4 @@
-import { get } from "../api";
+import { get } from "../../@core/utils/api";
 import { VoucherResponseDto as VoucherDTO } from "../models/voucher/output.dto";
 
 const path = "/vouchers";

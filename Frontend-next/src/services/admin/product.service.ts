@@ -1,4 +1,4 @@
-import { get, post, put, del } from "../api";
+import { get, post, put, del } from "../../@core/utils/api";
 import { mutate as globalMutate } from "swr";
 import { ProductDetailDto, ProductVariantDto } from "../models/product/output.dto";
 import { CreateProductInput, ProductQueryParams, UpdateProductInput, CreateVariantInput, UpdateVariantInput } from "../models/product/input.dto";

@@ -1,4 +1,4 @@
-import { get } from "../api";
+import { get } from "../../@core/utils/api";
 import { PointLogDTO, PointSummaryDTO } from "../models/customer/point.dto";
 
 const path = "/users/me";

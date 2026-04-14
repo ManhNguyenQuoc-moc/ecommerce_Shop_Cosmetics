@@ -4,7 +4,7 @@ import { ProductListResponseDto, ProductDetailDto, ProductVariantDto, VariantLis
 import { PaginationResponse } from "@/src/@core/http/models/PaginationResponse";
 import { ProductQueryParams } from "@/src/services/models/product/input.dto";
 import { buildQueryString } from "@/src/@core/utils/query.util";
-import { get } from "@/src/services/api";
+import { get } from "@/src/@core/utils/api";
 
 const PRODUCT_API_ENDPOINT = "/products";
 

@@ -1,4 +1,4 @@
-import { get, post, put, del } from "../api";
+import { get, post, put, del } from "../../@core/utils/api";
 import { CreateCategoryDto, UpdateCategoryDto, CategoryQueryFilters } from "../models/category/input.dto";
 import { CategoryResponseDto } from "../models/category/output.dto";
 import { buildQueryString } from "../../@core/utils/query.util";

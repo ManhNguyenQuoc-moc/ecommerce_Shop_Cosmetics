@@ -10,7 +10,7 @@ import { useAuth } from "@/src/context/AuthContext";
 import { useSWRConfig } from "swr";
 import { DEFAULT_AVATAR_IMAGE } from "@/src/@core/const";
 import { uploadFileToCloudinary } from "@/src/services/admin/upload.service";
-import { updateCustomerInfo } from "@/src/services/customer/user.service";
+import { updateCustomerInfo } from "@/src/services/customer/user/user.service";
 
 type Props = {
   currentAvatar?: string;

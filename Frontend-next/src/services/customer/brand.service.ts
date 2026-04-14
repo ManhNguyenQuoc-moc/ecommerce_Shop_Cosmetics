@@ -1,4 +1,4 @@
-import { get } from "../api";
+import { get } from "../../@core/utils/api";
 
 export const BRAND_API_ENDPOINT = "/brands";
 

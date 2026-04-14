@@ -1,7 +1,4 @@
-/**
- * Standardizes the construction of URL query strings from a filter object.
- * Handles null, undefined, and "all" values.
- */
+
 export const buildQueryString = (params: Record<string, any>): string => {
   const query = new URLSearchParams();
 

@@ -1,5 +1,5 @@
 // order.service.ts
-import { get, put } from "../api";
+import { get, put } from "../../@core/utils/api";
 import { OrderDto, OrderListResponseDto } from "../models/order/output.dto";
 import { buildQueryString } from "../../@core/utils/query.util";
 

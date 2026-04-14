@@ -1,7 +1,7 @@
 "use client";
 
 import { useCheckoutStore } from "@/src/stores/useCheckoutStore";
-import { getCustomerInfo } from "@/src/services/customer/user.service";
+import { getCustomerInfo } from "@/src/services/customer/user/user.service";
 import { authStorage } from "@/src/@core/utils/authStorage";
 import { showNotificationSuccess, showNotificationError } from "@/src/@core/utils/message";
 import { checkoutService } from "@/src/services/customer/checkout.service";

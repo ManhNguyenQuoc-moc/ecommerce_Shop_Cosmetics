@@ -1,4 +1,4 @@
-import { get, put } from "@/src/services/api";
+import { get, put } from "@/src/@core/utils/api";
 import { useFetchSWR } from "@/src/@core/hooks/useFetchSWR";
 import { OrderDto, OrderListResponseDto } from "@/src/services/models/order/output.dto";
 import { buildQueryString } from "@/src/@core/utils/query.util";

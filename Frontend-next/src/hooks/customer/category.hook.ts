@@ -1,5 +1,5 @@
 import { SWRConfiguration } from "swr";
-import { get } from "@/src/services/api";
+import { get } from "@/src/@core/utils/api";
 import { useFetchSWR } from "@/src/@core/hooks/useFetchSWR";
 import { CategoryResponseDto } from "@/src/services/models/category/output.dto";
 

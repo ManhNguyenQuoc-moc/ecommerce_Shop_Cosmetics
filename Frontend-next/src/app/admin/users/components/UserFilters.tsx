@@ -1,3 +1,4 @@
+"use client";
 import { Download, Filter, Plus } from "lucide-react";
 import SWTButton from "@/src/@core/component/AntD/SWTButton";
 import { SWTInputSearch } from "@/src/@core/component/AntD/SWTInput";
@@ -6,18 +7,16 @@ import SWTDatePickerRange from "@/src/@core/component/AntD/SWTDatePickerRange";
 import SWTTooltip from "@/src/@core/component/AntD/SWTTooltip";
 import { useState, useEffect } from "react";
 import { useDebounce } from "@/src/@core/hooks/useDebounce";
+import { useUserModule } from "../provider";
 
-interface UserFiltersProps {
-  onSearch: (val: string) => void;
-}
-
-export default function UserFilters({ onSearch }: UserFiltersProps) {
-  const [localSearch, setLocalSearch] = useState("");
+export default function UserFilters() {
+  const { handleSearch, handleFilterChange, filters } = useUserModule();
+  const [localSearch, setLocalSearch] = useState(filters.search);
   const debouncedSearch = useDebounce(localSearch, 500);
 
   useEffect(() => {
-    onSearch(debouncedSearch);
-  }, [debouncedSearch, onSearch]);
+    handleSearch(debouncedSearch);
+  }, [debouncedSearch]);
 
   return (
     <div className="flex flex-col gap-5 mb-6">
@@ -39,31 +38,27 @@ export default function UserFilters({ onSearch }: UserFiltersProps) {
             </div>
           </SWTTooltip>
           <SWTTooltip title="Thêm Người Dùng Mới" placement="top" color="#6366f1">
-            <div 
-              className="flex h-11 w-11 items-center justify-center bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-500/30 rounded-xl shadow-sm transition-all cursor-pointer group"
-            >
+            <div className="flex h-11 w-11 items-center justify-center bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-500/30 rounded-xl shadow-sm transition-all cursor-pointer group">
               <Plus size={24} className="stroke-[2.5] group-hover:scale-110 group-hover:rotate-90 transition-transform duration-300" />
             </div>
           </SWTTooltip>
         </div>
       </div>
 
-      {/* FILTER BAR */}
       <div className="flex flex-col md:flex-row md:items-center gap-4 w-full p-4 lg:p-5 transition-all duration-300">
-        
         <div className="flex flex-wrap items-center gap-3 flex-1 w-full">
-          <div className="flex items-center gap-2 text-brand-600 dark:text-admin-accent 
-          font-bold md:pr-4 border-b md:border-b-0 md:border-r border-slate-200 dark:border-slate-700 pb-2 md:pb-0 w-full md:w-auto">
+          <div className="flex items-center gap-2 text-brand-600 dark:text-admin-accent font-bold md:pr-4 border-b md:border-b-0 md:border-r border-slate-200 dark:border-slate-700 pb-2 md:pb-0 w-full md:w-auto">
             <Filter size={18} className="text-brand-500" />
             <span className="text-xs uppercase tracking-widest whitespace-nowrap">Bộ lọc</span>
           </div>
 
           <div className="flex flex-wrap items-center gap-3 flex-1">
             <SWTDatePickerRange className="!h-11 !rounded-xl w-full sm:w-auto" />
-            
             <SWTSelect 
               placeholder="Vai trò"
               className="w-full sm:w-[180px] !h-11"
+              value={filters.role}
+              onChange={(val) => handleFilterChange('role', val)}
               options={[
                 { label: "Tất cả", value: "all" },
                 { label: "Super Admin", value: "super_admin" },
@@ -72,10 +67,11 @@ export default function UserFilters({ onSearch }: UserFiltersProps) {
                 { label: "Khách hàng", value: "customer" }
               ]}
             />
-
             <SWTSelect 
               placeholder="Trạng thái"
               className="w-full sm:w-[180px] !h-11"
+              value={filters.status}
+              onChange={(val) => handleFilterChange('status', val)}
               options={[
                 { label: "Tất cả", value: "all" },
                 { label: "Hoạt động", value: "active" },
@@ -84,12 +80,15 @@ export default function UserFilters({ onSearch }: UserFiltersProps) {
             />
           </div>
         </div>
-
         <div className="w-full md:w-auto flex justify-end md:justify-start border-t md:border-t-0 border-slate-100 dark:border-slate-700/50 pt-3 md:pt-0">
           <SWTButton
             type="text"
-            className="!h-9 !px-4 !text-xs !rounded-xl !w-auto whitespace-nowrap
-            text-slate-400 hover:!text-red-500 hover:!bg-red-50 dark:hover:!bg-red-500/10 transition-all font-bold"
+            onClick={() => {
+              setLocalSearch("");
+              handleFilterChange('role', 'all');
+              handleFilterChange('status', 'all');
+            }}
+            className="!h-9 !px-4 !text-xs !rounded-xl !w-auto whitespace-nowrap text-slate-400 hover:!text-red-500 hover:!bg-red-50 dark:hover:!bg-red-500/10 transition-all font-bold"
           >
             Xóa bộ lọc
           </SWTButton>
