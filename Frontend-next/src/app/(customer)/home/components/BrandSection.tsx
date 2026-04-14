@@ -82,7 +82,7 @@ export default function BrandSection({
                 ) : (
                   <div className="relative w-full h-full transition-transform duration-700 group-hover:scale-110">
                     <Image
-                      src={brand.logo || "/images/placeholder.png"}
+                      src={brand.logo?.url || "/images/placeholder.png"}
                       alt={brand.name}
                       fill
                       className="object-contain"
