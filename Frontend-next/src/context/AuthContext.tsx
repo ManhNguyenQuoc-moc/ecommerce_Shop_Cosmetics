@@ -43,7 +43,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       return;
     }
 
-    // 1. Start with Supabase data
+
     const user: AuthUser = {
       id: supabaseSession.user.id,
       name: supabaseSession.user.user_metadata.full_name || "User",
@@ -53,6 +53,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       username: supabaseSession.user.email || "",
       role: supabaseSession.user.user_metadata.role || "CUSTOMER"
     };
+    console.log("Syncing user with backend:", user);
 
     authStorage.login(supabaseSession.access_token, user);
 
@@ -63,14 +64,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         user.name = profile.full_name || user.name;
         user.avatar = profile.avatar || user.avatar;
         user.phone = profile.phone || user.phone;
-        
-        // Update user in storage with fetched profile data
+        user.role = profile.role || user.role;
         authStorage.setUser(user);
       }
     } catch (err) {
       console.warn("Failed to enrichment user profile from backend:", err);
     }
-
     setCurrentUser(user);
   };
 

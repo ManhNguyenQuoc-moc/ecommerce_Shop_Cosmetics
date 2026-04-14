@@ -3,7 +3,7 @@
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import SWTButton from "@/src/@core/component/AntD/SWTButton";
 import AntDropDown from "@/src/@core/component/AntD/AntDropDown";
-import { Category } from "@/src/@core/type/category";
+import { Category } from "@/src/services/models/category/category";
 
 type Props = {
   categories: Category[];

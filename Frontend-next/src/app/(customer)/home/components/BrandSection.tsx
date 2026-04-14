@@ -1,19 +1,11 @@
 "use client";
-import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Award, ArrowRight } from "lucide-react";
-
-type Brand = {
-  id?: string;
-  name: string;
-  logo: string;
-  banner: string;
-  description?: string;
-};
+import { Award } from "lucide-react";
+import { BrandResponseDto } from "@/src/services/models/brand/output.dto";
 
 type Props = {
-  brands: Brand[];
+  brands: BrandResponseDto[];
   loading?: boolean;
 };
 
@@ -43,7 +35,6 @@ export default function BrandSection({
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* Large Featured Card (Logo Only) */}
         <div className="lg:col-span-6 xl:col-span-5 rounded-[2rem] overflow-hidden group hover:shadow-2xl hover:shadow-brand-500/10 transition-all duration-700 bg-white border-2 border-slate-50">
           <div className="aspect-[16/9] flex items-center justify-center relative overflow-hidden p-12">
             {loading ? (
@@ -51,7 +42,7 @@ export default function BrandSection({
             ) : (
               <div className="relative w-full h-full transition-transform duration-700 group-hover:scale-110">
                 <Image
-                  src={featuredBrands[0]?.logo}
+                  src={featuredBrands[0]?.logo?.url || "/images/placeholder.png"}
                   alt={featuredBrands[0]?.name}
                   fill
                   className="object-contain"
@@ -82,9 +73,8 @@ export default function BrandSection({
           )}
         </div>
 
-        {/* Small Featured Cards (Logo Only Stacks) */}
         <div className="lg:col-span-6 xl:col-span-7 flex flex-col gap-6">
-          {(loading ? skeletonArray : featuredBrands.slice(1, 3)).map((brand: any, idx) => (
+          {((loading ? skeletonArray : featuredBrands.slice(1, 3)) as BrandResponseDto[]).map((brand, idx) => (
             <div key={idx} className="flex-1 rounded-[2rem] overflow-hidden group hover:shadow-2xl hover:shadow-brand-500/10 transition-all duration-700 flex flex-col sm:flex-row bg-white border-2 border-slate-50">
               <div className="sm:w-2/5 flex items-center justify-center relative overflow-hidden p-8">
                 {loading ? (
@@ -92,7 +82,7 @@ export default function BrandSection({
                 ) : (
                   <div className="relative w-full h-full transition-transform duration-700 group-hover:scale-110">
                     <Image
-                      src={brand.logo}
+                      src={brand.logo?.url || "/images/placeholder.png"}
                       alt={brand.name}
                       fill
                       className="object-contain"
@@ -121,10 +111,9 @@ export default function BrandSection({
         </div>
       </div>
 
-      {/* Grid for remaining brands */}
       {remainingBrands.length > 0 && (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6 pt-4">
-          {remainingBrands.map((brand: Brand, index) => (
+          {remainingBrands.map((brand: BrandResponseDto, index) => (
             <Link
               key={index}
               href={`/products?brandId=${brand.id || brand.name}`}
@@ -132,7 +121,7 @@ export default function BrandSection({
             >
               <div className="relative w-full aspect-[2/1] transition-transform duration-500 group-hover:scale-110">
                 <Image
-                  src={brand.logo}
+                  src={brand.logo?.url || "/images/placeholder.png"}
                   alt={brand.name}
                   fill
                   className="object-contain filter grayscale group-hover:grayscale-0 transition-opacity"

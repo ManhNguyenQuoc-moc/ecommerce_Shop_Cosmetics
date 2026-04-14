@@ -1,4 +1,4 @@
-import { ApiResponse } from "@/src/@core/type/api";
+import { ApiResponse } from "@/src/@core/http/models/api";
 import { buildQueryString } from "../@core/utils/query.util";
 import { API_BASE_URL } from "../@core/const";
 

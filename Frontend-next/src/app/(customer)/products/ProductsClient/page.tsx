@@ -9,7 +9,7 @@ import { useFetchSWR } from "@/src/@core/hooks/useFetchSWR";
 import SWTBreadcrumb from "@/src/@core/component/AntD/SWTBreadcrumb";
 import ProductListSection from "../components/ProductListSection";
 
-import { PaginationResponse } from "@/src/services/models/common/PaginationResponse";
+import { PaginationResponse } from "@/src/@core/http/models/PaginationResponse";
 import { ProductListItemDto } from "@/src/services/models/product/output.dto";
 import { CategoryResponseDto } from "@/src/services/models/category/output.dto";
 import { BrandResponseDto } from "@/src/services/customer/customer.service";

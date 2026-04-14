@@ -601,6 +601,7 @@ import inventoryRoute from "./routes/inventory.route";
 import wishlistRoute from "./routes/wishlist.route";
 import voucherRoute from "./routes/voucher.route";
 import settingRoute from "./routes/setting.route";
+import dashboardRoute from "./routes/dashboard.route";
 
 const app = express();
 
@@ -642,6 +643,7 @@ app.use("/inventory", inventoryRoute);
 app.use("/wishlist", wishlistRoute);
 app.use("/vouchers", voucherRoute);
 app.use("/settings", settingRoute);
+app.use("/admin/dashboard", dashboardRoute);
 
 const PORT = process.env.PORT || 3000;
 

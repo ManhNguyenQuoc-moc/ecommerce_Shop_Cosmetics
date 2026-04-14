@@ -6,12 +6,13 @@ export interface ErrorResultDto {
 
 export interface BaseResultDto {
     status: string;
+    success: boolean;
     error: ErrorResultDto | null;
     statusCode: number;
     message: string;
     systemName: string;
 }
 
-export interface ApiResult<T> extends BaseResultDto {
-    data: T;
-}
+export interface ApiResponse<T> extends BaseResultDto {
+  data: T;
+};

@@ -9,11 +9,9 @@ import {
   Legend,
   ResponsiveContainer,
 } from 'recharts';
+import { useTheme } from '@/src/context/ThemeContext';
 
-interface ComposedChartData {
-  [key: string]: string | number;
-}
-
+type ComposedChartData = Record<string, any>;
 interface RechartsComposedLineBarProps {
   data: ComposedChartData[];
   xAxisKey: string;
@@ -37,6 +35,9 @@ export default function RechartsComposedLineBar({
   lineColor,
   height = 300
 }: RechartsComposedLineBarProps) {
+  const { isDark } = useTheme();
+  const textColor = isDark ? "#94A3B8" : "#64748B";
+
   return (
     <div style={{ width: '100%', height }}>
       <ResponsiveContainer>
@@ -44,19 +45,19 @@ export default function RechartsComposedLineBar({
           data={data}
           margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
         >
-          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
+          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={isDark ? "#1E293B" : "#E2E8F0"} />
           <XAxis 
             dataKey={xAxisKey} 
             axisLine={false}
             tickLine={false}
-            tick={{ fill: '#64748B', fontSize: 12 }}
+            tick={{ fill: textColor, fontSize: 12 }}
             dy={10}
           />
           <YAxis 
             yAxisId="left"
             axisLine={false}
             tickLine={false}
-            tick={{ fill: '#64748B', fontSize: 12 }}
+            tick={{ fill: textColor, fontSize: 12 }}
             dx={-10}
           />
           <YAxis 
@@ -64,12 +65,20 @@ export default function RechartsComposedLineBar({
             orientation="right" 
             axisLine={false}
             tickLine={false}
-            tick={{ fill: '#64748B', fontSize: 12 }}
+            tick={{ fill: textColor, fontSize: 12 }}
             dx={10}
           />
           <Tooltip 
-            cursor={{ fill: '#F1F5F9' }}
-            contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)' }}
+            cursor={false}
+            contentStyle={{ 
+              borderRadius: '12px', 
+              border: 'none', 
+              boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)',
+              backgroundColor: isDark ? '#0F172A' : '#FFFFFF',
+              color: isDark ? '#F1F5F9' : '#1E293B'
+            }}
+            itemStyle={{ color: isDark ? '#F1F5F9' : '#1E293B' }}
+            labelStyle={{ color: isDark ? '#94A3B8' : '#64748B', fontWeight: 'bold', marginBottom: '4px' }}
           />
           <Legend wrapperStyle={{ paddingTop: '20px' }} />
           <Bar 

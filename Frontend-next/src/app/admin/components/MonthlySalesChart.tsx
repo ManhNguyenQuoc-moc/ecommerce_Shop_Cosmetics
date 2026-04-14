@@ -1,7 +1,7 @@
 "use client";
 import { ApexOptions } from "apexcharts";
 import dynamic from "next/dynamic";
-import { MonthlySalesDTO } from "@/src/services/models/admin/dashboard.dto";
+import { MonthlySalesDTO } from "@/src/services/admin/dashboard/models/output.model";
 
 // Dynamically import the ReactApexChart component
 const ReactApexChart = dynamic(() => import("react-apexcharts"), {

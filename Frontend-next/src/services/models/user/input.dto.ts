@@ -1,4 +1,4 @@
-import { Address } from "@/src/@core/type/checkout";
+import { Address } from "@/src/services/models/checkout/checkout";
 
 export type UpdateUserProfileDTO = {
   full_name?: string;

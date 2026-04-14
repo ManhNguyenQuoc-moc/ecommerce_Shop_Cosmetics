@@ -2,7 +2,7 @@ import { get, post, put, del } from "../api";
 import { CreateCategoryDto, UpdateCategoryDto, CategoryQueryFilters } from "../models/category/input.dto";
 import { CategoryResponseDto } from "../models/category/output.dto";
 import { buildQueryString } from "../../@core/utils/query.util";
-import { PaginationResponse } from "../models/common/PaginationResponse";
+import { PaginationResponse } from "../../@core/http/models/PaginationResponse";
 
 export const CATEGORY_API_ENDPOINT = "/categories";
 

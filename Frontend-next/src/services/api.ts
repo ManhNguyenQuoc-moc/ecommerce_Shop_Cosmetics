@@ -1,5 +1,5 @@
 import http from "@/src/@core/http";
-import { ApiResponse } from "@/src/@core/type/api";
+import { ApiResponse } from "@/src/@core/http/models/api";
 
 export async function get<T>(
   url: string,

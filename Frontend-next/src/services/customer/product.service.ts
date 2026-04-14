@@ -1,5 +1,5 @@
 import { getServer } from "../apiServer";
-import { PaginationResponse } from "../models/common/PaginationResponse";
+import { PaginationResponse } from "../../@core/http/models/PaginationResponse";
 import { ProductListItemDto, ProductDetailDto } from "../models/product/output.dto";
 
 export const getProducts = (params: {

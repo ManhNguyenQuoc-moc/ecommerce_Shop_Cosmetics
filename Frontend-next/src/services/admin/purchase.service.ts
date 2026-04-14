@@ -1,7 +1,7 @@
 import { get, post, put } from "../api";
 import { CreatePOInput, UpdatePOInput, POQueryParams } from "../models/purchase/input.dto";
 import { PODetailDto, POListItemDto } from "../models/purchase/output.dto";
-import { PaginationResponse } from "../models/common/PaginationResponse";
+import { PaginationResponse } from "../../@core/http/models/PaginationResponse";
 import { buildQueryString } from "../../@core/utils/query.util";
 
 export const PURCHASE_API_ENDPOINT = "/purchases";

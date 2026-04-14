@@ -4,7 +4,7 @@ import useSWRMutation from "swr/mutation";
 import { CreateCategoryDto, UpdateCategoryDto, CategoryQueryFilters } from "@/src/services/models/category/input.dto";
 import { CategoryResponseDto } from "@/src/services/models/category/output.dto";
 import { buildQueryString } from "@/src/@core/utils/query.util";
-import { PaginationResponse } from "@/src/services/models/common/PaginationResponse";
+import { PaginationResponse } from "@/src/@core/http/models/PaginationResponse";
 
 export const CATEGORY_API_ENDPOINT = "/categories";
 

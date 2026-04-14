@@ -65,7 +65,11 @@ const onResponseInterceptor = async (error: AxiosError) => {
 
   // 403 => Forbidden
   if (error.response && error.response.status === HttpStatusCode.Forbidden) {
-    if (typeof window !== "undefined") window.location.href = `/403`;
+    showNotificationError("Bạn không có quyền truy cập. Bạn không phải là Admin!");
+    if (typeof window !== "undefined") {
+        authStorage.logout();
+        window.location.href = `/login`;
+    }
     return Promise.reject(error.response.data);
   }
 

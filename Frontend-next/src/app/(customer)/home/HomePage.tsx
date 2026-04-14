@@ -10,9 +10,10 @@ import PromoBanner from "./components/PromoBanner";
 
 import { useFetchSWR } from "@/src/@core/hooks/useFetchSWR";
 import useSWTTitle from "@/src/@core/hooks/useSWTTitle";
-import { getHomeData } from "@/src/services/customer/home";
 
-import { HomeData } from "@/src/@core/type/home";
+import { getHomeData } from "@/src/services/customer/home/home.service";
+
+import { HomeData } from "@/src/services/customer/home/models/home.model";
 
 type Props = {
   initialData: HomeData;
@@ -29,7 +30,6 @@ export default function HomePage({ initialData }: Props) {
     }
   );
 
-  // Option 1: Only show loading if we have absolutely no data (from SWR or Initial Props)
   const isActuallyLoading = !data && !initialData && isValidating;
 
   const tomorrowMidnight = new Date();

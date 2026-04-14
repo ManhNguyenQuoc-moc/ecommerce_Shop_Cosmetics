@@ -1,7 +1,7 @@
 import { useFetchSWR } from "@/src/@core/hooks/useFetchSWR";
 import { mutate as globalMutate } from "swr";
 import { ProductListResponseDto, ProductDetailDto, ProductVariantDto, VariantListResponseDto, VariantDetailDto } from "@/src/services/models/product/output.dto";
-import { PaginationResponse } from "@/src/services/models/common/PaginationResponse";
+import { PaginationResponse } from "@/src/@core/http/models/PaginationResponse";
 import { ProductQueryParams } from "@/src/services/models/product/input.dto";
 import { buildQueryString } from "@/src/@core/utils/query.util";
 import { get } from "@/src/services/api";
