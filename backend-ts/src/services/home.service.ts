@@ -17,10 +17,10 @@ export class HomeService implements IHomeService {
       orderItems: true
     };
 
-    const fetchVariants = (status: ProductStatus) => 
+    const fetchVariants = (status: ProductStatus) =>
       prisma.productVariant.findMany({
-        where: { 
-          statusName: status, 
+        where: {
+          statusName: status,
           status: 'ACTIVE',
           product: { status: 'ACTIVE' }
         },
@@ -30,7 +30,13 @@ export class HomeService implements IHomeService {
       });
 
     const [categories, trending, bestSelling, newArrivals, flashSale, brands] = await Promise.all([
-      prisma.category.findMany({ take: 50, include: { image: true } }),
+      prisma.category.findMany({ 
+        take: 50, 
+        include: { 
+            image: true,
+            categoryGroup: true // Thêm để map đúng CategoryResponseDto
+        } 
+      }),
       fetchVariants('TRENDING'),
       fetchVariants('BEST_SELLING'),
       fetchVariants('NEW'),
@@ -59,7 +65,7 @@ export class HomeService implements IHomeService {
         minPrice: salePrice || price,
         maxPrice: salePrice || price,
         sold: v.orderItems?.reduce((sum: number, i: any) => sum + i.quantity, 0) || 0,
-        stock: 0, 
+        stock: 0,
         totalStock: 0,
         availableStock: 0,
         image: v.image?.url || p.productImages?.[0]?.image?.url || null,
@@ -77,11 +83,22 @@ export class HomeService implements IHomeService {
 
     return {
       banners,
+      // Fix Category mapping
       categories: categories.map(c => ({
         id: c.id,
         name: c.name,
         slug: c.slug,
-        image: c.image?.url || null
+        description: (c as any).description || null,
+        imageId: c.imageId,
+        image: c.image ? { id: c.image.id, url: c.image.url } : null,
+        createdAt: (c as any).createdAt,
+        updatedAt: (c as any).updatedAt,
+        categoryGroupId: (c as any).categoryGroupId || null,
+        categoryGroup: (c as any).categoryGroup ? {
+            id: (c as any).categoryGroup.id,
+            name: (c as any).categoryGroup.name,
+            slug: (c as any).categoryGroup.slug
+        } : null
       })),
       trendingProducts: trending.map(mapVariant).sort((a, b) => b.sold - a.sold),
       bestSellingProducts: bestSelling.map(mapVariant).sort((a, b) => b.sold - a.sold),
@@ -91,8 +108,11 @@ export class HomeService implements IHomeService {
         id: b.id,
         name: b.name,
         slug: b.slug,
-        logo: b.logo?.url || null,
-        banner: b.banner?.url || null
+        description: b.description || null,
+        logo: b.logo ? { id: b.logo.id, url: b.logo.url } : null,
+        banner: b.banner ? { id: b.banner.id, url: b.banner.url } : null,
+        createdAt: b.createdAt,
+        updatedAt: b.updatedAt
       }))
     };
   }
