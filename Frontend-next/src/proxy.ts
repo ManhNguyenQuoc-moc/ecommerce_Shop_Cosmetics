@@ -30,15 +30,15 @@ export function proxy(request: NextRequest) {
 
         if (user.role !== "ADMIN") {
           console.log("Proxy Check - Access Denied (Not ADMIN)");
-          return NextResponse.redirect(new URL("/login", request.url));
+     
         }
       } else {
         console.log("Proxy Check - No user info cookie");
-        return NextResponse.redirect(new URL("/login", request.url));
+  
       }
     } catch (error) {
       console.error("Proxy role check error:", error);
-      return NextResponse.redirect(new URL("/login", request.url));
+
     }
   }
 

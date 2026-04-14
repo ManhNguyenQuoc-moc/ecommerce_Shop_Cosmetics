@@ -34,7 +34,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const [pageSize, setPageSize] = useState(6);
   const [filters, setFilters] = useState({ search: "", role: "all", status: "all" });
 
-  const { users, total, isLoading, mutate } = useUsers(page, pageSize, filters);
+  const { users, total, isLoading: isInitialLoading, isValidating, mutate } = useUsers(page, pageSize, filters);
   const { trigger: updateStatusAction } = useUpdateUserStatus();
   const { trigger: updateRoleAction } = useUpdateUserRole();
 
@@ -75,6 +75,8 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
       showNotificationError(errorMsg);
     }
   };
+
+  const isLoading = isInitialLoading || isValidating;
 
   return (
     <UserContext.Provider

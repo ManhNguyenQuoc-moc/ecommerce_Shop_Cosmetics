@@ -1,7 +1,4 @@
 "use client";
-
-import React from "react";
-
 export default function AdminDashboardLoading() {
   return (
     <div className="flex flex-col items-center justify-center min-h-[400px] w-full gap-4 animate-fade-in">

@@ -1,6 +1,4 @@
-import React from "react";
-import POTable from "./components/POTable";
-import POFilters from "./components/POFilters";
+
 import POHeader from "./components/POHeader";
 import { Suspense } from "react";
 import PurchasesClient from "./PurchasesClient";

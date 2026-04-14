@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import BrandTable from "./components/BrandTable";
 import BrandFilters from "./components/BrandFilters";
 import AddBrandModal from "./components/AddBrandModal";
@@ -27,6 +27,7 @@ export default function SuppliersClient() {
 
   return (
     <div className="admin-card p-6">
+      
       <BrandFilters onAdd={handleOpenAddModal} onSearch={setSearchTerm} />
       <BrandTable onEdit={handleOpenEditModal} searchTerm={searchTerm} />
       

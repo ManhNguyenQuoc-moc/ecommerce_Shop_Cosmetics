@@ -1,14 +1,12 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
-import { Upload } from "antd";
-import { Image as ImageIcon, Link as LinkIcon, Mail, Phone, MapPin, Info, Upload as UploadIcon, X } from "lucide-react";
+import { useEffect, useState } from 'react';
+import { Image as ImageIcon, Link as  Mail, Phone, MapPin, Info, Upload as UploadIcon, X } from "lucide-react";
 import SWTModal from "@/src/@core/component/AntD/SWTModal";
 import SWTForm from "@/src/@core/component/AntD/SWTForm";
 import SWTFormItem from "@/src/@core/component/AntD/SWTFormItem";
 import SWTInput, { SWTInputTextArea } from "@/src/@core/component/AntD/SWTInput";
 import SWTUpload from "@/src/@core/component/AntD/SWTUpload";
-import SWTButton from "@/src/@core/component/AntD/SWTButton";
 import { useCreateBrand, useUpdateBrand } from "@/src/hooks/admin/brand.hook";
 import { uploadFileToCloudinary as uploadImage } from "@/src/services/admin/upload.service";
 import { showNotificationError, showNotificationSuccess } from "@/src/@core/utils/message";

@@ -1,6 +1,5 @@
 "use client";
 import SWTBreadcrumb from "@/src/@core/component/AntD/SWTBreadcrumb";
-import SWTInput from "@/src/@core/component/AntD/SWTInput";
 import { Award, Info } from "lucide-react";
 import SWTTooltip from "@/src/@core/component/AntD/SWTTooltip";
 import RewardsClient from "./RewardsClient";

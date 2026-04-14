@@ -13,7 +13,7 @@ export const useUsers = (page: number = 1, pageSize: number = 6, filters: any = 
     ...filters
   });
 
-  const { data, isLoading, error, mutate } = useFetchSWR<PaginationResponse<UserProfileDTO>>(
+  const { data, isLoading, isValidating, error, mutate } = useFetchSWR<PaginationResponse<UserProfileDTO>>(
     `${USER_API_ENDPOINT}${query}`,
     () => get(`${USER_API_ENDPOINT}${query}`)
   );
@@ -22,6 +22,7 @@ export const useUsers = (page: number = 1, pageSize: number = 6, filters: any = 
     users: (data as PaginationResponse<UserProfileDTO>)?.data || [],
     total: data?.total || 0,
     isLoading,
+    isValidating,
     isError: error,
     mutate
   };

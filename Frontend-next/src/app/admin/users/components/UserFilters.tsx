@@ -61,10 +61,9 @@ export default function UserFilters() {
               onChange={(val) => handleFilterChange('role', val)}
               options={[
                 { label: "Tất cả", value: "all" },
-                { label: "Super Admin", value: "super_admin" },
-                { label: "Quản lý", value: "manager" },
-                { label: "Nhân viên", value: "staff" },
-                { label: "Khách hàng", value: "customer" }
+                { label: "Quản trị viên", value: "ADMIN" },
+                { label: "Nhân viên", value: "STAFF" },
+                { label: "Khách hàng", value: "CUSTOMER" }
               ]}
             />
             <SWTSelect 
@@ -74,8 +73,8 @@ export default function UserFilters() {
               onChange={(val) => handleFilterChange('status', val)}
               options={[
                 { label: "Tất cả", value: "all" },
-                { label: "Hoạt động", value: "active" },
-                { label: "Khóa", value: "banned" }
+                { label: "Hoạt động", value: "ACTIVE" },
+                { label: "Khóa", value: "BANNED" }
               ]}
             />
           </div>

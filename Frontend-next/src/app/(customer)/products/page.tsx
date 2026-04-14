@@ -1,4 +1,4 @@
-import ProductsClient from "./ProductsClient/page";
+import ProductsClient from "./ProductsClient";
 import { getProducts } from "@/src/services/customer/product.service";
 import { getServerBrands, getServerCategories } from "@/src/services/customer/customer.service";
 

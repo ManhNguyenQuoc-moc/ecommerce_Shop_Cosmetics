@@ -10,7 +10,7 @@ import { useEffect } from "react";
 import { useAuth } from "@/src/context/AuthContext";
 
 export const useCart = () => {
-  const { items, isLoading, isMerging, setItems, setLoading, setIsMerging, reset } = useCartStore();
+  const { items, isLoading, isMerging, hasSynced, setItems, setLoading, setIsMerging, setHasSynced, reset } = useCartStore();
   const { currentUser: user } = useAuth();
   const token = authStorage.getToken();
 
@@ -24,21 +24,23 @@ export const useCart = () => {
   useEffect(() => {
     if (remoteData?.items && user && !isMerging) {
       setItems(remoteData.items);
+      setHasSynced(true);
     }
-  }, [remoteData, user?.id, setItems, isMerging]);
+  }, [remoteData, user?.id, setItems, isMerging, setHasSynced]);
 
   // 3. Auto-sync for Social Login (Redirect return)
   // Detect transition from No User -> User
   useEffect(() => {
     const guestItems = items;
-    if (user?.id && guestItems.length > 0 && !isMerging) {
+    if (user?.id && items.length > 0 && !isMerging && !hasSynced) {
       // If we have items and just logged in, but haven't synced yet
       // We check if the current items are likely guest items (since isMerging is false)
       // and we trigger a sync. This covers the social login redirect case.
       const performAutoSync = async () => {
         setIsMerging(true);
         try {
-            await syncCart(user.id, guestItems);
+            await syncCart(user.id, items);
+            setHasSynced(true); // Mark as synced for this session
         } finally {
             setIsMerging(false);
         }
@@ -69,12 +71,26 @@ export const useCart = () => {
 
     // B. Logic for Logged-in 
     if (user?.id) {
+      const previousItems = [...items];
+      // Optimistic Update: Add locally first
+      if (exist) {
+        setItems(items.map((i) =>
+          i.variantId === item.variantId
+            ? { ...i, quantity: i.quantity + item.quantity }
+            : i
+        ));
+      } else {
+        setItems([...items, { ...item, id: item.id || `temp-${Date.now()}` }]);
+      }
+
       try {
         const data = await cartService.addItemAsync(user.id, item.variantId, item.quantity);
         setItems(data.items);
-        mutate();
+        mutate(data, false);
         showNotificationSuccess(`Đã thêm ${item.productName} vào giỏ hàng`);
       } catch (err: any) {
+        // Rollback on error
+        setItems(previousItems);
         showNotificationError(err.message || "Không thể thêm vào giỏ hàng");
       }
       return;
@@ -107,11 +123,17 @@ export const useCart = () => {
     }
 
     if (user?.id) {
+      const previousItems = [...items];
+      // Optimistic Update: Update quantity locally
+      setItems(items.map((i) => (i.id === id ? { ...i, quantity } : i)));
+
       try {
         const data = await cartService.updateQuantityAsync(user.id, id, quantity);
         setItems(data.items);
-        mutate();
+        mutate(data, false);
       } catch (err: any) {
+        // Rollback on error
+        setItems(previousItems);
         showNotificationError(err.message || "Cập nhật số lượng thất bại");
       }
       return;
@@ -122,12 +144,18 @@ export const useCart = () => {
 
   const removeItem = async (id: string) => {
     if (user?.id) {
+      const previousItems = [...items];
+      // Optimistic Update: Remove locally first
+      setItems(items.filter((i) => i.id !== id));
+
       try {
         const data = await cartService.removeItemAsync(user.id, id);
         setItems(data.items);
-        mutate();
+        mutate(data, false);
         showNotificationSuccess("Đã xóa sản phẩm khỏi giỏ hàng");
       } catch (err) {
+        // Rollback on error
+        setItems(previousItems);
         showNotificationError("Xóa sản phẩm thất bại");
       }
       return;

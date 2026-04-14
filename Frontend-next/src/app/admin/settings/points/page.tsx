@@ -1,4 +1,4 @@
-import React from "react";
+
 import PointsSettingClient from "./PointsSettingClient";
 import type { Metadata } from 'next';
 

@@ -2,12 +2,11 @@
 
 import React from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { Checkbox, Radio } from "antd";
 import type { BreadcrumbProps } from "antd";
 
 import { useFetchSWR } from "@/src/@core/hooks/useFetchSWR";
 import SWTBreadcrumb from "@/src/@core/component/AntD/SWTBreadcrumb";
-import ProductListSection from "../components/ProductListSection";
+import ProductListSection from "./components/ProductListSection";
 
 import { PaginationResponse } from "@/src/@core/http/models/PaginationResponse";
 import { ProductListItemDto } from "@/src/services/models/product/output.dto";

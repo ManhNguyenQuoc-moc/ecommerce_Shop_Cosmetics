@@ -1,5 +1,5 @@
 import { getProductDetail } from "@/src/services/customer/product.service";
-import ProductDetailUI from "./ProductDetailUI";
+import ProductDetailUI from "./components/ProductDetailUI";
 
 type Props = {
   params: Promise<{
@@ -15,4 +15,4 @@ async function ProductDataWrapper({ id }: { id: string }) {
 export default async function ProductPage({ params }: Props) {
   const { id } = await params;
   return <ProductDataWrapper id={id} />;
-}
+}
