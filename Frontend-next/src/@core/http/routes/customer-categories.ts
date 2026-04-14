@@ -1,3 +1,5 @@
+import { CategoryResponseDto } from "@/src/services/models/category/output.dto";
+
 export type Category = {
   name: string;
   slug: string;
@@ -5,10 +7,7 @@ export type Category = {
   children?: Category[];
 };
 
-/**
- * Hàm Helper để map dữ liệu phẳng từ API vào cấu trúc Tree dựa trên CategoryGroup thực tế
- */
-export const getDynamicCategories = (apiCategories: any[]): Category[] => {
+export const getDynamicCategories = (apiCategories: CategoryResponseDto[]): Category[] => {
   const grouped: Category[] = [
     { name: "Trang chủ", slug: "home", path: "/" },
     { name: "Sản phẩm", slug: "san-pham", path: "/products" },
@@ -38,8 +37,6 @@ export const getDynamicCategories = (apiCategories: any[]): Category[] => {
       }
       groupMap.get(group.id)?.children?.push(newNode);
     } else {
-      // Nếu không có nhóm, có thể cho vào một nhóm mặc định hoặc để ở cấp ngoài
-      // Ở đây tôi giữ lại logic phân loại vào nhóm đầu tiên hoặc bạn có thể bỏ qua
       if (!groupMap.has('others')) {
          groupMap.set('others', {
            name: "Khác",
@@ -52,7 +49,6 @@ export const getDynamicCategories = (apiCategories: any[]): Category[] => {
     }
   });
 
-  // Chuyển Map thành mảng và thêm vào grouped
   const activeGroups = Array.from(groupMap.values()).filter(g => g.children && g.children.length > 0);
   
   const order = ["Chăm sóc da", "Trang điểm", "Chăm sóc tóc", "Chăm sóc cơ thể", "Nước hoa"];

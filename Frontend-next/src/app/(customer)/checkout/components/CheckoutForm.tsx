@@ -14,7 +14,7 @@ import {
   EnvironmentOutlined,
   MailOutlined,
 } from "@ant-design/icons";
-import { Address } from "@/src/@core/type/checkout";
+import { Address } from "@/src/services/models/checkout/checkout";
 
 export default function CheckoutForm() {
   const [form] = Form.useForm();

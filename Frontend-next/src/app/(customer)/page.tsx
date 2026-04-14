@@ -1,5 +1,5 @@
 import HomePage from "./home/HomePage";
-import { getHomeData } from "@/src/services/customer/home";
+import { getHomeData } from "@/src/services/customer/home/home.service";
 
 export default async function Page() {
 

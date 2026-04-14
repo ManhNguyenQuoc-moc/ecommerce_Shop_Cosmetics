@@ -19,9 +19,8 @@ export default function AdminAppHeader() {
   const { currentUser, logout } = useAuth();
   const { isDark, toggleTheme } = useTheme();
 
-  
   // Find current active route name
-  const currentNav = adminNavItems.find(item => 
+  const currentNav = adminNavItems.find(item =>
     pathname === item.path || (pathname.startsWith(item.path) && item.path !== "/admin")
   );
   const title = currentNav ? currentNav.name : "Admin Dashboard";
@@ -59,7 +58,7 @@ export default function AdminAppHeader() {
 
   return (
     <header className="h-[90px] shrink-0 bg-bg-card backdrop-blur-md border-b border-border-default dark:border-border-brand flex items-center justify-between px-4 md:px-8 sticky top-0 z-40 shadow-sm transition-colors duration-300">
-      
+
       {/* Left: Hamburger & Dynamic Title */}
       <div className="flex items-center gap-3 md:gap-4">
         <SWTIconButton
@@ -78,8 +77,8 @@ export default function AdminAppHeader() {
       {/* Center/Right: Search */}
       <div className="flex-1 max-w-md px-4 md:px-8 hidden md:block">
         <div className="relative group">
-          <SWTInputSearch 
-            placeholder="Tìm kiếm mã đơn hàng, sản phẩm..." 
+          <SWTInputSearch
+            placeholder="Tìm kiếm mã đơn hàng, sản phẩm..."
             className="w-full !rounded-xl !bg-bg-muted !border-border-default dark:!border-border-brand/20 text-text-main placeholder:text-text-muted transition-colors"
           />
         </div>
@@ -87,7 +86,7 @@ export default function AdminAppHeader() {
 
       {/* Right Actions */}
       <div className="flex items-center gap-2 md:gap-4">
-        
+
         {/* Theme Toggle */}
         <SWTIconButton
           onClick={toggleTheme}
@@ -108,9 +107,9 @@ export default function AdminAppHeader() {
         {/* Profile Dropdown Trigger */}
         <Dropdown menu={accountMenu} trigger={['click']} placement="bottomRight">
           <div className="flex items-center gap-3 cursor-pointer p-1.5 pr-2 md:pr-3 rounded-xl hover:bg-bg-muted dark:hover:bg-white/5 border border-transparent dark:hover:border-border-brand transition-all group">
-            <SWTAvatar 
-              size={36} 
-              src={currentUser?.avatar} 
+            <SWTAvatar
+              size={36}
+              src={currentUser?.avatar}
               className="border-border-default dark:border-border-brand shadow-sm"
             />
             <div className="hidden sm:flex flex-col">

@@ -2,8 +2,16 @@
 
 import React from "react";
 import SWTTabs from "@/src/@core/component/AntD/SWTTabs";
-import SimpleDashboard from "./components/dashboard/SimpleDashboard";
-import AdvancedDashboard from "./components/dashboard/AdvancedDashboard";
+import dynamic from "next/dynamic";
+import AdminDashboardLoading from "./components/AdminDashboardLoading";
+
+const SimpleDashboard = dynamic(() => import("./components/dashboard/SimpleDashboard"), {
+  loading: () => <AdminDashboardLoading />,
+});
+
+const AdvancedDashboard = dynamic(() => import("./components/dashboard/AdvancedDashboard"), {
+  loading: () => <AdminDashboardLoading />,
+});
 
 export default function DashboardClient() {
   const tabsItems = [

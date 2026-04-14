@@ -1,24 +1,17 @@
 "use client";
 import Image from "next/image";
 import { Carousel } from "antd";
-import SWTCard from "@/src/@core/component/AntD/SWTCard";
 import { LayoutGrid } from "lucide-react";
-
-type Category = {
-  name: string;
-  image: string;
-  slug?: string;
-  id?: string;
-};
+import  {CategoryResponseDto}  from "@/src/services/models/category/output.dto";
 
 type Props = {
-  categories: Category[];
+  categories: CategoryResponseDto[];
   loading?: boolean;
 };
 
 export default function CategorySection({ categories, loading }: Props) {
   const chunkSize = 6;
-  const grouped: Category[][] = [];
+  const grouped: CategoryResponseDto[][] = [];
 
   for (let i = 0; i < categories.length; i += chunkSize) {
     let group = categories.slice(i, i + chunkSize);
@@ -60,17 +53,12 @@ export default function CategorySection({ categories, loading }: Props) {
                   "
                   >
                     <div className="relative h-[140px]">
-                      <Image
-                        src={item.image}
+                     <Image
+                        src={item.image?.url || "/images/placeholder.png"} 
                         alt={item.name}
                         fill
                         sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 16vw"
-                        className="
-                        object-cover
-                        group-hover:scale-110
-                        transition
-                        duration-500
-                      "
+                        className="object-cover group-hover:scale-110 transition duration-500"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
                     </div>

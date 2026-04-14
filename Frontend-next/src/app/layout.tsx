@@ -1,22 +1,26 @@
 import { Be_Vietnam_Pro } from "next/font/google";
-import { Metadata } from "next";
+import { Metadata, Viewport } from "next";
 import AppProviders from "../@core/provider/AppProviders";
 import "@/public/css/globals.css";
 
-// Configure Be Vietnam Pro using next/font/google for optimal performance
 const beVietnamPro = Be_Vietnam_Pro({
-  weight: ["300", "400", "500", "700"],
+  weight: ["300", "400", "500", "600", "700"], // Thêm 600 nếu Antd cần SemiBold
   subsets: ["latin", "vietnamese"],
   display: "swap",
   variable: "--font-be-vietnam-pro",
 });
 
 export const metadata: Metadata = {
-  title: "SHOP COSMETICS",
-  description: "Ecommerce Shop Cosmetics Premium",
+  title: "SWT COSMETICS | Premium Shop",
+  description: "Ecommerce Shop Cosmetics Premium - Chăm sóc vẻ đẹp của bạn",
   icons: {
     icon: "/images/main/logo-app.png",
   },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default function RootLayout({
@@ -25,25 +29,27 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="vi" suppressHydrationWarning className={`${beVietnamPro.variable}`}>
+    <html lang="vi" suppressHydrationWarning className={beVietnamPro.variable}>
       <head>
         <script
           dangerouslySetInnerHTML={{
             __html: `
-              try {
-                const isAdmin = window.location.pathname.startsWith('/admin');
-                const isDark = localStorage.getItem('admin-theme') === 'dark' || (!localStorage.getItem('admin-theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
-                if (isAdmin && isDark) {
-                  document.documentElement.classList.add('dark');
-                } else {
-                  document.documentElement.classList.remove('dark');
-                }
-              } catch (_) {}
+              (function() {
+                try {
+                  const theme = localStorage.getItem('admin-theme');
+                  const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                  if (theme === 'dark' || (!theme && supportDarkMode)) {
+                    document.documentElement.classList.add('dark');
+                  } else {
+                    document.documentElement.classList.remove('dark');
+                  }
+                } catch (e) {}
+              })();
             `
           }}
         />
       </head>
-      <body className={`${beVietnamPro.className} antialiased`}>
+      <body className={`${beVietnamPro.className} antialiased text-slate-900`}>
         <AppProviders>
           {children}
         </AppProviders>

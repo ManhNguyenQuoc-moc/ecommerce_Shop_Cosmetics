@@ -1,10 +1,7 @@
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
+import { useTheme } from '@/src/context/ThemeContext';
 
-interface PieChartData {
-  name: string;
-  value: number;
-}
-
+type PieChartData = Record<string, any>;
 interface RechartsPieChartProps {
   data: PieChartData[];
   colors?: string[];
@@ -14,6 +11,8 @@ interface RechartsPieChartProps {
 const DEFAULT_COLORS = ['#00f0ff', '#ff007f', '#b026ff', '#fcd34d', '#34d399', '#f87171']; // Neon palette
 
 export default function RechartsPieChart({ data, colors = DEFAULT_COLORS, height = 300 }: RechartsPieChartProps) {
+  const { isDark } = useTheme();
+
   return (
     <div style={{ width: '100%', height }}>
       <ResponsiveContainer>
@@ -33,8 +32,14 @@ export default function RechartsPieChart({ data, colors = DEFAULT_COLORS, height
             ))}
           </Pie>
           <Tooltip 
-            contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)' }}
-            itemStyle={{ color: '#1E293B', fontWeight: 'bold' }}
+            contentStyle={{ 
+              borderRadius: '12px', 
+              border: 'none', 
+              boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)',
+              backgroundColor: isDark ? '#0F172A' : '#FFFFFF',
+              color: isDark ? '#F1F5F9' : '#1E293B'
+            }}
+            itemStyle={{ color: isDark ? '#F1F5F9' : '#1E293B', fontWeight: 'bold' }}
           />
           <Legend verticalAlign="bottom" height={36} iconType="circle" />
         </PieChart>

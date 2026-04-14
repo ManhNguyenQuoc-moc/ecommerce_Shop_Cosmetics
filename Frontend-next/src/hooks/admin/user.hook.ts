@@ -2,7 +2,7 @@ import { get, post, put, patch } from "@/src/services/api";
 import { useFetchSWR } from "@/src/@core/hooks/useFetchSWR";
 import useSWRMutation from "swr/mutation";
 import { buildQueryString } from "@/src/@core/utils/query.util";
-import { PaginationResponse } from "@/src/services/models/common/PaginationResponse";
+import { PaginationResponse } from "@/src/@core/http/models/PaginationResponse";
 
 export const USER_API_ENDPOINT = "/users";
 

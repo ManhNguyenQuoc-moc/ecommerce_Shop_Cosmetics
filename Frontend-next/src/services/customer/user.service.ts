@@ -1,5 +1,5 @@
 import { get, patch } from "../api";
-import { CustomerInfo } from "@/src/@core/type/checkout"; 
+import { CustomerInfo } from "@/src/services/models/checkout/checkout"; 
 import {UserProfileDTO} from "@/src/services/models/user/output.dto"
 import {UpdateUserProfileDTO} from "@/src/services/models/user/input.dto"
 

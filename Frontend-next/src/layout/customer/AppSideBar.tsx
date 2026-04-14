@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { X, LayoutGrid } from "lucide-react";
 import SWTIconButton from "@/src/@core/component/SWTIconButton";
-import { Category } from "@/src/@core/type/category";
+import { Category } from "@/src/services/models/category/category";
 import { BrandResponseDto } from "@/src/services/customer/customer.service";
 import { Sparkles } from "lucide-react";
 
