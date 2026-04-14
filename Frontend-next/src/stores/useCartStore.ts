@@ -10,10 +10,12 @@ type CartState = {
   items: CartItem[];
   isLoading: boolean;
   isMerging: boolean;
+  hasSynced: boolean;
 
   setItems: (items: CartItem[]) => void;
   setLoading: (loading: boolean) => void;
   setIsMerging: (isMerging: boolean) => void;
+  setHasSynced: (hasSynced: boolean) => void;
   reset: () => void;
 };
 
@@ -23,11 +25,13 @@ export const useCartStore = create<CartState>()(
       items: [],
       isLoading: false,
       isMerging: false,
+      hasSynced: false,
 
       setItems: (items) => set({ items }),
       setLoading: (loading) => set({ isLoading: loading }),
       setIsMerging: (isMerging) => set({ isMerging }),
-      reset: () => set({ items: [], isLoading: false, isMerging: false }),
+      setHasSynced: (hasSynced) => set({ hasSynced }),
+      reset: () => set({ items: [], isLoading: false, isMerging: false, hasSynced: false }),
     }),
     {
       name: "cart-storage",

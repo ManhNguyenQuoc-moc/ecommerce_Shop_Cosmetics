@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect, Suspense } from "react";
-import AdminLoading from "./loading";
+import AdminLoading from "../../layout/admin/Adminloading";
 import { SidebarProvider, useSidebar } from "@/src/context/SidebarContext";
 import AdminHeader from "@/src/layout/admin/AdminAppHeader";
 import AdminAppSideBar from "@/src/layout/admin/AdminAppSideBar";

@@ -1,6 +1,5 @@
 "use client";
 
-import React from 'react';
 import { Plus, Filter } from "lucide-react";
 import SWTTooltip from "@/src/@core/component/AntD/SWTTooltip";
 import { SWTInputSearch } from "@/src/@core/component/AntD/SWTInput";

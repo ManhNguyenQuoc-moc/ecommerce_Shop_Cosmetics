@@ -1,6 +1,6 @@
 export default function Loading() {
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm z-50 transition-all duration-300">
+    <div className="fixed inset-0 flex items-center justify-center bg-slate-900 backdrop-blur-sm z-50 transition-all duration-300">
       <div className="flex flex-col items-center gap-4 p-8 rounded-2xl shadow-2xl bg-bg-card border border-border-default dark:border-border-brand/20">
         <div className="relative w-14 h-14">
           <div className="absolute inset-0 border-[5px] border-border-default dark:border-border-brand/10 rounded-full"></div>

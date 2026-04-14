@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useTransition } from 'react';
+import { useTransition } from 'react';
 import ProductFilters from "./components/ProductFilters";
 import ProductTable from "./components/ProductTable";
 import SWTTabs from "@/src/@core/component/AntD/SWTTabs";
