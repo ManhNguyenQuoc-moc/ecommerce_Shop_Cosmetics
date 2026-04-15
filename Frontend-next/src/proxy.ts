@@ -26,7 +26,7 @@ export function proxy(request: NextRequest) {
     }
   }
 
-  if (user?.is_banned && pathname !== "/login") {
+  if (user?.is_banned && isProtected && pathname !== "/login") {
      const url = new URL("/login", request.url);
      url.searchParams.set("error", "banned");
      const response = NextResponse.redirect(url);
@@ -45,6 +45,7 @@ export function proxy(request: NextRequest) {
 // Giữ nguyên config matcher
 export const config = {
   matcher: [
+    "/",
     "/profile/:path*",
     "/admin/:path*",
     "/wishlist/:path*",

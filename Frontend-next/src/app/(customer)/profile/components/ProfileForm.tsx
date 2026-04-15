@@ -15,6 +15,7 @@ import {
   PlusOutlined,
   CheckCircleFilled,
   GiftOutlined,
+  LockOutlined,
 } from "@ant-design/icons";
 
 import SWTCard from "@/src/@core/component/AntD/SWTCard";
@@ -33,6 +34,7 @@ import { UserProfileDTO } from "@/src/services/admin/user/models/output.model.dt
 import ProfileAvatarUpload from "./ProfileAvatarUpload";
 import { supabase } from "@/src/@core/utils/supabase";
 import { useAuth } from "@/src/context/AuthContext";
+import Link from "next/link";
 
 type Props = {
   initialData: UserProfileDTO;
@@ -169,15 +171,27 @@ export default function ProfileForm({ initialData }: Props) {
         <div className="absolute bottom-2 right-12 w-32 h-32 bg-white/10 rounded-full blur-3xl" />
         <div className="absolute top-4 right-4 flex gap-2">
           {!isEdit ? (
-            <SWTButton
-              type="text"
-              size="sm"
-              onClick={handleEdit}
-              startIcon={<EditOutlined className="!text-brand-500" />}
-              className="!flex !items-center !gap-1.5 !bg-bg-card/80 !backdrop-blur !text-text-main hover:!bg-bg-card !text-sm !font-bold !px-3 !py-1.5 !rounded-full !shadow !transition-all !h-[40px] !border !border-border-default"
-            >
-              Chỉnh sửa
-            </SWTButton>
+            <>
+              <SWTButton
+                type="text"
+                size="sm"
+                onClick={handleEdit}
+                startIcon={<EditOutlined className="!text-brand-500" />}
+                className="!flex !items-center !gap-1.5 !bg-bg-card/80 !backdrop-blur !text-text-main hover:!bg-bg-card !text-sm !font-bold !px-3 !py-1.5 !rounded-full !shadow !transition-all !h-[40px] !border !border-border-default"
+              >
+                Chỉnh sửa
+              </SWTButton>
+              <Link href="/profile/change-password">
+                <SWTButton
+                  type="text"
+                  size="sm"
+                  startIcon={<LockOutlined className="!text-brand-500" />}
+                  className="!flex !items-center !gap-1.5 !bg-bg-card/80 !backdrop-blur !text-text-main hover:!bg-bg-card !text-sm !font-bold !px-3 !py-1.5 !rounded-full !shadow !transition-all !h-[40px] !border !border-border-default"
+                >
+                  Đổi mật khẩu
+                </SWTButton>
+              </Link>
+            </>
           ) : (
             <>
               <SWTButton
