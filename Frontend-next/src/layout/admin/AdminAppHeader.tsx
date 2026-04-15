@@ -1,6 +1,6 @@
 "use client";
 
-import { Bell, Menu, ChevronDown, User, LogOut, Sun, Moon } from "lucide-react";
+import { Bell, Menu, ChevronDown, User, LogOut, Sun, Moon, ShoppingBag } from "lucide-react";
 import SWTIconButton from "@/src/@core/component/SWTIconButton";
 import { usePathname, useRouter } from "next/navigation";
 import { adminNavItems } from "@/src/@core/http/routes/admin-nav";
@@ -87,6 +87,14 @@ export default function AdminAppHeader() {
       {/* Right Actions */}
       <div className="flex items-center gap-2 md:gap-4">
 
+        {/* View Store */}
+        <SWTIconButton
+          onClick={() => router.push("/")}
+          icon={<ShoppingBag size={20} />}
+          className="p-2.5 rounded-xl text-text-sub hover:bg-bg-muted dark:hover:bg-white/5 dark:hover:text-white transition-colors"
+          tooltip="Xem trang chủ cửa hàng"
+        />
+
         {/* Theme Toggle */}
         <SWTIconButton
           onClick={toggleTheme}
@@ -95,12 +103,14 @@ export default function AdminAppHeader() {
         />
 
         {/* Notifications */}
-        <SWTIconButton
-          icon={<Bell size={20} />}
-          className="relative p-2.5 rounded-xl text-text-sub hover:bg-bg-muted dark:hover:bg-white/5 dark:hover:text-white transition-colors"
-        />
-        {/* Red Ping Dot */}
-        <span className="absolute top-2 right-2.5 w-2.5 h-2.5 bg-brand-500 rounded-full border-2 border-bg-base shadow-sm" />
+        <div className="relative">
+          <SWTIconButton
+            icon={<Bell size={20} />}
+            className="p-2.5 rounded-xl text-text-sub hover:bg-bg-muted dark:hover:bg-white/5 dark:hover:text-white transition-colors"
+          />
+          {/* Red Ping Dot */}
+          <span className="absolute top-2 right-2.5 w-2 h-2 bg-brand-500 rounded-full border-2 border-bg-card shadow-sm" />
+        </div>
 
         <div className="w-px h-8 bg-border-default mx-1 md:mx-2" />
 

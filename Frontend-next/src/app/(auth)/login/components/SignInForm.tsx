@@ -124,6 +124,9 @@ export default function SignInForm() {
   const handleGoogleLogin = async () => {
     try {
       setIsLoading(true);
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("is_logging_in", "true");
+      }
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: { redirectTo: `${window.location.origin}/` } // Redirect to root, OAuth callback uses hash fragment
@@ -138,6 +141,9 @@ export default function SignInForm() {
   const handleFacebookLogin = async () => {
     try {
       setIsLoading(true);
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("is_logging_in", "true");
+      }
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'facebook',
         options: { redirectTo: `${window.location.origin}/` } // Redirect to root, OAuth callback uses hash fragment

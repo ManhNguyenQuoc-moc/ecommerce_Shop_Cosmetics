@@ -69,25 +69,38 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setCurrentUser(authUser);
         
         // Redirect to appropriate page after successful authentication
-        if (window.location.pathname === "/login" && !window.location.search.includes("error=banned")) {
-          // User was on login page - redirect based on role
-          profile.role === "ADMIN" ? router.push("/admin") : router.push("/");
-        } else if (profile.role === "ADMIN" && !window.location.pathname.startsWith("/admin")) {
-          // OAuth user or other flow - if admin but not on admin page, redirect there
+        const isLoggingIn = typeof window !== "undefined" && sessionStorage.getItem("is_logging_in") === "true";
+        const isOnLoginPage = window.location.pathname === "/login" && !window.location.search.includes("error=banned");
+
+        if ((isOnLoginPage || isLoggingIn) && profile.role === "ADMIN") {
+          // One-time redirect for ADMIN after login
+          sessionStorage.removeItem("is_logging_in");
           router.push("/admin");
+        } else if (isOnLoginPage) {
+          // Regular user on login page
+          router.push("/");
         }
       }
     } catch (err: any) {
-      // Check if this is a banned account error (only relevant for OAuth users)
+      // Check if this is a banned account error
       const isBannedError = err?.status === 403 || err?.message?.includes("bị khóa") || err?.message?.includes("khóa");
       
       if (isBannedError) {
-        // Banned account - sign out and redirect to login with error
+        console.error("[AuthContext] Banned account detected during sync");
         await supabase.auth.signOut();
+        
         authStorage.logout();
         resetUserStores();
-        if (typeof window !== "undefined") {
-          window.location.href = "/login?error=banned";
+        
+        // Show notification on current page
+        const { showNotificationError } = await import("@/src/@core/utils/message");
+        showNotificationError("Tài khoản của bạn đã bị khóa. Vui lòng liên hệ Admin để được hỗ trợ.");
+
+        const protectedRoutes = ["/profile", "/admin", "/wishlist"];
+        const isProtected = protectedRoutes.some((route) => window.location.pathname.startsWith(route));
+        
+        if (isProtected) {
+          router.push("/login");
         }
         return;
       }
