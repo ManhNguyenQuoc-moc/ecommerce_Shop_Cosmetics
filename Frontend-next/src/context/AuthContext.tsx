@@ -83,11 +83,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
     } catch (err: any) {
       // Check if this is a banned account error
-      const isBannedError = err?.status === 403 || err?.message?.includes("bị khóa") || err?.message?.includes("khóa") || profile?.is_banned;
+      const isBannedError = err?.status === 403 || err?.message?.includes("bị khóa") || err?.message?.includes("khóa");
       
       if (isBannedError) {
         console.error("[AuthContext] Banned account detected during sync");
         await supabase.auth.signOut();
+        
         authStorage.logout();
         resetUserStores();
         
@@ -95,12 +96,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         const { showNotificationError } = await import("@/src/@core/utils/message");
         showNotificationError("Tài khoản của bạn đã bị khóa. Vui lòng liên hệ Admin để được hỗ trợ.");
 
-        // Only redirect to login if we are on a protected page
         const protectedRoutes = ["/profile", "/admin", "/wishlist"];
         const isProtected = protectedRoutes.some((route) => window.location.pathname.startsWith(route));
         
         if (isProtected) {
-          router.push("/login?error=banned");
+          router.push("/login");
         }
         return;
       }
