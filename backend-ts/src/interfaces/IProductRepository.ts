@@ -95,4 +95,8 @@ export interface IProductRepository {
   updateVariant(id: string, data: UpdateVariantDTO): Promise<ProductVariant>;
   softDeleteVariants(ids: string[]): Promise<void>;
   restoreVariants(ids: string[]): Promise<void>;
+  
+  // Related & Brand Products
+  findRelatedByCategory(categoryId: string, excludeProductId: string, limit: number): Promise<Product[]>;
+  findByBrand(brandId: string, excludeProductId: string | null, limit: number): Promise<Product[]>;
 }

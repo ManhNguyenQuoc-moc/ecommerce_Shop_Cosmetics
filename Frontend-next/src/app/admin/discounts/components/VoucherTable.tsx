@@ -6,7 +6,7 @@ import { Edit } from "lucide-react";
 import SWTIconButton from "@/src/@core/component/SWTIconButton";
 import { VoucherResponseDto } from "@/src/services/models/voucher/output.dto";
 
-import { useGetVouchers, useDeleteVoucher } from "@/src/hooks/admin/voucher.hook";
+import { useGetVouchers, useDeleteVoucher } from "@/src/services/admin/user/voucher.hook";
 import { showNotificationSuccess, showNotificationError } from "@/src/@core/utils/message";
 import { Popconfirm, Tag } from "antd";
 import { Trash } from "lucide-react";

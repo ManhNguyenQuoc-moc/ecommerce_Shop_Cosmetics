@@ -167,3 +167,15 @@ export interface VariantDetailDto extends BaseVariantDto {
     createdAt: string;
   }[];
 }
+
+export interface ProductSmallItemDto {
+  id: string;
+  slug: string;
+  name: string;
+  image: string | null;
+  price: number;
+  salePrice: number | null;
+  rating: number | null;
+  sold: number;
+  status: string;
+}

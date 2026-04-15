@@ -1,8 +1,7 @@
 "use client";
-
 import { useState, } from "react";
 import { useSearchParams } from "next/navigation";
-import { ProductDetailDto, ProductDetailVariantDto } from "@/src/services/models/product/output.dto";
+import { ProductDetailDto, ProductSmallItemDto, ProductDetailVariantDto } from "@/src/services/models/product/output.dto";
 import { useFetchSWR } from "@/src/@core/hooks/useFetchSWR";
 import ProductGallery from "./ProductGallery";
 import ProductVariants from "./ProductVariants";
@@ -11,14 +10,16 @@ import ProductQuantity from "./ProductQuantity";
 import ProductTabs from "./ProductTabs";
 import ProductActions from "./ProductActions";
 import ProductSidebar from "./ProductSidebar/ProductSidebar";
-import { getProductDetail } from "@/src/services/customer/product.service";
+import { getProductDetail } from "@/src/services/customer/product/product.service";
 import SWTCard from "@/src/@core/component/AntD/SWTCard";
 
 type Props = {
   product: ProductDetailDto;
+  relatedProducts: ProductSmallItemDto[];
+  brandProducts: ProductSmallItemDto[];
 };
 
-export default function ProductDetailUI({ product }: Props) {
+export default function ProductDetailUI({ product, relatedProducts, brandProducts }: Props) {
 
   const { data, isLoading } = useFetchSWR<ProductDetailDto>(
   ["products", product?.id],
@@ -116,7 +117,11 @@ export default function ProductDetailUI({ product }: Props) {
         </div>
 
         <div className="lg:col-span-3">
-          <ProductSidebar brand={currentProduct.brand ?? { id: '', name: 'N/A' }} />
+          <ProductSidebar 
+            brand={currentProduct.brand ?? { id: '', name: 'N/A' }}
+            relatedProducts={relatedProducts}
+            brandProducts={brandProducts}
+          />
         </div>
       </div>
     </div>

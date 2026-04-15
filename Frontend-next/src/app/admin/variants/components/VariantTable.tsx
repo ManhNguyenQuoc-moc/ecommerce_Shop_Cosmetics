@@ -9,7 +9,7 @@ import { useSearchParams } from "next/navigation";
 import React, { useState, useMemo } from "react";
 import Image from "next/image";
 import { showNotificationSuccess, showNotificationError } from "@/src/@core/utils/message";
-import { softDeleteVariants, restoreVariants, PRODUCT_API_ENDPOINT } from "@/src/services/admin/product.service";
+import { softDeleteVariants, restoreVariants, PRODUCT_API_ENDPOINT } from "@/src/services/admin/product/product.service";
 import { mutate as globalMutate } from "swr";
 import { RotateCcw, Layers, Edit, Eye, Trash2, AlertCircle } from "lucide-react";
 import EditVariantModal from "./EditVariantModal";

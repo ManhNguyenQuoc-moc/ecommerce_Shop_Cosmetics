@@ -16,7 +16,6 @@ export default function ProductDetailSkeleton() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Main Content Skeleton (Left/Center) */}
         <div className="lg:col-span-9 space-y-8">
           <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-4 min-h-[600px]">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">

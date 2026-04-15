@@ -9,7 +9,7 @@ import SWTInputNumber from "@/src/@core/component/AntD/SWTInputNumber";
 import SWTSelect from "@/src/@core/component/AntD/SWTSelect";
 import SWTModal from "@/src/@core/component/AntD/SWTModal";
 import SWTUpload from "@/src/@core/component/AntD/SWTUpload";
-import { updateVariant } from "@/src/services/admin/product.service";
+import { updateVariant } from "@/src/services/admin/product/product.service";
 import { showNotificationError, showNotificationSuccess } from "@/src/@core/utils/message";
 import { uploadFileToCloudinary } from "@/src/services/admin/upload.service";
 import { UpdateVariantInput } from "@/src/services/models/product/input.dto";

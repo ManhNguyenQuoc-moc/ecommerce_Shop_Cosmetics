@@ -3,7 +3,7 @@
 import SWTBreadcrumb from "@/src/@core/component/AntD/SWTBreadcrumb";
 import CartTable from "./CartTable";
 import CartSummary from "./CartSummary";
-import { useCart } from "@/src/hooks/customer/cart.hook";
+import { useCart } from "@/src/services/customer/cart/cart.hook";
 
 export default function CartClient() {
   const { items } = useCart();

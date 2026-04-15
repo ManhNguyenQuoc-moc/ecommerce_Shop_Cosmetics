@@ -10,7 +10,7 @@ import OrderDetailModal from "./OrderDetailModal";
 import SWTTooltip from "@/src/@core/component/AntD/SWTTooltip";
 import Image from "next/image";
 import { Eye, Trash2, RotateCcw, CreditCard, ShoppingBag, Clock, Ticket } from "lucide-react";
-import { cancelOrder } from "@/src/services/customer/order.service";
+import { cancelOrder } from "@/src/services/customer/order/order.service";
 import { showNotificationSuccess, showNotificationError } from "@/src/@core/utils/message";
 
 interface Props {

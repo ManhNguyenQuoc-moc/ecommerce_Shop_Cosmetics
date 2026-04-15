@@ -28,7 +28,7 @@ import SWTBreadcrumb from "@/src/@core/component/AntD/SWTBreadcrumb";
 import useSWTTitle from "@/src/@core/hooks/useSWTTitle";
 import Link from "next/link";
 import SWTButton from "@/src/@core/component/AntD/SWTButton";
-import { useVariant, useVariantBatches } from "@/src/hooks/admin/product.hook";
+import { useVariant, useVariantBatches } from "@/src/services/admin/product/product.hook";
 import Image from "next/image";
 import SWTCard from "@/src/@core/component/AntD/SWTCard";
 import SWTTable from "@/src/@core/component/AntD/SWTTable";

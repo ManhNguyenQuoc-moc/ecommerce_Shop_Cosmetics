@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import FormDetail from "./components/SignInForm";
 import useSWTTitle from "@/src/@core/hooks/useSWTTitle";
 import Link from "next/link";
@@ -43,7 +44,9 @@ export default function SignIn() {
 
         <div className="flex w-full lg:w-1/2 items-center justify-center">
           <div className="w-full">
-            <FormDetail />
+            <Suspense fallback={<div className="flex items-center justify-center p-8">Loading...</div>}>
+              <FormDetail />
+            </Suspense>
           </div>
         </div>
 

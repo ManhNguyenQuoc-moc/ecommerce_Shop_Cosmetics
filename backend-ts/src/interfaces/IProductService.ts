@@ -28,5 +28,9 @@ export interface IProductService {
   updateVariant(id: string, data: UpdateVariantDTO): Promise<any>;
   softDeleteVariants(ids: string[]): Promise<void>;
   restoreVariants(ids: string[]): Promise<void>;
+
+  // Related & Brand Products
+  getRelatedProducts(productId: string, limit: number): Promise<any[]>;
+  getBrandProducts(brandId: string, excludeProductId: string | null, limit: number): Promise<any[]>;
 }
 

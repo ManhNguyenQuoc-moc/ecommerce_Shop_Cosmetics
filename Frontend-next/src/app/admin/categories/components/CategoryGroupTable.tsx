@@ -6,7 +6,7 @@ import { Edit, Trash2, Layers, Plus } from "lucide-react";
 import SWTTooltip from "@/src/@core/component/AntD/SWTTooltip";
 import SWTConfirmModal from "@/src/@core/component/AntD/SWTConfirmModal";
 import { showNotificationError, showNotificationSuccess } from "@/src/@core/utils/message";
-import { useCategoryGroups, useDeleteCategoryGroup } from "@/src/hooks/admin/category-group.hook";
+import { useCategoryGroups, useDeleteCategoryGroup } from "@/src/services/admin/category/category-group.hook";
 import { CategoryGroupResponseDto } from "@/src/services/models/category-group/output.dto";
 import SWTAvatar from "@/src/@core/component/AntD/SWTAvatar";
 import SWTIconButton from "@/src/@core/component/SWTIconButton";

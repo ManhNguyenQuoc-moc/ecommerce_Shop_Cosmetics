@@ -3,7 +3,7 @@
 import React from "react";
 import SWTEmpty from "@/src/@core/component/AntD/SWTEmpty";
 import { useFetchSWR } from "@/src/@core/hooks/useFetchSWR";
-import { getVouchers } from "@/src/services/customer/voucher.service";
+import { getVouchers } from "@/src/services/customer/voucher/voucher.service";
 import SWTCard from "@/src/@core/component/AntD/SWTCard";
 import { TicketPercent, Copy, Calendar, Info, Gem, Gift } from "lucide-react";
 import { showNotificationSuccess } from "@/src/@core/utils/message";

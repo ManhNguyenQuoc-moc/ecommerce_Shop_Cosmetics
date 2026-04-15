@@ -7,7 +7,7 @@ import SWTSelect from "@/src/@core/component/AntD/SWTSelect";
 import SWTTooltip from "@/src/@core/component/AntD/SWTTooltip";
 import { useState, useEffect, TransitionStartFunction } from "react";
 import { useSearchParams, usePathname } from "next/navigation";
-import { useBrands } from "@/src/hooks/admin/brand.hook";
+import { useBrands } from "@/src/services/admin/brand/brand.hook";
 import { useDebounce } from "@/src/@core/hooks/useDebounce";
 import { useRouter } from "next/navigation";
 

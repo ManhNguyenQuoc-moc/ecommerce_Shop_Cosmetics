@@ -270,5 +270,48 @@ export class ProductController {
       res.status(500).json({ success: false, message: error.message || "Internal server error" });
     }
   };
+
+  /**
+   * Get related products for a product (from same category)
+   * GET /products/:id/related
+   */
+  getRelatedProducts = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const id = req.params.id as string;
+      const limit = Number(req.query.limit) || 4;
+
+      const products = await this.productService.getRelatedProducts(id, limit);
+
+      res.status(200).json({
+        success: true,
+        message: "Get related products successfully",
+        data: products,
+      });
+    } catch (error: any) {
+      res.status(500).json({ success: false, message: error.message || "Internal server error" });
+    }
+  };
+
+  /**
+   * Get brand products
+   * GET /products/brand/:brandId/products
+   */
+  getBrandProducts = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const brandId = req.params.brandId as string;
+      const excludeProductId = req.query.excludeProductId as string | null;
+      const limit = Number(req.query.limit) || 4;
+
+      const products = await this.productService.getBrandProducts(brandId, excludeProductId, limit);
+
+      res.status(200).json({
+        success: true,
+        message: "Get brand products successfully",
+        data: products,
+      });
+    } catch (error: any) {
+      res.status(500).json({ success: false, message: error.message || "Internal server error" });
+    }
+  };
 }
 

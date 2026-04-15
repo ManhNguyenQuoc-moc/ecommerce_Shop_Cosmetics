@@ -7,7 +7,7 @@ import SWTTabs from "@/src/@core/component/AntD/SWTTabs";
 import SWTEmpty from "@/src/@core/component/AntD/SWTEmpty";
 import SWTPagination from "@/src/@core/component/AntD/SWTPagination";
 import { useFetchSWR } from "@/src/@core/hooks/useFetchSWR";
-import { getOrders } from "@/src/services/customer/order.service";
+import { getOrders } from "@/src/services/customer/order/order.service";
 import OrderCard from "./components/OrderCard";
 import { OrderStatus, OrderListResponseDTO, OrderDTO } from "@/src/services/models/customer/order.dto";
 import { ProfileListSkeleton } from "../components/ProfileSkeleton";

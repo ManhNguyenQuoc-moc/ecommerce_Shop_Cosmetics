@@ -1,6 +1,6 @@
 import React from "react";
 import Link from "next/link";
-import { BrandResponseDto } from "@/src/services/customer/customer.service";
+import { BrandResponseDto } from "@/src/services/customer/home/customer.service";
 import { ArrowRight, Sparkles } from "lucide-react";
 import Image from "next/image";
 interface BrandCardProps {

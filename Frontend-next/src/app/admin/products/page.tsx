@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { Info, Package } from "lucide-react";
 import SWTTooltip from "@/src/@core/component/AntD/SWTTooltip";
 import SWTBreadcrumb from "@/src/@core/component/AntD/SWTBreadcrumb";

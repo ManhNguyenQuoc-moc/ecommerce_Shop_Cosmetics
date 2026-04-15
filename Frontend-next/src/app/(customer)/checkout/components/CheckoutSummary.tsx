@@ -5,9 +5,9 @@ import SWTButton from "@/src/@core/component/AntD/SWTButton";
 import SWTCard from "@/src/@core/component/AntD/SWTCard";
 import SWTSelect from "@/src/@core/component/AntD/SWTSelect";
 import { Modal, Tag } from "antd";
-import { useCheckout } from "@/src/hooks/customer/checkout.hook";
+import { useCheckout } from "@/src/services/customer/checkout/checkout.hook";
 import { useFetchSWR } from "@/src/@core/hooks/useFetchSWR";
-import { getVouchers } from "@/src/services/customer/voucher.service";
+import { getVouchers } from "@/src/services/customer/voucher/voucher.service";
 import { Ticket } from "lucide-react";
 
 export default function CheckoutSummary() {

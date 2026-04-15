@@ -1,6 +1,6 @@
 import ProductsClient from "./ProductsClient";
-import { getProducts } from "@/src/services/customer/product.service";
-import { getServerBrands, getServerCategories } from "@/src/services/customer/customer.service";
+import { getProducts } from "@/src/services/customer/product/product.service";
+import { getServerBrands, getServerCategories } from "@/src/services/customer/home/customer.service";
 
 export const revalidate = 60;
 

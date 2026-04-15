@@ -467,4 +467,81 @@ export class ProductService implements IProductService {
   async restoreVariants(ids: string[]): Promise<void> {
     await this.productRepository.restoreVariants(ids);
   }
+
+  /**
+   * Get related products by category
+   * Maps products to ProductSmallItemDto (optimized for performance)
+   */
+  async getRelatedProducts(productId: string, limit: number = 4): Promise<any[]> {
+    // Get current product to find its category
+    const product = await this.productRepository.findById(productId);
+    if (!product || !product.categoryId) {
+      return [];
+    }
+
+    // Find related products from same category
+    const relatedProducts = await this.productRepository.findRelatedByCategory(
+      product.categoryId,
+      productId,
+      limit
+    );
+
+    // Map to ProductSmallItemDto with flattened variant data
+    return relatedProducts.map((p: any) => {
+      // Flatten variant data
+      const variants = p.variants || [];
+      const prices = variants.map((v: any) => v.price).filter((p: any) => p != null);
+      const salePrices = variants.map((v: any) => v.salePrice).filter((p: any) => p != null);
+      const minPrice = prices.length > 0 ? Math.min(...prices) : 0;
+      const minSalePrice = salePrices.length > 0 ? Math.min(...salePrices) : null;
+      const totalSold = variants.reduce((sum: number, v: any) => sum + (v.sold || 0), 0);
+
+      return {
+        id: p.id,
+        slug: p.slug,
+        name: p.name,
+        image: p.productImages?.[0]?.image?.url || variants[0]?.image?.url || null,
+        price: minPrice,
+        salePrice: minSalePrice,
+        rating: p.rating,
+        sold: totalSold,
+        status: p.status
+      };
+    });
+  }
+
+  /**
+   * Get brand products
+   * Maps products to ProductSmallItemDto with flattened variant data
+   */
+  async getBrandProducts(brandId: string, excludeProductId: string | null = null, limit: number = 4): Promise<any[]> {
+    const brandProducts = await this.productRepository.findByBrand(
+      brandId,
+      excludeProductId,
+      limit
+    );
+
+    // Map to ProductSmallItemDto with flattened variant data
+    return brandProducts.map((p: any) => {
+      // Flatten variant data
+      const variants = p.variants || [];
+      const prices = variants.map((v: any) => v.price).filter((p: any) => p != null);
+      const salePrices = variants.map((v: any) => v.salePrice).filter((p: any) => p != null);
+      const minPrice = prices.length > 0 ? Math.min(...prices) : 0;
+      const minSalePrice = salePrices.length > 0 ? Math.min(...salePrices) : null;
+      const totalSold = variants.reduce((sum: number, v: any) => sum + (v.sold || 0), 0);
+
+      return {
+        id: p.id,
+        slug: p.slug,
+        name: p.name,
+        image: p.productImages?.[0]?.image?.url || variants[0]?.image?.url || null,
+        price: minPrice,
+        salePrice: minSalePrice,
+        rating: p.rating,
+        sold: totalSold,
+        status: p.status
+      };
+    });
+  }
 }

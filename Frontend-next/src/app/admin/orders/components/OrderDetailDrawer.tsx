@@ -1,6 +1,6 @@
 import { OrderStatus } from "@/src/services/models/order/output.dto";
-import { useOrder } from "@/src/hooks/admin/order.hook";
-import { updateOrderStatus, updateOrderPaymentStatus } from "@/src/services/admin/order.service";
+import { useOrder } from "@/src/services/admin/order/order.hook";
+import { updateOrderStatus, updateOrderPaymentStatus } from "@/src/services/admin/order/order.service";
 import { showNotificationSuccess, showNotificationError } from "@/src/@core/utils/message";
 import { useState } from "react";
 import { Package, User, CreditCard, Clock, CheckCircle2, Truck, XCircle, Undo2, ChevronRight, Hash, ShieldCheck, MapPin, Ticket } from "lucide-react";

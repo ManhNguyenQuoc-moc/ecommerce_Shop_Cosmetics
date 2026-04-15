@@ -9,8 +9,8 @@ import SWTInputNumber from "@/src/@core/component/AntD/SWTInputNumber";
 import SWTSelect from "@/src/@core/component/AntD/SWTSelect";
 import SWTModal from "@/src/@core/component/AntD/SWTModal";
 import SWTUpload from "@/src/@core/component/AntD/SWTUpload";
-import { useProducts } from "@/src/hooks/admin/product.hook";
-import { createVariant } from "@/src/services/admin/product.service";
+import { useProducts } from "@/src/services/admin/product/product.hook";
+import { createVariant } from "@/src/services/admin/product/product.service";
 import { showNotificationError, showNotificationSuccess } from "@/src/@core/utils/message";
 import { uploadFileToCloudinary } from "@/src/services/admin/upload.service";
 import { CreateVariantInput } from "@/src/services/models/product/input.dto";
@@ -64,7 +64,6 @@ export default function AddVariantModal({ isOpen, onClose, onAdd }: AddVariantMo
         statusName: values.statusName,
         imageUrl: imageUrl,
       };
-      console.log(">>> [Create Variant] Submission Data:", submissionData);
       await createVariant(submissionData);
       showNotificationSuccess("Tạo biến thể thành công");
 
@@ -79,7 +78,8 @@ export default function AddVariantModal({ isOpen, onClose, onAdd }: AddVariantMo
     }
   };
   const selectedProduct = products.find((p: ProductListItemDto) => p.id === selectedProductId);
-  const selectedProductVariants = (selectedProduct as any)?.variants || []; // Assuming nested variants if available
+  
+  const selectedProductVariants = (selectedProduct as any)?.variants || []; 
   return (
     <SWTModal
       title={
@@ -95,7 +95,7 @@ export default function AddVariantModal({ isOpen, onClose, onAdd }: AddVariantMo
       width={700}
       okButtonProps={{
         loading: isSubmitting,
-        className: "!bg-fuchsia-600 hover:!bg-fuchsia-700 !border-none !shadow-md shadow-fuchsia-500/30 !rounded-xl",
+        className: "!bg-brand-600 hover:!bg-brand-700 !border-none !shadow-md shadow-brand-500/30 !rounded-xl",
       }}
       cancelButtonProps={{
         className: "bg-bg-muted text-text-muted border-border-default !rounded-xl",
@@ -120,7 +120,7 @@ export default function AddVariantModal({ isOpen, onClose, onAdd }: AddVariantMo
           onChange={(val) => setSelectedProductId(val)}
         />
         <div className="mt-3 p-3 bg-status-warning-bg/10 border border-status-warning-border animate-fade-in rounded-xl">
-          <p className="text-xs text-status-warning-text font-bold mb-0 leading-relaxed uppercase tracking-tighter">
+          <p className="text-xs text-status-warning-text font-bold mb-0 leading-relaxed ">
             * Lưu ý: Chỉ được phép thêm biến thể cho các sản phẩm đã tồn tại trên hệ thống.
             Nếu muốn thêm biến thể cho các sản phẩm đang bị ẩn, vui lòng khôi phục sản phẩm đó trước.
           </p>
@@ -163,14 +163,14 @@ export default function AddVariantModal({ isOpen, onClose, onAdd }: AddVariantMo
               label="Màu sắc / Tên"
               rules={[{ required: true, message: 'Vui lòng nhập màu sắc hoặc tên' }]}
             >
-              <SWTInput placeholder="Vd: Đỏ Ruby..." className="!bg-bg-muted !border-border-default text-text-main" />
+              <SWTInput placeholder="Vd: Đỏ Ruby..." className="dark:!bg-slate-800/80 dark:!border-slate-700 dark:!text-white" />
             </SWTFormItem>
 
             <SWTFormItem
               name="size"
               label="Kích cỡ / Dung tích"
             >
-              <SWTInput placeholder="Vd: 30ml..." className="!bg-bg-muted !border-border-default text-text-main" />
+              <SWTInput placeholder="Vd: 30ml..." className="dark:!bg-slate-800/80 dark:!border-slate-700 dark:!text-white" />
             </SWTFormItem>
           </div>
 

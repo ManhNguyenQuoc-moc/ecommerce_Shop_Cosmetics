@@ -14,7 +14,7 @@ import {
   Cell,
   Legend
 } from "recharts";
-import { useInventoryBatches } from "@/src/hooks/admin/inventory.hook";
+import { useInventoryBatches } from "@/src/services/admin/iventory/inventory.hook";
 import { Info, AlertCircle, ShoppingCart, TrendingDown } from "lucide-react";
 
 const COLORS = ["#10b981", "#fbbf24", "#f43f5e", "#94a3b8"];
@@ -47,7 +47,7 @@ export default function InventoryCharts() {
     }));
 
   return (
-    <div className="space-y-8 animate-fade-in">
+    <div className="flex flex-col gap-8 animate-fade-in">
       {/* Quick Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard

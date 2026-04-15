@@ -64,8 +64,17 @@ const onResponseInterceptor = async (error: AxiosError) => {
   }
 
   // 403 => Forbidden
+  // Phân biệt: Tài khoản bị khóa vs Không có quyền
   if (error.response && error.response.status === HttpStatusCode.Forbidden) {
-    showNotificationError("Bạn không có quyền truy cập. Bạn không phải là Admin!");
+    const isBanned = _response?.message?.includes("bị khóa") || _response?.message?.includes("khóa");
+    
+    if (isBanned) {
+      // Tài khoản bị khóa - Đừng tự động logout/redirect, để SignInForm xử lý
+      return Promise.reject(error.response.data);
+    }
+    
+    // Không có quyền - Redirect về login hoặc home
+    showNotificationError(_response?.message || "Bạn không có quyền truy cập.");
     if (typeof window !== "undefined") {
         authStorage.logout();
         window.location.href = `/login`;

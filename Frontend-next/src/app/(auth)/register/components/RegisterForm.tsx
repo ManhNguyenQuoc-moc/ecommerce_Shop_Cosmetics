@@ -11,11 +11,14 @@ import { SWTInput, SWTInputPassword } from "@/src/@core/component/AntD/SWTInput"
 import { GoogleIcon as GoogleIco, FacebookIcon as FacebookIco } from "@/src/@core/component/AntD/Icons";
 import { Eye, EyeOff } from "lucide-react";
 import { supabase } from "@/src/@core/utils/supabase";
-import { authService } from "@/src/services/customer/auth.service";
-import { useCart } from "@/src/hooks/customer/cart.hook";
+import { authService } from "@/src/services/auth/auth.service";
+import { useCart } from "@/src/services/customer/cart/cart.hook";
+import { useAuth } from "@/src/context/AuthContext";
+import { AuthUser } from "@/src/@core/utils/authStorage";
 
 export default function RegisterForm() {
     const router = useRouter();
+    const { login } = useAuth(); // Thêm useAuth
     const { items, syncCart, setIsMerging } = useCart();
     const [isLoading, setIsLoading] = useState(false);
 
@@ -23,6 +26,8 @@ export default function RegisterForm() {
         const guestItems = [...items];
         try {
             setIsLoading(true);
+            
+            // 1. Đăng ký tài khoản trên Supabase
             const { data, error } = await supabase.auth.signUp({
                 email: values.email,
                 password: values.password,
@@ -36,7 +41,7 @@ export default function RegisterForm() {
 
             if (error) throw error;
 
-
+            // 2. Đồng bộ sang Backend Database (Prisma)
             try {
                 await authService.registerAsync({
                     id: data.user?.id,
@@ -45,23 +50,37 @@ export default function RegisterForm() {
                     phone: values.phone
                 });
             } catch (backendError) {
-                console.warn("Backend registration sync skipped or failed:", backendError);
+                console.error("Backend registration sync failed:", backendError);
             }
+
+            // 3. Xử lý sau đăng ký
             if (data.user && !data.session) {
-                showNotificationSuccess("Đăng ký thành công. Vui lòng kiểm tra email của bạn để kích hoạt tài khoản!");
+                // Trường hợp cần xác thực Email
+                showNotificationSuccess("Đăng ký thành công. Vui lòng kiểm tra email để kích hoạt!");
                 router.push("/login?verify=sent");
-            } else if (data.session) {
+            } else if (data.session && data.user) {
+                // Trường hợp Supabase tự động đăng nhập sau khi đăng ký
+                const authUser: AuthUser = {
+                    id: data.user.id,
+                    name: values.fullName || "User",
+                    full_name: values.fullName,
+                    email: data.user.email,
+                    username: data.user.email || "",
+                    role: "CUSTOMER"
+                };
+
                 setIsMerging(true);
                 try {
-                    if (data.user) await syncCart(data.user.id, guestItems);
+                    await login(data.session.access_token, authUser);
+                    await syncCart(data.user.id, guestItems);
                 } finally {
                     setIsMerging(false);
                 }
+                
                 showNotificationSuccess("Đăng ký thành công! Chào mừng bạn.");
                 router.push("/");
             }
         } catch (err: any) {
-            console.error("Registration error:", err);
             showNotificationError(err.message || "Đăng ký thất bại. Vui lòng thử lại!");
         } finally {
             setIsLoading(false);
@@ -71,12 +90,8 @@ export default function RegisterForm() {
     return (
         <div className="w-full max-w-md mx-auto">
             <div className="mb-8">
-                <h2 className="text-3xl font-bold text-gray-900">
-                    Đăng ký tài khoản
-                </h2>
-                <p className="text-gray-500 mt-2">
-                    Gia nhập cộng đồng làm đẹp của chúng tôi
-                </p>
+                <h2 className="text-3xl font-bold text-gray-900">Đăng ký tài khoản</h2>
+                <p className="text-gray-500 mt-2">Gia nhập cộng đồng làm đẹp của chúng tôi</p>
             </div>
 
             <SWTForm onFinish={handleSubmit} loading={isLoading} layout="vertical">
@@ -98,6 +113,7 @@ export default function RegisterForm() {
                 >
                     <SWTInput placeholder="Địa chỉ email của bạn" className="h-11 rounded-xl" />
                 </SWTFormItem>
+
                 <SWTFormItem
                     name="phone"
                     label="Số điện thoại"
@@ -124,37 +140,24 @@ export default function RegisterForm() {
                     />
                 </SWTFormItem>
 
-                <SWTButton
-                    htmlType="submit"
-                    size="lg"
-                    className="w-full py-4 text-lg !text-white !bg-brand-500 hover:!bg-brand-600 !border-none rounded-xl mt-4"
-                >
+                <SWTButton htmlType="submit" size="lg" className="w-full py-4 text-lg !text-white !bg-brand-500 hover:!bg-brand-600 !border-none rounded-xl mt-4">
                     Tạo tài khoản
                 </SWTButton>
 
                 <div className="flex items-center my-6">
                     <div className="flex-1 h-px bg-gray-200"></div>
-                    <p className="px-4 text-sm text-gray-400 whitespace-nowrap uppercase tracking-wider">
-                        Hoặc
-                    </p>
+                    <p className="px-4 text-sm text-gray-400 whitespace-nowrap uppercase tracking-wider">Hoặc</p>
                     <div className="flex-1 h-px bg-gray-200"></div>
                 </div>
 
                 <div className="flex items-center gap-4">
-                    <SWTButton variant="outlined" className="w-full h-11 rounded-xl" startIcon={<GoogleIco />} size="sm">
-                        Google
-                    </SWTButton>
-                    <SWTButton variant="outlined" className="w-full h-11 rounded-xl" size="sm" startIcon={<FacebookIco />}>
-                        Facebook
-                    </SWTButton>
+                    <SWTButton variant="outlined" className="w-full h-11 rounded-xl" startIcon={<GoogleIco />} size="sm">Google</SWTButton>
+                    <SWTButton variant="outlined" className="w-full h-11 rounded-xl" size="sm" startIcon={<FacebookIco />}>Facebook</SWTButton>
                 </div>
             </SWTForm>
 
             <p className="text-center text-sm text-gray-600 mt-10">
-                Đã có tài khoản?{" "}
-                <Link href="/login" className="text-brand-500 hover:text-brand-600 font-bold transition-colors">
-                    Đăng nhập ngay
-                </Link>
+                Đã có tài khoản? <Link href="/login" className="text-brand-500 hover:text-brand-600 font-bold transition-colors">Đăng nhập ngay</Link>
             </p>
         </div>
     );

@@ -5,9 +5,10 @@ import VoucherTable from "./components/VoucherTable";
 import VoucherFilters from "./components/VoucherFilters";
 import AddVoucherModal from "./components/AddVoucherModal";
 import { VoucherResponseDto } from "@/src/services/models/voucher/output.dto";
-
+import useSWTTilte from "@/src/@core/hooks/useSWTTitle";
 export default function DiscountsClient() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  useSWTTilte("Quản lý mã giảm giá");
+  const [isModalOpen, setIsModalOpen] = useState(false); 
   const [editingVoucher, setEditingVoucher] = useState<VoucherResponseDto | null>(null);
 
   const handleOpenAdd = () => {

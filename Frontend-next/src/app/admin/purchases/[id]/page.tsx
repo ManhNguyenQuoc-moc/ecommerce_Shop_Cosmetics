@@ -3,9 +3,9 @@ import { Spin } from "antd";
 import { useState } from "react";
 import {
   usePurchaseOrderById,
-} from "@/src/hooks/admin/purchase.hook";
+} from "@/src/services/admin/iventory/purchase.hook";
 import {  confirmPurchaseOrder,
-  cancelPurchaseOrder} from "@/src/services/admin/purchase.service";
+  cancelPurchaseOrder} from "@/src/services/admin/iventory/purchase.service";
 import { exportPOTopdf, exportPOToExcel } from "@/src/@core/utils/exportPO";
 import {
   CheckCircle2,

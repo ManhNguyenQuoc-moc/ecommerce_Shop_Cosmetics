@@ -8,14 +8,15 @@ import { useWishlistStore } from "@/src/stores/useWishlistStore";
 import { supabase } from "@/src/@core/utils/supabase";
 import { Session } from "@supabase/supabase-js";
 import { getProfile } from "@/src/services/customer/user/user.service";
+import { useRouter } from "next/navigation";
 
 type AuthContextType = {
   currentUser: AuthUser | null;
   session: Session | null;
   isInitializing: boolean;
   isUploadingAvatar: boolean;
-  login: (token: string, user: AuthUser) => void;
-  logout: () => void;
+  login: (token: string, user: AuthUser) => Promise<void>;
+  logout: () => Promise<void>;
   updateUser: (user: Partial<AuthUser>) => void;
   setIsUploadingAvatar: (loading: boolean) => void;
   refreshUser: () => Promise<void>;
@@ -28,6 +29,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [isInitializing, setIsInitializing] = useState(true);
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const router = useRouter();
 
   const resetUserStores = () => {
     useCheckoutStore.getState().reset();
@@ -43,43 +45,59 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       return;
     }
 
-
-    const user: AuthUser = {
-      id: supabaseSession.user.id,
-      name: supabaseSession.user.user_metadata.full_name || "User",
-      full_name: supabaseSession.user.user_metadata.full_name,
-      email: supabaseSession.user.email,
-      avatar: supabaseSession.user.user_metadata.avatar_url,
-      username: supabaseSession.user.email || "",
-      role: supabaseSession.user.user_metadata.role || "CUSTOMER"
-    };
-    console.log("Syncing user with backend:", user);
-
-    authStorage.login(supabaseSession.access_token, user);
+    // Gán token tạm để call API
+    authStorage.login(supabaseSession.access_token, {} as any);
 
     try {
       const profile = await getProfile();
+      // Removed duplicate is_banned check - SignInForm handles banned accounts properly now
+      console.log("[AuthContext] User profile fetched:", profile);
       if (profile) {
-        user.full_name = profile.full_name || user.full_name;
-        user.name = profile.full_name || user.name;
-        user.avatar = profile.avatar || user.avatar;
-        user.phone = profile.phone || user.phone;
-        user.role = profile.role || user.role;
-        authStorage.setUser(user);
+        const authUser: AuthUser = {
+          id: supabaseSession.user.id,
+          name: profile.full_name || supabaseSession.user.user_metadata.full_name || "User",
+          full_name: profile.full_name,
+          email: supabaseSession.user.email,
+          avatar: profile.avatar || supabaseSession.user.user_metadata.avatar_url,
+          username: supabaseSession.user.email || "",
+          role: profile.role || "CUSTOMER",
+          phone: profile.phone,
+          is_banned: profile.is_banned || false,
+        };
+
+        authStorage.setUser(authUser);
+        setCurrentUser(authUser);
+        
+        // Redirect to appropriate page after successful authentication
+        if (window.location.pathname === "/login" && !window.location.search.includes("error=banned")) {
+          // User was on login page - redirect based on role
+          profile.role === "ADMIN" ? router.push("/admin") : router.push("/");
+        } else if (profile.role === "ADMIN" && !window.location.pathname.startsWith("/admin")) {
+          // OAuth user or other flow - if admin but not on admin page, redirect there
+          router.push("/admin");
+        }
       }
     } catch (err: any) {
-      if (err?.message?.includes("bị khóa") || err?.status === 403) {
-        console.error("User is banned, logging out...");
-        await logout();
+      // Check if this is a banned account error (only relevant for OAuth users)
+      const isBannedError = err?.status === 403 || err?.message?.includes("bị khóa") || err?.message?.includes("khóa");
+      
+      if (isBannedError) {
+        // Banned account - sign out and redirect to login with error
+        await supabase.auth.signOut();
+        authStorage.logout();
+        resetUserStores();
+        if (typeof window !== "undefined") {
+          window.location.href = "/login?error=banned";
+        }
         return;
       }
-      console.warn("Failed to enrichment user profile from backend:", err);
+      
+      // Other errors - let session exist without full enrichment
+      console.warn("[AuthContext] Profile enrichment failed:", err.message);
     }
-    setCurrentUser(user);
   };
 
   useEffect(() => {
-    // 1. Initial Session Check
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       syncUserWithBackend(session).finally(() => {
@@ -87,37 +105,30 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       });
     });
 
-    // 2. Listen for Auth Changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       setSession(session);
-      await syncUserWithBackend(session);
+      if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
+        // For PKCE flow, the session may already have user data
+        // Wait a bit for callback processing then sync
+        await new Promise(resolve => setTimeout(resolve, 100));
+        await syncUserWithBackend(session);
+      } else if (event === "SIGNED_OUT") {
+        setCurrentUser(null);
+        authStorage.logout();
+        resetUserStores();
+      }
     });
 
     return () => subscription.unsubscribe();
   }, []);
 
   const login = async (token: string, user: AuthUser) => {
-    // We already have the session from Supabase, but we can enrichment it here too
-    try {
-        const profile = await getProfile();
-        if (profile) {
-            user.avatar = profile.avatar || user.avatar;
-            user.full_name = profile.full_name || user.full_name;
-            user.name = profile.full_name || user.name;
-            user.phone = profile.phone || user.phone;
-        }
-    } catch (err: any) {
-        if (err?.message?.includes("bị khóa") || err?.status === 403) {
-            await logout();
-            throw err; // Re-throw to be caught by the Login form
-        }
-    }
-    
     authStorage.login(token, user);
     setCurrentUser(user);
   };
 
   const logout = async () => {
+    // Dọn dẹp tất cả dấu vết
     await supabase.auth.signOut();
     authStorage.logout();
     setCurrentUser(null);
@@ -134,23 +145,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const refreshUser = async () => {
-    if (session) {
-        await syncUserWithBackend(session);
-    }
+    if (session) await syncUserWithBackend(session);
   };
 
   return (
-    <AuthContext.Provider value={{ 
-        currentUser, 
-        session,
-        isInitializing,
-        isUploadingAvatar, 
-        login, 
-        logout, 
-        updateUser, 
-        setIsUploadingAvatar,
-        refreshUser
-    }}>
+    <AuthContext.Provider value={{ currentUser, session, isInitializing, isUploadingAvatar, login, logout, updateUser, setIsUploadingAvatar, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );
@@ -158,8 +157,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error("useAuth must be used inside AuthProvider");
-  }
+  if (!context) throw new Error("useAuth must be used inside AuthProvider");
   return context;
 };

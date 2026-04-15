@@ -6,7 +6,7 @@ import { Heart, Star, Zap } from "lucide-react";
 
 import SWTCard from "@/src/@core/component/AntD/SWTCard";
 import { ProductListItemDto } from "@/src/services/models/product/output.dto";
-import { useWishlist } from "@/src/hooks/customer/wishlist.hook";
+import { useWishlist } from "@/src/services/customer/wishlist/wishlist.hook";
 
 type Props = {
   product?: ProductListItemDto;

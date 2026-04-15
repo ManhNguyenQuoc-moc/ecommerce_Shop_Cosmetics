@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { ShoppingCart } from "lucide-react";
 import SWTBadge from "@/src/@core/component/SWTBadge";
-import { useCart } from "@/src/hooks/customer/cart.hook";
+import { useCart } from "@/src/services/customer/cart/cart.hook";
 
 export default function Cart() {
   const { count: cartCount } = useCart();

@@ -4,7 +4,7 @@ import SWTTable from "@/src/@core/component/AntD/SWTTable";
 import SWTIconButton from "@/src/@core/component/SWTIconButton";
 import {
   usePurchaseOrders,
-} from "@/src/hooks/admin/purchase.hook";
+} from "@/src/services/admin/iventory/purchase.hook";
 import { Eye, Edit } from "lucide-react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useMemo } from "react";

@@ -6,7 +6,7 @@ import SWTTabs from "@/src/@core/component/AntD/SWTTabs";
 import SWTEmpty from "@/src/@core/component/AntD/SWTEmpty";
 import { ProfileListSkeleton } from "../components/ProfileSkeleton";
 import { useFetchSWR } from "@/src/@core/hooks/useFetchSWR";
-import { getVouchers } from "@/src/services/customer/voucher.service";
+import { getVouchers } from "@/src/services/customer/voucher/voucher.service";
 import VoucherCard from "./components/VoucherCard";
 
 interface VouchersClientProps {

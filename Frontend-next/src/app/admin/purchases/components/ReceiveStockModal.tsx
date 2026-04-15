@@ -2,9 +2,9 @@
 
 import { Spin } from "antd";
 import { useEffect, useState } from "react";
-import { usePurchaseOrderById } from "@/src/hooks/admin/purchase.hook";
-import { receiveStock } from "@/src/services/admin/purchase.service";
-import { revalidateAllInventory } from "@/src/services/admin/product.service";
+import { usePurchaseOrderById } from "@/src/services/admin/iventory/purchase.hook";
+import { receiveStock } from "@/src/services/admin/iventory/purchase.service";
+import { revalidateAllInventory } from "@/src/services/admin/product/product.service";
 import { PackageCheck, Save } from "lucide-react";
 import dayjs from "dayjs";
 
