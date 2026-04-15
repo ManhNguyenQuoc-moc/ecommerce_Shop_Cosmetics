@@ -9,11 +9,11 @@ import AntSpin from "@/src/@core/component/AntD/AntSpin";
 import { showMessageError, showMessageSuccess } from "@/src/@core/utils/message";
 import { useState, useEffect, TransitionStartFunction } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
-import { useCategories } from "@/src/hooks/admin/category.hook";
-import { useBrands } from "@/src/hooks/admin/brand.hook";
+import { useCategories } from "@/src/services/admin/category/category.hook";
+import { useBrands } from "@/src/services/admin/brand/brand.hook";
 import AddProductModal from "./AddProductModal";
 import { mutate } from "swr";
-import { PRODUCT_API_ENDPOINT, createProduct } from "@/src/services/admin/product.service";
+import { PRODUCT_API_ENDPOINT, createProduct } from "@/src/services/admin/product/product.service";
 import { useDebounce } from "@/src/@core/hooks/useDebounce";
 
 interface ProductFiltersProps {

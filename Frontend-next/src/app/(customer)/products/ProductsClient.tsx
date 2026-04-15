@@ -11,11 +11,11 @@ import ProductListSection from "./components/ProductListSection";
 import { PaginationResponse } from "@/src/@core/http/models/PaginationResponse";
 import { ProductListItemDto } from "@/src/services/models/product/output.dto";
 import { CategoryResponseDto } from "@/src/services/models/category/output.dto";
-import { BrandResponseDto } from "@/src/services/customer/customer.service";
+import { BrandResponseDto } from "@/src/services/customer/home/customer.service";
 import { customerCategories, getDynamicCategories, Category } from "@/src/@core/http/routes/customer-categories";
-import { getProducts } from "@/src/services/customer/product.service";
-import { useCustomerCategories } from "@/src/hooks/customer/category.hook";
-import { useCustomerBrands } from "@/src/hooks/customer/brand.hook";
+import { getProducts } from "@/src/services/customer/product/product.service";
+import { useCustomerCategories } from "@/src/services/customer/category/category.hook";
+import { useCustomerBrands } from "@/src/services/customer/brand/brand.hook";
 import SWTCheckboxGroup from "@/src/@core/component/AntD/SWTCheckboxGroup";
 import SWTSelect from "@/src/@core/component/AntD/SWTSelect";
 import { SWTInput } from "@/src/@core/component/AntD/SWTInput";
@@ -49,15 +49,12 @@ export default function ProductsClient({ initialData, initialCategories, initial
   const [brandSearch, setBrandSearch] = React.useState("");
   const debouncedBrandSearch = useDebounce(brandSearch, 500);
 
-  // Fetch dynamic categories with server-side fallback - Optimized for ISR
   const { categories: apiCategories } = useCustomerCategories({
     fallbackData: initialCategories,
     revalidateIfStale: false,
     revalidateOnFocus: false,
     revalidateOnMount: false,
   });
-
-  // Use categories for rendering dynamic tree - Memoized to prevent recalculation
   const dynamicCategories = React.useMemo(() => {
     return apiCategories && apiCategories.length > 0
       ? getDynamicCategories(apiCategories)
@@ -316,7 +313,6 @@ export default function ProductsClient({ initialData, initialCategories, initial
           sortBy={sortBy}
         />
       </div>
-      {/* <div className="mt-3.5"> <h3 className="text-lg font-semibold mb-4">Sản phẩm dành cho bạn</h3> <ProductListSection products={productsdata} total={total} loading={loading} isFetching={isFetching} /> </div> */}
     </div>
   );
 }

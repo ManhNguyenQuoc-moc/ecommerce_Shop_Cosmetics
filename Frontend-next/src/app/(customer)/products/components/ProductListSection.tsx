@@ -66,7 +66,7 @@ export default function ProductListSection({
         !loading && (
           <div className="relative">
             <div
-              className={`grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-3 transition-opacity duration-300 ${isFetching ? "opacity-60" : ""
+              className={`grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-3 transition-all duration-300 ${isFetching ? "opacity-50 pointer-events-none" : ""
                 }`}
             >
               {products.map((product: ProductListItemDto, index: number) => (
@@ -79,11 +79,11 @@ export default function ProductListSection({
             </div>
 
             {isFetching && (
-              <div className="absolute inset-0 flex items-center justify-center z-10">
-                <div className="bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full shadow-lg border border-gray-100 flex items-center gap-2 animate-bounce">
-                  <div className="w-2 h-2 bg-brand-500 rounded-full animate-ping" />
-                  <span className="text-sm font-bold text-gray-700">
-                    Đang tải...
+              <div className="absolute bottom-4 right-4 z-10">
+                <div className="bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-md border border-gray-200 flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 bg-brand-500 rounded-full animate-pulse" />
+                  <span className="text-xs font-medium text-gray-600">
+                    Đang cập nhật...
                   </span>
                 </div>
               </div>

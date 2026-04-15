@@ -1,15 +1,17 @@
 "use client";
 
-import React, { useState } from 'react';
+import { useState } from 'react';
+import useSWTTilte from "@/src/@core/hooks/useSWTTitle";
 import OrderFilters from "./components/OrderFilters";
 import OrderTable from "./components/OrderTable";
 import SWTTabs from "@/src/@core/component/AntD/SWTTabs";
-import { useOrders } from "@/src/hooks/admin/order.hook";
-import { OrderQueryParams } from "@/src/services/admin/order.service";
+import { useOrders } from "@/src/services/admin/order/order.hook";
+import { OrderQueryParams } from "@/src/services/admin/order/order.service";
 import OrderDetailDrawer from "./components/OrderDetailDrawer";
 import { OrderDto } from "@/src/services/models/order/output.dto";
 
 export default function OrdersClient() {
+  useSWTTilte("Quản lý đơn hàng");
   const [params, setParams] = useState<OrderQueryParams>({
     page: 1,
     pageSize: 6,

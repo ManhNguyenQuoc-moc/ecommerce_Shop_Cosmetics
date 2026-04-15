@@ -7,7 +7,7 @@ import SWTForm from "@/src/@core/component/AntD/SWTForm";
 import SWTFormItem from "@/src/@core/component/AntD/SWTFormItem";
 import SWTInput, { SWTInputTextArea } from "@/src/@core/component/AntD/SWTInput";
 import SWTUpload from "@/src/@core/component/AntD/SWTUpload";
-import { useCreateBrand, useUpdateBrand } from "@/src/hooks/admin/brand.hook";
+import { useCreateBrand, useUpdateBrand } from "@/src/services/admin/brand/brand.hook";
 import { uploadFileToCloudinary as uploadImage } from "@/src/services/admin/upload.service";
 import { showNotificationError, showNotificationSuccess } from "@/src/@core/utils/message";
 
@@ -110,28 +110,28 @@ export default function AddBrandModal({ isOpen, onClose, initialData }: Props) {
         form={form}
         layout="vertical"
         onFinish={handleFinish}
-        className="mt-6 [&_.ant-form-item-label>label]:font-bold [&_.ant-form-item-label>label]:text-text-sub uppercase text-xs tracking-tight"
+        className="mt-6 [&_.ant-form-item-label>label]:font-bold [&_.ant-form-item-label>label]:text-text-sub  text-xs"
       >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6">
           <SWTFormItem name="name" label="Tên nhà cung cấp / Thương hiệu" rules={[{ required: true, message: "Vui lòng nhập tên" }]}>
-            <SWTInput placeholder="Vd: L'Oréal, Rohto..." prefix={<Info size={16} className="text-text-muted" />} className="!bg-bg-muted !border-border-default text-text-main" />
+            <SWTInput placeholder="Vd: L'Oréal, Rohto..." prefix={<Info size={16} className="text-text-muted" />}  className="dark:!bg-slate-800/80 dark:!border-slate-700 dark:!text-white" />
           </SWTFormItem>
 
           <SWTFormItem name="email" label="Email liên hệ">
-            <SWTInput placeholder="example@brand.com" prefix={<Mail size={16} className="text-text-muted" />} className="!bg-bg-muted !border-border-default text-text-main" />
+            <SWTInput placeholder="example@brand.com" prefix={<Mail size={16} className="text-text-muted" />} className="dark:!bg-slate-800/80 dark:!border-slate-700 dark:!text-white" />
           </SWTFormItem>
 
           <SWTFormItem name="phone" label="Số điện thoại">
-            <SWTInput placeholder="0987..." prefix={<Phone size={16} className="text-text-muted" />} className="!bg-bg-muted !border-border-default text-text-main" />
+            <SWTInput placeholder="0987..." prefix={<Phone size={16} className="text-text-muted" />} className="dark:!bg-slate-800/80 dark:!border-slate-700 dark:!text-white" />
           </SWTFormItem>
 
           <SWTFormItem name="address" label="Địa chỉ văn phòng">
-            <SWTInput placeholder="Quận 1, TP.HCM..." prefix={<MapPin size={16} className="text-text-muted" />} className="!bg-bg-muted !border-border-default text-text-main" />
+            <SWTInput placeholder="Quận 1, TP.HCM..." prefix={<MapPin size={16} className="text-text-muted" />} className="dark:!bg-slate-800/80 dark:!border-slate-700 dark:!text-white" />
           </SWTFormItem>
         </div>
 
         <SWTFormItem name="description" label="Giới thiệu thương hiệu / Ghi chú">
-          <SWTInputTextArea rows={3} placeholder="Thông tin chi tiết về nhà cung cấp..." className="!bg-bg-muted !border-border-default text-text-main" />
+          <SWTInputTextArea rows={3} placeholder="Thông tin chi tiết về nhà cung cấp..." className="dark:!bg-slate-800/80 dark:!border-slate-700 dark:!text-white " />
         </SWTFormItem>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 mt-4">

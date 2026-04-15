@@ -2,7 +2,7 @@
 
 import PointsSummary from "./components/PointsSummary";
 import PointsHistoryTable from "./components/PointsHistoryTable";
-import { usePoints } from "@/src/hooks/customer/points.hook";
+import { usePoints } from "@/src/services/customer/point/points.hook";
 import SWTTabs from "@/src/@core/component/AntD/SWTTabs";
 import RedeemVoucherCatalog from "./components/RedeemVoucherCatalog";
 import { useState } from "react";

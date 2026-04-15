@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 export default function PointsSettingPage() {
   return (
-    <div className="w-full flex-col p-4 md:p-8 space-y-4">
+    <div className="w-full flex-col p-4 md:p-8 flex gap-4 lg:gap-8 animate-fade-in">
       <div className="flex justify-between items-center bg-bg-card backdrop-blur-xl p-4 md:p-8 rounded-2xl border border-border-default shadow-sm w-full">
         <div className="flex flex-col gap-1 items-start justify-center">
           <h1 className="font-bold text-2xl lg:text-3xl m-0 tracking-tight text-text-main">

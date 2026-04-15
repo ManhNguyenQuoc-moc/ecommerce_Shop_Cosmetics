@@ -2,9 +2,9 @@
 
 import { Plus, Search } from "lucide-react";
 import { useState, useRef, useMemo } from "react";
-import { createPurchaseOrder, PURCHASE_API_ENDPOINT } from "@/src/services/admin/purchase.service";
-import { useBrands } from "@/src/hooks/admin/brand.hook";
-import { useVariants } from "@/src/hooks/admin/product.hook";
+import { createPurchaseOrder, PURCHASE_API_ENDPOINT } from "@/src/services/admin/iventory/purchase.service";
+import { useBrands } from "@/src/services/admin/brand/brand.hook";
+import { useVariants } from "@/src/services/admin/product/product.hook";
 import { mutate } from "swr";
 import SWTButton from "@/src/@core/component/AntD/SWTButton";
 

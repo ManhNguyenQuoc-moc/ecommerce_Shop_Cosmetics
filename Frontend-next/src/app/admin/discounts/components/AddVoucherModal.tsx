@@ -10,7 +10,7 @@ import SWTSelect from "@/src/@core/component/AntD/SWTSelect";
 import SWTModal from "@/src/@core/component/AntD/SWTModal";
 import { showNotificationError, showNotificationSuccess } from "@/src/@core/utils/message";
 import { VoucherResponseDto, VoucherType } from "@/src/services/models/voucher/output.dto";
-import { useCreateVoucher, useUpdateVoucher, VOUCHER_API_ENDPOINT } from "@/src/hooks/admin/voucher.hook";
+import { useCreateVoucher, useUpdateVoucher, VOUCHER_API_ENDPOINT } from "@/src/services/admin/user/voucher.hook";
 import { useSWRConfig } from "swr";
 import dayjs from "dayjs";
 import SWTDatePicker from "@/src/@core/component/AntD/SWTDatePicker";

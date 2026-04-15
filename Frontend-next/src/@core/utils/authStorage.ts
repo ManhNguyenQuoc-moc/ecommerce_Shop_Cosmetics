@@ -12,6 +12,7 @@ export type AuthUser = {
   phone?: string;
   avatar?: string;
   role?:string;
+  is_banned?: boolean;
 };
 
 export const authStorage = {

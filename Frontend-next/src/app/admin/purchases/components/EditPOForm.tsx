@@ -5,9 +5,9 @@ import { useEffect, useState, useRef, useMemo } from "react";
 import {
   updatePurchaseOrder,
   PURCHASE_API_ENDPOINT,
-} from "@/src/services/admin/purchase.service";
-import { useBrands } from "@/src/hooks/admin/brand.hook";
-import { useVariants } from "@/src/hooks/admin/product.hook";
+} from "@/src/services/admin/iventory/purchase.service";
+import { useBrands } from "@/src/services/admin/brand/brand.hook";
+import { useVariants } from "@/src/services/admin/product/product.hook";
 import { mutate } from "swr";
 
 import SWTForm from "@/src/@core/component/AntD/SWTForm";

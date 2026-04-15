@@ -5,7 +5,7 @@ import SWTTable from "@/src/@core/component/AntD/SWTTable";
 import SWTStatusTag from "@/src/@core/component/SWTStatusTag";
 import { Package, Calendar, Clock, AlertTriangle } from "lucide-react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
-import { useInventoryBatches } from "@/src/hooks/admin/inventory.hook";
+import { useInventoryBatches } from "@/src/services/admin/iventory/inventory.hook";
 import SWTTooltip from "@/src/@core/component/AntD/SWTTooltip";
 import Image from "next/image";
 import { InventoryQueryParams } from "@/src/services/models/inventory/input.dto";

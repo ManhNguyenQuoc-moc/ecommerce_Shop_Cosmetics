@@ -6,52 +6,48 @@ const protectedRoutes = ["/profile", "/admin", "/wishlist"];
 export function proxy(request: NextRequest) {
   const token = request.cookies.get("access_token")?.value;
   const userInfoCookie = request.cookies.get("user_info")?.value;
-  
   const { pathname } = request.nextUrl;
 
-  const isProtected = protectedRoutes.some((route) =>
-    pathname.startsWith(route)
-  );
+  const isProtected = protectedRoutes.some((route) => pathname.startsWith(route));
 
-  // 1. Check if token exists for protected routes
-  if (!token && isProtected) {
-    return NextResponse.redirect(new URL("/login", request.url));
+  // 1. Nếu vào route bảo vệ mà không có token -> Về login
+  if (isProtected && !token) {
+    const url = new URL("/login", request.url);
+    return NextResponse.redirect(url);
   }
 
-  // 2. Block non-admin users from accessing /admin routes
-  if (pathname.startsWith("/admin")) {
+  // 2. Phân tích thông tin User từ Cookie
+  let user: any = null;
+  if (userInfoCookie) {
     try {
-      if (userInfoCookie) {
-        const decodedCookie = decodeURIComponent(userInfoCookie);
-        const user = JSON.parse(decodedCookie);
-        
-        console.log("Proxy Check - Path:", pathname);
-        console.log("Proxy Check - Role:", user.role);
+      user = JSON.parse(decodeURIComponent(userInfoCookie));
+    } catch (e) {
+      console.error("Middleware: Cookie parse error");
+    }
+  }
 
-        if (user.role !== "ADMIN") {
-          console.log("Proxy Check - Access Denied (Not ADMIN)");
-     
-        }
-      } else {
-        console.log("Proxy Check - No user info cookie");
-  
-      }
-    } catch (error) {
-      console.error("Proxy role check error:", error);
+  if (user?.is_banned && pathname !== "/login") {
+     const url = new URL("/login", request.url);
+     url.searchParams.set("error", "banned");
+     const response = NextResponse.redirect(url);
+     return response;
+  }
 
+  if (pathname.startsWith("/admin")) {
+    if (!user || user.role !== "ADMIN") {
+      return NextResponse.redirect(new URL("/", request.url));
     }
   }
 
   return NextResponse.next();
 }
 
+// Giữ nguyên config matcher
 export const config = {
   matcher: [
     "/profile/:path*",
-    "/profile",
     "/admin/:path*",
-    "/admin",
     "/wishlist/:path*",
-    "/wishlist"
+    "/login" // Thêm login vào để xử lý redirect nếu cần
   ],
 };

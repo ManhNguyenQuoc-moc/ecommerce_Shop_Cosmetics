@@ -30,6 +30,7 @@ export interface UserContextType {
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export const UserProvider = ({ children }: { children: React.ReactNode }) => {
+
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(6);
   const [filters, setFilters] = useState({ search: "", role: "all", status: "all" });

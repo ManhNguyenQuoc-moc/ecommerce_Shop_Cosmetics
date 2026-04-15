@@ -3,11 +3,13 @@
 import { useTransition } from 'react';
 import ProductFilters from "./components/ProductFilters";
 import ProductTable from "./components/ProductTable";
+import useSWTTilte from "@/src/@core/hooks/useSWTTitle";
 import SWTTabs from "@/src/@core/component/AntD/SWTTabs";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
-import { useProducts } from "@/src/hooks/admin/product.hook";
+import { useProducts } from "@/src/services/admin/product/product.hook";
 
 export default function ProductsClient() {
+    useSWTTilte("Quản lý sản phẩm");
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();

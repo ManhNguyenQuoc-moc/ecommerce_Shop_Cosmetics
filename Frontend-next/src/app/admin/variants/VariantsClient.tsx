@@ -4,7 +4,7 @@ import React, { useTransition } from 'react';
 import VariantTable from "./components/VariantTable";
 import VariantFilters from "./components/VariantFilters";
 import SWTTabs from "@/src/@core/component/AntD/SWTTabs";
-import { useVariants } from "@/src/hooks/admin/product.hook";
+import { useVariants } from "@/src/services/admin/product/product.hook";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { ProductQueryParams } from "@/src/services/models/product/input.dto";
 

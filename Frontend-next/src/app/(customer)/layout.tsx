@@ -2,7 +2,7 @@ import CustomerHeader from "@/src/layout/customer/AppHeader";
 import AppFooter from "@/src/layout/customer/AppFooter";
 import BackgroundDecor from "@/src/layout/customer/BackgroundDecor";
 import type { Metadata } from "next";
-import { getServerCategories, getServerBrands } from "@/src/services/customer/customer.service";
+import { getServerCategories, getServerBrands } from "@/src/services/customer/home/customer.service";
 import { Suspense } from "react";
 import ThemeForceLight from "@/src/@core/component/Theme/ThemeForceLight";
 

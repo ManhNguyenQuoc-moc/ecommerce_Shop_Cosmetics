@@ -3,7 +3,7 @@
 import React, { useEffect } from "react";
 import { Form, InputNumber } from "antd";
 import SWTButton from "@/src/@core/component/AntD/SWTButton";
-import { useGetSettings, useUpdateSettings } from "@/src/hooks/admin/setting.hook";
+import { useGetSettings, useUpdateSettings } from "@/src/services/admin/user/setting.hook";
 import { showNotificationSuccess, showNotificationError } from "@/src/@core/utils/message";
 
 export default function PointsSettingClient() {

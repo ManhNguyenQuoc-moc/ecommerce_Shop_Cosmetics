@@ -2,7 +2,7 @@
 
 import { Heart } from "lucide-react";
 import ProductCard from "../home/components/ProductCard";
-import { useWishlist } from "@/src/hooks/customer/wishlist.hook";
+import { useWishlist } from "@/src/services/customer/wishlist/wishlist.hook";
 import SWTBreadcrumb from "@/src/@core/component/AntD/SWTBreadcrumb";
 import { useEffect, useState } from "react";
 

@@ -24,7 +24,7 @@ import {
 import SWTBreadcrumb from "@/src/@core/component/AntD/SWTBreadcrumb";
 import useSWTTitle from "@/src/@core/hooks/useSWTTitle";
 import Link from "next/link";
-import { useProduct, useVariants } from "@/src/hooks/admin/product.hook";
+import { useProduct, useVariants } from "@/src/services/admin/product/product.hook";
 import EditProductModal from "@/src/app/admin/products/components/EditProductModal";
 import Image from "next/image";
 import SWTCard from "@/src/@core/component/AntD/SWTCard";

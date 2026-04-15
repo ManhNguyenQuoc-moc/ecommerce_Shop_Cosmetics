@@ -38,7 +38,6 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
       });
       return;
     }
-
     // Fetch latest user info from DB to ensure role accuracy
     const dbUser = await prisma.user.findUnique({
       where: { id: user.id }
@@ -56,10 +55,7 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
       });
       return;
     }
-
-    console.log(`[Auth] Authenticated user: ${dbUser.id}, Role: ${dbUser.role}`);
-
-    // Gán dữ liệu vào req.user (đã có Type hỗ trợ)
+    // console.log(`[Auth] Authenticated user: ${dbUser.id}, Role: ${dbUser.role}`);
     req.user = {
       id: dbUser.id,
       email: dbUser.email || user.email,

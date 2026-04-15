@@ -703,5 +703,79 @@ export class ProductRepository implements IProductRepository {
     const random = Math.random().toString(36).substring(2, 8).toUpperCase();
     return `VAR-${date}-${random}`;
   }
+
+  /**
+   * Find related products by same category (exclude current product)
+   * Optimized: select only needed fields to prevent N+1
+   */
+  async findRelatedByCategory(categoryId: string, excludeProductId: string, limit: number = 4): Promise<Product[]> {
+    return prisma.product.findMany({
+      where: {
+        categoryId,
+        id: { not: excludeProductId },
+        status: 'ACTIVE'
+      },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        rating: true,
+        status: true,
+        productImages: {
+          select: { image: { select: { url: true } } },
+          take: 1,
+          orderBy: { order: 'asc' }
+        },
+        variants: {
+          select: {
+            id: true,
+            price: true,
+            salePrice: true,
+            sold: true,
+            image: { select: { url: true } }
+          }
+        }
+      },
+      orderBy: { createdAt: 'desc' },
+      take: limit
+    }) as any;
+  }
+
+  /**
+   * Find products by brand
+   * Optimized: includes variants for data flattening
+   */
+  async findByBrand(brandId: string, excludeProductId: string | null, limit: number = 4): Promise<Product[]> {
+    return prisma.product.findMany({
+      where: {
+        brandId,
+        ...(excludeProductId && { id: { not: excludeProductId } }),
+        status: 'ACTIVE'
+      },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        rating: true,
+        status: true,
+        productImages: {
+          select: { image: { select: { url: true } } },
+          take: 1,
+          orderBy: { order: 'asc' }
+        },
+        variants: {
+          select: {
+            id: true,
+            price: true,
+            salePrice: true,
+            sold: true,
+            image: { select: { url: true } }
+          }
+        }
+      },
+      orderBy: { createdAt: 'desc' },
+      take: limit
+    }) as any;
+  }
 }
 

@@ -10,7 +10,7 @@ import SWTTimeline from '@/src/@core/component/AntD/SWTTimeline';
 import SWTSpin from '@/src/@core/component/AntD/SWTSpin';
 import { OrderDTO, OrderStatus } from '@/src/services/models/customer/order.dto';
 import { useFetchSWR } from '@/src/@core/hooks/useFetchSWR';
-import { getOrderDetails } from '@/src/services/customer/order.service';
+import { getOrderDetails } from '@/src/services/customer/order/order.service';
 
 export type Props = {
   orderId: string;

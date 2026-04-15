@@ -14,6 +14,8 @@ router.get("/", productController.getProducts);
 router.get("/variants/list", productController.getVariants);
 router.get("/variants/:id/batches", productController.getVariantBatches);
 router.get("/variants/:id", productController.getVariantById);
+router.get("/:id/related", productController.getRelatedProducts);
+router.get("/brand/:brandId/products", productController.getBrandProducts);
 router.get("/:id", productController.getProductById);
 router.post("/", productController.createProduct);
 router.post("/variants", productController.createVariant);

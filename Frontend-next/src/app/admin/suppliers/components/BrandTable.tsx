@@ -5,7 +5,7 @@ import SWTTable from "@/src/@core/component/AntD/SWTTable";
 import { Edit, Trash2, Globe, Phone, Mail, MapPin } from "lucide-react";
 import SWTConfirmModal from "@/src/@core/component/AntD/SWTConfirmModal";
 import { showNotificationError, showNotificationSuccess } from "@/src/@core/utils/message";
-import { useBrands, useDeleteBrand } from "@/src/hooks/admin/brand.hook";
+import { useBrands, useDeleteBrand } from "@/src/services/admin/brand/brand.hook";
 import SWTAvatar from "@/src/@core/component/AntD/SWTAvatar";
 import SWTIconButton from "@/src/@core/component/SWTIconButton";
 

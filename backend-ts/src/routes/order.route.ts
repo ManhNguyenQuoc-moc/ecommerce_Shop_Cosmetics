@@ -30,14 +30,14 @@ const orderService = new OrderService(
 );
 
 const orderController = new OrderController(orderService);
+router.post("/checkout", orderController.createOrder); 
 
-// Apply authenticate to all routes below
 router.use(authenticate);
 
 router.get("/me", orderController.getMyOrders);
 router.get("/", orderController.getOrders);
 router.get("/:id", orderController.getOrderById);
-router.post("/checkout", orderController.createOrder); 
+
 router.put("/:id", orderController.updateOrder);
 router.delete("/:id", orderController.deleteOrder);
 

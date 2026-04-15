@@ -2,6 +2,7 @@ import { Router } from "express";
 import { InventoryController } from "../controllers/inventory.controller";
 
 const router = Router();
+
 const controller = new InventoryController();
 
 router.post("/receive", controller.receiveStock);

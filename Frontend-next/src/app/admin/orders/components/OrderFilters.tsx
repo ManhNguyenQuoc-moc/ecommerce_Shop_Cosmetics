@@ -4,7 +4,7 @@ import { SWTInputSearch } from "@/src/@core/component/AntD/SWTInput";
 import SWTSelect from "@/src/@core/component/AntD/SWTSelect";
 import SWTDatePickerRange from "@/src/@core/component/AntD/SWTDatePickerRange";
 import SWTTooltip from "@/src/@core/component/AntD/SWTTooltip";
-import { OrderQueryParams } from "@/src/services/admin/order.service";
+import { OrderQueryParams } from "@/src/services/admin/order/order.service";
 
 interface OrderFiltersProps {
   params: OrderQueryParams;

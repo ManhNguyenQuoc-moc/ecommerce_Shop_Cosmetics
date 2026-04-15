@@ -14,8 +14,8 @@ import SWTIconButton from "@/src/@core/component/SWTIconButton";
 import { useState } from "react";
 import { showNotificationSuccess, showNotificationError } from "@/src/@core/utils/message";
 import { uploadFileToCloudinary, deleteUploads } from "@/src/services/admin/upload.service";
-import { useBrands } from "@/src/hooks/admin/brand.hook";
-import { useCategories } from "@/src/hooks/admin/category.hook";
+import { useBrands } from "@/src/services/admin/brand/brand.hook";
+import { useCategories } from "@/src/services/admin/category/category.hook";
 
 import { CreateProductInput, ProductSpecificationInput, CreateVariantInput } from "@/src/services/models/product/input.dto";
 

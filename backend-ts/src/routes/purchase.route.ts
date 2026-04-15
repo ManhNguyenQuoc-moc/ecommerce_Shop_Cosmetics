@@ -4,7 +4,6 @@ import { PurchaseController } from "../controllers/purchase.controller";
 const router = Router();
 const controller = new PurchaseController();
 
-// Bind methods to preserve `this` context
 router.get("/", controller.getPOs.bind(controller));
 router.post("/", controller.createPO.bind(controller));
 router.post("/receive-stock", controller.receiveStock.bind(controller));

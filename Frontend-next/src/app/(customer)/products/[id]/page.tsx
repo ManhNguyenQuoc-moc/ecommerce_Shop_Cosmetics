@@ -1,4 +1,4 @@
-import { getProductDetail } from "@/src/services/customer/product.service";
+import { getProductDetail, getRelatedProducts, getBrandProducts } from "@/src/services/customer/product/product.service";
 import ProductDetailUI from "./components/ProductDetailUI";
 
 type Props = {
@@ -9,7 +9,13 @@ type Props = {
 
 async function ProductDataWrapper({ id }: { id: string }) {
   const product = await getProductDetail(id);
-  return <ProductDetailUI product={product} />;
+  
+  const [relatedProducts, brandProducts] = await Promise.all([
+    getRelatedProducts(id, 6),
+    product?.brand?.id ? getBrandProducts(product.brand.id, id, 6) : Promise.resolve([])
+  ]);
+  
+  return <ProductDetailUI product={product} relatedProducts={relatedProducts} brandProducts={brandProducts} />;
 }
 
 export default async function ProductPage({ params }: Props) {
