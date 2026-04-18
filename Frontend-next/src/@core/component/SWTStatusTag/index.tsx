@@ -1,6 +1,7 @@
 import React from "react";
+import { getStatusLabel, getStatusVariant } from "@/src/enums/status-config";
 
-export type SWTStatusTagVariant = "ACTIVE" | "HIDDEN" | "STOPPED" | "BEST_SELLING" | "TRENDING" | "NEW" | "CUSTOM";
+export type SWTStatusTagVariant = "ACTIVE" | "HIDDEN" | "STOPPED" | "BEST_SELLING" | "TRENDING" | "NEW" | "PENDING" | "CONFIRMED" | "SHIPPING" | "DELIVERED" | "CANCELLED" | "RETURNED" | "PAID" | "UNPAID" | "DRAFT" | "PARTIALLY_RECEIVED" | "COMPLETED" | "BANNED" | "CUSTOM";
 
 interface SWTStatusTagProps {
   status?: string;       // Preset như 'ACTIVE', 'HIDDEN' v.v..

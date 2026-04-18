@@ -6,6 +6,7 @@ export interface UserService {
   createUser(data: any): Promise<User>;
   updateUser(id: string, data: any): Promise<User>;
   getUsers(page?: number, limit?: number, filters?: any): Promise<{ items: any[], total: number }>;
+  getUserWithRank(id: string): Promise<any | null>;
   
   getOrCreateCustomer(customer: { email?: string, phone: string, name: string }, tx: Prisma.TransactionClient): Promise<{ user: User, rawPassword?: string }>;
   getPointHistory(userId: string): Promise<PointTransaction[]>;

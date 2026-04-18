@@ -2,6 +2,7 @@
 import { useState, } from "react";
 import { useSearchParams } from "next/navigation";
 import { ProductDetailDto, ProductSmallItemDto, ProductDetailVariantDto } from "@/src/services/models/product/output.dto";
+import { BrandResponseDto } from "@/src/services/models/brand/output.dto";
 import { useFetchSWR } from "@/src/@core/hooks/useFetchSWR";
 import ProductGallery from "./ProductGallery";
 import ProductVariants from "./ProductVariants";
@@ -15,11 +16,12 @@ import SWTCard from "@/src/@core/component/AntD/SWTCard";
 
 type Props = {
   product: ProductDetailDto;
+  brand: BrandResponseDto | null;
   relatedProducts: ProductSmallItemDto[];
   brandProducts: ProductSmallItemDto[];
 };
 
-export default function ProductDetailUI({ product, relatedProducts, brandProducts }: Props) {
+export default function ProductDetailUI({ product, brand, relatedProducts, brandProducts }: Props) {
 
   const { data, isLoading } = useFetchSWR<ProductDetailDto>(
   ["products", product?.id],
@@ -83,7 +85,7 @@ export default function ProductDetailUI({ product, relatedProducts, brandProduct
     ])
   );
   return (
-    <div className="container mx-auto px-4 py-8 space-y-8">
+    <div className="container mx-auto space-y-8">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <div className="lg:col-span-9 space-y-8">
           <SWTCard loading={!data && !product && isLoading} className="min-h-[600px]">
@@ -118,7 +120,7 @@ export default function ProductDetailUI({ product, relatedProducts, brandProduct
 
         <div className="lg:col-span-3">
           <ProductSidebar 
-            brand={currentProduct.brand ?? { id: '', name: 'N/A' }}
+            brand={brand || (product.brand as any as BrandResponseDto) || { id: '', name: 'N/A' }}
             relatedProducts={relatedProducts}
             brandProducts={brandProducts}
           />

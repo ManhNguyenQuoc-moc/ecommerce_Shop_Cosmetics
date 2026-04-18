@@ -1,42 +1,27 @@
 import React from 'react';
 import { Info, Truck } from "lucide-react";
-import SWTTooltip from "@/src/@core/component/AntD/SWTTooltip";
-import SWTBreadcrumb from "@/src/@core/component/AntD/SWTBreadcrumb";
+import AdminPageHeader from "../components/AdminPageHeader";
 import SuppliersClient from "./SuppliersClient";
+
+export const dynamic = "force-dynamic";
 
 export default function SuppliersPage() {
   return (
     <div className="space-y-6 animate-fade-in">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <SWTBreadcrumb items={[
-            { title: "Trang chủ", href: "/admin" },
-            { title: "Nhà cung cấp" }
-          ]} />
-          <div className="flex items-center gap-3.5 mt-4 mb-2">
-            <Truck size={32} className="text-brand-500 shrink-0" />
-            <h2 className="!mb-0 text-3xl font-black tracking-tight text-brand-600 dark:text-admin-accent whitespace-nowrap">
-              Quản lý Nhà cung cấp
-            </h2>
-          </div>
-          <p className="admin-page-subtext">
-            Danh sách các đối tác, thương hiệu cung cấp sản phẩm.
-          </p>
-        </div>
+      <AdminPageHeader
+        title="Quản lý Nhà cung cấp"
+        subtitle="Danh sách các đối tác, thương hiệu cung cấp sản phẩm."
+        icon={<Truck size={32} />}
+        breadcrumbs={[
+          { title: "Trang chủ", href: "/admin" },
+          { title: "Nhà cung cấp" }
+        ]}
+        tooltip={{
+          title: "Quản lý danh sách các nhà cung cấp, đối tác thương hiệu cung ứng hàng hóa.",
+          placement: "left"
+        }}
+      />
 
-        <SWTTooltip 
-          title={<span className="text-sm">Quản lý danh sách các nhà cung cấp, đối tác thương hiệu cung ứng hàng hóa.</span>}
-          placement="left"
-          color="pink"
-        >
-          <div className="!h-11 !w-11 flex items-center justify-center bg-brand-50 hover:bg-brand-500/10 dark:bg-brand-500/10 text-brand-600 dark:text-admin-accent rounded-xl cursor-help transition-all shadow-sm border border-brand-200 dark:border-admin-sidebar-border group">
-            <Info size={22} className="stroke-[2.5] group-hover:scale-110 transition-transform" />
-          </div>
-        </SWTTooltip>
-      </div>
-
-      {/* Main Content */}
       <SuppliersClient />
     </div>
   );

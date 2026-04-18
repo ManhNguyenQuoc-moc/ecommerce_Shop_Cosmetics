@@ -1,9 +1,10 @@
 "use client";
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext } from "react";
 import { useUsers, useUpdateUserStatus, useUpdateUserRole } from "@/src/services/admin/user/user.hook";
 import { showNotificationSuccess, showNotificationError } from "@/src/@core/utils/message";
 import { UserProfileDTO } from "@/src/services/admin/user/models/output.model.dto";
 import { BaseResultDto } from "@/src/@core/http/models/ApiResponse";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 
 export interface UserContextType {
   users: UserProfileDTO[];
@@ -30,23 +31,41 @@ export interface UserContextType {
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export const UserProvider = ({ children }: { children: React.ReactNode }) => {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
 
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(6);
-  const [filters, setFilters] = useState({ search: "", role: "all", status: "all" });
+  const page = Number(searchParams.get("page") ?? 1);
+  const pageSize = Number(searchParams.get("pageSize") ?? 6);
+  const search = searchParams.get("search") || "";
+  const role = searchParams.get("role") || "all";
+  const status = searchParams.get("status") || "all";
 
+  const filters = { search, role, status };
   const { users, total, isLoading: isInitialLoading, isValidating, mutate } = useUsers(page, pageSize, filters);
   const { trigger: updateStatusAction } = useUpdateUserStatus();
   const { trigger: updateRoleAction } = useUpdateUserRole();
 
   const handleSearch = (val: string) => {
-    setFilters((prev) => ({ ...prev, search: val }));
-    setPage(1);
+    const params = new URLSearchParams(searchParams.toString());
+    if (val) {
+      params.set("search", val);
+    } else {
+      params.delete("search");
+    }
+    params.set("page", "1");
+    router.replace(`${pathname}?${params.toString()}`);
   };
 
   const handleFilterChange = (key: string, value: any) => {
-    setFilters((prev) => ({ ...prev, [key]: value }));
-    setPage(1);
+    const params = new URLSearchParams(searchParams.toString());
+    if (value && value !== "all") {
+      params.set(key, value);
+    } else {
+      params.delete(key);
+    }
+    params.set("page", "1");
+    router.replace(`${pathname}?${params.toString()}`);
   };
 
   const handleToggleStatus = async (user: UserProfileDTO) => {
@@ -75,6 +94,19 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
       const errorMsg = apiError.error?.message || apiError.message || "Có lỗi xảy ra";
       showNotificationError(errorMsg);
     }
+  };
+
+  const setPage = (newPage: number) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("page", newPage.toString());
+    router.replace(`${pathname}?${params.toString()}`);
+  };
+
+  const setPageSize = (size: number) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("pageSize", size.toString());
+    params.set("page", "1");
+    router.replace(`${pathname}?${params.toString()}`);
   };
 
   const isLoading = isInitialLoading || isValidating;

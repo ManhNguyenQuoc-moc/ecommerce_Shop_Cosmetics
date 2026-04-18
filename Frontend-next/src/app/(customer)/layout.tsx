@@ -1,17 +1,22 @@
-import CustomerHeader from "@/src/layout/customer/AppHeader";
+import HeaderContainer from "@/src/layout/customer/HeaderContainer";
 import AppFooter from "@/src/layout/customer/AppFooter";
 import BackgroundDecor from "@/src/layout/customer/BackgroundDecor";
 import type { Metadata } from "next";
 import { getServerCategories, getServerBrands } from "@/src/services/customer/home/customer.service";
 import { Suspense } from "react";
+import dynamic from "next/dynamic";
 import ThemeForceLight from "@/src/@core/component/Theme/ThemeForceLight";
+import HeaderSkeleton from "@/src/layout/customer/HeaderSkeleton";
+import HeaderActionButtons from "@/src/layout/customer/HeaderActionButtons";
+
+const HeaderSearchInput = dynamic(() => import("@/src/layout/customer/HeaderSearchInput"));
 
 export const metadata: Metadata = {
   title: "Cosmetics Shop - Trang chủ",
-  description: "Chuyên cung cấp các dòng mỹ phẩm chính hãng, chăm sóc da và làm đẹp với giá tốt nhất. Khám phá bộ sưu tập đa dạng từ các thương hiệu nổi tiếng, đảm bảo chất lượng và an toàn cho làn da của bạn. Mua sắm dễ dàng, giao hàng nhanh chóng và dịch vụ khách hàng tận tâm tại Cosmetics Shop.",
+  description: "Chuyên cung cấp các dòng mỹ phẩm chính hãng, chăm sóc da và làm đẹp với giá tốt nhất.",
 };
 
-// Sub-component to fetch data for Header without blocking the layout
+// Server component that fetches header data
 async function HeaderDataWrapper() {
   const [categories, brands] = await Promise.all([
     getServerCategories(),
@@ -19,20 +24,13 @@ async function HeaderDataWrapper() {
   ]);
 
   return (
-    <CustomerHeader
+    <HeaderContainer
       initialCategories={categories || []}
       initialBrands={brands || []}
-    />
-  );
-}
-
-// Fallback for Header while loading data
-function HeaderFallback() {
-  return (
-    <CustomerHeader
-      initialCategories={[]}
-      initialBrands={[]}
-    />
+    >
+      {/* Pass only action buttons as children - AppHeader handles responsive layout */}
+      <HeaderActionButtons />
+    </HeaderContainer>
   );
 }
 
@@ -46,9 +44,11 @@ export default function CustomerLayout({
       <ThemeForceLight />
       <BackgroundDecor />
       <div className="relative z-10 flex flex-col min-h-screen">
-        <Suspense fallback={<HeaderFallback />}>
+        {/* Header with granular Suspense boundaries */}
+        <Suspense fallback={<HeaderSkeleton />}>
           <HeaderDataWrapper />
         </Suspense>
+        {/* Mobile search bar was fixed positioned, now inline - removed this gap */}
 
         <main className="flex-1 max-w-7xl mx-auto px-4 md:px-6 py-8 w-full">
           {children}

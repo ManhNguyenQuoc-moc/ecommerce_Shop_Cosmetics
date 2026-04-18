@@ -1,27 +1,19 @@
-import SWTStatustag from "@/src/@core/component/SWTStatusTag";
-
-const is_banned = {
-    true: "BANNED",
-    false: "ACTIVE"
-} as const;
-
-export type UserStatusType = typeof is_banned[keyof typeof is_banned];
+import SWTStatusTag from "@/src/@core/component/SWTStatusTag";
+import { UserStatusType } from "@/src/enums/user.enum";
+import { getStatusLabel } from "@/src/enums/status-config";
 
 interface Props {
   className?: string;
   status: UserStatusType;
 }
+
 export default function UserStatusTag({ status, className }: Props) {
-  const getLabel = () => {
-    if (status === "ACTIVE") return "Đang hoạt động";
-    if (status === "BANNED") return "Bị khóa";
-    return status;
-  };
+  const label = getStatusLabel(status);
 
   return (
-    <SWTStatustag
+    <SWTStatusTag
       status={status}
-      label={getLabel()}
+      label={label}
       className={className}
     />
   );

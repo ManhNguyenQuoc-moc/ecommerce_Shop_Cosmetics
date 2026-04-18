@@ -1,6 +1,10 @@
 
+import { Settings, Award } from "lucide-react";
+import AdminPageHeader from "../../components/AdminPageHeader";
 import PointsSettingClient from "./PointsSettingClient";
 import type { Metadata } from 'next';
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: 'Cấu Hình Điểm Thưởng - Admin Shop Cosmetics',
@@ -9,17 +13,17 @@ export const metadata: Metadata = {
 
 export default function PointsSettingPage() {
   return (
-    <div className="w-full flex-col p-4 md:p-8 flex gap-4 lg:gap-8 animate-fade-in">
-      <div className="flex justify-between items-center bg-bg-card backdrop-blur-xl p-4 md:p-8 rounded-2xl border border-border-default shadow-sm w-full">
-        <div className="flex flex-col gap-1 items-start justify-center">
-          <h1 className="font-bold text-2xl lg:text-3xl m-0 tracking-tight text-text-main">
-            Cấu Hình
-          </h1>
-          <p className="text-sm font-medium text-text-muted m-0">
-            Quản lý cấu hình cài đặt điểm thưởng và hệ thống
-          </p>
-        </div>
-      </div>
+    <div className="w-full flex-col flex gap-6 animate-fade-in">
+      <AdminPageHeader
+        title="Cấu Hình Điểm Thưởng"
+        subtitle="Quản lý cấu hình cài đặt điểm thưởng và hệ thống"
+        icon={<Settings size={32} />}
+        breadcrumbs={[
+          { title: "Trang chủ", href: "/admin" },
+          { title: "Settings" },
+          { title: "Điểm Thưởng" }
+        ]}
+      />
       <PointsSettingClient />
     </div>
   );

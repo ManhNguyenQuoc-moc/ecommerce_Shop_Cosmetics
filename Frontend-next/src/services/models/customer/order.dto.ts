@@ -1,14 +1,17 @@
+export type { OrderStatus } from "@/src/enums";
+import type { OrderStatus } from "@/src/enums";
+
+export type OrderStatusType = `${OrderStatus}`;
+
 export interface OrderItemDTO {
   id: string;
   variantId: string;
   product_name: string;
   product_image: string;
-  variant_name?: string;
+  variant_name: string;
   price: number;
   quantity: number;
 }
-
-export type OrderStatus = "PENDING" | "CONFIRMED" | "SHIPPING" | "DELIVERED" | "CANCELLED" | "RETURNED";
 
 export interface OrderDTO {
   id: string;
@@ -17,7 +20,7 @@ export interface OrderDTO {
   createdAt: string;
   total_amount: number;
   final_amount: number;
-  customer_name : string;
+  customer_name: string;
   customer_phone?: string;
   customer_email?: string;
   items: OrderItemDTO[];

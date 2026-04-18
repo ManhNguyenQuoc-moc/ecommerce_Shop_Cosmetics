@@ -34,7 +34,13 @@ export function proxy(request: NextRequest) {
   }
 
   if (pathname.startsWith("/admin")) {
+    console.log("[MIDDLEWARE] Admin access check:", {
+      pathname,
+      hasCookie: !!userInfoCookie,
+      user: user ? { id: user.id, role: user.role, email: user.email } : null,
+    });
     if (!user || user.role !== "ADMIN") {
+      console.log("[MIDDLEWARE] Admin denied - redirecting to home");
       return NextResponse.redirect(new URL("/", request.url));
     }
   }

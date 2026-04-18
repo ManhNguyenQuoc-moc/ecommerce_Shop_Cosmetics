@@ -180,7 +180,12 @@ export default function InventoryTable({ isPending }: InventoryTableProps) {
             fetch: pageSize,
             onChange: (p: number, f: number) => {
               const params = new URLSearchParams(searchParams.toString());
-              params.set("page", p.toString());
+              // If pageSize changed, reset to page 1
+              if (f !== pageSize) {
+                params.set("page", "1");
+              } else {
+                params.set("page", p.toString());
+              }
               params.set("pageSize", f.toString());
               router.replace(`${pathname}?${params.toString()}`);
             },

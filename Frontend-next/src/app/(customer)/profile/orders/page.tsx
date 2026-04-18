@@ -1,5 +1,11 @@
-import SWTCard from "@/src/@core/component/AntD/SWTCard";
-import OrdersClient from "./OrdersClient";
+import dynamicImport from "next/dynamic";
+import SWTLoading from "@/src/@core/component/AntD/SWTLoading";
+
+export const dynamic = "force-dynamic";
+
+const OrdersClient = dynamicImport(() => import("./OrdersClient"), {
+  loading: () => <SWTLoading tip="Đang tải danh sách đơn hàng..." />
+});
 
 type Props = {
   searchParams: Promise<{

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { Suspense, useTransition } from "react";
+import useSWTTitle from "@/src/@core/hooks/useSWTTitle";
 import SWTTabs from "@/src/@core/component/AntD/SWTTabs";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import InventoryTable from "./components/InventoryTable";
@@ -8,6 +9,7 @@ import InventoryFilters from "./components/InventoryFilters";
 import InventoryCharts from "./components/InventoryCharts";
 
 export default function InventoryClient() {
+  useSWTTitle("Quản lý Tồn Kho | Admin");
   const [isPending, startTransition] = useTransition();
   const searchParams = useSearchParams();
   const router = useRouter();

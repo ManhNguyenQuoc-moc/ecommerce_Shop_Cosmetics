@@ -1,11 +1,14 @@
 "use client";
 
 import SWTTable from "@/src/@core/component/AntD/SWTTable";
-import { Eye } from "lucide-react";
+import { Eye, MoreVertical } from "lucide-react";
 import SWTIconButton from "@/src/@core/component/SWTIconButton";
 import SWTStatusTag from "@/src/@core/component/SWTStatusTag";
-import { OrderDto, OrderStatus } from "@/src/services/models/order/output.dto";
+import { OrderDto } from "@/src/services/models/order/output.dto";
+import { OrderStatus } from "@/src/enums";
 import React, { useMemo } from "react";
+import { Dropdown } from "antd";
+import type { MenuProps } from "antd";
 
 interface OrderTableProps {
   orders: OrderDto[];
@@ -16,15 +19,6 @@ interface OrderTableProps {
   onPaginationChange: (page: number, pageSize: number) => void;
   onView: (order: OrderDto) => void;
 }
-
-const statusLabels: Record<OrderStatus, string> = {
-  PENDING: "Chờ xác nhận",
-  CONFIRMED: "Đã xác nhận",
-  SHIPPING: "Đang giao hàng",
-  DELIVERED: "Đã giao hàng",
-  CANCELLED: "Đã hủy",
-  RETURNED: "Trả hàng",
-};
 
 export default function OrderTable({ orders, total, isLoading, page, pageSize, onPaginationChange, onView }: OrderTableProps) {
   
@@ -104,16 +98,30 @@ export default function OrderTable({ orders, total, isLoading, page, pageSize, o
       title: 'Thao tác',
       key: 'actions',
       align: 'center' as const,
-      render: (_: any, record: OrderDto) => (
-        <div className="flex justify-center">
-          <SWTIconButton 
-            variant="view"
-            icon={<Eye size={18} />}
-            tooltip="Xem chi tiết"
-            onClick={() => onView(record)}
-          />
-        </div>
-      )
+      render: (_: any, record: OrderDto) => {
+        const actionItems: MenuProps['items'] = [
+          {
+            key: 'view',
+            label: (
+              <div className="flex items-center gap-2 font-medium px-1 py-1 text-blue-500">
+                <Eye size={16} />
+                <span>Xem chi tiết</span>
+              </div>
+            ),
+            onClick: () => onView(record)
+          }
+        ];
+
+        return (
+          <Dropdown menu={{ items: actionItems }} trigger={['click']} placement="bottomRight">
+            <SWTIconButton
+              variant="custom"
+              icon={<MoreVertical size={18} />}
+              className="text-text-muted hover:text-brand-500 border-transparent hover:border-brand-500/30"
+            />
+          </Dropdown>
+        );
+      }
     }
   ], [onView]);
 

@@ -9,10 +9,12 @@ import { useRouter } from "next/navigation";
 import { useCart } from "../cart/cart.hook";
 import { CheckoutRequestDTO } from "@/src/services/models/checkout/input.dto";
 import { getVoucherByCode } from "@/src/services/customer/voucher/voucher.service";
+import { useSWRConfig } from "swr";
 
 export const useCheckout = () => {
   const router = useRouter();
   const { clearCart } = useCart();
+  const { mutate } = useSWRConfig();  // ← Get global SWR mutate function
   const {
     mode,
     items,
@@ -39,13 +41,13 @@ export const useCheckout = () => {
     try {
       const data = await getCustomerInfo(user.id);
       setCustomer({
-        name: (data as any).full_name || data.name || "",
-        phone: data.phone || "",
-        email: data.email || "",
+        name: ((data as any).full_name || (data as any).name || "") as string,
+        phone: (data as any).phone || "",
+        email: (data as any).email || "",
       });
-      setAddresses(data.addresses || []);
-      if (data.addresses?.length > 0 && !selectedAddress) {
-        setSelectedAddress(data.addresses[0]);
+      setAddresses((data as any).addresses || []);
+      if ((data as any).addresses?.length > 0 && !selectedAddress) {
+        setSelectedAddress((data as any).addresses[0]);
       }
     } catch (err) {
       console.error("Fetch customer info error:", err);
@@ -69,12 +71,12 @@ export const useCheckout = () => {
 
     let discount = 0;
     if (appliedVoucher.type === "PERCENTAGE") {
-      discount = (subtotal * appliedVoucher.value) / 100;
-      if (appliedVoucher.max_discount_amount && discount > appliedVoucher.max_discount_amount) {
-        discount = appliedVoucher.max_discount_amount;
+      discount = (subtotal * appliedVoucher.discount) / 100;
+      if (appliedVoucher.max_discount && discount > appliedVoucher.max_discount) {
+        discount = appliedVoucher.max_discount;
       }
     } else {
-      discount = appliedVoucher.value;
+      discount = appliedVoucher.discount;
     }
     return Math.min(discount, subtotal);
   };
@@ -92,8 +94,22 @@ export const useCheckout = () => {
         return;
       }
 
-      if (voucher.is_expired) {
+      // Check if user already used this voucher
+      if (voucher.is_used_by_user) {
+        showNotificationError("Bạn đã sử dụng mã giảm giá này rồi");
+        return;
+      }
+
+      const now = new Date();
+      const endDate = new Date(voucher.valid_until);
+      const isExpired = now > endDate || !voucher.isActive;
+      if (isExpired) {
         showNotificationError("Mã giảm giá đã hết hạn");
+        return;
+      }
+
+      if (voucher.used_count >= voucher.usage_limit) {
+        showNotificationError("Mã giảm giá đã hết lượt dùng");
         return;
       }
 
@@ -155,6 +171,16 @@ export const useCheckout = () => {
       };
 
       const res = await checkoutService.createOrder(payload);
+      
+      // Refetch all voucher caches after successful checkout
+      // This ensures vouchers marked as used are updated immediately
+      const user = authStorage.getUser();
+      if (user?.id) {
+        // Clear both regular and redeem voucher caches
+        await mutate(key => typeof key === 'string' && (
+          key.includes('vouchers_') || key.includes('redeem_vouchers_')
+        ));
+      }
       
       if (res?.paymentUrl) {
         window.location.href = res.paymentUrl;

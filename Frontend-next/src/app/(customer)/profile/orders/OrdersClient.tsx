@@ -10,7 +10,7 @@ import { useFetchSWR } from "@/src/@core/hooks/useFetchSWR";
 import { getOrders } from "@/src/services/customer/order/order.service";
 import OrderCard from "./components/OrderCard";
 import { OrderStatus, OrderListResponseDTO, OrderDTO } from "@/src/services/models/customer/order.dto";
-import { ProfileListSkeleton } from "../components/ProfileSkeleton";
+import SWTLoading from "@/src/@core/component/AntD/SWTLoading";
 
 interface OrdersClientProps {
   initialData?: OrderListResponseDTO;
@@ -79,7 +79,7 @@ export default function OrdersClient({ initialData, initialTab, initialPage }: O
         <div className={`min-h-[400px] p-4 transition-all duration-300 ${isValidating ? "opacity-60 grayscale-[0.2]" : "opacity-100"}`}>
           {showLoading ? (
             <div className="p-8">
-              <ProfileListSkeleton/>
+              <SWTLoading tip="Đang tải danh sách đơn hàng..." />
             </div>
           ) : orders.length > 0 ? (
             <div className="flex flex-col gap-3">

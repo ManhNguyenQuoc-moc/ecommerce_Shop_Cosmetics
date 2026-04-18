@@ -1,12 +1,14 @@
 "use client";
 
 import React, { useEffect } from "react";
+import useSWTTitle from "@/src/@core/hooks/useSWTTitle";
 import { Form, InputNumber } from "antd";
 import SWTButton from "@/src/@core/component/AntD/SWTButton";
 import { useGetSettings, useUpdateSettings } from "@/src/services/admin/user/setting.hook";
 import { showNotificationSuccess, showNotificationError } from "@/src/@core/utils/message";
 
 export default function PointsSettingClient() {
+  useSWTTitle("Cấu Hình Điểm Thưởng | Admin");
   const [form] = Form.useForm();
   const { settings, isLoading, mutate } = useGetSettings();
   const { trigger: updateSettings, isMutating } = useUpdateSettings();

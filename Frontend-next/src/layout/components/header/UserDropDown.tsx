@@ -3,15 +3,14 @@
 import { Dropdown } from "antd";
 import type { MenuProps } from "antd";
 import SWTAvatar from "@/src/@core/component/AntD/SWTAvatar";
-import { User, Settings, LogOut, CreditCard, ChevronDown, Package, Award, Ticket } from "lucide-react";
+import { User, LogOut, CreditCard, ChevronDown, Package, Award, Ticket } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/src/context/AuthContext";
-import Link from "next/link";
 
 export default function UserDropdown() {
   
   const router = useRouter();
-  const { currentUser, logout, isUploadingAvatar } = useAuth();
+  const { currentUser, logout } = useAuth();
 
   const handleLogout = () => {
     logout();
@@ -44,8 +43,8 @@ export default function UserDropdown() {
 
     return (
       <Dropdown menu={guestMenu} trigger={['click']} placement="bottomRight">
-        <div className="flex items-center justify-center w-11 h-11 rounded-2xl bg-white border border-brand-200/60 hover:border-brand-500/40 text-brand-900 hover:text-brand-600 transition-all cursor-pointer group shadow-sm shrink-0">
-          <User className="group-hover:fill-brand-400/20 transition-colors" size={20} />
+        <div className="flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-white border border-brand-200/60 hover:border-brand-500/40 text-brand-900 hover:text-brand-600 transition-all cursor-pointer group shadow-sm shrink-0">
+          <User className="group-hover:fill-brand-400/20 transition-colors" size={18} />
         </div>
       </Dropdown>
     );
@@ -113,19 +112,27 @@ export default function UserDropdown() {
 
   return (
     <Dropdown menu={accountMenu} trigger={['click']} placement="bottomRight">
-      <div className="flex items-center gap-3 cursor-pointer p-1.5 pr-2 sm:pr-4 rounded-2xl bg-white hover:bg-brand-50 border border-brand-200/60 hover:border-brand-500/40 transition-all group shadow-sm shrink-0">
-        <div className="relative">
+      <div className="flex items-center cursor-pointer rounded-2xl bg-white hover:bg-brand-50 border border-brand-200/60 hover:border-brand-500/40 text-brand-900 hover:text-brand-600 transition-all group shadow-sm shrink-0">
+        {/* Mobile: Icon only - w-10 h-10 */}
+        <div className="sm:hidden flex items-center justify-center w-10 h-10">
+          <SWTAvatar 
+            size={32} 
+            src={currentUser?.avatar} 
+          />
+        </div>
+        
+        {/* Desktop: Avatar + Name */}
+        <div className="hidden sm:flex items-center gap-2 px-2.5 py-1.5">
           <SWTAvatar 
             size={36} 
             src={currentUser?.avatar} 
-            className="border-brand-100 shadow-sm group-hover:scale-105 transition-transform"
           />
+          <div className="flex flex-col items-start">
+            <span className="text-[10px] uppercase font-bold text-brand-600 tracking-widest mb-1">Khách hàng</span>
+            <span className="text-sm font-bold text-brand-900 leading-none">{(currentUser as any)?.full_name || currentUser?.name || "Người dùng"}</span>
+          </div>
+          <ChevronDown size={16} className="text-brand-400 ml-1 group-hover:translate-y-0.5 transition-transform" />
         </div>
-        <div className="hidden sm:flex flex-col items-start border-none">
-          <span className="text-[10px] uppercase font-bold text-brand-600 tracking-widest mb-1">Khách hàng</span>
-          <span className="text-sm font-bold text-brand-900 leading-none">{(currentUser as any)?.full_name || currentUser?.name || "Người dùng"}</span>
-        </div>
-        <ChevronDown size={16} className="text-brand-400 ml-1 group-hover:translate-y-0.5 transition-transform hidden sm:block" />
       </div>
     </Dropdown>
   );

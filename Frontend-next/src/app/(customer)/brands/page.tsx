@@ -1,8 +1,10 @@
-import React from "react";
+
 import { getServerBrands, getServerCategories } from "@/src/services/customer/home/customer.service";
 import SWTBreadcrumb from "@/src/@core/component/AntD/SWTBreadcrumb";
 import BrandFeaturedSelection from "./components/BrandFeaturedSelection";
 import BrandGridClient from "./components/BrandGridClient";
+
+export const revalidate = 3600; // 1 hour
 
 export default async function BrandPage() {
   const [brands, categories] = await Promise.all([

@@ -15,6 +15,17 @@ export class UserService implements IUserService {
     return this.userRepository.findById(id);
   }
 
+  async getUserWithRank(id: string): Promise<any | null> {
+    const user = await this.userRepository.findById(id);
+    if (!user) return null;
+
+    return {
+      ...user,
+      member_rank: this.calculateRank(user.lifetime_points),
+      used_points: user.lifetime_points - user.loyalty_points,
+    };
+  }
+
   async getUserByEmail(email: string, tx?: Prisma.TransactionClient): Promise<User | null> {
     return this.userRepository.findByEmail(email, tx);
   }

@@ -7,14 +7,16 @@ import { CreateVoucherDTO, UpdateVoucherDTO, VoucherResponseDTO } from "../DTO/v
 export class DiscountService implements IDiscountService {
   constructor(private readonly discountRepository: IDiscountRepository) {}
 
-  async getAllVouchers(userId?: string): Promise<VoucherResponseDTO[]> {
-    const vouchers = await this.discountRepository.findAll();
-    return this.mapVouchersWithUsage(vouchers, userId);
+  async getAllVouchers(userId?: string, skip?: number, take?: number): Promise<{ items: VoucherResponseDTO[], total: number }> {
+    const [vouchers, total] = await this.discountRepository.findAll(skip, take);
+    const mappedVouchers = await this.mapVouchersWithUsage(vouchers, userId);
+    return { items: mappedVouchers, total };
   }
 
-  async getActiveVouchers(userId?: string): Promise<VoucherResponseDTO[]> {
-    const vouchers = await this.discountRepository.findAllActive();
-    return this.mapVouchersWithUsage(vouchers, userId);
+  async getActiveVouchers(userId?: string, skip?: number, take?: number): Promise<{ items: VoucherResponseDTO[], total: number }> {
+    const [vouchers, total] = await this.discountRepository.findAllActive(skip, take);
+    const mappedVouchers = await this.mapVouchersWithUsage(vouchers, userId);
+    return { items: mappedVouchers, total };
   }
 
   private async mapVouchersWithUsage(vouchers: DiscountCode[], userId?: string): Promise<VoucherResponseDTO[]> {
@@ -40,8 +42,17 @@ export class DiscountService implements IDiscountService {
     }));
   }
 
-  async getVoucherByCode(code: string): Promise<DiscountCode | null> {
-    return this.discountRepository.findByCode(code);
+  async getVoucherByCode(code: string, userId?: string): Promise<any | null> {
+    const voucher = await this.discountRepository.findByCode(code);
+    if (!voucher) return null;
+    
+    // Map with usage info if userId is provided
+    if (userId) {
+      const mapped = await this.mapVouchersWithUsage([voucher], userId);
+      return mapped[0] || null;
+    }
+    
+    return { ...voucher, is_used_by_user: false };
   }
 
   async createVoucher(data: CreateVoucherDTO): Promise<DiscountCode> {

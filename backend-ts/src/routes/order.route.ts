@@ -11,6 +11,9 @@ import { SettingService } from "../services/setting.service";
 
 import { authenticate } from "../middlewares/auth.middleware";
 
+import { NotificationService } from "../services/notification.service";
+import { NotificationRepository } from "../repositories/notification.repository";
+
 const router = Router();
 
 const orderRepository = new OrderRepository();
@@ -21,12 +24,16 @@ const mailService = new MailService();
 const settingRepository = new SettingRepository();
 const settingService = new SettingService(settingRepository);
 
+const notificationRepository = new NotificationRepository();
+const notificationService = new NotificationService(notificationRepository);
+
 const orderService = new OrderService(
   orderRepository, 
   userService, 
   inventoryRepository, 
   mailService,
-  settingService
+  settingService,
+  notificationService
 );
 
 const orderController = new OrderController(orderService);

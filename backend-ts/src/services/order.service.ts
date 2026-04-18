@@ -9,13 +9,17 @@ import { MailService } from "./mail.service";
 import { prisma } from "../config/prisma";
 import { SettingService } from "./setting.service";
 
+import { NotificationService } from "./notification.service";
+import { NotificationType } from "@prisma/client";
+
 export class OrderService implements IOrderService {
   constructor(
     private readonly orderRepository: IOrderRepository,
     private readonly userService: IUserService,
     private readonly inventoryRepository: IInventoryRepository,
     private readonly mailService: MailService,
-    private readonly settingService: SettingService
+    private readonly settingService: SettingService,
+    private readonly notificationService: NotificationService
   ) {}
 
   async getOrders(page?: number, pageSize?: number, filters?: OrderQueryFiltersDTO): Promise<{ items: any[], total: number }> {
@@ -147,18 +151,40 @@ export class OrderService implements IOrderService {
         await this.inventoryRepository.deductStock(item.variantId, item.quantity, order.id, tx);
       }
 
-      // 5. Send Email (Non-blocking, after transaction)
-      if (data.customer?.email) {
-        this.mailService.sendOrderConfirmation(data.customer.email, order, rawPassword).catch(console.error);
-      } else if (userId) {
-        const user = await this.userService.getUserById(userId);
-        if (user?.email) {
-          this.mailService.sendOrderConfirmation(user.email, order, rawPassword).catch(console.error);
+      // 5. Create Notification for Admin
+      this.notificationService.createNotification({
+        title: "Đơn hàng mới",
+        content: `Cửa hàng vừa nhận đơn hàng mới #${order.id} trị giá ${finalAmount.toLocaleString()}đ`,
+        type: NotificationType.NEW_ORDER,
+        metadata: { orderId: order.id }
+      }).catch(console.error);
+
+      // 6. Send Email (Non-blocking, after transaction)
+      // Only send immediately for COD. For MOMO/VNPAY, we wait for payment link success or actual payment.
+      if (data.paymentMethod === 'COD') {
+        if (data.customer?.email) {
+          this.mailService.sendOrderConfirmation(data.customer.email, order, rawPassword).catch(console.error);
+        } else if (userId) {
+          this.userService.getUserById(userId).then(user => {
+            if (user?.email) {
+              this.mailService.sendOrderConfirmation(user.email, order, rawPassword).catch(console.error);
+            }
+          }).catch(console.error);
         }
       }
 
       return order;
     });
+  }
+
+  async sendOrderConfirmationEmail(orderId: string): Promise<void> {
+    const order = await this.orderRepository.findById(orderId);
+    if (!order) return;
+
+    const user = await this.userService.getUserById(order.userId);
+    if (user?.email) {
+      this.mailService.sendOrderConfirmation(user.email, order as any).catch(console.error);
+    }
   }
 
   async updateOrder(id: string, data: UpdateOrderDTO): Promise<Order> {

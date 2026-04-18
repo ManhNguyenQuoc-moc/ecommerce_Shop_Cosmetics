@@ -1,4 +1,5 @@
-import { OrderStatus } from "@/src/services/models/order/output.dto";
+import { OrderStatus } from "@/src/enums";
+import { getStatusLabel, getStatusVariant } from "@/src/enums/status-config";
 import { useOrder } from "@/src/services/admin/order/order.hook";
 import { updateOrderStatus, updateOrderPaymentStatus } from "@/src/services/admin/order/order.service";
 import { showNotificationSuccess, showNotificationError } from "@/src/@core/utils/message";
@@ -19,16 +20,7 @@ interface OrderDetailDrawerProps {
   onUpdate?: () => void;
 }
 
-const statusLabels: Record<OrderStatus, string> = {
-  PENDING: "Chờ xác nhận",
-  CONFIRMED: "Đã xác nhận",
-  SHIPPING: "Đang giao hàng",
-  DELIVERED: "Đã giao hàng",
-  CANCELLED: "Đã hủy",
-  RETURNED: "Trả hàng",
-};
-
-const statusIcons: Record<OrderStatus, React.ReactNode> = {
+const statusIcons: Record<string, React.ReactNode> = {
   PENDING: <Clock size={16} />,
   CONFIRMED: <CheckCircle2 size={16} />,
   SHIPPING: <Truck size={16} />,
@@ -37,8 +29,8 @@ const statusIcons: Record<OrderStatus, React.ReactNode> = {
   RETURNED: <Undo2 size={16} />,
 };
 
-const getStatusClasses = (status: OrderStatus) => {
-  const mapping: Record<OrderStatus, string> = {
+const getStatusClasses = (status: string) => {
+  const mapping: Record<string, string> = {
     PENDING: "bg-status-info-bg text-status-info-text border-status-info-border",
     CONFIRMED: "bg-status-warning-bg text-status-warning-text border-status-warning-border",
     SHIPPING: "bg-status-info-bg text-status-info-text border-status-info-border",
@@ -55,12 +47,12 @@ export default function OrderDetailDrawer({ orderId, open, onClose, onUpdate }: 
 
   const formatVND = (v: number) => new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(v || 0);
 
-  const handleStatusUpdate = async (newStatus: OrderStatus) => {
+  const handleStatusUpdate = async (newStatus: string) => {
     if (!orderId) return;
     setUpdating(true);
     try {
       await updateOrderStatus(orderId, newStatus);
-      showNotificationSuccess(`Đã cập nhật: ${statusLabels[newStatus]}`);
+      showNotificationSuccess(`Đã cập nhật: ${getStatusLabel(newStatus)}`);
       mutate();
       onUpdate?.();
     } catch (err: any) {
@@ -70,11 +62,11 @@ export default function OrderDetailDrawer({ orderId, open, onClose, onUpdate }: 
     }
   };
 
-  const getNextStatuses = (current: OrderStatus): OrderStatus[] => {
+  const getNextStatuses = (current: string): string[] => {
     switch (current) {
-      case "PENDING": return ["CONFIRMED", "CANCELLED"];
-      case "CONFIRMED": return ["SHIPPING", "CANCELLED"];
-      case "SHIPPING": return ["DELIVERED", "RETURNED"];
+      case OrderStatus.PENDING: return [OrderStatus.CONFIRMED, OrderStatus.CANCELLED];
+      case OrderStatus.CONFIRMED: return [OrderStatus.SHIPPING, OrderStatus.CANCELLED];
+      case OrderStatus.SHIPPING: return [OrderStatus.DELIVERED, OrderStatus.RETURNED];
       default: return [];
     }
   };
@@ -94,7 +86,7 @@ export default function OrderDetailDrawer({ orderId, open, onClose, onUpdate }: 
     }
   };
 
-  const getSoftActionClasses = (status: OrderStatus) => {
+  const getSoftActionClasses = (status: string) => {
     const mapping: Record<string, string> = {
       CONFIRMED: "!bg-status-warning-bg !border-status-warning-border !text-status-warning-text hover:opacity-80",
       SHIPPING: "!bg-status-info-bg !border-status-info-border !text-status-info-text hover:opacity-80",
@@ -128,7 +120,7 @@ export default function OrderDetailDrawer({ orderId, open, onClose, onUpdate }: 
               startIcon={statusIcons[s]}
               className={`!rounded-xl !h-10 px-5 !font-bold shadow-sm !w-auto transition-all ${getSoftActionClasses(s)}`}
             >
-              {statusLabels[s]}
+              {getStatusLabel(s, 'order')}
             </SWTButton>
           ))}
 
@@ -163,7 +155,7 @@ export default function OrderDetailDrawer({ orderId, open, onClose, onUpdate }: 
           </div>
           {order && (
             <div className={`px-3 py-1.5 rounded-lg border text-xs font-bold uppercase shadow-sm ${getStatusClasses(order.current_status)}`}>
-              {statusLabels[order.current_status]}
+              {getStatusLabel(order.current_status, 'order')}
             </div>
           )}
         </div>
@@ -352,7 +344,7 @@ export default function OrderDetailDrawer({ orderId, open, onClose, onUpdate }: 
                 children: (
                   <div className="flex flex-col gap-1 ml-2 pb-4">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-                      <span className="text-sm font-bold text-text-sub">{statusLabels[history.status]}</span>
+                      <span className="text-sm font-bold text-text-sub">{getStatusLabel(history.status, 'order')}</span>
                       <span className="text-[11px] text-text-muted font-medium bg-bg-muted px-2 py-0.5 rounded border border-border-default">
                         {new Date(history.createdAt).toLocaleString("vi-VN", { dateStyle: 'medium', timeStyle: 'short' })}
                       </span>

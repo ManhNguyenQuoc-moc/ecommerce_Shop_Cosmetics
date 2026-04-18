@@ -1,4 +1,5 @@
 import { get } from "../../../@core/utils/api";
+import { BrandResponseDto } from "../../models/brand/output.dto";
 
 export const BRAND_API_ENDPOINT = "/brands";
 
@@ -12,4 +13,8 @@ export const getCustomerBrands = (page: number = 1, pageSize: number = 10, searc
 
   const url = `${BRAND_API_ENDPOINT}?${query.toString()}`;
   return get(url);
+};
+
+export const getBrandById = (id: string) => {
+  return get<BrandResponseDto>(`${BRAND_API_ENDPOINT}/${id}`);
 };

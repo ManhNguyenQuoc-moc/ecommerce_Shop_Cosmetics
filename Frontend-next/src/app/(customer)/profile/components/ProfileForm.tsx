@@ -169,7 +169,7 @@ export default function ProfileForm({ initialData }: Props) {
       >
         <div className="absolute top-4 left-6 w-24 h-24 bg-white/10 rounded-full blur-2xl" />
         <div className="absolute bottom-2 right-12 w-32 h-32 bg-white/10 rounded-full blur-3xl" />
-        <div className="absolute top-4 right-4 flex gap-2">
+        <div className="absolute top-4 right-4 flex flex-col-reverse gap-2">
           {!isEdit ? (
             <>
               <SWTButton
@@ -186,31 +186,20 @@ export default function ProfileForm({ initialData }: Props) {
                   type="text"
                   size="sm"
                   startIcon={<LockOutlined className="!text-brand-500" />}
-                  className="!flex !items-center !gap-1.5 !bg-bg-card/80 !backdrop-blur !text-text-main hover:!bg-bg-card !text-sm !font-bold !px-3 !py-1.5 !rounded-full !shadow !transition-all !h-[40px] !border !border-border-default"
+                  className="!flex !items-center !gap-1.5 !bg-bg-card/80 !backdrop-blur !text-text-main hover:!bg-bg-card !text-xs !font-bold !px-4 !py-1.5 !rounded-full !shadow !transition-all !h-[40px] !border !border-border-default whitespace-nowrap"
                 >
                   Đổi mật khẩu
                 </SWTButton>
               </Link>
             </>
           ) : (
-            <>
-              <SWTButton
-                onClick={handleCancel}
-                startIcon={<CloseOutlined />}
-                className="!flex !items-center !gap-1.5 !h-[40px] !bg-white/80 !backdrop-blur !text-gray-600 hover:!bg-white !text-sm !font-medium !px-3 !py-1.5 !rounded-full !shadow !transition-all"
-              >
-                Huỷ
-              </SWTButton>
-              <SWTButton
-                type="primary"
-                onClick={() => form.submit()}
-                loading={isSubmitting}
-                startIcon={<SaveOutlined />}
-                className="!flex !items-center !gap-1.5 !h-[40px] !bg-brand-500 hover:!bg-brand-600 !text-white !text-sm !font-medium !px-4 !py-1.5 !rounded-full !shadow !transition-all"
-              >
-                Lưu
-              </SWTButton>
-            </>
+            <SWTButton
+              onClick={handleCancel}
+              startIcon={<CloseOutlined />}
+              className="!flex !items-center !gap-1.5 !h-[40px] !bg-white/80 !backdrop-blur !text-gray-600 hover:!bg-white !text-sm !font-medium !px-3 !py-1.5 !rounded-full !shadow !transition-all"
+            >
+              Huỷ
+            </SWTButton>
           )}
         </div>
       </div>
@@ -411,6 +400,20 @@ export default function ProfileForm({ initialData }: Props) {
             </div>
           </div>
         </SWTForm>
+
+        {isEdit && (
+          <div className="flex justify-end gap-2 mt-6 pt-4 border-t border-border-default">
+            <SWTButton
+              type="primary"
+              onClick={() => form.submit()}
+              loading={isSubmitting}
+              startIcon={<SaveOutlined />}
+              className="!flex !items-center !gap-1.5 !bg-brand-500 hover:!bg-brand-600 !text-white !font-medium !px-6 !py-2 !rounded-lg !shadow !transition-all"
+            >
+              Lưu thay đổi
+            </SWTButton>
+          </div>
+        )}
       </div>
     </SWTCard>
   );

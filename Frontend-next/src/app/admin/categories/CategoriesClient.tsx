@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
+import useSWTTitle from "@/src/@core/hooks/useSWTTitle";
 import CategoryTable from "./components/CategoryTable";
 import CategoryGroupTable from "./components/CategoryGroupTable";
 import SWTTabs from "@/src/@core/component/AntD/SWTTabs";
@@ -10,6 +11,7 @@ import AddCategoryGroupModal from "./components/AddCategoryGroupModal";
 import { CategoryResponseDto } from "@/src/services/models/category/output.dto";
 
 export default function CategoriesClient() {
+  useSWTTitle("Quản lý Danh mục & Nhóm | Admin");
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();

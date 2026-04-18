@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import useSWTTitle from "@/src/@core/hooks/useSWTTitle";
 import { useSearchParams, useRouter } from "next/navigation";
 import type { BreadcrumbProps } from "antd";
 
@@ -29,12 +30,13 @@ type Props = {
 };
 
 export default function ProductsClient({ initialData, initialCategories, initialBrands }: Props) {
-
+  useSWTTitle("Sản Phẩm");
   const searchParams = useSearchParams();
   const router = useRouter();
 
   const categorySlug = searchParams.get("category");
   const brandId = searchParams.get("brandId");
+  const searchTerm = searchParams.get("searchTerm") || undefined;
 
   const page = Number(searchParams.get("page") ?? 1);
   const pageSize = Number(searchParams.get("pageSize") ?? 9);
@@ -69,7 +71,7 @@ export default function ProductsClient({ initialData, initialCategories, initial
   });
 
   const { data, isLoading, isValidating } = useFetchSWR<PaginationResponse<ProductListItemDto>>(
-    ["products", page, pageSize, categorySlug, brandId, minPrice, maxPrice, sortBy, isSale, inStock, rating],
+    ["products", page, pageSize, categorySlug, brandId, minPrice, maxPrice, sortBy, isSale, inStock, rating, searchTerm],
     () => {
       const params: any = { page, pageSize, sortBy, flatten: true };
       if (categorySlug) params.category = categorySlug;
@@ -79,6 +81,7 @@ export default function ProductsClient({ initialData, initialCategories, initial
       if (isSale) params.isSale = true;
       if (inStock) params.inStock = true;
       if (rating !== undefined) params.rating = rating;
+      if (searchTerm) params.searchTerm = searchTerm;
 
       return getProducts(params);
     },
@@ -137,7 +140,7 @@ export default function ProductsClient({ initialData, initialCategories, initial
     return items;
   }, [parentOfChild, currentCategory]);
   return (
-    <div className="max-w-7xl mx-auto py-6 space-y-6">
+    <div className="max-w-7xl mx-auto space-y-6">
       <SWTBreadcrumb items={breadcrumbItems} />
       <h1 className="text-2xl font-bold">
         {currentCategory ? currentCategory.name : "Danh sách sản phẩm"}

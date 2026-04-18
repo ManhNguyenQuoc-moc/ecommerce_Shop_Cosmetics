@@ -1,6 +1,6 @@
 import { get, post, put } from "../../../@core/utils/api";
-import { CreatePOInput, UpdatePOInput, POQueryParams } from "../../models/purchase/input.dto";
-import { PODetailDto, POListItemDto } from "../../models/purchase/output.dto";
+import { CreatePOInput, UpdatePOInput, POQueryParams, ReceiveStockInput } from "../../models/purchase/input.dto";
+import { PODetailDto, POListItemDto, POItemDto, POReceiptItemDto } from "../../models/purchase/output.dto";
 import { PaginationResponse } from "../../../@core/http/models/PaginationResponse";
 import { buildQueryString } from "../../../@core/utils/query.util";
 
@@ -17,12 +17,12 @@ export const getPurchaseOrderById = (id: string) =>
 
 export const getPurchaseOrderItems = (id: string, page: number, limit: number) => {
   const query = buildQueryString({ page, limit });
-  return get<PaginationResponse<any>>(`${PURCHASE_API_ENDPOINT}/${id}/items${query}`);
+  return get<PaginationResponse<POItemDto>>(`${PURCHASE_API_ENDPOINT}/${id}/items${query}`);
 };
 
 export const getPurchaseOrderReceipts = (id: string, page: number, limit: number) => {
   const query = buildQueryString({ page, limit });
-  return get<PaginationResponse<any>>(`${PURCHASE_API_ENDPOINT}/${id}/receipts${query}`);
+  return get<PaginationResponse<POReceiptItemDto>>(`${PURCHASE_API_ENDPOINT}/${id}/receipts${query}`);
 };
 
 export const createPurchaseOrder = (data: CreatePOInput) => post<PODetailDto>(PURCHASE_API_ENDPOINT, data);
@@ -36,5 +36,5 @@ export const confirmPurchaseOrder = (id: string) =>
 export const cancelPurchaseOrder = (id: string) =>
   post(`${PURCHASE_API_ENDPOINT}/${id}/cancel`, {});
 
-export const receiveStock = (payload: any) =>
+export const receiveStock = (payload: ReceiveStockInput) =>
   post(`${PURCHASE_API_ENDPOINT}/receive-stock`, payload);

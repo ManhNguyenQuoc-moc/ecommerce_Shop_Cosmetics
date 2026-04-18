@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 import SWTTable from "@/src/@core/component/AntD/SWTTable";
-import { Edit, Trash2, Layers, Plus } from "lucide-react";
+import { Edit, Trash2, Layers, Plus, MoreVertical } from "lucide-react";
 import SWTTooltip from "@/src/@core/component/AntD/SWTTooltip";
 import SWTConfirmModal from "@/src/@core/component/AntD/SWTConfirmModal";
 import { showNotificationError, showNotificationSuccess } from "@/src/@core/utils/message";
@@ -10,6 +10,8 @@ import { useCategoryGroups, useDeleteCategoryGroup } from "@/src/services/admin/
 import { CategoryGroupResponseDto } from "@/src/services/models/category-group/output.dto";
 import SWTAvatar from "@/src/@core/component/AntD/SWTAvatar";
 import SWTIconButton from "@/src/@core/component/SWTIconButton";
+import { Dropdown } from "antd";
+import type { MenuProps } from "antd";
 
 interface CategoryGroupTableProps {
   onEdit?: (group: CategoryGroupResponseDto) => void;
@@ -80,22 +82,41 @@ export default function CategoryGroupTable({ onEdit, onAdd }: CategoryGroupTable
       key: 'actions',
       align: 'center' as const,
       width: 120,
-      render: (_: any, record: CategoryGroupResponseDto) => (
-        <div className="flex items-center gap-2 justify-center">
-          <SWTIconButton
-            variant="edit"
-            tooltip="Chỉnh sửa nhóm"
-            icon={<Edit size={18} />}
-            onClick={() => onEdit?.(record)}
-          />
-          <SWTIconButton
-            variant="delete"
-            tooltip="Xóa nhóm"
-            icon={<Trash2 size={18} />}
-            onClick={() => setDeletingId(record.id)}
-          />
-        </div>
-      )
+      render: (_: any, record: CategoryGroupResponseDto) => {
+        const actionItems: MenuProps['items'] = [
+          {
+            key: 'edit',
+            label: (
+              <div className="flex items-center gap-2 font-medium px-1 py-1 text-amber-600">
+                <Edit size={16} />
+                <span>Chỉnh sửa</span>
+              </div>
+            ),
+            onClick: () => onEdit?.(record)
+          },
+          { type: 'divider' },
+          {
+            key: 'delete',
+            label: (
+              <div className="flex items-center gap-2 font-medium px-1 py-1 text-red-600">
+                <Trash2 size={16} />
+                <span>Xóa</span>
+              </div>
+            ),
+            onClick: () => setDeletingId(record.id)
+          }
+        ];
+
+        return (
+          <Dropdown menu={{ items: actionItems }} trigger={['click']} placement="bottomRight">
+            <SWTIconButton
+              variant="custom"
+              icon={<MoreVertical size={18} />}
+              className="text-text-muted hover:text-brand-500 border-transparent hover:border-brand-500/30"
+            />
+          </Dropdown>
+        );
+      }
     }
   ], [onEdit]);
 
@@ -130,7 +151,12 @@ export default function CategoryGroupTable({ onEdit, onAdd }: CategoryGroupTable
             page: page,
             fetch: pageSize,
             onChange: (p: number, f: number) => {
-              setPage(p);
+              // If pageSize changed, reset to page 1
+              if (f !== pageSize) {
+                setPage(1);
+              } else {
+                setPage(p);
+              }
               setPageSize(f);
             }
           }}

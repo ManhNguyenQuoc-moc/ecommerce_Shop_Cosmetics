@@ -1,11 +1,13 @@
 "use client";
 
 import { useState } from 'react';
+import useSWTTitle from "@/src/@core/hooks/useSWTTitle";
 import BrandTable from "./components/BrandTable";
 import BrandFilters from "./components/BrandFilters";
 import AddBrandModal from "./components/AddBrandModal";
 
 export default function SuppliersClient() {
+  useSWTTitle("Quản lý Nhà cung cấp | Admin");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedBrand, setSelectedBrand] = useState<any>(null);
   const [searchTerm, setSearchTerm] = useState("");

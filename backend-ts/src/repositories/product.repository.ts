@@ -541,6 +541,7 @@ export class ProductRepository implements IProductRepository {
         variants: { include: { image: true } },
         reviews: { include: { user: true } },
         productImages: { include: { image: true }, orderBy: { order: 'asc' } },
+        _count: { select: { reviews: true, questions: true } as any },
       },
     });
 
@@ -559,6 +560,8 @@ export class ProductRepository implements IProductRepository {
 
     return { 
       ...product, 
+      reviewCount: product._count?.reviews || 0,
+      commentCount: product._count?.questions || 0,
       variants: updatedVariants,
       totalStock: updatedVariants.reduce((sum, v) => sum + v.totalStock, 0),
       availableStock: updatedVariants.reduce((sum, v) => sum + v.availableStock, 0)

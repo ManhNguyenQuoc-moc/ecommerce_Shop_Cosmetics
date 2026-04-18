@@ -5,11 +5,13 @@ import SWTIconButton from "@/src/@core/component/SWTIconButton";
 import {
   usePurchaseOrders,
 } from "@/src/services/admin/iventory/purchase.hook";
-import { Eye, Edit } from "lucide-react";
+import { Eye, Edit, MoreVertical } from "lucide-react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useMemo } from "react";
-import { POListItemDto, POStatus, PO_STATUS_LABELS, POPriority, PO_PRIORITY_LABELS } from "@/src/services/models/purchase/output.dto";
+import { POListItemDto, POStatusType, PO_STATUS_LABELS, POPriorityType, PO_PRIORITY_LABELS } from "@/src/services/models/purchase/output.dto";
 import { POQueryParams } from "@/src/services/models/purchase/input.dto";
+import { Dropdown } from "antd";
+import type { MenuProps } from "antd";
 
 interface POTableProps {
   isPending?: boolean;
@@ -32,8 +34,8 @@ export default function POTable({ isPending }: POTableProps) {
 
   const { orders, total, isLoading } = usePurchaseOrders(page, pageSize, filters);
 
-  const renderStatusTag = (status: POStatus) => {
-    const colorMap: Record<POStatus, string> = {
+  const renderStatusTag = (status: POStatusType | "CANCELLED") => {
+    const colorMap: Record<POStatusType | "CANCELLED", string> = {
       DRAFT: "bg-bg-muted text-text-muted border-border-default",
       CONFIRMED: "bg-status-info-bg/10 text-status-info-text border-status-info-border",
       PARTIALLY_RECEIVED: "bg-status-warning-bg/10 text-status-warning-text border-status-warning-border",
@@ -49,8 +51,8 @@ export default function POTable({ isPending }: POTableProps) {
     );
   };
 
-  const renderPriorityTag = (priority: POPriority) => {
-    const colorMap: Record<POPriority, string> = {
+  const renderPriorityTag = (priority: POPriorityType) => {
+    const colorMap: Record<POPriorityType, string> = {
       LOW: "bg-bg-muted text-text-muted border-border-default",
       NORMAL: "bg-status-info-bg/10 text-status-info-text border-status-info-border",
       HIGH: "bg-status-error-bg/10 text-status-error-text border-status-error-border",
@@ -107,34 +109,52 @@ export default function POTable({ isPending }: POTableProps) {
       title: "Ưu tiên",
       dataIndex: "priority",
       key: "priority",
-      render: (priority: POPriority) => renderPriorityTag(priority),
+      render: (priority: POPriorityType) => renderPriorityTag(priority),
     },
     {
       title: "Trạng thái",
       dataIndex: "status",
       key: "status",
-      render: (status: POStatus) => renderStatusTag(status),
+      render: (status: POStatusType | "CANCELLED") => renderStatusTag(status),
     },
     {
       title: "Thao tác",
       key: "actions",
       align: "center" as const,
-      render: (_: unknown, record: POListItemDto) => (
-        <div className="flex items-center gap-2 justify-center">
-          <SWTIconButton
-            variant="view"
-            icon={<Eye size={18} />}
-            tooltip="Xem chi tiết"
-            onClick={() => router.push(`/admin/purchases/${record.id}`)}
-          />
-          <SWTIconButton
-            variant="edit"
-            icon={<Edit size={18} />}
-            tooltip="Chỉnh sửa"
-            onClick={() => router.push(`/admin/purchases/${record.id}/edit`)}
-          />
-        </div>
-      ),
+      render: (_: unknown, record: POListItemDto) => {
+        const actionItems: MenuProps['items'] = [
+          {
+            key: 'view',
+            label: (
+              <div className="flex items-center gap-2 font-medium px-1 py-1 text-blue-500">
+                <Eye size={16} />
+                <span>Xem chi tiết</span>
+              </div>
+            ),
+            onClick: () => router.push(`/admin/purchases/${record.id}`)
+          },
+          {
+            key: 'edit',
+            label: (
+              <div className="flex items-center gap-2 font-medium px-1 py-1 text-amber-600">
+                <Edit size={16} />
+                <span>Chỉnh sửa</span>
+              </div>
+            ),
+            onClick: () => router.push(`/admin/purchases/${record.id}/edit`)
+          }
+        ];
+
+        return (
+          <Dropdown menu={{ items: actionItems }} trigger={['click']} placement="bottomRight">
+            <SWTIconButton
+              variant="custom"
+              icon={<MoreVertical size={18} />}
+              className="text-text-muted hover:text-brand-500 border-transparent hover:border-brand-500/30"
+            />
+          </Dropdown>
+        );
+      }
     },
   ], [router]);
 

@@ -1,8 +1,10 @@
 import { Request, Response } from "express";
 import { IOrderService } from "../interfaces/IOrderService";
-import { createPaymentUrl } from "../services/vnpay.service";
+import { createVnpayUrl } from "../services/vnpay.service";
+import { createMomoPaymentUrl } from "../services/momo.service";
+import { createZaloPayOrder } from "../services/zalopay.service";
 import { CreateOrderSchema, OrderQueryFiltersSchema, UpdateOrderSchema } from "../DTO/order/order.dto";
-import { z } from "zod";
+import { handleControllerError } from "../utils/errorHandler";
 
 export class OrderController {
   private readonly orderService: IOrderService;
@@ -39,7 +41,7 @@ export class OrderController {
         },
       });
     } catch (error: any) {
-      this.handleError(res, error);
+      handleControllerError(res, error, "OrderController");
     }
   };
 
@@ -67,7 +69,7 @@ export class OrderController {
         },
       });
     } catch (error: any) {
-      this.handleError(res, error);
+      handleControllerError(res, error, "OrderController");
     }
   };
  
@@ -87,7 +89,7 @@ export class OrderController {
         data: order,
       });
     } catch (error: any) {
-      this.handleError(res, error);
+      handleControllerError(res, error, "OrderController");
     }
   };
 
@@ -99,21 +101,89 @@ export class OrderController {
         userId: (req as any).user?.id
       });
 
-      // 2. Call Service
+      // 2. Pre-validate payment URL generation BEFORE creating order
+      // This prevents address duplication if payment generation fails
+      let paymentUrl: string | undefined;
+      
+      if (validatedData.paymentMethod === "VNPAY" || validatedData.paymentMethod === "MOMO" || validatedData.paymentMethod === "ZALOPAY") {
+        try {
+          // Generate payment URL first to catch errors early
+          const tempOrderId = `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+          const tempAmount = validatedData.total || 0;
+
+          if (validatedData.paymentMethod === "VNPAY") {
+            paymentUrl = createVnpayUrl({
+              amount: tempAmount,
+              orderId: tempOrderId,
+            });
+          } else if (validatedData.paymentMethod === "MOMO") {
+            const momoData = await createMomoPaymentUrl({
+              amount: tempAmount,
+              orderId: tempOrderId,
+              orderInfo: `Thanh toan don hang ${tempOrderId}`
+            });
+            paymentUrl = momoData.payUrl;
+          } else if (validatedData.paymentMethod === "ZALOPAY") {
+            const zaloData = await createZaloPayOrder({
+              amount: tempAmount,
+              orderId: tempOrderId,
+            });
+            paymentUrl = zaloData.order_url;
+          }
+
+          if (!paymentUrl) {
+            throw new Error("Không thể tạo liên kết thanh toán.");
+          }
+        } catch (paymentError: any) {
+          // Payment generation failed - DON'T create order, just return error
+          console.error(`${validatedData.paymentMethod} payment creation error:`, paymentError);
+          res.status(400).json({
+            success: false,
+            message: "Không thể khởi tạo thanh toán. Vui lòng kiểm tra lại thông tin hoặc thử lại sau."
+          });
+          return;
+        }
+      }
+
+      // 3. NOW create order (only if payment validation passed or no payment needed)
       const order = await this.orderService.createOrder(validatedData);
       
-      // 3. Handle Payment Redirect if needed
-      if (validatedData.paymentMethod === "VNPAY") {
-        const paymentUrl = createPaymentUrl({
-          amount: validatedData.total || (order as any).total_amount,
-          orderId: order.id,
-        });
-        res.status(200).json({
-          success: true,
-          message: "Redirect to VNPAY",
-          paymentUrl,
-        });
-        return;
+      // 4. If payment URL was pre-generated, return it with the real order ID
+      if (paymentUrl) {
+        // Re-generate with real order ID
+        let finalPaymentUrl: string | undefined;
+
+        if (validatedData.paymentMethod === "VNPAY") {
+          finalPaymentUrl = createVnpayUrl({
+            amount: validatedData.total || (order as any).total_amount,
+            orderId: order.id,
+          });
+        } else if (validatedData.paymentMethod === "MOMO") {
+          const momoData = await createMomoPaymentUrl({
+            amount: validatedData.total || (order as any).total_amount,
+            orderId: order.id,
+            orderInfo: `Thanh toan don hang ${order.id}`
+          });
+          finalPaymentUrl = momoData.payUrl;
+        } else if (validatedData.paymentMethod === "ZALOPAY") {
+          const zaloData = await createZaloPayOrder({
+            amount: validatedData.total || (order as any).total_amount,
+            orderId: order.id,
+          });
+          finalPaymentUrl = zaloData.order_url;
+        }
+
+        if (finalPaymentUrl) {
+          // Trigger the confirmation email now that the order is created
+          this.orderService.sendOrderConfirmationEmail(order.id).catch(console.error);
+
+          res.status(200).json({
+            success: true,
+            message: `Redirect to ${validatedData.paymentMethod}`,
+            paymentUrl: finalPaymentUrl,
+          });
+          return;
+        }
       }
 
       res.status(201).json({
@@ -122,7 +192,7 @@ export class OrderController {
         data: order,
       });
     } catch (error: any) {
-      this.handleError(res, error);
+      handleControllerError(res, error, "OrderController");
     }
   };
 
@@ -139,7 +209,7 @@ export class OrderController {
         data: order,
       });
     } catch (error: any) {
-      this.handleError(res, error);
+      handleControllerError(res, error, "OrderController");
     }
   };
 
@@ -152,27 +222,8 @@ export class OrderController {
         message: "Order deleted successfully",
       });
     } catch (error: any) {
-      this.handleError(res, error);
+      handleControllerError(res, error, "OrderController");
     }
   };
 
-  private handleError(res: Response, error: any) {
-    if (error instanceof z.ZodError) {
-      res.status(400).json({
-        success: false,
-        message: "Validation failed",
-        errors: error.issues.map((err: any) => ({
-          path: err.path.join('.'),
-          message: err.message
-        }))
-      });
-      return;
-    }
-
-    console.error("OrderController Error:", error);
-    res.status(error.status || 500).json({
-      success: false,
-      message: error.message || "Internal server error"
-    });
-  }
 }

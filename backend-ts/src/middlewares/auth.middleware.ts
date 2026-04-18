@@ -81,12 +81,25 @@ export const authenticateOptional = async (req: Request, res: Response, next: Ne
   try {
     const { data: { user }, error } = await supabase.auth.getUser(token);
     if (!error && user) {
-      req.user = {
-        id: user.id,
-        email: user.email,
-        role: user.user_metadata?.role || "CUSTOMER",
-        ...user.user_metadata,
-      };
+      const dbUser = await prisma.user.findUnique({
+        where: { id: user.id }
+      });
+      
+      if (dbUser) {
+        req.user = {
+          id: dbUser.id,
+          email: dbUser.email || user.email,
+          role: dbUser.role,
+          ...user.user_metadata,
+        };
+      } else {
+        req.user = {
+          id: user.id,
+          email: user.email,
+          role: user.user_metadata?.role || "CUSTOMER",
+          ...user.user_metadata,
+        };
+      }
     }
     next();
   } catch (error: any) {

@@ -1,8 +1,13 @@
+import { NotificationService } from "./notification.service";
+import { NotificationType } from "@prisma/client";
 import { IInventoryRepository } from "../interfaces/IInventoryRepository";
 import { InventoryRepository } from "../repositories/inventory.repository";
 
 export class InventoryService {
-  constructor(private readonly inventoryRepo: IInventoryRepository = new InventoryRepository()) {}
+  constructor(
+    private readonly inventoryRepo: IInventoryRepository = new InventoryRepository(),
+    private readonly notificationService?: NotificationService
+  ) {}
 
   async receiveStock(data: {
     poId: string;
@@ -20,7 +25,19 @@ export class InventoryService {
       manufacturingDate: data.manufacturingDate,
       costPrice: data.costPrice
     };
-    return this.inventoryRepo.receiveStockWithTransaction(data.poId, data.variantId, batchData, data.quantity, data.note);
+    const res = await this.inventoryRepo.receiveStockWithTransaction(data.poId, data.variantId, batchData, data.quantity, data.note);
+    
+    // Create notification/log
+    if (this.notificationService) {
+      this.notificationService.createNotification({
+        title: "Nhập kho sản phẩm",
+        content: `Lô hàng #${data.batchNumber} cho biến thể ${data.variantId} đã được nhập thêm ${data.quantity} sản phẩm.`,
+        type: NotificationType.SYSTEM,
+        metadata: { poId: data.poId, variantId: data.variantId, batchNumber: data.batchNumber }
+      }).catch(console.error);
+    }
+
+    return res;
   }
 
   async getBatches(page: number = 1, limit: number = 6, filters?: any) {

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useTransition } from 'react';
+import useSWTTitle from "@/src/@core/hooks/useSWTTitle";
 import VariantTable from "./components/VariantTable";
 import VariantFilters from "./components/VariantFilters";
 import SWTTabs from "@/src/@core/component/AntD/SWTTabs";
@@ -9,6 +10,7 @@ import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { ProductQueryParams } from "@/src/services/models/product/input.dto";
 
 export default function VariantsClient() {
+  useSWTTitle("Quản lý Biến thể | Admin");
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -42,7 +44,12 @@ export default function VariantsClient() {
 
   const handlePaginationChange = (p: number, f: number) => {
     const params = new URLSearchParams(searchParams.toString());
-    params.set("page", p.toString());
+    // If pageSize changed, reset to page 1
+    if (f !== pageSize) {
+      params.set("page", "1");
+    } else {
+      params.set("page", p.toString());
+    }
     params.set("pageSize", f.toString());
     router.replace(`${pathname}?${params.toString()}`);
   };
