@@ -37,7 +37,7 @@ const menu = [
 ];
 
 import { useState, useEffect } from "react";
-import ProfileSkeleton, { ProfileSidebarSkeleton } from "./components/ProfileSkeleton";
+import SWTLoading from "@/src/@core/component/AntD/SWTLoading";
 
 export default function ProfileLayout({
   children,
@@ -76,7 +76,9 @@ export default function ProfileLayout({
         <aside className="md:col-span-1">
           <div className="sticky top-24 space-y-4">
             {!mounted ? (
-              <ProfileSidebarSkeleton />
+              <SWTCard className="!p-0 !rounded-2xl !border-none !shadow-sm !h-[300px] flex items-center justify-center">
+                <SWTLoading tip="Đang chuẩn bị..." />
+              </SWTCard>
             ) : (
               <SWTCard className="!p-0 !rounded-2xl !border-none !shadow-sm overflow-hidden">
                 <div className="bg-gradient-to-r from-brand-50 to-rose-50 p-6 flex flex-col items-center text-center">

@@ -30,6 +30,7 @@ const SWTInput = ({ label, placeholder, onChange, ...props }: SWTInputProps) => 
     />
   );
 };
+
 const SWTInputPassword = ({ onChange, ...props }: SWTInputPasswordProps) => {
   return (
     <Password
@@ -47,6 +48,7 @@ const SWTInputPassword = ({ onChange, ...props }: SWTInputPasswordProps) => {
     />
   );
 };
+
 const SWTInputTextArea = ({ onChange, ...props }: SWTInputTextAreaProps) => {
   return (
     <TextArea
@@ -58,6 +60,7 @@ const SWTInputTextArea = ({ onChange, ...props }: SWTInputTextAreaProps) => {
     />
   );
 };
+
 const SWTInputSearch = ({ className, onChange, ...props }: SWTInputSearchProps) => {
   return (
     <Input
@@ -82,6 +85,12 @@ const SWTInputSearch = ({ className, onChange, ...props }: SWTInputSearchProps) 
     />
   );
 };
+
+// Attach sub-components to support the AntD pattern (e.g., SWTInput.TextArea)
+SWTInput.TextArea = SWTInputTextArea;
+SWTInput.Password = SWTInputPassword;
+SWTInput.Search = SWTInputSearch;
+
 export {
   SWTInput,
   SWTInputPassword,
@@ -89,4 +98,4 @@ export {
   SWTInputSearch,
 };
 
-export default SWTInput;
+export default SWTInput;

@@ -2,12 +2,14 @@
 
 import React, { useState, useMemo } from 'react';
 import SWTTable from "@/src/@core/component/AntD/SWTTable";
-import { Edit, Trash2, Globe, Phone, Mail, MapPin } from "lucide-react";
+import { Edit, Trash2, Globe, Phone, Mail, MapPin, MoreVertical } from "lucide-react";
 import SWTConfirmModal from "@/src/@core/component/AntD/SWTConfirmModal";
 import { showNotificationError, showNotificationSuccess } from "@/src/@core/utils/message";
 import { useBrands, useDeleteBrand } from "@/src/services/admin/brand/brand.hook";
 import SWTAvatar from "@/src/@core/component/AntD/SWTAvatar";
 import SWTIconButton from "@/src/@core/component/SWTIconButton";
+import { Dropdown } from "antd";
+import type { MenuProps } from "antd";
 
 interface BrandTableProps {
   onEdit?: (brand: any) => void;
@@ -98,22 +100,41 @@ export default function BrandTable({ onEdit, searchTerm }: BrandTableProps) {
       title: 'Thao tác',
       key: 'actions',
       align: 'center' as const,
-      render: (_: any, record: any) => (
-        <div className="flex items-center gap-2 justify-center">
-          <SWTIconButton
-            variant="edit"
-            tooltip="Chỉnh sửa nhà cung cấp"
-            icon={<Edit size={18} />}
-            onClick={() => onEdit?.(record)}
-          />
-          <SWTIconButton
-            variant="delete"
-            tooltip="Xóa nhà cung cấp"
-            icon={<Trash2 size={18} />}
-            onClick={() => setDeletingId(record.id)}
-          />
-        </div>
-      )
+      render: (_: any, record: any) => {
+        const actionItems: MenuProps['items'] = [
+          {
+            key: 'edit',
+            label: (
+              <div className="flex items-center gap-2 font-medium px-1 py-1 text-amber-600">
+                <Edit size={16} />
+                <span>Chỉnh sửa</span>
+              </div>
+            ),
+            onClick: () => onEdit?.(record)
+          },
+          { type: 'divider' },
+          {
+            key: 'delete',
+            label: (
+              <div className="flex items-center gap-2 font-medium px-1 py-1 text-red-600">
+                <Trash2 size={16} />
+                <span>Xóa</span>
+              </div>
+            ),
+            onClick: () => setDeletingId(record.id)
+          }
+        ];
+
+        return (
+          <Dropdown menu={{ items: actionItems }} trigger={['click']} placement="bottomRight">
+            <SWTIconButton
+              variant="custom"
+              icon={<MoreVertical size={18} />}
+              className="text-text-muted hover:text-brand-500 border-transparent hover:border-brand-500/30"
+            />
+          </Dropdown>
+        );
+      }
     }
   ], [onEdit]);
 

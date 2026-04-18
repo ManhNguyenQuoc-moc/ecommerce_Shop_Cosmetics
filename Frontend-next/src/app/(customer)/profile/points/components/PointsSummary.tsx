@@ -1,5 +1,6 @@
 import { Progress } from "antd";
 import { StarFilled, GiftOutlined, ArrowRightOutlined } from "@ant-design/icons";
+import Link from "next/link";
 import { PointSummaryDTO } from "@/src/services/models/customer/point.dto";
 import SWTCard from "@/src/@core/component/AntD/SWTCard";
 
@@ -35,9 +36,14 @@ export default function PointsSummary({ summary }: Props) {
           </div>
 
           <div className="mt-8">
-            <div className="flex justify-between text-xs font-bold mb-2 uppercase tracking-wide text-white/80">
-              <span>Hạng: {summary.current_tier}</span>
-              {summary.next_tier && <span>Hạng kế tếp: {summary.next_tier}</span>}
+            <div className="flex justify-between text-xs font-bold mb-3 uppercase tracking-wide text-white/80">
+              <div className="flex flex-col gap-1">
+                <span>Hạng: {summary.current_tier}</span>
+                {summary.next_tier && <span>Hạng kế tếp: {summary.next_tier}</span>}
+              </div>
+              <div className="flex flex-col gap-1 text-right">
+                <span>Điểm sử dụng: {summary.available_points?.toLocaleString("vi-VN") || "0"}</span>
+              </div>
             </div>
             <Progress
               percent={percentToNext}
@@ -64,10 +70,12 @@ export default function PointsSummary({ summary }: Props) {
             Sử dụng điểm tích luỹ để đổi lấy các mã giảm giá và quà tặng hấp dẫn từ cửa hàng.
           </p>
         </div>
-        <button className="w-full mt-4 flex items-center justify-between text-brand-500 font-bold text-sm bg-brand-50 px-4 py-3 rounded-xl transition-all group">
-          Xem danh sách quà
-          <ArrowRightOutlined className="group-hover:translate-x-1 transition-transform" />
-        </button>
+        <Link href="/profile/vouchers">
+          <button className="w-full mt-4 flex items-center justify-between text-brand-500 font-bold text-sm bg-brand-50 px-4 py-3 rounded-xl transition-all group">
+            Xem danh sách quà
+            <ArrowRightOutlined className="group-hover:translate-x-1 transition-transform" />
+          </button>
+        </Link>
       </SWTCard>
     </div>
 

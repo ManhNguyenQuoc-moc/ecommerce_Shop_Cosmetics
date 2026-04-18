@@ -1,11 +1,11 @@
 "use client";
 
 import React from "react";
-import { CheckCircle2, Circle, Clock, PackageCheck, XCircle } from "lucide-react";
-import { POStatus } from "@/src/services/models/purchase/output.dto";
+import { CheckCircle2, Clock, PackageCheck, XCircle } from "lucide-react";
+import { POStatusType } from "@/src/services/models/purchase/output.dto";
 
 interface POStatusTimelineProps {
-  status: POStatus;
+  status: POStatusType  | "CANCELLED";
 }
 
 const POStatusTimeline: React.FC<POStatusTimelineProps> = ({ status }) => {

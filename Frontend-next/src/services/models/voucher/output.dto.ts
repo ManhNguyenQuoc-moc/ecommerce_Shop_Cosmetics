@@ -3,22 +3,19 @@ export type VoucherType = "PERCENTAGE" | "FLAT_AMOUNT" | "FREE_SHIPPING";
 export interface VoucherResponseDto {
   id: string;
   code: string;
-  name: string;
-  description: string;
+  program_name: string | null;
+  description: string | null;
   type: VoucherType;
-  value: number;
-  min_order_value?: number;
-  max_discount_amount?: number;
-  start_date: string;
-  end_date: string;
-  point_cost?: number;
-  is_used: boolean;
-  is_expired: boolean;
+  discount: number;
+  min_order_value: number | null;
+  max_discount: number | null;
+  valid_from: string | Date;
+  valid_until: string | Date;
+  point_cost: number;
   used_count: number;
   usage_limit: number;
+  isActive: boolean;
   is_used_by_user?: boolean;
-  valid_from?: string;
-  valid_until?: string;
 }
 
 // Alias for backward compatibility if needed in customer services

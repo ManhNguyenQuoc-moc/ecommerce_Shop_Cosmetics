@@ -6,13 +6,37 @@ const path = "/users/me";
 export const getPointsSummary = async (): Promise<PointSummaryDTO> => {
   const user = await get<any>(path);
   
-  const points = user.loyalty_points || 0;
+  // Use lifetime_points (accumulated) instead of loyalty_points (available)
+  // lifetime_points = total points ever earned
+  // loyalty_points = available points (can be spent)
+  const totalPoints = user.lifetime_points || 0;
+  const availablePoints = user.loyalty_points || 0;
+  const currentTier = user.member_rank || "Thành viên";
+  
+  // Calculate next tier based on lifetime_points
+  let nextTier = "MAX";
+  let pointsToNext = 0;
+  
+  if (totalPoints < 1000) {
+    nextTier = "Bạc";
+    pointsToNext = 1000 - totalPoints;
+  } else if (totalPoints < 5000) {
+    nextTier = "Vàng";
+    pointsToNext = 5000 - totalPoints;
+  } else if (totalPoints < 10000) {
+    nextTier = "Kim cương";
+    pointsToNext = 10000 - totalPoints;
+  } else {
+    nextTier = "MAX";
+    pointsToNext = 0;
+  }
   
   return {
-    total_points: points,
-    current_tier: points > 5000 ? "Kim cương" : points > 2000 ? "Vàng" : points > 1000 ? "Bạc" : "Thành viên",
-    next_tier: points > 5000 ? "MAX" : points > 2000 ? "Kim cương" : points > 1000 ? "Vàng" : "Bạc",
-    points_to_next_tier: points > 5000 ? 0 : points > 2000 ? 5000 - points : points > 1000 ? 2000 - points : 1000 - points,
+    total_points: totalPoints,
+    available_points: availablePoints,
+    current_tier: currentTier,
+    next_tier: nextTier,
+    points_to_next_tier: pointsToNext,
   };
 };
 

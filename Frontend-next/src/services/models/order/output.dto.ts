@@ -1,6 +1,9 @@
 // order.output.dto.ts
 
-export type OrderStatus = 'PENDING' | 'CONFIRMED' | 'SHIPPING' | 'DELIVERED' | 'CANCELLED' | 'RETURNED';
+import { OrderStatus, PaymentStatus } from "@/src/enums";
+
+export type OrderStatusType = `${OrderStatus}`;
+export type PaymentStatusType = `${PaymentStatus}`;
 
 export interface OrderItemDto {
   id: string;

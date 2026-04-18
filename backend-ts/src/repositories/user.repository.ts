@@ -66,6 +66,17 @@ export class UserRepository implements IUserRepository {
     const db = tx || prisma;
     const { full_name, phone, gender, birthday, avatar, addresses, is_verified, role, is_point_wallet_locked } = data;
     
+    // Check if phone is being updated and if it's already used by another user
+    if (phone !== undefined && phone !== null) {
+      const existingUserWithPhone = await db.user.findUnique({
+        where: { phone },
+      });
+      
+      if (existingUserWithPhone && existingUserWithPhone.id !== id) {
+        throw new Error(`Số điện thoại ${phone} đã được sử dụng bởi tài khoản khác.`);
+      }
+    }
+    
     const updateData: any = {};
     if (full_name !== undefined) updateData.full_name = full_name;
     if (phone !== undefined) updateData.phone = phone;
@@ -121,13 +132,26 @@ export class UserRepository implements IUserRepository {
       }
     }
 
-    return db.user.update({
-      where: { id },
-      data: updateData,
-      include: {
-        addresses: true,
-      },
-    });
+    try {
+      return await db.user.update({
+        where: { id },
+        data: updateData,
+        include: {
+          addresses: true,
+        },
+      });
+    } catch (error: any) {
+      // Handle Prisma unique constraint errors with friendly message
+      if (error.code === 'P2002') {
+        const field = error.meta?.target?.[0];
+        if (field === 'phone') {
+          throw new Error(`Số điện thoại này đã được sử dụng. Vui lòng chọn số khác.`);
+        } else if (field === 'email') {
+          throw new Error(`Email này đã được đăng ký. Vui lòng chọn email khác.`);
+        }
+      }
+      throw error;
+    }
   }
 
   async findPointTransactions(userId: string): Promise<any[]> {

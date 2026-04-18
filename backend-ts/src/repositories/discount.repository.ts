@@ -4,22 +4,33 @@ import { prisma } from "../config/prisma";
 import { CreateVoucherDTO, UpdateVoucherDTO } from "../DTO/voucher/voucher.dto";
 
 export class DiscountRepository implements IDiscountRepository {
-  async findAll(): Promise<DiscountCode[]> {
-    return prisma.discountCode.findMany({
-      orderBy: { createdAt: 'desc' }
-    });
+  async findAll(skip?: number, take?: number): Promise<[DiscountCode[], number]> {
+    return Promise.all([
+      prisma.discountCode.findMany({
+        skip,
+        take,
+        orderBy: { createdAt: 'desc' }
+      }),
+      prisma.discountCode.count()
+    ]);
   }
-  async findAllActive(): Promise<DiscountCode[]> {
+
+  async findAllActive(skip?: number, take?: number): Promise<[DiscountCode[], number]> {
     const now = new Date();
-    return prisma.discountCode.findMany({
-      where: {
-        isActive: true,
-        valid_from: { lte: now },
-        valid_until: { gte: now },
-        // Only return vouchers that still have usage left
-      },
-      orderBy: { createdAt: 'desc' }
-    });
+    const where = {
+      isActive: true,
+      valid_from: { lte: now },
+      valid_until: { gte: now },
+    };
+    return Promise.all([
+      prisma.discountCode.findMany({
+        where,
+        skip,
+        take,
+        orderBy: { createdAt: 'desc' }
+      }),
+      prisma.discountCode.count({ where })
+    ]);
   }
 
   async findByCode(code: string): Promise<DiscountCode | null> {

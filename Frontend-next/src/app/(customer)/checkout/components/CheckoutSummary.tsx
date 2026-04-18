@@ -37,13 +37,16 @@ export default function CheckoutSummary() {
 
   const { data: allVouchers } = useFetchSWR("vouchers", () => getVouchers());
   
-  // Filter vouchers that are VALID (not used by user, not expired) 
+  // Filter vouchers that are VALID (not expired, isActive, not out of usage limit)
   // and meet the min_order_value
-  const availableVouchers = (allVouchers || []).filter(v => 
-    !v.is_used && 
-    !v.is_expired && 
-    subtotal >= (v.min_order_value || 0)
-  );
+  const now = new Date();
+  const availableVouchers = (allVouchers || []).filter(v => {
+    const endDate = new Date(v.valid_until);
+    const isNotExpired = now <= endDate && v.isActive;
+    const isNotOuted = v.used_count < v.usage_limit;
+    const meetsMinOrder = subtotal >= (v.min_order_value || 0);
+    return isNotExpired && isNotOuted && meetsMinOrder;
+  });
 
   const voucherOptions = availableVouchers.map(v => ({
     value: v.code,
@@ -51,12 +54,12 @@ export default function CheckoutSummary() {
     children: (
       <div className="flex flex-col py-1">
         <div className="flex justify-between items-center">
-             <span className="font-bold text-xs text-brand-600">{v.name}</span>
-             <span className="text-[10px] bg-brand-50 px-1.5 py-0.5 rounded text-brand-500 font-black">
-                {v.type === 'PERCENTAGE' ? `-${v.value}%` : `-${v.value.toLocaleString()}đ`}
-             </span>
+          <span className="font-bold text-xs text-brand-600">{v.program_name}</span>
+          <span className="text-[10px] bg-brand-50 px-1.5 py-0.5 rounded text-brand-500 font-black">
+            {v.type === 'PERCENTAGE' ? `-${v.discount}%` : `-${v.discount.toLocaleString()}đ`}
+          </span>
         </div>
-        <span className="text-[10px] text-text-muted">Đơn từ {v.min_order_value?.toLocaleString()}đ • {v.used_count}/{v.usage_limit} lượt dùng</span>
+        <span className="text-[10px] text-text-muted">Đơn từ {v.min_order_value?.toLocaleString() || '0'}đ • {v.used_count}/{v.usage_limit} lượt dùng</span>
       </div>
     )
   }));
@@ -132,7 +135,9 @@ export default function CheckoutSummary() {
           className="w-full"
           options={[
             { value: "COD", label: "Thanh toán khi nhận hàng (COD)" },
-            { value: "VNPAY", label: "Chuyển khoản / Online" },
+            { value: "VNPAY", label: "VNPay (Thẻ ATM / QR)" },
+            { value: "MOMO", label: "Thanh toán qua Ví MoMo" },
+            { value: "ZALOPAY", label: "Thanh toán qua Ví ZaloPay" },
           ]}
         />
       </div>
@@ -161,10 +166,10 @@ export default function CheckoutSummary() {
             </SWTButton>
           </div>
         ) : (
-          <div className="flex justify-between items-center bg-brand-50 dark:bg-brand-900/20 border border-brand-200 dark:border-brand-500/30 px-4 py-2 rounded-xl">
+          <div className="flex justify-between items-center bg-brand-50 dark:bg-brand-900/20 border || appliedVoucher.program_name border-brand-200 dark:border-brand-500/30 px-4 py-2 rounded-xl">
             <div className="flex flex-col">
               <span className="text-brand-600 font-black text-xs uppercase tracking-widest">{appliedVoucher.code}</span>
-              <span className="text-[10px] text-brand-600/70 font-bold">{appliedVoucher.description}</span>
+              <span className="text-[10px] text-brand-600/70 font-bold">{appliedVoucher.description || appliedVoucher.program_name}</span>
             </div>
             <button
               onClick={removeVoucher}
@@ -208,7 +213,7 @@ export default function CheckoutSummary() {
         onClick={() => setConfirmOpen(true)}
         className="w-full py-4 text-base font-bold !bg-brand-500 !text-white hover:!bg-brand-600 rounded-xl transition shadow-md my-3"
       >
-        {paymentMethod === "VNPAY" ? "Thanh toán ngay" : "Đặt hàng ngay"}
+        {paymentMethod === "COD" ? "Đặt hàng ngay" : "Thanh toán ngay"}
       </SWTButton>
 
       <Modal

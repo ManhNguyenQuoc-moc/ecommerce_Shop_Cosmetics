@@ -4,7 +4,6 @@ export default function Loading() {
       {/* Header skeleton */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="space-y-3">
-          {/* Breadcrumb */}
           <div className="flex items-center gap-2">
             <div className="h-3.5 w-16 bg-slate-200 dark:bg-slate-700 rounded-full" />
             <div className="h-3 w-2 bg-slate-200 dark:bg-slate-700 rounded-full" />

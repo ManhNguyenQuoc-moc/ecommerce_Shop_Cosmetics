@@ -130,7 +130,7 @@ export default function CartSummary() {
           size="lg"
           onClick={handleCheckout}
           disabled={!items.length}
-          className="!bg-brand-500 hover:!bg-brand-600 !border-none"
+          className="!bg-brand-500 hover:!bg-brand-600 !text-white !border-none"
         >
           Tiến hành đặt hàng
         </SWTButton>

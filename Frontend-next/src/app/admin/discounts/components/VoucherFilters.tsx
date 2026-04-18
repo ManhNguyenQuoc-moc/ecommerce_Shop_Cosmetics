@@ -1,14 +1,63 @@
+"use client";
+
 import { Download, Filter, Plus } from "lucide-react";
 import SWTButton from "@/src/@core/component/AntD/SWTButton";
 import { SWTInputSearch } from "@/src/@core/component/AntD/SWTInput";
 import SWTSelect from "@/src/@core/component/AntD/SWTSelect";
 import SWTTooltip from "@/src/@core/component/AntD/SWTTooltip";
+import { useState, useEffect, TransitionStartFunction } from "react";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
+import { useDebounce } from "@/src/@core/hooks/useDebounce";
 
 interface VoucherFiltersProps {
   onAdd?: () => void;
+  startTransition: TransitionStartFunction;
 }
 
-export default function VoucherFilters({ onAdd }: VoucherFiltersProps) {
+export default function VoucherFilters({ onAdd, startTransition }: VoucherFiltersProps) {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const searchStr = searchParams.get("search") || "";
+  const [localSearch, setLocalSearch] = useState(searchStr);
+  const debouncedSearch = useDebounce(localSearch, 500);
+
+  useEffect(() => {
+    setLocalSearch(searchStr);
+  }, [searchStr]);
+
+  useEffect(() => {
+    if (debouncedSearch !== searchStr) {
+      updateFilter("search", debouncedSearch);
+    }
+  }, [debouncedSearch]);
+
+  const statusVal = searchParams.get("status") || "all";
+
+  const updateFilter = (key: string, value: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (value && value !== "" && value !== "all") {
+      params.set(key, value);
+    } else {
+      params.delete(key);
+    }
+    params.set("page", "1");
+    startTransition(() => {
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    });
+  };
+
+  const clearFilters = () => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("search");
+    params.delete("status");
+    params.set("page", "1");
+    startTransition(() => {
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    });
+  };
+
   return (
     <div className="flex flex-col gap-5 mb-6">
       <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-5">
@@ -16,6 +65,9 @@ export default function VoucherFilters({ onAdd }: VoucherFiltersProps) {
           <SWTInputSearch 
             placeholder="Tìm kiếm mã voucher, tên chương trình..." 
             className="w-full !h-11 !rounded-2xl shadow-sm"
+            value={localSearch}
+            onChange={(e) => setLocalSearch(e.target.value)}
+            allowClear
           />
         </div>
 
@@ -50,6 +102,8 @@ export default function VoucherFilters({ onAdd }: VoucherFiltersProps) {
             <SWTSelect 
               placeholder="Trạng thái"
               className="w-full sm:w-[180px] !h-11"
+              value={statusVal}
+              onChange={(v) => updateFilter("status", v)}
               options={[
                 { label: "Tất cả", value: "all" },
                 { label: "Hoạt động / Diễn ra", value: "active" },
@@ -63,6 +117,7 @@ export default function VoucherFilters({ onAdd }: VoucherFiltersProps) {
         <div className="w-full md:w-auto flex justify-end md:justify-start border-t md:border-t-0 border-slate-100 dark:border-slate-700/50 pt-3 md:pt-0">
           <SWTButton
             type="text"
+            onClick={clearFilters}
             className="!h-9 !px-4 !text-xs !rounded-xl !w-auto whitespace-nowrap
             text-slate-400 hover:!text-red-500 hover:!bg-red-50 dark:hover:!bg-red-500/10 transition-all font-bold"
           >

@@ -18,9 +18,9 @@ const SWTLoading: React.FC<SWTLoadingProps> = ({
 
   return (
     <div className={containerClasses} id="swt-loading-container">
-      <div className="relative">
+      <div className="flex flex-col items-center">
         <Spin size="large" />
-        <p className="mt-4 text-sm font-bold text-slate-500 dark:text-slate-400 animate-pulse tracking-tight uppercase">
+        <p className="mt-4 text-sm font-bold text-slate-500 dark:text-slate-400 animate-pulse tracking-tight uppercase text-center">
           {tip}
         </p>
       </div>

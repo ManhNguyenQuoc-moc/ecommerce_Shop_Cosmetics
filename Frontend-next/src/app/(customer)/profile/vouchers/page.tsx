@@ -1,8 +1,14 @@
 "use client";
 
-import React, { use } from "react";
+import { use } from "react";
+import dynamic from "next/dynamic";
 import SWTCard from "@/src/@core/component/AntD/SWTCard";
-import VouchersClient from "./VouchersClient";
+import SWTLoading from "@/src/@core/component/AntD/SWTLoading";
+
+const VouchersClient = dynamic(() => import("./VouchersClient"), {
+  ssr: false,
+  loading: () => <SWTLoading tip="Đang tải danh sách mã giảm giá..." />
+});
 
 type Props = {
   searchParams: Promise<{

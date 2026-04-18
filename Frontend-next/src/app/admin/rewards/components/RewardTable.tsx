@@ -3,8 +3,10 @@
 import SWTTable from "@/src/@core/component/AntD/SWTTable";
 import SWTAvatar from "@/src/@core/component/AntD/SWTAvatar";
 import { useState, useMemo } from "react";
-import { History } from "lucide-react";
+import { History, MoreVertical } from "lucide-react";
 import SWTIconButton from "@/src/@core/component/SWTIconButton";
+import { Dropdown } from "antd";
+import type { MenuProps } from "antd";
 
 const mockRewards = [
   { id: "RW-101", customer: "Trần Bảo Ngọc", tier: "Diamond", points: 15420, usedPoints: 5000, status: "Hoạt động", avatar: "" },
@@ -85,14 +87,32 @@ export default function RewardTable() {
     {
       title: 'Thao tác',
       key: 'actions',
-      render: () => (
-        <SWTIconButton
-          variant="view"
-          icon={<History size={18} />}
-          tooltip="Lịch sử giao dịch"
-          onClick={() => {}}
-        />
-      )
+      render: (_: any, record: any) => {
+        const actionItems: MenuProps['items'] = [
+          {
+            key: 'view_history',
+            label: (
+              <div className="flex items-center gap-2 font-medium px-1 py-1 text-blue-500">
+                <History size={16} />
+                <span>Lịch sử giao dịch</span>
+              </div>
+            ),
+            onClick: () => {
+              // Handle view history
+            }
+          }
+        ];
+
+        return (
+          <Dropdown menu={{ items: actionItems }} trigger={['click']} placement="bottomRight">
+            <SWTIconButton
+              variant="custom"
+              icon={<MoreVertical size={18} />}
+              className="text-text-muted hover:text-brand-500 border-transparent hover:border-brand-500/30"
+            />
+          </Dropdown>
+        );
+      }
     }
   ], []);
 

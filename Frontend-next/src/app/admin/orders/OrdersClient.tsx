@@ -65,7 +65,14 @@ export default function OrdersClient() {
           isLoading={isLoading}
           page={params.page || 1}
           pageSize={params.pageSize || 6}
-          onPaginationChange={(page, pageSize) => handleParamChange({ page, pageSize })}
+          onPaginationChange={(page, pageSize) => {
+            // If pageSize changed, reset to page 1
+            if (pageSize !== (params.pageSize || 6)) {
+              handleParamChange({ page: 1, pageSize });
+            } else {
+              handleParamChange({ page, pageSize });
+            }
+          }}
           onView={handleView}
         />
       </div>

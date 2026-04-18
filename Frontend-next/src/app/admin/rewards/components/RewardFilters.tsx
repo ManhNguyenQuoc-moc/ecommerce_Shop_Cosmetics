@@ -1,18 +1,73 @@
+"use client";
+
 import { Download, Filter, Plus } from "lucide-react";
 import SWTButton from "@/src/@core/component/AntD/SWTButton";
 import { SWTInputSearch } from "@/src/@core/component/AntD/SWTInput";
-import SWTDatePickerRange from "@/src/@core/component/AntD/SWTDatePickerRange";
 import SWTSelect from "@/src/@core/component/AntD/SWTSelect";
 import SWTTooltip from "@/src/@core/component/AntD/SWTTooltip";
+import { useState, useEffect, TransitionStartFunction } from "react";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
+import { useDebounce } from "@/src/@core/hooks/useDebounce";
 
-export default function RewardFilters() {
+interface RewardFiltersProps {
+  onAdd?: () => void;
+  startTransition: TransitionStartFunction;
+}
+
+export default function RewardFilters({ onAdd, startTransition }: RewardFiltersProps) {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const searchStr = searchParams.get("search") || "";
+  const [localSearch, setLocalSearch] = useState(searchStr);
+  const debouncedSearch = useDebounce(localSearch, 500);
+
+  useEffect(() => {
+    setLocalSearch(searchStr);
+  }, [searchStr]);
+
+  useEffect(() => {
+    if (debouncedSearch !== searchStr) {
+      updateFilter("search", debouncedSearch);
+    }
+  }, [debouncedSearch]);
+
+  const statusVal = searchParams.get("walletStatus") || "all";
+
+  const updateFilter = (key: string, value: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (value && value !== "" && value !== "all") {
+      params.set(key, value);
+    } else {
+      params.delete(key);
+    }
+    params.set("page", "1");
+    startTransition(() => {
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    });
+  };
+
+  const clearFilters = () => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("search");
+    params.delete("walletStatus");
+    params.set("page", "1");
+    startTransition(() => {
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    });
+  };
+
   return (
     <div className="flex flex-col gap-5 mb-6">
       <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-5">
         <div className="flex-1 w-full max-w-2xl">
           <SWTInputSearch 
-            placeholder="Tìm kiếm mã ví, khách hàng..." 
+            placeholder="Tìm kiếm tên khách hàng, email, số điện thoại..." 
             className="w-full !h-11 !rounded-2xl shadow-sm"
+            value={localSearch}
+            onChange={(e) => setLocalSearch(e.target.value)}
+            allowClear
           />
         </div>
 
@@ -24,6 +79,7 @@ export default function RewardFilters() {
           </SWTTooltip>
           <SWTTooltip title="Thêm Giao Dịch Điểm" placement="top" color="#ec4899">
             <div 
+              onClick={onAdd}
               className="flex h-11 w-11 items-center justify-center bg-brand-500/10 hover:bg-brand-500/20 text-brand-500 border border-brand-500/20 rounded-xl shadow-sm transition-all cursor-pointer group"
             >
               <Plus size={24} className="stroke-[2.5] group-hover:scale-110 group-hover:rotate-90 transition-transform duration-300" />
@@ -43,15 +99,15 @@ export default function RewardFilters() {
           </div>
 
           <div className="flex flex-wrap items-center gap-3 flex-1">
-            <SWTDatePickerRange className="!h-11 !rounded-xl w-full sm:w-auto" />
-
             <SWTSelect 
-              placeholder="Loại Giao Dịch"
+              placeholder="Trạng thái ví"
               className="w-full sm:w-[180px] !h-11"
+              value={statusVal}
+              onChange={(v) => updateFilter("walletStatus", v)}
               options={[
                 { label: "Tất cả", value: "all" },
-                { label: "Cộng điểm", value: "add" },
-                { label: "Trừ điểm", value: "sub" }
+                { label: "Hoạt động", value: "active" },
+                { label: "Đã khóa", value: "locked" }
               ]}
             />
           </div>
@@ -60,6 +116,7 @@ export default function RewardFilters() {
         <div className="w-full md:w-auto flex justify-end md:justify-start border-t md:border-t-0 border-border-default pt-3 md:pt-0">
           <SWTButton
             type="text"
+            onClick={clearFilters}
             className="!h-9 !px-4 !text-xs !rounded-xl !w-auto whitespace-nowrap
             text-text-muted hover:!text-status-error-text hover:!bg-status-error-bg/10 transition-all font-bold"
           >

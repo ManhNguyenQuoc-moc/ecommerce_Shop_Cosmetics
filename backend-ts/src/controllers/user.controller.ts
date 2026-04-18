@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { UserService as IUserService } from "../interfaces/IUserService";
 import { CreateUserSchema, UpdateUserSchema, UserQueryFiltersSchema, UpdateUserStatusSchema, UpdateUserRoleSchema } from "../DTO/user/user.dto";
-import { z } from "zod";
+import { handleControllerError } from "../utils/errorHandler";
 
 export class UserController {
   private readonly userService: IUserService;
@@ -26,7 +26,7 @@ export class UserController {
         data: user,
       });
     } catch (error: any) {
-      this.handleError(res, error);
+      handleControllerError(res, error, "UserController");
     }
   };
 
@@ -41,7 +41,7 @@ export class UserController {
         data: user 
       });
     } catch (error: any) {
-      this.handleError(res, error);
+      handleControllerError(res, error, "UserController");
     }
   };
 
@@ -53,7 +53,7 @@ export class UserController {
         return;
       }
       
-      const user = await this.userService.getUserById(id);
+      const user = await this.userService.getUserWithRank(id);
       if (!user) {
         res.status(404).json({ success: false, message: "User not found" });
         return;
@@ -65,7 +65,7 @@ export class UserController {
         data: user,
       });
     } catch (error: any) {
-      this.handleError(res, error);
+      handleControllerError(res, error, "UserController");
     }
   };
 
@@ -86,7 +86,7 @@ export class UserController {
         data: updatedUser,
       });
     } catch (error: any) {
-      this.handleError(res, error);
+      handleControllerError(res, error, "UserController");
     }
   };
 
@@ -94,12 +94,13 @@ export class UserController {
     try {
       const query = UserQueryFiltersSchema.parse({
         ...req.query,
-        page: req.query.page ? parseInt(req.query.page as string) : undefined,
+        page: req.query.page ? parseInt(req.query.page as string) : 1,
+        pageSize: req.query.pageSize ? parseInt(req.query.pageSize as string) : 6,
         limit: req.query.limit ? parseInt(req.query.limit as string) : (req.query.pageSize ? parseInt(req.query.pageSize as string) : undefined),
       });
 
-      const page = (req.query.page as any) || 1;
-      const limit = (query as any).limit || 10;
+      const page = query.page || 1;
+      const limit = query.limit || query.pageSize || 6;
 
       const result = await this.userService.getUsers(page, limit, query);
       
@@ -114,7 +115,7 @@ export class UserController {
         },
       });
     } catch (error: any) {
-      this.handleError(res, error);
+      handleControllerError(res, error, "UserController");
     }
   };
 
@@ -128,7 +129,7 @@ export class UserController {
       const history = await this.userService.getPointHistory(id);
       res.status(200).json({ success: true, data: history });
     } catch (error: any) {
-      this.handleError(res, error);
+      handleControllerError(res, error, "UserController");
     }
   };
 
@@ -138,7 +139,7 @@ export class UserController {
       const history = await this.userService.getPointHistory(id);
       res.status(200).json({ success: true, data: history });
     } catch (error: any) {
-      this.handleError(res, error);
+      handleControllerError(res, error, "UserController");
     }
   };
 
@@ -153,7 +154,7 @@ export class UserController {
       const user = await this.userService.togglePointWalletStatus(id, isLocked);
       res.status(200).json({ success: true, message: "Cập nhật trạng thái ví thành công", data: user });
     } catch (error: any) {
-      this.handleError(res, error);
+      handleControllerError(res, error, "UserController");
     }
   };
 
@@ -170,7 +171,7 @@ export class UserController {
         data: user 
       });
     } catch (error: any) {
-      this.handleError(res, error);
+      handleControllerError(res, error, "UserController");
     }
   };
 
@@ -187,29 +188,8 @@ export class UserController {
         data: user 
       });
     } catch (error: any) {
-      this.handleError(res, error);
+      handleControllerError(res, error, "UserController");
     }
   };
 
-  private handleError(res: Response, error: any) {
-    if (error instanceof z.ZodError) {
-      res.status(400).json({
-        success: false,
-        message: "Validation failed",
-        errors: error.issues.map(err => ({
-          path: err.path.join('.'),
-          message: err.message
-        }))
-      });
-      return;
-    }
-
-    const isBadRequest = ["Ngày sinh không thể ở tương lai.", "Bạn phải đủ 16 tuổi."].includes(error.message);
-    
-    console.error("UserController Error:", error);
-    res.status(isBadRequest ? 400 : (error.status || 500)).json({
-      success: false,
-      message: error.message || "Internal server error"
-    });
-  }
 }

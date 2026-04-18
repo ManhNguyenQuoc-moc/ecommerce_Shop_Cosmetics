@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, Ticket, Calendar, DollarSign, Info } from "lucide-react";
+import { Ticket, Info } from "lucide-react";
 import SWTForm from "@/src/@core/component/AntD/SWTForm";
 import SWTFormItem from "@/src/@core/component/AntD/SWTFormItem";
 import SWTInput, { SWTInputTextArea } from "@/src/@core/component/AntD/SWTInput";
@@ -62,8 +62,10 @@ export default function AddVoucherModal({ isOpen, onClose, initialData }: AddVou
   const handleFinish = async (values: AddVoucherFormValues) => {
     setIsSubmitting(true);
     try {
+      const type = (values.type || "PERCENTAGE") as VoucherType;
       const payload = {
         ...values,
+        type,
         discount: Number(values.discount),
         min_order_value: Number(values.min_order_value || 0),
         max_discount: values.max_discount ? Number(values.max_discount) : undefined,
@@ -83,11 +85,12 @@ export default function AddVoucherModal({ isOpen, onClose, initialData }: AddVou
       form.resetFields();
       mutate(`${VOUCHER_API_ENDPOINT}?all=true`);
       onClose();
-    } catch (err: any) {
-      if (err.errors && Array.isArray(err.errors)) {
-        err.errors.forEach((e: any) => showNotificationError(`${e.path || 'Lỗi'}: ${e.message}`));
+    } catch (err: unknown) {
+      const error = err as { errors?: Array<{ path?: string; message: string }> | undefined; message?: string };
+      if (error.errors && Array.isArray(error.errors)) {
+        error.errors.forEach((e) => showNotificationError(`${e.path || 'Lỗi'}: ${e.message}`));
       } else {
-        showNotificationError(err.message || "Có lỗi xảy ra");
+        showNotificationError(error.message || "Có lỗi xảy ra");
       }
     } finally {
       setIsSubmitting(false);
@@ -115,7 +118,7 @@ export default function AddVoucherModal({ isOpen, onClose, initialData }: AddVou
       cancelButtonProps={{
         className: "dark:!text-slate-300 dark:!bg-slate-800 dark:!border-slate-700 !rounded-xl",
       }}
-      className="[&_.ant-modal-header]:!px-6 [&_.ant-modal-header]:!pt-6 [&_.ant-modal-body]:!px-6 [&_.ant-modal-footer]:!px-6 [&_.ant-modal-footer]:!pb-6 sm:[&_.ant-modal-header]:!px-8 sm:[&_.ant-modal-header]:!pt-8 sm:[&_.ant-modal-body]:!px-8 sm:[&_.ant-modal-footer]:!px-8 sm:[&_.ant-modal-footer]:!pb-8 dark:[&_.ant-modal-content]:!bg-slate-900/95 dark:[&_.ant-modal-content]:!border dark:[&_.ant-modal-content]:!border-brand-500/20 dark:[&_.ant-modal-header]:!bg-transparent"
+      className="[&_.ant-modal-header]:px-6! [&_.ant-modal-header]:pt-6! [&_.ant-modal-body]:px-6! [&_.ant-modal-footer]:px-6! [&_.ant-modal-footer]:pb-6! sm:[&_.ant-modal-header]:px-8! sm:[&_.ant-modal-header]:pt-8! sm:[&_.ant-modal-body]:px-8! sm:[&_.ant-modal-footer]:px-8! sm:[&_.ant-modal-footer]:pb-8! dark:[&_.ant-modal-content]:bg-slate-900/95! dark:[&_.ant-modal-content]:border! dark:[&_.ant-modal-content]:border-brand-500/20! dark:[&_.ant-modal-header]:bg-transparent!"
     >
       <SWTForm
         form={form}
@@ -126,7 +129,7 @@ export default function AddVoucherModal({ isOpen, onClose, initialData }: AddVou
           valid_from: initialData.valid_from ? dayjs(initialData.valid_from) : undefined,
           valid_until: initialData.valid_until ? dayjs(initialData.valid_until) : undefined,
         } : { type: "PERCENTAGE" }}
-        className="animate-fade-in mt-4 [&_.ant-form-item-label>label]:font-semibold [&_.ant-form-item-label>label]:text-slate-700 dark:[&_.ant-form-item-label>label]:!text-slate-300"
+        className="animate-fade-in mt-4 [&_.ant-form-item-label>label]:font-semibold [&_.ant-form-item-label>label]:text-slate-700 dark:[&_.ant-form-item-label>label]:text-slate-300!"
       >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6">
           <SWTFormItem
@@ -137,7 +140,7 @@ export default function AddVoucherModal({ isOpen, onClose, initialData }: AddVou
             <SWTInput 
               placeholder="Vd: SUMMER2024..." 
               disabled={isEdit}
-              className="uppercase dark:!bg-slate-800/80 dark:!border-slate-700 dark:!text-white" 
+              className="uppercase dark:bg-slate-800/80! dark:border-slate-700! dark:text-white!" 
             />
           </SWTFormItem>
 
@@ -146,7 +149,7 @@ export default function AddVoucherModal({ isOpen, onClose, initialData }: AddVou
             label="Tên Chương trình"
             rules={[{ required: true, message: 'Vui lòng nhập tên chương trình' }]}
           >
-            <SWTInput placeholder="Vd: Ưu đãi mùa hè..." className="dark:!bg-slate-800/80 dark:!border-slate-700 dark:!text-white" />
+            <SWTInput placeholder="Vd: Ưu đãi mùa hè..." className="dark:bg-slate-800/80! dark:border-slate-700! dark:text-white!" />
           </SWTFormItem>
         </div>
 
@@ -157,7 +160,7 @@ export default function AddVoucherModal({ isOpen, onClose, initialData }: AddVou
           <SWTInputTextArea 
             placeholder="Nhập chi tiết điều kiện áp dụng..." 
             rows={3}
-            className="dark:!bg-slate-800/80 dark:!border-slate-700 dark:!text-white !rounded-xl" 
+            className="dark:bg-slate-800/80! dark:border-slate-700! dark:text-white! rounded-xl!" 
           />
         </SWTFormItem>
 
@@ -173,7 +176,7 @@ export default function AddVoucherModal({ isOpen, onClose, initialData }: AddVou
                   { label: "Giảm theo phần trăm (%)", value: "PERCENTAGE" },
                   { label: "Giảm số tiền cố định (đ)", value: "FLAT_AMOUNT" },
                 ]}
-                className="w-full dark:[&_.ant-select-selector]:!bg-slate-800/80 dark:[&_.ant-select-selector]:!border-slate-700 dark:[&_.ant-select-selection-item]:!text-white"
+                className="w-full dark:[&_.ant-select-selector]:bg-slate-800/80! dark:[&_.ant-select-selector]:border-slate-700! dark:[&_.ant-select-selection-item]:text-white!"
               />
             </SWTFormItem>
 
@@ -260,7 +263,7 @@ export default function AddVoucherModal({ isOpen, onClose, initialData }: AddVou
             label="Ngày kết thúc"
             rules={[{ required: true, message: 'Vui lòng chọn ngày kết thúc' }]}
           >
-             <SWTDatePicker className="w-full !h-10 dark:!bg-slate-800/80 dark:!border-slate-700 dark:!text-white" format="DD/MM/YYYY" placeholder="Chọn ngày" />
+             <SWTDatePicker className="w-full h-10! dark:bg-slate-800/80! dark:border-slate-700! dark:text-white!" format="DD/MM/YYYY" placeholder="Chọn ngày" />
           </SWTFormItem>
         </div>
 

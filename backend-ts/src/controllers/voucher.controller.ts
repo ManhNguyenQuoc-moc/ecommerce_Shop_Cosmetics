@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { IDiscountService } from "../interfaces/IDiscountService";
-import { CreateVoucherSchema, UpdateVoucherSchema } from "../DTO/voucher/voucher.dto";
+import { CreateVoucherSchema, UpdateVoucherSchema, VoucherQueryFiltersSchema } from "../DTO/voucher/voucher.dto";
 import { z } from "zod";
 
 export class VoucherController {
@@ -8,14 +8,30 @@ export class VoucherController {
 
   async getVouchers(req: Request, res: Response): Promise<void> {
     try {
-      const isAll = req.query.all === 'true';
+      const query = VoucherQueryFiltersSchema.parse({
+        page: req.query.page ? parseInt(req.query.page as string) : 1,
+        pageSize: req.query.pageSize ? parseInt(req.query.pageSize as string) : 6,
+        limit: req.query.limit ? parseInt(req.query.limit as string) : (req.query.pageSize ? parseInt(req.query.pageSize as string) : undefined),
+      });
+
+      const page = query.page || 1;
+      const pageSize = query.limit || query.pageSize || 6;
+      const skip = (page - 1) * pageSize;
+
+      const includeExpired = req.query.includeExpired === 'true';
       const userId = (req as any).user?.id;
-      const vouchers = isAll 
-        ? await this.discountService.getAllVouchers(userId)
-        : await this.discountService.getActiveVouchers(userId);
+      const result = includeExpired 
+        ? await this.discountService.getAllVouchers(userId, skip, pageSize)
+        : await this.discountService.getActiveVouchers(userId, skip, pageSize);
+
       res.status(200).json({
         success: true,
-        data: vouchers
+        data: {
+          data: result.items,
+          total: result.total,
+          page,
+          pageSize,
+        }
       });
     } catch (error: any) {
       res.status(500).json({
@@ -28,7 +44,8 @@ export class VoucherController {
   async getVoucherByCode(req: Request, res: Response): Promise<void> {
     try {
       const { code } = req.params;
-      const voucher = await this.discountService.getVoucherByCode(code as string);
+      const userId = (req as any).user?.id; // Get userId from authenticated user
+      const voucher = await this.discountService.getVoucherByCode(code as string, userId);
       if (!voucher) {
         res.status(404).json({ success: false, message: "Mã giảm giá không tồn tại" });
         return;

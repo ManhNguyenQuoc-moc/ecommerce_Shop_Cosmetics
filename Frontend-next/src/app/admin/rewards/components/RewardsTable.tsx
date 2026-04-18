@@ -2,45 +2,53 @@
 
 import SWTTable from "@/src/@core/component/AntD/SWTTable";
 import SWTAvatar from "@/src/@core/component/AntD/SWTAvatar";
+import SWTStatusTag from "@/src/@core/component/SWTStatusTag";
 import { Dropdown } from "antd";
 import type { MenuProps } from "antd";
 import { History, Ban, Unlock, MoreVertical } from "lucide-react";
 import SWTIconButton from "@/src/@core/component/SWTIconButton";
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import { useUsers, useToggleWalletLock } from "@/src/services/admin/user/user.hook";
 import { showNotificationSuccess, showNotificationError } from "@/src/@core/utils/message";
 import UserPointsDrawer from "./UserPointsDrawer";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
+import { WalletStatus, WALLET_STATUS_CONFIG } from "@/src/enums";
+import type { UserProfileDTO } from "@/src/services/admin/user/models/output.model.dto";
 
-interface RewardsTableProps {
-  searchTerm?: string;
-}
+export default function RewardsTable() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
 
-export default function RewardsTable({ searchTerm }: RewardsTableProps) {
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(6);
-  const { users, total, isLoading, mutate } = useUsers(page, pageSize, { search: searchTerm });
+  const page = Number(searchParams.get("page") ?? 1);
+  const pageSize = Number(searchParams.get("pageSize") ?? 6);
+  const searchTerm = searchParams.get("search") || "";
+  const walletStatusVal = searchParams.get("walletStatus") || "";
+
+  const { users, total, isLoading, mutate } = useUsers(page, pageSize, { search: searchTerm, wallet_status: walletStatusVal });
   const { trigger: toggleWallet } = useToggleWalletLock();
 
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [selectedUserForPoints, setSelectedUserForPoints] = useState<any>(null);
+  const [selectedUserForPoints, setSelectedUserForPoints] = useState<UserProfileDTO | null>(null);
 
-  const handleToggleWalletLock = async (user: any) => {
+  const handleToggleWalletLock = useCallback(async (user: UserProfileDTO) => {
     try {
       const isLocked = !user.is_point_wallet_locked;
       await toggleWallet({ id: user.id, isLocked });
       showNotificationSuccess(`Đã ${isLocked ? "khóa" : "mở khóa"} ví điểm thành công`);
       mutate();
-    } catch (err: any) {
-      showNotificationError(err.message || "Có lỗi xảy ra");
+    } catch (err: unknown) {
+      const error = err as { message?: string };
+      showNotificationError(error.message || "Có lỗi xảy ra");
     }
-  };
+  }, [toggleWallet, mutate]);
 
   const columns = useMemo(() => [
     {
       title: 'Khách hàng',
       dataIndex: 'full_name',
       key: 'name',
-      render: (text: string, record: any) => (
+      render: (text: string, record: UserProfileDTO) => (
         <div className="flex items-center gap-3">
           <SWTAvatar src={record.avatar} size={40} className="shrink-0 border-brand-500/50" />
           <div className="flex flex-col">
@@ -84,17 +92,16 @@ export default function RewardsTable({ searchTerm }: RewardsTableProps) {
       dataIndex: 'is_point_wallet_locked',
       key: 'wallet_status',
       align: 'center' as const,
-      render: (locked: boolean) => (
-        <span className={`px-2 py-0.5 text-[10px] font-bold rounded-full ${locked ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'} flex items-center justify-center w-max mx-auto gap-1 border ${locked ? 'border-red-200' : 'border-green-200'}`}>
-          <span className={`w-1 h-1 rounded-full ${locked ? "bg-red-500 animate-pulse" : "bg-green-500"}`} />
-          {locked ? "ĐÃ KHÓA" : "HOẠT ĐỘNG"}
-        </span>
-      )
+      render: (locked: boolean) => {
+        const status = locked ? WalletStatus.LOCKED : WalletStatus.ACTIVE;
+        const statusConfig = WALLET_STATUS_CONFIG[status];
+        return <SWTStatusTag status={status} label={statusConfig?.label} />;
+      }
     },
     {
       title: 'Thao tác',
       key: 'actions',
-      render: (_: any, record: any) => {
+      render: (_: unknown, record: UserProfileDTO) => {
         const actionItems: MenuProps['items'] = [
           {
             key: 'wallet_lock',
@@ -140,28 +147,35 @@ export default function RewardsTable({ searchTerm }: RewardsTableProps) {
   ], [handleToggleWalletLock]);
 
   return (
-    <div className="overflow-hidden !border !border-border-default dark:!border-border-brand !rounded-2xl !bg-bg-card backdrop-blur-xl !shadow-sm overflow-x-auto w-full">
+    <div className="overflow-hidden border! border-border-default! dark:border-border-brand! rounded-2xl! bg-bg-card! backdrop-blur-xl shadow-sm! overflow-x-auto w-full">
       <SWTTable
         columns={columns}
         dataSource={users}
         rowKey="id"
         loading={isLoading}
-        className="min-w-[700px]"
+        className="min-w-175"
         pagination={{
           totalCount: total,
           page: page,
           fetch: pageSize,
           onChange: (p: number, f: number) => {
-            setPage(p);
-            setPageSize(f);
+            const params = new URLSearchParams(searchParams.toString());
+            // If pageSize changed, reset to page 1
+            if (f !== pageSize) {
+              params.set("page", "1");
+            } else {
+              params.set("page", p.toString());
+            }
+            params.set("pageSize", f.toString());
+            router.replace(`${pathname}?${params.toString()}`);
           }
         }}
       />
       <UserPointsDrawer
         open={drawerOpen}
         onClose={() => setDrawerOpen(false)}
-        userId={selectedUserForPoints?.id}
-        userName={selectedUserForPoints?.full_name}
+        userId={selectedUserForPoints?.id || null}
+        userName={selectedUserForPoints?.full_name || undefined}
       />
     </div>
   );

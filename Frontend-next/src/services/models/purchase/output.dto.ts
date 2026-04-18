@@ -1,5 +1,8 @@
-export type POStatus = 'DRAFT' | 'CONFIRMED' | 'PARTIALLY_RECEIVED' | 'COMPLETED' | 'CANCELLED';
-export type POPriority = 'LOW' | 'NORMAL' | 'HIGH';
+import { POStatus, POPriority, getStatusLabel } from "@/src/enums";
+
+export type POStatusType = `${POStatus}`;
+export type POPriorityType = `${POPriority}`;
+
 export interface BrandInPODto {
   id: string;
   name: string;
@@ -67,17 +70,17 @@ export interface POListResponseDto {
   limit: number;
 }
 
-/** Helper: get display label for a PO status */
-export const PO_STATUS_LABELS: Record<POStatus, string> = {
-  DRAFT: 'Nháp',
-  CONFIRMED: 'Đã duyệt',
-  PARTIALLY_RECEIVED: 'Nhận một phần',
-  COMPLETED: 'Hoàn tất',
-  CANCELLED: 'Đã hủy',
+/** Helper: get display label for a PO status - use STATUS_CONFIG from enums instead */
+export const PO_STATUS_LABELS: Record<POStatusType, string> = {
+  DRAFT: getStatusLabel(POStatus.DRAFT),
+  CONFIRMED: getStatusLabel(POStatus.CONFIRMED),
+  PARTIALLY_RECEIVED: getStatusLabel(POStatus.PARTIALLY_RECEIVED),
+  COMPLETED: getStatusLabel(POStatus.COMPLETED),
+  CANCELLED: getStatusLabel(POStatus.CANCELLED),
 };
 
-export const PO_PRIORITY_LABELS: Record<POPriority, string> = {
-  LOW: 'Thấp',
-  NORMAL: 'Thường',
-  HIGH: 'Cao',
+export const PO_PRIORITY_LABELS: Record<POPriorityType, string> = {
+  LOW: getStatusLabel(POPriority.LOW),
+  NORMAL: getStatusLabel(POPriority.NORMAL),
+  HIGH: getStatusLabel(POPriority.HIGH),
 };

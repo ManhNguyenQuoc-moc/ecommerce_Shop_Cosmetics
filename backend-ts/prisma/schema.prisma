@@ -29,6 +29,8 @@ model User {
   reviews                Review[]
   wishlist               Wishlist[]
   pointTransactions      PointTransaction[]
+  notifications          Notification[]
+  questions              Question[]
 }
 
 model PointTransaction {
@@ -145,6 +147,7 @@ model Product {
   productImages     ProductImage[]
   variants          ProductVariant[]
   reviews           Review[]
+  questions         Question[]
 }
 
 model ProductImage {
@@ -188,11 +191,62 @@ model Review {
   productId String
   rating    Int
   comment   String?
+  sentiment Sentiment?
+  parentId  String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  status    ItemStatus @default(ACTIVE)
+  
   product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
   user      User     @relation(fields: [userId], references: [id])
+  parent    Review?  @relation("ReviewReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies   Review[] @relation("ReviewReplies")
 }
+
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String?
+  title     String
+  content   String
+  type      NotificationType
+  isRead    Boolean          @default(false)
+  metadata  Json?
+  createdAt DateTime         @default(now())
+  
+  user      User?            @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Question {
+  id        String     @id @default(uuid())
+  productId String
+  userId    String?
+  content   String
+  parentId  String?
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  status    ItemStatus @default(ACTIVE)
+  
+  product   Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user      User?      @relation(fields: [userId], references: [id])
+  parent    Question?  @relation("QuestionReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies   Question[] @relation("QuestionReplies")
+}
+
+enum Sentiment {
+  POSITIVE
+  NEGATIVE
+  NEUTRAL
+}
+
+enum NotificationType {
+  NEW_ORDER
+  LOW_STOCK
+  EXPIRING_PRODUCT
+  NEW_REVIEW
+  NEW_QUESTION
+  SYSTEM
+}
+
 
 model Order {
   id             String               @id @default(uuid())
@@ -376,6 +430,8 @@ enum OrderStatus {
 enum PaymentMethod {
   COD
   VNPAY
+  MOMO
+  ZALOPAY
 }
 
 enum PaymentStatus {

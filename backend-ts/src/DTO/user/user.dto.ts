@@ -31,6 +31,9 @@ export type UpdateUserDTO = z.infer<typeof UpdateUserSchema>;
 export const UserQueryFiltersSchema = z.object({
   search: z.string().optional(),
   role: z.string().optional(),
+  page: z.number().optional().default(1),
+  pageSize: z.number().optional().default(6),
+  limit: z.number().optional(),
 });
 
 export type UserQueryFiltersDTO = z.infer<typeof UserQueryFiltersSchema>;

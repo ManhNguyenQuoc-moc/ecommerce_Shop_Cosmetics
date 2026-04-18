@@ -11,6 +11,7 @@ import { useAuth } from "@/src/context/AuthContext";
 import { Dropdown } from "antd";
 import type { MenuProps } from "antd";
 import { useTheme } from "@/src/context/ThemeContext";
+import NotificationDropdown from "@/src/app/admin/components/NotificationDropdown";
 
 export default function AdminAppHeader() {
   const pathname = usePathname();
@@ -103,14 +104,7 @@ export default function AdminAppHeader() {
         />
 
         {/* Notifications */}
-        <div className="relative">
-          <SWTIconButton
-            icon={<Bell size={20} />}
-            className="p-2.5 rounded-xl text-text-sub hover:bg-bg-muted dark:hover:bg-white/5 dark:hover:text-white transition-colors"
-          />
-          {/* Red Ping Dot */}
-          <span className="absolute top-2 right-2.5 w-2 h-2 bg-brand-500 rounded-full border-2 border-bg-card shadow-sm" />
-        </div>
+        <NotificationDropdown />
 
         <div className="w-px h-8 bg-border-default mx-1 md:mx-2" />
 

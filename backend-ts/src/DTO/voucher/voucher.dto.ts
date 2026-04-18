@@ -52,3 +52,11 @@ export const VoucherResponseSchema = z.object({
 });
 
 export type VoucherResponseDTO = z.infer<typeof VoucherResponseSchema>;
+
+export const VoucherQueryFiltersSchema = z.object({
+  page: z.number().optional().default(1),
+  pageSize: z.number().optional().default(6),
+  limit: z.number().optional(),
+});
+
+export type VoucherQueryFiltersDTO = z.infer<typeof VoucherQueryFiltersSchema>;

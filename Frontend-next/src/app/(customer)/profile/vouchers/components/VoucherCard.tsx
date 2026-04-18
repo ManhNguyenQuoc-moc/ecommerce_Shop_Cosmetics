@@ -14,9 +14,12 @@ export default function VoucherCard({ voucher }: Props) {
     showNotificationSuccess(`Đã sao chép mã: ${voucher.code}`);
   };
 
-  const isExpired = voucher.is_expired;
-  const isUsed = voucher.is_used;
-  const isDisabled = isExpired || isUsed;
+  const now = new Date();
+  const endDate = new Date(voucher.valid_until);
+  
+  const isExpired = now > endDate || !voucher.isActive;
+  const isOuted = voucher.usage_limit > 0 && voucher.used_count >= voucher.usage_limit;
+  const isDisabled = isExpired || isOuted;
 
   return (
     <SWTCard className={`relative !mb-4 !rounded-2xl !border-none !shadow-sm overflow-hidden group transition-all ${isDisabled ? "opacity-75 grayscale-[0.5]" : "hover:shadow-md hover:border-brand-200"}`} bodyClassName="flex p-0">
@@ -40,10 +43,10 @@ export default function VoucherCard({ voucher }: Props) {
         <div>
           <div className="flex justify-between items-start mb-1">
             <h3 className={`font-bold text-gray-900 text-base truncate pr-2 ${isDisabled ? "text-gray-400" : ""}`}>
-              {voucher.name}
+              {voucher.program_name || 'N/A'}
             </h3>
-            {isUsed ? (
-              <Tag color="default" className="!rounded-full !m-0">Đã sử dụng</Tag>
+            {isOuted ? (
+              <Tag color="warning" className="!rounded-full !m-0">Hết lượt</Tag>
             ) : isExpired ? (
               <Tag color="error" className="!rounded-full !m-0">Hết hạn</Tag>
             ) : (
@@ -51,24 +54,24 @@ export default function VoucherCard({ voucher }: Props) {
             )}
           </div>
           <p className="text-gray-500 text-xs line-clamp-2 leading-relaxed mb-3">
-            {voucher.description}
+            {voucher.description || 'Không có mô tả'}
           </p>
 
           <div className="flex flex-wrap gap-x-4 gap-y-2 mb-4">
             <div className="flex items-center gap-1.5 text-gray-400 text-[11px]">
               <Calendar size={13} />
-              <span>HSD: {new Date(voucher.end_date).toLocaleDateString("vi-VN")}</span>
+              <span>HSD: {new Date(voucher.valid_until).toLocaleDateString("vi-VN")}</span>
             </div>
-            {voucher.min_order_value && (
+            {voucher.min_order_value && voucher.min_order_value > 0 && (
               <div className="flex items-center gap-1.5 text-gray-400 text-[11px]">
-               <Info size={13} />
-               <span>Đơn từ {voucher.min_order_value.toLocaleString("vi-VN")}₫</span>
+                <Info size={13} />
+                <span>Đơn từ {voucher.min_order_value.toLocaleString("vi-VN")}₫</span>
+              </div>
+            )}
+            <div className="flex items-center gap-1.5 text-brand-500 font-bold text-[11px] bg-brand-50 px-2 py-0.5 rounded-full border border-brand-100">
+              <span>Đã dùng: {voucher.used_count || 0}/{voucher.usage_limit || 100}</span>
             </div>
-          )}
-          <div className="flex items-center gap-1.5 text-brand-500 font-bold text-[11px] bg-brand-50 px-2 py-0.5 rounded-full border border-brand-100">
-             <span>Đã dùng: {voucher.used_count || 0}/{voucher.usage_limit || 100}</span>
           </div>
-        </div>
       </div>
 
         <div className="flex items-center justify-between gap-4">

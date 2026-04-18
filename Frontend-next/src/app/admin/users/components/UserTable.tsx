@@ -130,9 +130,11 @@ export default function UserTable() {
           totalCount: total,
           page: pagination.page,
           fetch: pagination.pageSize,
-          onChange: (p: number, f: number) => {
+          onChange: (p: number, ps: number) => {
             pagination.setPage(p);
-            pagination.setPageSize(f);
+            if (ps !== pagination.pageSize) {
+              pagination.setPageSize(ps);
+            }
           }
         }}
       />

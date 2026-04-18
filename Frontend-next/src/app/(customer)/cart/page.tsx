@@ -1,10 +1,9 @@
 
-"use client"
-import dynamic from 'next/dynamic';
+import dynamicImport from 'next/dynamic';
 
-const CartClient = dynamic(() => import("./components/CartClient"), { 
-  ssr: false 
-});
+export const dynamic = "force-dynamic";
+
+const CartClient = dynamicImport(() => import("./components/CartClient"));
 
 export default function CartPage() {
   return <CartClient />;

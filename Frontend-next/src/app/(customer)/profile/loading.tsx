@@ -1,5 +1,5 @@
-import ProfileSkeleton from "./components/ProfileSkeleton";
+import SWTLoading from "@/src/@core/component/AntD/SWTLoading";
 
 export default function ProfileLoading() {
-  return <ProfileSkeleton />;
+  return <SWTLoading tip="Đang tải thông tin cá nhân..." />;
 }

@@ -7,13 +7,15 @@ import { showNotificationSuccess, showNotificationError } from "@/src/@core/util
 import { softDeleteProducts, restoreProducts, PRODUCT_API_ENDPOINT } from "@/src/services/admin/product/product.service";
 import { useProducts } from "@/src/services/admin/product/product.hook";
 import { mutate as globalMutate } from "swr";
-import { RotateCcw, Edit, Eye, Trash2, Layers } from "lucide-react";
+import { RotateCcw, Edit, Eye, Trash2, Layers, MoreVertical } from "lucide-react";
 import EditProductModal from "./EditProductModal";
 import SWTConfirmModal from "@/src/@core/component/AntD/SWTConfirmModal";
 import SWTTooltip from "@/src/@core/component/AntD/SWTTooltip";
 import Image from "next/image";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import React, { useState, useMemo } from "react";
+import { Dropdown } from "antd";
+import type { MenuProps } from "antd";
 
 interface ProductTableProps {
   isPending?: boolean;
@@ -165,28 +167,51 @@ export default function ProductTable({ isPending }: ProductTableProps) {
       title: "Thao tác",
       key: "actions",
       align: "center" as const,
-      render: (_: any, record: any) => (
-        <div className="flex items-center gap-2 justify-center">
-          <SWTIconButton
-            variant="view"
-            icon={<Eye size={18} />}
-            tooltip="Xem chi tiết"
-            href={`/admin/products/${record.id}`}
-          />
-          <SWTIconButton
-            variant="edit"
-            icon={<Edit size={18} />}
-            tooltip="Chỉnh sửa"
-            onClick={() => setEditProductId(record.id)}
-          />
-          <SWTIconButton
-            variant={isHiddenTab ? "restore" : "hide"}
-            icon={isHiddenTab ? <RotateCcw size={18} /> : <Trash2 size={18} />}
-            tooltip={isHiddenTab ? "Khôi phục" : "Ẩn sản phẩm"}
-            onClick={() => setConfirmSingle({ open: true, record })}
-          />
-        </div>
-      ),
+      render: (_: any, record: any) => {
+        const actionItems: MenuProps['items'] = [
+          {
+            key: 'view',
+            label: (
+              <div className="flex items-center gap-2 font-medium px-1 py-1 text-blue-500">
+                <Eye size={16} />
+                <span>Xem chi tiết</span>
+              </div>
+            ),
+            onClick: () => router.push(`/admin/products/${record.id}`)
+          },
+          {
+            key: 'edit',
+            label: (
+              <div className="flex items-center gap-2 font-medium px-1 py-1 text-amber-600">
+                <Edit size={16} />
+                <span>Chỉnh sửa</span>
+              </div>
+            ),
+            onClick: () => setEditProductId(record.id)
+          },
+          { type: 'divider' },
+          {
+            key: 'delete',
+            label: (
+              <div className={`flex items-center gap-2 font-medium px-1 py-1 ${isHiddenTab ? 'text-green-600' : 'text-red-600'}`}>
+                {isHiddenTab ? <RotateCcw size={16} /> : <Trash2 size={16} />}
+                <span>{isHiddenTab ? 'Khôi phục' : 'Ẩn sản phẩm'}</span>
+              </div>
+            ),
+            onClick: () => setConfirmSingle({ open: true, record })
+          }
+        ];
+
+        return (
+          <Dropdown menu={{ items: actionItems }} trigger={['click']} placement="bottomRight">
+            <SWTIconButton
+              variant="custom"
+              icon={<MoreVertical size={18} />}
+              className="text-text-muted hover:text-brand-500 border-transparent hover:border-brand-500/30"
+            />
+          </Dropdown>
+        );
+      }
     },
   ], [isHiddenTab]);
 
@@ -209,7 +234,12 @@ export default function ProductTable({ isPending }: ProductTableProps) {
             fetch: pageSize,
             onChange: (p: number, f: number) => {
               const params = new URLSearchParams(searchParams.toString());
-              params.set("page", p.toString());
+              // If pageSize changed, reset to page 1
+              if (f !== pageSize) {
+                params.set("page", "1");
+              } else {
+                params.set("page", p.toString());
+              }
               params.set("pageSize", f.toString());
               router.replace(`${pathname}?${params.toString()}`);
             },

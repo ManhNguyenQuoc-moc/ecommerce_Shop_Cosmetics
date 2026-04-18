@@ -1,29 +1,29 @@
 import Image from "next/image";
 import SWTCard from "@/src/@core/component/AntD/SWTCard";
 import SWTButton from "@/src/@core/component/AntD/SWTButton";
+import { BrandResponseDto } from "@/src/services/models/brand/output.dto";
 
 type Props = {
-  brand: { id: string; name: string };
-  logo?: string;
+  brand: BrandResponseDto;
   followers?: number;
   loading?: boolean;
 };
 
 export default function BrandCard({
   brand,
-  logo = "/images/main/brands/cocoon-logo.jpg",
   followers = 7950,
   loading = false,
 }: Props) {
   const brandName = brand.name;
-  const brandId = brand.id;
+  const brandLogo = brand?.logo?.url;
+
 
   return (
     <SWTCard loading={loading} className="overflow-hidden">
       <div className="flex flex-col items-center gap-3 p-5">
         <div className="w-28 h-16 relative">
           <Image
-            src={logo}
+            src={brandLogo || "/images/main/brands/cocoon-logo.jpg"}
             alt={brandName}
             fill
             className="object-contain"

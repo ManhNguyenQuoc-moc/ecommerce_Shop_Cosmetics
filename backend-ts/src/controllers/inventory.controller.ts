@@ -1,7 +1,14 @@
 import { Request, Response } from "express";
 import { InventoryService } from "../services/inventory.service";
+import { InventoryRepository } from "../repositories/inventory.repository";
 
-const inventoryService = new InventoryService();
+import { NotificationService } from "../services/notification.service";
+import { NotificationRepository } from "../repositories/notification.repository";
+
+const notificationRepository = new NotificationRepository();
+const notificationService = new NotificationService(notificationRepository);
+const inventoryRepository = new InventoryRepository();
+const inventoryService = new InventoryService(inventoryRepository, notificationService);
 
 export class InventoryController {
   

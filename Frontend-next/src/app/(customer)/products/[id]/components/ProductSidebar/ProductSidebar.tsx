@@ -3,9 +3,10 @@ import BrandCard from "./BrandCard";
 import RelatedProducts from "./RelatedProducts";
 import BrandProducts from "./BrandProducts";
 import { ProductSmallItemDto } from "@/src/services/models/product/output.dto";
+import { BrandResponseDto } from "@/src/services/models/brand/output.dto";
 
 type Props = {
-  brand: { id: string; name: string };
+  brand: BrandResponseDto;
   productId?: string;
   relatedProducts: ProductSmallItemDto[];
   brandProducts: ProductSmallItemDto[];

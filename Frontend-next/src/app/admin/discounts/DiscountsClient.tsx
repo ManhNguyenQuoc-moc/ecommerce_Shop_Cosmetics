@@ -1,13 +1,15 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
 import VoucherTable from "./components/VoucherTable";
 import VoucherFilters from "./components/VoucherFilters";
 import AddVoucherModal from "./components/AddVoucherModal";
 import { VoucherResponseDto } from "@/src/services/models/voucher/output.dto";
-import useSWTTilte from "@/src/@core/hooks/useSWTTitle";
+import useSWTTitle from "@/src/@core/hooks/useSWTTitle";
+
 export default function DiscountsClient() {
-  useSWTTilte("Quản lý mã giảm giá");
+  useSWTTitle("Quản lý Voucher | Admin");
+  const [isPending, startTransition] = useTransition();
   const [isModalOpen, setIsModalOpen] = useState(false); 
   const [editingVoucher, setEditingVoucher] = useState<VoucherResponseDto | null>(null);
 
@@ -23,7 +25,7 @@ export default function DiscountsClient() {
 
   return (
     <div className="admin-card p-6">
-      <VoucherFilters onAdd={handleOpenAdd} />
+      <VoucherFilters onAdd={handleOpenAdd} startTransition={startTransition} />
       <VoucherTable onEdit={handleOpenEdit} />
 
       <AddVoucherModal

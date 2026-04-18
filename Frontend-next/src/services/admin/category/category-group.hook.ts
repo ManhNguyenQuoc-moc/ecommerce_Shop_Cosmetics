@@ -2,6 +2,7 @@ import { useFetchSWR } from "@/src/@core/hooks/useFetchSWR";
 import useSWRMutation from "swr/mutation";
 import { CreateCategoryGroupDto, UpdateCategoryGroupDto, CategoryGroupQueryFilters } from "@/src/services/models/category-group/input.dto";
 import { CategoryGroupResponseDto } from "@/src/services/models/category-group/output.dto";
+import { PaginationResponse } from "@/src/@core/http/models/PaginationResponse";
 import { get, post, put, del } from "@/src/@core/utils/api";
 
 const CATEGORY_GROUP_API_ENDPOINT = "/category-groups";
@@ -15,13 +16,13 @@ export const useCategoryGroups = (page: number | null = null, pageSize: number |
 
   const url = `${CATEGORY_GROUP_API_ENDPOINT}?${query.toString()}`;
 
-  const { data, isLoading, error, mutate } = useFetchSWR(
+  const { data, isLoading, error, mutate } = useFetchSWR<PaginationResponse<CategoryGroupResponseDto> | CategoryGroupResponseDto[]>(
     url,
     () => get(url)
   );
 
-  const categoryGroups = Array.isArray(data) ? data : (data as any)?.data?.data || (data as any)?.data || [];
-  const total = Array.isArray(data) ? data.length : (data as any)?.data?.total || (data as any)?.total || 0;
+  const categoryGroups: CategoryGroupResponseDto[] = Array.isArray(data) ? data : (data as PaginationResponse<CategoryGroupResponseDto>)?.data || [];
+  const total: number = Array.isArray(data) ? data.length : (data as PaginationResponse<CategoryGroupResponseDto>)?.total || 0;
 
   return {
     categoryGroups: categoryGroups as CategoryGroupResponseDto[],

@@ -6,6 +6,8 @@ import SWTCard from "@/src/@core/component/AntD/SWTCard";
 import SWTTabs from "@/src/@core/component/AntD/SWTTabs";
 import { TabsProps } from "antd";
 import { ChevronDown } from "lucide-react";
+import ProductReviewTab from "./ProductReviewTab";
+import ProductQuestionTab from "./ProductQuestionTab";
 
 type Props = {
   product: ProductDetailDto;
@@ -89,18 +91,18 @@ export default function ProductTabs({ product }: Props) {
       key: "review",
       label: "Đánh giá",
       children: (
-        <div className="text-sm text-gray-700">
-          ⭐ {product.rating} / 5 ({product.reviewCount} đánh giá)
-        </div>
+        <ProductReviewTab 
+          productId={product.id} 
+          initialRating={product.rating} 
+          initialReviewCount={product.reviewCount} 
+        />
       )
     },
     {
       key: "qa",
       label: "Hỏi đáp",
       children: (
-        <div className="text-sm text-gray-600">
-          Chưa có câu hỏi cho sản phẩm này
-        </div>
+        <ProductQuestionTab productId={product.id} />
       )
     }
   ];

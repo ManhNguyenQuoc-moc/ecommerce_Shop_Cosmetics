@@ -11,10 +11,12 @@ import Image from "next/image";
 import { showNotificationSuccess, showNotificationError } from "@/src/@core/utils/message";
 import { softDeleteVariants, restoreVariants, PRODUCT_API_ENDPOINT } from "@/src/services/admin/product/product.service";
 import { mutate as globalMutate } from "swr";
-import { RotateCcw, Layers, Edit, Eye, Trash2, AlertCircle } from "lucide-react";
+import { RotateCcw, Layers, Edit, Eye, Trash2, AlertCircle, MoreVertical } from "lucide-react";
 import EditVariantModal from "./EditVariantModal";
 import SWTConfirmModal from "@/src/@core/component/AntD/SWTConfirmModal";
 import { ProductVariantDto } from "@/src/services/models/product/output.dto";
+import { Dropdown } from "antd";
+import type { MenuProps } from "antd";
 
 interface TableRecord extends ProductVariantDto {
   onEdit: (record: ProductVariantDto) => void;
@@ -142,7 +144,7 @@ export default function VariantTable({
         </div>
           <div className="flex flex-col gap-1">
             <div className="font-bold text-text-main">
-              {record.productName} - {record.color || "Không màu"} - {record.size || "Không kích thước"}
+              {record.color || "Không màu"} - {record.size || "Không kích thước"}
             </div>
             <div className="flex items-center gap-2">
                <span className="text-text-muted font-medium text-xs"></span>
@@ -210,37 +212,57 @@ export default function VariantTable({
       title: "Thao tác",
       key: "actions",
       align: "center" as const,
-      render: (_: unknown, record: TableRecord) => (
-        <div className="flex items-center gap-2 justify-center">
-          <SWTIconButton
-            variant="view"
-            icon={<Eye size={18} />}
-            tooltip="Xem chi tiết"
-            href={`/admin/variants/${record.id}`}
-          />
-          <SWTIconButton
-            variant="edit"
-            icon={<Edit size={18} />}
-            tooltip="Chỉnh sửa"
-            onClick={() => handleEdit(record)}
-          />
-          {isHiddenTab && record.productStatus === 'HIDDEN' ? (
+      render: (_: unknown, record: TableRecord) => {
+        const isDisabledRestore = isHiddenTab && record.productStatus === 'HIDDEN';
+        const actionItems: MenuProps['items'] = [
+          {
+            key: 'view',
+            label: (
+              <div className="flex items-center gap-2 font-medium px-1 py-1 text-blue-500">
+                <Eye size={16} />
+                <span>Xem chi tiết</span>
+              </div>
+            ),
+            onClick: () => window.location.href = `/admin/variants/${record.id}`
+          },
+          {
+            key: 'edit',
+            label: (
+              <div className="flex items-center gap-2 font-medium px-1 py-1 text-amber-600">
+                <Edit size={16} />
+                <span>Chỉnh sửa</span>
+              </div>
+            ),
+            onClick: () => handleEdit(record)
+          },
+          { type: 'divider' },
+          {
+            key: 'delete',
+            label: (
+              <div className={`flex items-center gap-2 font-medium px-1 py-1 ${isDisabledRestore ? 'text-gray-400 cursor-not-allowed' : isHiddenTab ? 'text-green-600' : 'text-red-600'}`}>
+                {isHiddenTab ? <RotateCcw size={16} /> : <Trash2 size={16} />}
+                <span>{isHiddenTab ? 'Khôi phục' : 'Ẩn biến thể'}</span>
+              </div>
+            ),
+            onClick: () => {
+              if (!isDisabledRestore) {
+                setConfirmSingle({ open: true, record });
+              }
+            },
+            disabled: isDisabledRestore
+          }
+        ];
+
+        return (
+          <Dropdown menu={{ items: actionItems }} trigger={['click']} placement="bottomRight">
             <SWTIconButton
-              variant="disabled"
-              icon={<RotateCcw size={18} />}
-              tooltip="Cần khôi phục Sản phẩm gốc trước khi khôi phục biến thể"
-              tooltipColor="#f59e0b"
+              variant="custom"
+              icon={<MoreVertical size={18} />}
+              className="text-text-muted hover:text-brand-500 border-transparent hover:border-brand-500/30"
             />
-          ) : (
-            <SWTIconButton
-              variant={isHiddenTab ? "restore" : "hide"}
-              icon={isHiddenTab ? <RotateCcw size={18} /> : <Trash2 size={18} />}
-              tooltip={isHiddenTab ? "Khôi phục" : "Ẩn biến thể"}
-              onClick={() => setConfirmSingle({ open: true, record })}
-            />
-          )}
-        </div>
-      ),
+          </Dropdown>
+        );
+      }
     },
   ], [isHiddenTab]);
 

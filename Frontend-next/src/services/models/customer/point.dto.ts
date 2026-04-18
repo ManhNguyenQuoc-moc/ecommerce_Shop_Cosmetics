@@ -8,6 +8,7 @@ export interface PointLogDTO {
 
 export interface PointSummaryDTO {
   total_points: number;
+  available_points?: number;
   current_tier: string;
   next_tier?: string;
   points_to_next_tier?: number;

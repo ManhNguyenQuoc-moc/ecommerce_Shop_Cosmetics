@@ -1,6 +1,9 @@
 // product.output.dto.ts
 
-export type ProductStatusTag = 'BEST_SELLING' | 'TRENDING' | 'NEW' | 'SALE';
+import { ProductStatusTag, ProductStatus } from "@/src/enums";
+
+export type ProductStatusTagType = `${ProductStatusTag}`;
+export type ProductStatusType = `${ProductStatus}`;
 
 export interface BaseVariantDto {
   id: string;

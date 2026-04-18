@@ -1,7 +1,7 @@
 import { get } from "@/src/@core/utils/api";
 import { useFetchSWR } from "@/src/@core/hooks/useFetchSWR";
 import { CreatePOInput, UpdatePOInput, POQueryParams } from "@/src/services/models/purchase/input.dto";
-import { PODetailDto, POListItemDto } from "@/src/services/models/purchase/output.dto";
+import { PODetailDto, POListItemDto, POItemDto } from "@/src/services/models/purchase/output.dto";
 import { PaginationResponse } from "@/src/@core/http/models/PaginationResponse";
 import { buildQueryString } from "@/src/@core/utils/query.util";
 import { getPurchaseOrders, getPurchaseOrderById } from "@/src/services/admin/iventory/purchase.service";
@@ -31,8 +31,8 @@ export const usePurchaseOrderItems = (id: string | null, page: number, limit: nu
   const query = buildQueryString(queryObj);
   const url = id ? `${PURCHASE_API_ENDPOINT}/${id}/items${query}` : null;
 
-  const fetcher = () => get<PaginationResponse<any>>(`${PURCHASE_API_ENDPOINT}/${id}/items`, queryObj);
-  const { data, error, isLoading, isValidating, mutate } = useFetchSWR<PaginationResponse<any>>(url, fetcher, {
+  const fetcher = () => get<PaginationResponse<POItemDto>>(`${PURCHASE_API_ENDPOINT}/${id}/items`, queryObj);
+  const { data, error, isLoading, isValidating, mutate } = useFetchSWR<PaginationResponse<POItemDto>>(url, fetcher, {
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
   });

@@ -11,7 +11,11 @@ export type UserProfileDTO = {
   role?: "CUSTOMER" | "ADMIN";
   addresses?: Address[];
   loyalty_points?: number;
+  lifetime_points?: number;
+  used_points?: number;
+  member_rank?: string;
   is_verified?: boolean;
+  is_point_wallet_locked?: boolean;
   createdAt?: string;
   updatedAt?: string;
   is_banned?: boolean;

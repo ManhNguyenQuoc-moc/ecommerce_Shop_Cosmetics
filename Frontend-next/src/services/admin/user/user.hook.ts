@@ -4,9 +4,10 @@ import useSWRMutation from "swr/mutation";
 import { buildQueryString } from "@/src/@core/utils/query.util";
 import { PaginationResponse } from "@/src/@core/http/models/PaginationResponse";
 import { UserProfileDTO } from "./models/output.model.dto";
+import { UserQueryFilters } from "./models/input.model.dto";
 export const USER_API_ENDPOINT = "/users";
 
-export const useUsers = (page: number = 1, pageSize: number = 6, filters: any = {}) => {
+export const useUsers = (page: number = 1, pageSize: number = 6, filters: UserQueryFilters = {}) => {
   const query = buildQueryString({
     page,
     pageSize,

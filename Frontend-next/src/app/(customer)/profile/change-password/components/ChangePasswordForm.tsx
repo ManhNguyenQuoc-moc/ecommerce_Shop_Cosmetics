@@ -1,32 +1,33 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { showNotificationError, showNotificationSuccess } from "@/src/@core/utils/message";
 import SWTForm from "@/src/@core/component/AntD/SWTForm";
 import SWTFormItem from "@/src/@core/component/AntD/SWTFormItem";
 import { SWTInputPassword } from "@/src/@core/component/AntD/SWTInput";
 import SWTButton from "@/src/@core/component/AntD/SWTButton";
 import { supabase } from "@/src/@core/utils/supabase";
-import { Lock, Eye, EyeOff, ShieldCheck } from "lucide-react";
+import { Lock, Eye, EyeOff} from "lucide-react";
 
 export default function ChangePasswordForm() {
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (values: any) => {
     try {
       setIsLoading(true);
-
-      // Supabase's updateUser handles password changes for currently logged in users
       const { error } = await supabase.auth.updateUser({
         password: values.newPassword,
       });
-
       if (error) throw error;
-
       showNotificationSuccess("Đổi mật khẩu thành công!");
       
-      // We don't necessarily need to sign out here unless required by business logic
-      // But it's good practice to clear the form
+      // Redirect to profile after 1.5 seconds to let user see the success message
+      setTimeout(() => {
+        router.push("/profile");
+      }, 1500);
+
     } catch (err: any) {
       showNotificationError(err.message || "Không thể đổi mật khẩu");
     } finally {
@@ -35,17 +36,15 @@ export default function ChangePasswordForm() {
   };
 
   return (
-    <div className="w-full max-w-2xl mx-auto">
+    <div className="w-full max-w-2xl mx-auto flex flex-col justify-center">
       <div className="mb-8">
         <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-          <ShieldCheck className="text-brand-500" />
           Đổi mật khẩu
         </h2>
         <p className="text-gray-500 mt-2">
           Để bảo mật tài khoản, vui lòng không chia sẻ mật khẩu với người khác.
         </p>
       </div>
-
       <SWTForm onFinish={handleSubmit} loading={isLoading} layout="vertical" className="max-w-md">
         <SWTFormItem
           name="newPassword"
