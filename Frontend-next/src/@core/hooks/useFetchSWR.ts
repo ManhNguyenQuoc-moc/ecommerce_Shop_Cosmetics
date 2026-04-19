@@ -8,7 +8,10 @@ export const useFetchSWR = <T>(
   const { data, error, isLoading, isValidating, mutate } = useSWR<T>(
     key,
     fetcher,
-    options
+    {
+      shouldRetryOnError: false,
+      ...options,
+    }
   );
 
   return { data, error, isLoading, isValidating, mutate };

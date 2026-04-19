@@ -10,8 +10,8 @@ export class DashboardRepository implements IDashboardRepository {
       SELECT 
         (SELECT COUNT(*) FROM "Order" WHERE "createdAt" BETWEEN ${startDate} AND ${endDate}) as "totalOrders",
         (SELECT COALESCE(SUM("final_amount"), 0) FROM "Order" WHERE "current_status" = 'DELIVERED' AND "createdAt" BETWEEN ${startDate} AND ${endDate}) as "totalRevenue",
-        (SELECT COUNT(*) FROM "User" WHERE "role" = 'CUSTOMER' AND "createdAt" BETWEEN ${startDate} AND ${endDate}) as "monthlyNewUsers",
-        (SELECT COUNT(*) FROM "User" WHERE "role" = 'CUSTOMER') as "totalUsers"
+        (SELECT COUNT(*) FROM "User" WHERE "accountType" = 'CUSTOMER' AND "createdAt" BETWEEN ${startDate} AND ${endDate}) as "monthlyNewUsers",
+        (SELECT COUNT(*) FROM "User" WHERE "accountType" = 'CUSTOMER') as "totalUsers"
     `;
     
     // Profit calculation: Revenue - Cost
@@ -258,7 +258,7 @@ export class DashboardRepository implements IDashboardRepository {
         END as tier,
         COUNT(*)::int as count
       FROM "User"
-      WHERE role = 'CUSTOMER'
+      WHERE "accountType" = 'CUSTOMER'
       GROUP BY tier
       ORDER BY count DESC
     `;

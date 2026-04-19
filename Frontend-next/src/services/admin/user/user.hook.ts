@@ -40,8 +40,16 @@ export const useUpdateUserStatus = () => {
 export const useUpdateUserRole = () => {
   return useSWRMutation(
     USER_API_ENDPOINT,
-    (_, { arg }: { arg: { id: string; role: string } }) =>
-      put(`${USER_API_ENDPOINT}/${arg.id}/role`, { role: arg.role })
+    (_, { arg }: { arg: { id: string; roleId: string } }) =>
+      put(`${USER_API_ENDPOINT}/${arg.id}/role`, { roleId: arg.roleId })
+  );
+};
+
+export const useUpdateUserAccountType = () => {
+  return useSWRMutation(
+    USER_API_ENDPOINT,
+    (_, { arg }: { arg: { id: string; accountType: "CUSTOMER" | "INTERNAL" } }) =>
+      put(`${USER_API_ENDPOINT}/${arg.id}/account-type`, { accountType: arg.accountType })
   );
 };
 
@@ -61,10 +69,9 @@ export const useToggleWalletLock = () => {
 };
 
 export const usePointHistory = (id: string | null) => {
-    
-  const { data, isLoading, error } = useFetchSWR<any[]>(
+  const { data, isLoading, error } = useFetchSWR<unknown[]>(
     id ? `${USER_API_ENDPOINT}/${id}/points` : null,
-    () => id ? get(`${USER_API_ENDPOINT}/${id}/points`) : Promise.resolve([] as any[])
+    () => id ? get(`${USER_API_ENDPOINT}/${id}/points`) : Promise.resolve([] as unknown[])
   );
   return { history: data || [], isLoading, isError: error };
 };

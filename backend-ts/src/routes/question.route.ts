@@ -4,7 +4,8 @@ import { QuestionService } from "../services/question.service";
 import { QuestionRepository } from "../repositories/question.repository";
 import { NotificationService } from "../services/notification.service";
 import { NotificationRepository } from "../repositories/notification.repository";
-import { authenticate, authenticateOptional, authorize } from "../middlewares/auth.middleware";
+import { authenticate, authenticateOptional } from "../middlewares/auth.middleware";
+import { permissionGuard } from "../middlewares/rbac-guard.middleware";
 
 const router = Router();
 
@@ -16,7 +17,7 @@ const controller = new QuestionController(service);
 
 router.get("/product/:productId", authenticateOptional, controller.getProductQuestions);
 router.post("/", authenticateOptional, controller.createQuestion);
-router.post("/:id/reply", authenticateOptional, controller.replyToQuestion);
-router.patch("/:id/status", authenticate, authorize(["ADMIN"]), controller.updateStatus);
+router.post("/:id/reply", authenticate, permissionGuard("question", "answer"), controller.replyToQuestion);
+router.patch("/:id/status", authenticate, permissionGuard("question", "update"), controller.updateStatus);
 
 export default router;

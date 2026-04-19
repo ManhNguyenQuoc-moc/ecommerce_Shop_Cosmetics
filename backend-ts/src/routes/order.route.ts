@@ -10,6 +10,7 @@ import { SettingRepository } from "../repositories/setting.repository";
 import { SettingService } from "../services/setting.service";
 
 import { authenticate } from "../middlewares/auth.middleware";
+import { permissionGuard } from "../middlewares/rbac-guard.middleware";
 
 import { NotificationService } from "../services/notification.service";
 import { NotificationRepository } from "../repositories/notification.repository";
@@ -42,10 +43,10 @@ router.post("/checkout", orderController.createOrder);
 router.use(authenticate);
 
 router.get("/me", orderController.getMyOrders);
-router.get("/", orderController.getOrders);
+router.get("/", permissionGuard("order", "list"), orderController.getOrders);
 router.get("/:id", orderController.getOrderById);
 
-router.put("/:id", orderController.updateOrder);
-router.delete("/:id", orderController.deleteOrder);
+router.put("/:id", permissionGuard("order", "update"), orderController.updateOrder);
+router.delete("/:id", permissionGuard("order", "delete"), orderController.deleteOrder);
 
 export default router;

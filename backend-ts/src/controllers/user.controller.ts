@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { UserService as IUserService } from "../interfaces/IUserService";
-import { CreateUserSchema, UpdateUserSchema, UserQueryFiltersSchema, UpdateUserStatusSchema, UpdateUserRoleSchema } from "../DTO/user/user.dto";
+import { CreateUserSchema, UpdateUserSchema, UserQueryFiltersSchema, UpdateUserStatusSchema, UpdateUserRoleSchema, AccountTypeSchema } from "../DTO/user/user.dto";
 import { handleControllerError } from "../utils/errorHandler";
 
 export class UserController {
@@ -178,14 +178,31 @@ export class UserController {
   updateRole = async (req: Request, res: Response): Promise<void> => {
     try {
       const id = req.params.id as string;
-      const { role } = UpdateUserRoleSchema.parse(req.body);
+      const { roleId } = UpdateUserRoleSchema.parse(req.body);
       
-      const user = await this.userService.updateUserRole(id, role);
+      const user = await this.userService.updateUserRole(id, roleId);
       
       res.status(200).json({ 
         success: true, 
         message: "Cập nhật quyền người dùng thành công", 
         data: user 
+      });
+    } catch (error: any) {
+      handleControllerError(res, error, "UserController");
+    }
+  };
+
+  updateAccountType = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const id = req.params.id as string;
+      const accountType = AccountTypeSchema.parse(req.body.accountType ?? req.body);
+
+      const user = await this.userService.updateUserAccountType(id, accountType);
+
+      res.status(200).json({
+        success: true,
+        message: "Cập nhật loại tài khoản thành công",
+        data: user,
       });
     } catch (error: any) {
       handleControllerError(res, error, "UserController");

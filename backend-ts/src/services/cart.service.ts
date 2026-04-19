@@ -118,6 +118,8 @@ export class CartService implements ICartService {
     const items: CartItemDto[] = cart.items.map((item: any) => {
       const v = item.variant;
       const p = v.product;
+      const variantLabel = v?.color || v?.size;
+      const cartProductName = `${p.name}${variantLabel ? ` - ${variantLabel}` : ""}`;
       
       const imageUrl = v.image?.url || p.productImages?.[0]?.image?.url || null;
       const price = v.price || p.price;
@@ -128,7 +130,7 @@ export class CartService implements ICartService {
         id: item.id,
         variantId: item.variantId,
         productId: v.productId,
-        productName: p.name,
+        productName: cartProductName,
         color: v.color,
         size: v.size,
         sku: v.sku,

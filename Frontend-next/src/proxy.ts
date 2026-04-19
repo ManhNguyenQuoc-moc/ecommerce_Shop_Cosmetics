@@ -6,22 +6,25 @@ const protectedRoutes = ["/profile", "/admin", "/wishlist"];
 export function proxy(request: NextRequest) {
   const token = request.cookies.get("access_token")?.value;
   const userInfoCookie = request.cookies.get("user_info")?.value;
+  const hasSupabaseSession = request.cookies
+    .getAll()
+    .some((cookie) => cookie.name.startsWith("sb-") && cookie.name.includes("-auth-token"));
   const { pathname } = request.nextUrl;
 
   const isProtected = protectedRoutes.some((route) => pathname.startsWith(route));
 
   // 1. Nếu vào route bảo vệ mà không có token -> Về login
-  if (isProtected && !token) {
+  if (isProtected && !token && !hasSupabaseSession) {
     const url = new URL("/login", request.url);
     return NextResponse.redirect(url);
   }
 
   // 2. Phân tích thông tin User từ Cookie
-  let user: any = null;
+  let user: { id?: string; accountType?: "CUSTOMER" | "INTERNAL"; email?: string; is_banned?: boolean } | null = null;
   if (userInfoCookie) {
     try {
       user = JSON.parse(decodeURIComponent(userInfoCookie));
-    } catch (e) {
+    } catch {
       console.error("Middleware: Cookie parse error");
     }
   }
@@ -37,9 +40,9 @@ export function proxy(request: NextRequest) {
     console.log("[MIDDLEWARE] Admin access check:", {
       pathname,
       hasCookie: !!userInfoCookie,
-      user: user ? { id: user.id, role: user.role, email: user.email } : null,
+      user: user ? { id: user.id, accountType: user.accountType, email: user.email } : null,
     });
-    if (!user || user.role !== "ADMIN") {
+    if (!user || user.accountType !== "INTERNAL") {
       console.log("[MIDDLEWARE] Admin denied - redirecting to home");
       return NextResponse.redirect(new URL("/", request.url));
     }

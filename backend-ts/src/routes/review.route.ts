@@ -4,7 +4,8 @@ import { ReviewService } from "../services/review.service";
 import { ReviewRepository } from "../repositories/review.repository";
 import { NotificationService } from "../services/notification.service";
 import { NotificationRepository } from "../repositories/notification.repository";
-import { authenticate, authenticateOptional, authorize } from "../middlewares/auth.middleware";
+import { authenticate, authenticateOptional } from "../middlewares/auth.middleware";
+import { permissionGuard } from "../middlewares/rbac-guard.middleware";
 
 const router = Router();
 
@@ -17,7 +18,7 @@ const reviewController = new ReviewController(reviewService);
 
 router.get("/product/:productId", authenticateOptional, reviewController.getProductReviews);
 router.post("/", authenticate, reviewController.createReview);
-router.post("/:id/reply", authenticate, reviewController.replyToReview);
-router.patch("/:id/status", authenticate, authorize(["ADMIN"]), reviewController.updateStatus);
+router.post("/:id/reply", authenticate, permissionGuard("review", "update"), reviewController.replyToReview);
+router.patch("/:id/status", authenticate, permissionGuard("review", "update"), reviewController.updateStatus);
 
 export default router;

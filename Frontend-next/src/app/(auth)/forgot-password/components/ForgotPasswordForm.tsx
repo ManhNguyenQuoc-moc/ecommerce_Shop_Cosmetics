@@ -8,25 +8,36 @@ import { SWTInput } from "@/src/@core/component/AntD/SWTInput";
 import SWTButton from "@/src/@core/component/AntD/SWTButton";
 import Link from "next/link";
 import { ArrowLeft, Mail } from "lucide-react";
-import { supabase } from "@/src/@core/utils/supabase";
+import { authService } from "@/src/services/auth/auth.service";
 
 export default function ForgotPasswordForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSent, setIsSent] = useState(false);
 
+  const getForgotPasswordErrorMessage = (err: unknown): string => {
+    if (!(err instanceof Error)) {
+      return "Không thể gửi yêu cầu khôi phục";
+    }
+
+    const rawMessage = err.message || "";
+    const normalized = rawMessage.toLowerCase();
+
+    if (normalized.includes("email rate limit exceeded")) {
+      return "Bạn thao tác quá nhanh. Vui lòng chờ ít phút rồi thử gửi lại email khôi phục.";
+    }
+
+    return rawMessage;
+  };
+
   const handleSubmit = async (values: { email: string }) => {
     try {
       setIsLoading(true);
-      const { error } = await supabase.auth.resetPasswordForEmail(values.email, {
-        redirectTo: `${window.location.origin}/auth/update-password`,
-      });
-
-      if (error) throw error;
+      await authService.requestPasswordRecovery({ email: values.email.trim() });
 
       setIsSent(true);
       showNotificationSuccess("Yêu cầu đã được gửi! Vui lòng kiểm tra email của bạn.");
     } catch (err: any) {
-      showNotificationError(err.message || "Không thể gửi yêu cầu khôi phục");
+      showNotificationError(getForgotPasswordErrorMessage(err));
     } finally {
       setIsLoading(false);
     }
@@ -43,7 +54,7 @@ export default function ForgotPasswordForm() {
           Chúng tôi đã gửi hướng dẫn khôi phục mật khẩu vào email của bạn.
         </p>
         <Link href="/login">
-          <SWTButton className="w-full h-12 rounded-xl !bg-brand-500 hover:!bg-brand-600 !border-none !text-white">
+          <SWTButton className="w-full h-12 rounded-xl bg-brand-500! hover:bg-brand-600! border-none! text-white!">
             Quay lại đăng nhập
           </SWTButton>
         </Link>
@@ -86,7 +97,7 @@ export default function ForgotPasswordForm() {
 
         <SWTButton
           htmlType="submit"
-          className="w-full h-12 rounded-xl !bg-brand-500 hover:!bg-brand-600 !border-none !text-white mt-4"
+          className="w-full h-12 rounded-xl bg-brand-500! hover:bg-brand-600! border-none! text-white! mt-4"
           loading={isLoading}
         >
           Gửi yêu cầu khôi phục

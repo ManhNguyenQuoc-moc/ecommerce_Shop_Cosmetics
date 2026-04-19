@@ -13,7 +13,8 @@ export interface UserQueryFilters {
   search?: string;
   page?: number;
   pageSize?: number;
-  role?: string;
+  roleId?: string;
+  accountType?: "CUSTOMER" | "INTERNAL";
   status?: string;
   wallet_status?: string;
 }

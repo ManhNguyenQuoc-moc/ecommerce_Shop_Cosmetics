@@ -9,10 +9,23 @@ import { useFetchSWR } from "@/src/@core/hooks/useFetchSWR";
 import { useEffect } from "react";
 import { useAuth } from "@/src/context/AuthContext";
 
+let globalSyncInFlight = false;
+let globalLastSyncSignature: string | null = null;
+
 export const useCart = () => {
-  const { items, isLoading, isMerging, hasSynced, setItems, setLoading, setIsMerging, setHasSynced, reset } = useCartStore();
+  const { items, isMerging, hasSynced, setItems, setIsMerging, setHasSynced, reset } = useCartStore();
   const { currentUser: user } = useAuth();
   const token = authStorage.getToken();
+
+  const buildSyncSignature = (
+    targetUserId: string,
+    targetItems: Array<{ variantId: string; quantity: number }>
+  ) => {
+    const normalized = [...targetItems]
+      .map((i) => ({ variantId: i.variantId, quantity: i.quantity }))
+      .sort((a, b) => a.variantId.localeCompare(b.variantId));
+    return `${targetUserId}|${JSON.stringify(normalized)}`;
+  };
 
   // 1. Fetch from backend using SWR
   // Only fetch if NOT currently merging guest cart
@@ -26,28 +39,31 @@ export const useCart = () => {
       setItems(remoteData.items);
       setHasSynced(true);
     }
-  }, [remoteData, user?.id, setItems, isMerging, setHasSynced]);
+  }, [remoteData, user, setItems, isMerging, setHasSynced]);
 
   // 3. Auto-sync for Social Login (Redirect return)
   // Detect transition from No User -> User
   useEffect(() => {
-    const guestItems = items;
     if (user?.id && items.length > 0 && !isMerging && !hasSynced) {
       // If we have items and just logged in, but haven't synced yet
       // We check if the current items are likely guest items (since isMerging is false)
       // and we trigger a sync. This covers the social login redirect case.
       const performAutoSync = async () => {
+        if (globalSyncInFlight) return;
         setIsMerging(true);
+        globalSyncInFlight = true;
         try {
             await syncCart(user.id, items);
             setHasSynced(true); // Mark as synced for this session
         } finally {
+          globalSyncInFlight = false;
             setIsMerging(false);
         }
       };
       performAutoSync();
     }
     // We only want to trigger this when user.id BECOMES available
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id]);
 
   const MAX_ITEMS_PER_VARIANT = 5;
@@ -88,10 +104,10 @@ export const useCart = () => {
         setItems(data.items);
         mutate(data, false);
         showNotificationSuccess(`Đã thêm ${item.productName} vào giỏ hàng`);
-      } catch (err: any) {
+      } catch (err: unknown) {
         // Rollback on error
         setItems(previousItems);
-        showNotificationError(err.message || "Không thể thêm vào giỏ hàng");
+        showNotificationError(err instanceof Error ? err.message : "Không thể thêm vào giỏ hàng");
       }
       return;
     }
@@ -131,10 +147,10 @@ export const useCart = () => {
         const data = await cartService.updateQuantityAsync(user.id, id, quantity);
         setItems(data.items);
         mutate(data, false);
-      } catch (err: any) {
+      } catch (err: unknown) {
         // Rollback on error
         setItems(previousItems);
-        showNotificationError(err.message || "Cập nhật số lượng thất bại");
+        showNotificationError(err instanceof Error ? err.message : "Cập nhật số lượng thất bại");
       }
       return;
     }
@@ -153,7 +169,7 @@ export const useCart = () => {
         setItems(data.items);
         mutate(data, false);
         showNotificationSuccess("Đã xóa sản phẩm khỏi giỏ hàng");
-      } catch (err) {
+      } catch {
         // Rollback on error
         setItems(previousItems);
         showNotificationError("Xóa sản phẩm thất bại");
@@ -169,23 +185,35 @@ export const useCart = () => {
       try {
         await cartService.clearCartAsync(user.id);
         mutate();
-      } catch (err) {}
+      } catch {}
     }
     setItems([]);
   };
 
-  const syncCart = async (forcedUserId?: string, itemsToSync?: any[]) => {
+  const syncCart = async (
+    forcedUserId?: string,
+    itemsToSync?: Array<{ variantId: string; quantity: number }>
+  ) => {
     const targetUserId = forcedUserId || user?.id;
     const targetItems = itemsToSync || items;
     
     if (targetUserId && targetItems.length > 0) {
+      const signature = buildSyncSignature(targetUserId, targetItems);
+      if (globalLastSyncSignature === signature) {
+        return;
+      }
+
       try {
+        globalLastSyncSignature = signature;
         const syncData = targetItems.map(i => ({ variantId: i.variantId, quantity: i.quantity }));
         const data = await cartService.syncCartAsync(targetUserId, syncData);
         mutate(data, false);
         
         setItems(data.items);
-      } catch (err) {}
+        setHasSynced(true);
+      } catch {
+        globalLastSyncSignature = null;
+      }
     }
   };
 

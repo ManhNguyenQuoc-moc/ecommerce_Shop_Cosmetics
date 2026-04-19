@@ -2,21 +2,22 @@
 import SWTTable from "@/src/@core/component/AntD/SWTTable";
 import SWTAvatar from "@/src/@core/component/AntD/SWTAvatar";
 import { Dropdown, type MenuProps } from "antd";
-import { UserCog, Ban, Unlock, MoreVertical, Shield, User as UserIcon, Check } from "lucide-react";
+import { UserCog, Ban, Unlock, MoreVertical, Shield, Check, BadgeInfo } from "lucide-react";
 import SWTIconButton from "@/src/@core/component/SWTIconButton";
 import { useMemo } from "react";
 import { useUserModule } from "../provider";
 import UserStatusTag from "@/src/enums/UserStatus";
+import { UserProfileDTO } from "@/src/services/admin/user/models/output.model.dto";
 
 export default function UserTable() {
-  const { users, total, isLoading, pagination, handleToggleStatus, handleUpdateRole } = useUserModule();
+  const { users, total, isLoading, pagination, handleToggleStatus, handleUpdateRole, handleUpdateAccountType, roles } = useUserModule();
 
   const columns = useMemo(() => [
     {
       title: 'Người dùng',
       dataIndex: 'full_name',
       key: 'name',
-      render: (text: string, record: any) => (
+      render: (_: string, record: UserProfileDTO) => (
         <div className="flex items-center gap-3">
           <SWTAvatar src={record.avatar} size={40} className="shrink-0 border-brand-500/50 shadow-[0_0_8px_rgba(255,105,180,0.3)]" />
           <div className="flex flex-col">
@@ -38,62 +39,86 @@ export default function UserTable() {
       key: 'role',
       render: (role: string) => {
         let colorClass = "bg-bg-muted text-text-sub border-border-default";
-        if (role === "ADMIN") colorClass = "bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-900/40 dark:text-purple-400 dark:border-purple-500/30";
+        if (role === "ADMIN" || role === "INTERNAL") colorClass = "bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-900/40 dark:text-purple-400 dark:border-purple-500/30";
         else if (role === "STAFF") colorClass = "bg-cyan-100 text-cyan-700 border-cyan-200 dark:bg-cyan-900/40 dark:text-cyan-400 dark:border-cyan-500/30";
         else if (role === "CUSTOMER") colorClass = "bg-brand-500/10 text-brand-600 dark:text-brand-500 border-brand-500/20";
-        return <div className={`text-[10px] font-black px-2 py-0.5 rounded border inline-block uppercase tracking-wider ${colorClass}`}>{role}</div>;
+        return <div className={`text-[10px] font-black px-2 py-0.5 rounded border inline-block uppercase tracking-wider ${colorClass}`}>{role || "Customer"}</div>;
+      }
+    },
+    {
+      title: 'Loại tài khoản',
+      dataIndex: 'accountType',
+      key: 'accountType',
+      render: (accountType: string) => {
+        const label = accountType === "INTERNAL" ? "Internal" : "Customer";
+        const colorClass = accountType === "INTERNAL"
+          ? "bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/40 dark:text-amber-300 dark:border-amber-500/30"
+          : "bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900/40 dark:text-emerald-300 dark:border-emerald-500/30";
+        return <div className={`text-[10px] font-black px-2 py-0.5 rounded border inline-block uppercase tracking-wider ${colorClass}`}>{label}</div>;
       }
     },
     {
       title: 'Trạng thái',
       dataIndex: 'status',
       key: 'status',
-      render: (status: any) => (
+      render: (status: "ACTIVE" | "BANNED") => (
         <UserStatusTag status={status} />
       )
     },
     {
       title: 'Thao tác',
       key: 'actions',
-      render: (_: any, record: any) => {
+      render: (_: unknown, record: UserProfileDTO) => {
         const isBanned = record.status === "BANNED";
+        const isInternal = record.accountType === "INTERNAL";
         const actionItems: MenuProps['items'] = [
-          { 
-            key: 'assign', 
+          ...(isInternal
+            ? [{
+                key: 'assign',
+                label: (
+                  <div className="flex items-center gap-2 text-text-sub font-medium px-1 py-1">
+                    <UserCog size={16} />
+                    <span>Phân quyền</span>
+                  </div>
+                ),
+                children: roles.map((role) => ({
+                  key: `role-${role.id}`,
+                  label: (
+                    <div className="flex items-center justify-between gap-8 px-1 py-0.5">
+                      <div className="flex items-center gap-2">
+                        <Shield size={14} className="text-purple-500" />
+                        <span>{role.name}</span>
+                      </div>
+                      {record.roleId === role.id && <Check size={14} className="text-brand-500" />}
+                    </div>
+                  ),
+                  onClick: () => handleUpdateRole(record, role.id),
+                  disabled: record.roleId === role.id
+                }))
+              }]
+            : []),
+          {
+            key: 'account-type',
             label: (
-              <div className="flex items-center gap-2 text-text-sub font-medium px-1 py-1">
-                <UserCog size={16} />
-                <span>Phân quyền</span>
+              <div className="flex items-center justify-between gap-8 px-1 py-0.5">
+                <div className="flex items-center gap-2">
+                  <BadgeInfo size={14} className="text-amber-500" />
+                  <span>Đổi account type</span>
+                </div>
               </div>
             ),
             children: [
               {
-                key: 'role-admin',
-                label: (
-                  <div className="flex items-center justify-between gap-8 px-1 py-0.5">
-                    <div className="flex items-center gap-2">
-                      <Shield size={14} className="text-purple-500" />
-                      <span>Quản trị viên (ADMIN)</span>
-                    </div>
-                    {record.role === 'ADMIN' && <Check size={14} className="text-brand-500" />}
-                  </div>
-                ),
-                onClick: () => handleUpdateRole(record, 'ADMIN'),
-                disabled: record.role === 'ADMIN'
+                key: 'account-customer',
+                label: <span>Customer</span>,
+                onClick: () => handleUpdateAccountType(record, 'CUSTOMER'),
+                disabled: record.accountType === 'CUSTOMER'
               },
               {
-                key: 'role-customer',
-                label: (
-                  <div className="flex items-center justify-between gap-8 px-1 py-0.5">
-                    <div className="flex items-center gap-2">
-                      <UserIcon size={14} className="text-blue-500" />
-                      <span>Khách hàng (CUSTOMER)</span>
-                    </div>
-                    {record.role === 'CUSTOMER' && <Check size={14} className="text-brand-500" />}
-                  </div>
-                ),
-                onClick: () => handleUpdateRole(record, 'CUSTOMER'),
-                disabled: record.role === 'CUSTOMER'
+                key: 'account-internal',
+                label: <span>Internal</span>,
+                onClick: () => handleUpdateAccountType(record, 'INTERNAL'),
+                disabled: record.accountType === 'INTERNAL'
               }
             ]
           },
@@ -101,12 +126,12 @@ export default function UserTable() {
           { 
             key: 'toggle_status', 
             label: (
-              <div className={`flex items-center gap-2 font-medium px-1 py-1 ${isBanned ? 'text-status-success-text' : 'text-status-error-text'}`} onClick={() => record.role !== 'ADMIN' && handleToggleStatus(record)}>
+              <div className={`flex items-center gap-2 font-medium px-1 py-1 ${isBanned ? 'text-status-success-text' : 'text-status-error-text'}`} onClick={() => record.accountType !== 'INTERNAL' && handleToggleStatus(record)}>
                 {isBanned ? <Unlock size={16} /> : <Ban size={16} />}
                 <span>{isBanned ? 'Mở Khóa User' : 'Khóa User'}</span>
               </div>
             ),
-            disabled: record.role === 'ADMIN'
+            disabled: record.accountType === 'INTERNAL'
           }
         ];
         return (
@@ -116,16 +141,15 @@ export default function UserTable() {
         );
       }
     }
-  ], [handleToggleStatus, handleUpdateRole]);
+  ], [handleToggleStatus, handleUpdateRole, handleUpdateAccountType, roles]);
 
   return (
-    <div className="overflow-hidden !border !border-border-default dark:!border-border-brand !rounded-2xl !bg-bg-card backdrop-blur-xl !shadow-sm overflow-x-auto">
+    <div className="overflow-hidden border border-border-default dark:border-border-brand rounded-2xl bg-bg-card backdrop-blur-xl shadow-sm overflow-x-auto">
       <SWTTable
         columns={columns}
         dataSource={users}
         rowKey="id"
         loading={isLoading}
-        className="min-w-[700px]"
         pagination={{
           totalCount: total,
           page: pagination.page,

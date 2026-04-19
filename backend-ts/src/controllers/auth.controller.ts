@@ -22,6 +22,24 @@ export class AuthController {
     }
   };
 
+  requestPasswordRecovery = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { email } = req.body;
+      if (!email || typeof email !== "string") {
+        throw new Error("Email is required");
+      }
+
+      await this.authService.requestPasswordRecovery(email);
+      res.status(200).json({
+        success: true,
+        message: "Password recovery email sent successfully",
+        data: true,
+      });
+    } catch (error: any) {
+      res.status(400).json({ success: false, message: error.message });
+    }
+  };
+
   login = async (req: Request, res: Response): Promise<void> => {
     try {
       const { email, password } = req.body;

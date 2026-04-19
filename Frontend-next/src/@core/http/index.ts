@@ -22,7 +22,7 @@ const onRequestInterceptor = (config: InternalAxiosRequestConfig) => {
   
   if (config.params) {
     config.paramsSerializer = {
-      serialize: (params: Record<string, any>) => {
+      serialize: (params: Record<string, unknown>) => {
         const searchParams = new URLSearchParams();
         Object.entries(params).forEach(([key, value]) => {
           if (value !== undefined && value !== null) {
@@ -54,7 +54,7 @@ const onResponseInterceptor = async (error: AxiosError) => {
     return Promise.reject(error.response.data);
   }
 
-  const _response = error.response?.data as any;
+  const _response = error.response?.data as { message?: string } | undefined;
   
   if (error.response && error.response.status === HttpStatusCode.BadRequest) {
     showNotificationError(
@@ -73,12 +73,9 @@ const onResponseInterceptor = async (error: AxiosError) => {
       return Promise.reject(error.response.data);
     }
     
-    // Không có quyền - Redirect về login hoặc home
+    // Không có quyền - chỉ hiển thị thông báo, không tự logout/redirect.
+    // Điều này giúp người dùng đọc được thông báo và ở lại trang hiện tại.
     showNotificationError(_response?.message || "Bạn không có quyền truy cập.");
-    if (typeof window !== "undefined") {
-        authStorage.logout();
-        window.location.href = `/login`;
-    }
     return Promise.reject(error.response.data);
   }
 

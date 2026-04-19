@@ -11,7 +11,7 @@ export type AuthUser = {
   email?: string;
   phone?: string;
   avatar?: string;
-  role?:string;
+  accountType?: "CUSTOMER" | "INTERNAL";
   is_banned?: boolean;
 };
 

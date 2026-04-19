@@ -8,7 +8,10 @@ export type UserProfileDTO = {
   gender?: "MALE" | "FEMALE" | "OTHER";
   birthday?: string;
   avatar?: string;
-  role?: "CUSTOMER" | "ADMIN";
+  accountType?: "CUSTOMER" | "INTERNAL";
+  role?: string;
+  roleId?: string;
+  status?: "ACTIVE" | "BANNED";
   addresses?: Address[];
   loyalty_points?: number;
   lifetime_points?: number;

@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
-import { Info, AlignLeft } from "lucide-react";
+import { useEffect } from 'react';
+import { Info } from "lucide-react";
 import SWTModal from "@/src/@core/component/AntD/SWTModal";
 import SWTForm from "@/src/@core/component/AntD/SWTForm";
 import SWTFormItem from "@/src/@core/component/AntD/SWTFormItem";

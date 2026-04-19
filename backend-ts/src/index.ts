@@ -25,6 +25,7 @@ import settingRoute from "./routes/setting.route";
 import dashboardRoute from "./routes/dashboard.route";
 import reviewRoute from "./routes/review.route";
 import notificationRoute from "./routes/notification.routes";
+import rbacRouter from "./routes/rbac.routes";
 
 const app = express();
 const server = createServer(app);
@@ -71,6 +72,7 @@ app.use("/wishlist", wishlistRoute);
 app.use("/vouchers", voucherRoute);
 app.use("/settings", settingRoute);
 app.use("/admin/dashboard", dashboardRoute);
+app.use("/admin/rbac", rbacRouter);
 app.use("/reviews", reviewRoute);
 app.use("/notifications", notificationRoute);
 app.use("/questions", questionRoutes);

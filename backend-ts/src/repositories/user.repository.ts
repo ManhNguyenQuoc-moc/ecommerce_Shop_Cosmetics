@@ -1,10 +1,21 @@
-import { User, Prisma } from "@prisma/client";
+import { User, Prisma, AccountType } from "@prisma/client";
 import { IUserRepository } from "../interfaces/IUserRepository";
 import { prisma } from "../config/prisma";
 import { CreateUserDTO, UpdateUserDTO, UserQueryFiltersDTO } from "../DTO/user/user.dto";
 
 export class UserRepository implements IUserRepository {
-  async findAll(skip?: number, take?: number, filters?: UserQueryFiltersDTO): Promise<[User[], number]> {
+  private async attachRole(user: User): Promise<User & { role?: string | null }>;
+  private async attachRole(user: null): Promise<null>;
+  private async attachRole(user: User | null): Promise<(User & { role?: string | null }) | null>;
+  private async attachRole(user: User | null): Promise<(User & { role?: string | null }) | null> {
+    if (!user) return null;
+    const role = user.roleId
+      ? await prisma.rbacRole.findUnique({ where: { id: user.roleId }, select: { name: true } })
+      : null;
+    return { ...user, role: role?.name || null };
+  }
+
+  async findAll(skip?: number, take?: number, filters?: UserQueryFiltersDTO): Promise<[(User & { role?: string | null })[], number]> {
     const where: any = {};
     if (filters?.search) {
       where.OR = [
@@ -13,11 +24,14 @@ export class UserRepository implements IUserRepository {
         { phone: { contains: filters.search, mode: 'insensitive' } },
       ];
     }
-    if (filters?.role && filters.role !== 'all') {
-      where.role = filters.role;
+    if (filters?.roleId && filters.roleId !== 'all') {
+      where.roleId = filters.roleId;
+    }
+    if (filters?.accountType) {
+      where.accountType = filters.accountType;
     }
 
-    return Promise.all([
+    const [users, total] = await Promise.all([
       prisma.user.findMany({
         where,
         skip,
@@ -27,44 +41,49 @@ export class UserRepository implements IUserRepository {
       }),
       prisma.user.count({ where })
     ]);
+
+    const usersWithRole = await Promise.all(users.map((user) => this.attachRole(user)));
+    return [usersWithRole as (User & { role?: string | null })[], total];
   }
 
-  async findById(id: string): Promise<User | null> {
-    return prisma.user.findUnique({
+  async findById(id: string): Promise<(User & { role?: string | null }) | null> {
+    return this.attachRole(await prisma.user.findUnique({
       where: { id },
       include: {
         addresses: true,
       },
-    });
+    }));
   }
 
-  async findByEmail(email: string, tx?: Prisma.TransactionClient): Promise<User | null> {
+  async findByEmail(email: string, tx?: Prisma.TransactionClient): Promise<(User & { role?: string | null }) | null> {
     const db = tx || prisma;
-    return db.user.findUnique({
+    return this.attachRole(await db.user.findUnique({
       where: { email },
-    });
+    }));
   }
 
-  async findByPhone(phone: string, tx?: Prisma.TransactionClient): Promise<User | null> {
+  async findByPhone(phone: string, tx?: Prisma.TransactionClient): Promise<(User & { role?: string | null }) | null> {
     const db = tx || prisma;
-    return db.user.findUnique({
+    return this.attachRole(await db.user.findUnique({
       where: { phone },
-    });
+    }));
   }
 
-  async create(data: CreateUserDTO, tx?: Prisma.TransactionClient): Promise<User> {
+  async create(data: CreateUserDTO, tx?: Prisma.TransactionClient): Promise<User & { role?: string | null }> {
     const db = tx || prisma;
-    return db.user.create({ 
+    const user = await db.user.create({ 
       data: {
         ...data,
         birthday: data.birthday ? new Date(data.birthday) : null,
       } as any 
     });
+
+    return (await this.attachRole(user)) as User & { role?: string | null };
   }
 
-  async update(id: string, data: UpdateUserDTO, tx?: Prisma.TransactionClient): Promise<User> {
+  async update(id: string, data: UpdateUserDTO, tx?: Prisma.TransactionClient): Promise<User & { role?: string | null }> {
     const db = tx || prisma;
-    const { full_name, phone, gender, birthday, avatar, addresses, is_verified, role, is_point_wallet_locked } = data;
+    const { full_name, phone, gender, birthday, avatar, addresses, is_verified, roleId, accountType, is_point_wallet_locked } = data;
     
     // Check if phone is being updated and if it's already used by another user
     if (phone !== undefined && phone !== null) {
@@ -83,7 +102,8 @@ export class UserRepository implements IUserRepository {
     if (gender !== undefined) updateData.gender = gender;
     if (avatar !== undefined) updateData.avatar = avatar;
     if (is_verified !== undefined) updateData.is_verified = is_verified;
-    if (role !== undefined) updateData.role = role;
+    if (roleId !== undefined) updateData.roleId = roleId;
+    if (accountType !== undefined) updateData.accountType = accountType;
     if (birthday !== undefined) updateData.birthday = birthday ? new Date(birthday) : null;
     if (is_point_wallet_locked !== undefined) updateData.is_point_wallet_locked = is_point_wallet_locked;
 
@@ -133,13 +153,13 @@ export class UserRepository implements IUserRepository {
     }
 
     try {
-      return await db.user.update({
+      return await this.attachRole(await db.user.update({
         where: { id },
         data: updateData,
         include: {
           addresses: true,
         },
-      });
+      }));
     } catch (error: any) {
       // Handle Prisma unique constraint errors with friendly message
       if (error.code === 'P2002') {
@@ -162,17 +182,24 @@ export class UserRepository implements IUserRepository {
     });
   }
 
-  async updateStatus(id: string, is_banned: boolean): Promise<User> {
-    return prisma.user.update({
+  async updateStatus(id: string, is_banned: boolean): Promise<User & { role?: string | null }> {
+    return await this.attachRole(await prisma.user.update({
       where: { id },
       data: { is_banned },
-    });
+    }));
   }
 
-  async updateRole(id: string, role: any): Promise<User> {
-    return prisma.user.update({
+  async updateRole(id: string, roleId: string): Promise<User & { role?: string | null }> {
+    return await this.attachRole(await prisma.user.update({
       where: { id },
-      data: { role },
-    });
+      data: { roleId },
+    }));
+  }
+
+  async updateAccountType(id: string, accountType: AccountType): Promise<User & { role?: string | null }> {
+    return await this.attachRole(await prisma.user.update({
+      where: { id },
+      data: { accountType },
+    }));
   }
 }
