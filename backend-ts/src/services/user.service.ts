@@ -1,6 +1,6 @@
 import { IUserRepository } from "../interfaces/IUserRepository";
 import { UserService as IUserService } from "../interfaces/IUserService"; // Fixed export
-import { User, Prisma, PointTransaction } from "@prisma/client";
+import { User, Prisma, PointTransaction, AccountType } from "@prisma/client";
 import { supabase } from "../config/supabase";
 import { CreateUserDTO, UpdateUserDTO, UserQueryFiltersDTO } from "../DTO/user/user.dto";
 
@@ -135,16 +135,20 @@ export class UserService implements IUserService {
     return this.userRepository.update(userId, { is_point_wallet_locked: isLocked });
   }
 
-  async updateUserStatus(userId: string, is_banned: boolean): Promise<User> {
+  async updateUserStatus(userId: string, is_banned: boolean): Promise<User & { role?: string | null }> {
     const targetUser = await this.userRepository.findById(userId);
-    if (targetUser?.role === "ADMIN") {
-      throw new Error("Không thể khóa tài khoản của Quản trị viên.");
+    if (targetUser?.accountType === "INTERNAL") {
+      throw new Error("Không thể khóa tài khoản của người nội bộ.");
     }
     return this.userRepository.updateStatus(userId, is_banned);
   }
 
-  async updateUserRole(userId: string, role: string): Promise<User> {
-    return this.userRepository.updateRole(userId, role);
+  async updateUserRole(userId: string, roleId: string): Promise<User & { role?: string | null }> {
+    return this.userRepository.updateRole(userId, roleId);
+  }
+
+  async updateUserAccountType(userId: string, accountType: AccountType): Promise<User & { role?: string | null }> {
+    return this.userRepository.updateAccountType(userId, accountType);
   }
 
   calculateRank(lifetimePoints: number): string {

@@ -1,0 +1,57 @@
+export enum PermissionAction {
+  CREATE = "create",
+  READ = "read",
+  UPDATE = "update",
+  DELETE = "delete",
+  LIST = "list",
+  MANAGE = "manage",
+  SOFT_DELETE = "softDelete",
+  RESTORE = "restore",
+  UPDATE_STATUS = "updateStatus",
+  UPDATE_ROLE = "updateRole",
+  TOGGLE_WALLET = "toggleWallet",
+  BAN = "ban",
+  ANSWER = "answer",
+  CANCEL = "cancel",
+  VIEW = "view",
+}
+
+export type PermissionActionType = `${PermissionAction}`;
+
+export const PERMISSION_ACTION_LABELS: Record<string, string> = {
+  [PermissionAction.CREATE]: "Tạo mới",
+  [PermissionAction.READ]: "Xem chi tiết",
+  [PermissionAction.UPDATE]: "Cập nhật",
+  [PermissionAction.DELETE]: "Xóa",
+  [PermissionAction.LIST]: "Xem danh sách",
+  [PermissionAction.MANAGE]: "Quản lý",
+  [PermissionAction.SOFT_DELETE]: "Xóa mềm",
+  [PermissionAction.RESTORE]: "Khôi phục",
+  [PermissionAction.UPDATE_STATUS]: "Cập nhật trạng thái",
+  [PermissionAction.UPDATE_ROLE]: "Cập nhật quyền",
+  [PermissionAction.TOGGLE_WALLET]: "Khóa/Mở ví",
+  [PermissionAction.BAN]: "Khóa/Mở khóa",
+  [PermissionAction.ANSWER]: "Phản hồi",
+  [PermissionAction.CANCEL]: "Hủy",
+  [PermissionAction.VIEW]: "Xem",
+};
+
+export const PERMISSION_RESOURCE_LABELS: Record<string, string> = {
+  user: "Người dùng",
+  role: "Vai trò",
+  permission: "Quyền hạn",
+  rbac: "Phân quyền",
+  product: "Sản phẩm",
+  variant: "Biến thể",
+  category: "Danh mục",
+  categoryGroup: "Nhóm danh mục",
+  brand: "Thương hiệu",
+  order: "Đơn hàng",
+  review: "Đánh giá",
+  question: "Hỏi đáp",
+  inventory: "Kho hàng",
+  purchase: "Phiếu nhập",
+  voucher: "Voucher",
+  setting: "Cài đặt",
+  dashboard: "Dashboard",
+};

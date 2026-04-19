@@ -2,11 +2,10 @@ import { Request, Response, NextFunction } from "express";
 import { supabase } from "../config/supabase";
 import { prisma } from "../config/prisma";
 
-// 1. Định nghĩa cấu trúc User trong Request để tránh dùng 'any'
 interface CustomUser {
   id: string;
   email?: string;
-  role: string;
+  accountType?: "CUSTOMER" | "INTERNAL";
   [key: string]: any; // Cho phép các thuộc tính khác từ user_metadata
 }
 
@@ -56,11 +55,16 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
       return;
     }
     // console.log(`[Auth] Authenticated user: ${dbUser.id}, Role: ${dbUser.role}`);
+    const userMetadata = { ...(user.user_metadata || {}) } as Record<string, any>;
+    delete userMetadata.accountType;
+    delete userMetadata.account_type;
+
     req.user = {
+      ...userMetadata,
       id: dbUser.id,
       email: dbUser.email || user.email,
-      role: dbUser.role, // Use DB role
-      ...user.user_metadata,
+      // Security: accountType MUST come from DB, never from client metadata
+      accountType: dbUser.accountType,
     };
 
     next();
@@ -86,18 +90,26 @@ export const authenticateOptional = async (req: Request, res: Response, next: Ne
       });
       
       if (dbUser) {
+        const userMetadata = { ...(user.user_metadata || {}) } as Record<string, any>;
+        delete userMetadata.accountType;
+        delete userMetadata.account_type;
+
         req.user = {
+          ...userMetadata,
           id: dbUser.id,
           email: dbUser.email || user.email,
-          role: dbUser.role,
-          ...user.user_metadata,
+          accountType: dbUser.accountType,
         };
       } else {
+        const userMetadata = { ...(user.user_metadata || {}) } as Record<string, any>;
+        delete userMetadata.accountType;
+        delete userMetadata.account_type;
+
         req.user = {
+          ...userMetadata,
           id: user.id,
           email: user.email,
-          role: user.user_metadata?.role || "CUSTOMER",
-          ...user.user_metadata,
+          accountType: "CUSTOMER",
         };
       }
     }
@@ -115,8 +127,12 @@ export const authorize = (roles: string[]) => {
       res.status(401).json({ success: false, message: "Unauthorized: User not authenticated" });
       return;
     }
-    console.log(`[Auth] Authorizing User: ${user.id}, Role: ${user.role}, Allowed: ${roles}`);
-    if (!roles.includes(user.role)) {
+    const userAccountType = user.accountType || "CUSTOMER";
+    
+    const allowedAccountTypes = roles.map((role) => (role === "CUSTOMER" ? "CUSTOMER" : "INTERNAL"));
+
+    console.log(`[Auth] Authorizing User: ${user.id}, Account Type: ${userAccountType}, Allowed: ${roles}`);
+    if (!allowedAccountTypes.includes(userAccountType)) {
       console.log(`[Auth] Authorization FAILED for ${user.id}`);
       res.status(403).json({
         success: false,

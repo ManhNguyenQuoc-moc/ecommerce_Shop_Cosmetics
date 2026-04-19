@@ -1,5 +1,8 @@
 import { z } from "zod";
-import { Gender, Role } from "@prisma/client";
+import { Gender } from "@prisma/client";
+
+export const AccountTypeSchema = z.enum(["CUSTOMER", "INTERNAL"]);
+export type AccountType = z.infer<typeof AccountTypeSchema>;
 
 export const CreateUserSchema = z.object({
   id: z.string().uuid().optional(),
@@ -9,14 +12,20 @@ export const CreateUserSchema = z.object({
   password: z.string().min(6).optional(),
   gender: z.nativeEnum(Gender).optional(),
   birthday: z.string().optional().nullable(),
-  role: z.nativeEnum(Role).optional().default(Role.CUSTOMER),
+  accountType: AccountTypeSchema.optional().default("CUSTOMER"),
+  roleId: z.string().uuid().optional().nullable(),
   avatar: z.string().optional().nullable(),
   is_verified: z.boolean().optional().default(false),
 });
 
 export type CreateUserDTO = z.input<typeof CreateUserSchema>;
 
-export const UpdateUserSchema = CreateUserSchema.partial().extend({
+export const UpdateUserSchema = CreateUserSchema.partial().omit({
+  accountType: true,
+  is_verified: true,
+}).extend({
+  accountType: AccountTypeSchema.optional(),
+  is_verified: z.boolean().optional(),
   addresses: z.array(z.object({
     address: z.string(),
     lat: z.number().optional().nullable(),
@@ -30,7 +39,8 @@ export type UpdateUserDTO = z.infer<typeof UpdateUserSchema>;
 
 export const UserQueryFiltersSchema = z.object({
   search: z.string().optional(),
-  role: z.string().optional(),
+  roleId: z.string().optional(),
+  accountType: AccountTypeSchema.optional(),
   page: z.number().optional().default(1),
   pageSize: z.number().optional().default(6),
   limit: z.number().optional(),
@@ -45,7 +55,7 @@ export const UpdateUserStatusSchema = z.object({
 export type UpdateUserStatusDTO = z.infer<typeof UpdateUserStatusSchema>;
 
 export const UpdateUserRoleSchema = z.object({
-  role: z.nativeEnum(Role),
+  roleId: z.string().uuid(),
 });
 
 export type UpdateUserRoleDTO = z.infer<typeof UpdateUserRoleSchema>;

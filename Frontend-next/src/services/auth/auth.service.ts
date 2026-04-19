@@ -8,6 +8,19 @@ import {
 } from "../models/auth/input.dto";
 import { LoginOutputDto } from "../models/auth/output.dto";
 
+type RegisterInputDto = {
+  id?: string;
+  email: string;
+  fullName: string;
+  phone?: string;
+  validateOnly?: boolean;
+};
+
+type RegisterOutputDto = {
+  message: string;
+  user?: unknown;
+};
+
 const path = "/auth";
 
 const loginAsync = (body: LoginInputDto): Promise<LoginOutputDto> => {
@@ -38,8 +51,8 @@ const facebookLoginAsync = (accessToken: string): Promise<LoginOutputDto> => {
     return post<LoginOutputDto>(`${path}/facebook`, { accessToken });
 };
 
-const registerAsync = (data: any): Promise<any> => {
-  return post<any>(`${path}/register`, data);
+const registerAsync = (data: RegisterInputDto): Promise<RegisterOutputDto> => {
+  return post<RegisterOutputDto>(`${path}/register`, data);
 };
 
 export const authService = {

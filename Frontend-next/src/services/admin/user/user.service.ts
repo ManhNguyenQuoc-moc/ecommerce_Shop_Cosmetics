@@ -27,5 +27,9 @@ export const updateUserStatus = (id: string, is_banned: boolean) => {
 };
 
 export const updateUserRole = (id: string, role: string) => {
-  return put(`${USER_API_ENDPOINT}/${id}/role`, { role });
+  return put(`${USER_API_ENDPOINT}/${id}/role`, { roleId: role });
+};
+
+export const updateUserAccountType = (id: string, accountType: "CUSTOMER" | "INTERNAL") => {
+  return put(`${USER_API_ENDPOINT}/${id}/account-type`, { accountType });
 };

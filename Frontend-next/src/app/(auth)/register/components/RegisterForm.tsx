@@ -12,29 +12,65 @@ import { GoogleIcon as GoogleIco, FacebookIcon as FacebookIco } from "@/src/@cor
 import { Eye, EyeOff } from "lucide-react";
 import { supabase } from "@/src/@core/utils/supabase";
 import { authService } from "@/src/services/auth/auth.service";
-import { useCart } from "@/src/services/customer/cart/cart.hook";
 import { useAuth } from "@/src/context/AuthContext";
 import { AuthUser } from "@/src/@core/utils/authStorage";
+
+type RegisterFormValues = {
+    fullName: string;
+    email: string;
+    phone: string;
+    password: string;
+};
 
 export default function RegisterForm() {
     const router = useRouter();
     const { login } = useAuth(); // Thêm useAuth
-    const { items, syncCart, setIsMerging } = useCart();
     const [isLoading, setIsLoading] = useState(false);
 
-    const handleSubmit = async (values: any) => {
-        const guestItems = [...items];
+    const getRegisterErrorMessage = (err: unknown): string => {
+        if (!(err instanceof Error)) {
+            return "Đăng ký thất bại. Vui lòng thử lại!";
+        }
+
+        const rawMessage = err.message || "";
+        const normalized = rawMessage.toLowerCase();
+
+        if (normalized.includes("unexpected_failure") || normalized.includes("database error saving new user")) {
+            return "Không thể tạo tài khoản do cấu hình Auth Database trên Supabase đang lỗi (trigger/profile). Vui lòng kiểm tra trigger tạo hồ sơ người dùng trong Supabase.";
+        }
+
+        if (normalized.includes("email rate limit exceeded")) {
+            return "Bạn thao tác gửi email quá nhanh. Vui lòng chờ ít phút rồi thử đăng ký lại.";
+        }
+
+        if (normalized.includes("already registered") || normalized.includes("email này đã được đăng ký")) {
+            return "Email này đã được đăng ký. Vui lòng dùng email khác hoặc thử quên mật khẩu.";
+        }
+
+        return rawMessage;
+    };
+
+    const handleSubmit = async (values: RegisterFormValues) => {
         try {
             setIsLoading(true);
+            const normalizedEmail = values.email.trim().toLowerCase();
+            const normalizedPhone = values.phone.trim();
+
+            await authService.registerAsync({
+                email: normalizedEmail,
+                phone: normalizedPhone,
+                fullName: values.fullName.trim(),
+                validateOnly: true,
+            });
             
             // 1. Đăng ký tài khoản trên Supabase
             const { data, error } = await supabase.auth.signUp({
-                email: values.email,
+                email: normalizedEmail,
                 password: values.password,
                 options: {
                     data: {
-                        full_name: values.fullName,
-                        phone: values.phone,
+                        full_name: values.fullName.trim(),
+                        phone: normalizedPhone,
                     }
                 }
             });
@@ -42,16 +78,12 @@ export default function RegisterForm() {
             if (error) throw error;
 
             // 2. Đồng bộ sang Backend Database (Prisma)
-            try {
-                await authService.registerAsync({
-                    id: data.user?.id,
-                    email: values.email,
-                    fullName: values.fullName,
-                    phone: values.phone
-                });
-            } catch (backendError) {
-                console.error("Backend registration sync failed:", backendError);
-            }
+            await authService.registerAsync({
+                id: data.user?.id,
+                email: normalizedEmail,
+                fullName: values.fullName.trim(),
+                phone: normalizedPhone,
+            });
 
             // 3. Xử lý sau đăng ký
             if (data.user && !data.session) {
@@ -66,22 +98,16 @@ export default function RegisterForm() {
                     full_name: values.fullName,
                     email: data.user.email,
                     username: data.user.email || "",
-                    role: "CUSTOMER"
+                    accountType: "CUSTOMER"
                 };
 
-                setIsMerging(true);
-                try {
-                    await login(data.session.access_token, authUser);
-                    await syncCart(data.user.id, guestItems);
-                } finally {
-                    setIsMerging(false);
-                }
+                await login(data.session.access_token, authUser);
                 
                 showNotificationSuccess("Đăng ký thành công! Chào mừng bạn.");
                 router.push("/");
             }
-        } catch (err: any) {
-            showNotificationError(err.message || "Đăng ký thất bại. Vui lòng thử lại!");
+        } catch (err: unknown) {
+            showNotificationError(getRegisterErrorMessage(err));
         } finally {
             setIsLoading(false);
         }
@@ -140,7 +166,7 @@ export default function RegisterForm() {
                     />
                 </SWTFormItem>
 
-                <SWTButton htmlType="submit" size="lg" className="w-full py-4 text-lg !text-white !bg-brand-500 hover:!bg-brand-600 !border-none rounded-xl mt-4">
+                <SWTButton htmlType="submit" size="lg" className="w-full py-4 text-lg text-white! bg-brand-500! hover:bg-brand-600! border-none! rounded-xl mt-4">
                     Tạo tài khoản
                 </SWTButton>
 

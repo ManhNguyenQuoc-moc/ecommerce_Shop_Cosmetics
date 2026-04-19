@@ -60,7 +60,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           email: supabaseSession.user.email,
           avatar: profile.avatar || supabaseSession.user.user_metadata.avatar_url,
           username: supabaseSession.user.email || "",
-          role: profile.role || "CUSTOMER",
+          accountType: profile.accountType || "CUSTOMER",
           phone: profile.phone,
           is_banned: profile.is_banned || false,
         };
@@ -72,8 +72,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         const isLoggingIn = typeof window !== "undefined" && sessionStorage.getItem("is_logging_in") === "true";
         const isOnLoginPage = window.location.pathname === "/login" && !window.location.search.includes("error=banned");
 
-        if ((isOnLoginPage || isLoggingIn) && profile.role === "ADMIN") {
-          // One-time redirect for ADMIN after login
+        if ((isOnLoginPage || isLoggingIn) && profile.accountType === "INTERNAL") {
           sessionStorage.removeItem("is_logging_in");
           router.push("/admin");
         } else if (isOnLoginPage) {

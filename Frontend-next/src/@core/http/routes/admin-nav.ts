@@ -1,4 +1,4 @@
-import { LayoutDashboard, Package, ShoppingCart, Users, PackagePlus, Settings, NotebookText, Ticket, Layers, Award, Truck, PackageSearch } from "lucide-react";
+import { LayoutDashboard, Package, ShoppingCart, Users, PackagePlus, Settings, NotebookText, Ticket, Layers, Award, Truck, PackageSearch, Shield } from "lucide-react";
 import { ElementType } from "react";
 
 type NavItem = {
@@ -67,5 +67,10 @@ export const adminNavItems: NavItem[] = [
     name: "Cấu hình điểm",
     path: "/admin/settings/points",
     icon: Settings,
+  },
+  {
+    name: "Quản lý Phân quyền",
+    path: "/admin/rbac",
+    icon: Shield,
   },
 ];

@@ -34,7 +34,7 @@ export default function UnifiedQuestionItem({
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
 
   const { currentUser } = useAuth();
-  const isAdmin = currentUser?.role === "ADMIN";
+  const isAdmin = currentUser?.accountType === "INTERNAL";
 
   const handleReply = async () => {
     if (!replyText.trim()) return;
@@ -64,7 +64,7 @@ export default function UnifiedQuestionItem({
       await QuestionService.updateQuestionStatus(question.id, newStatus);
       onUpdateStatus(question.id, newStatus);
       showNotificationSuccess(newStatus === "HIDDEN" ? "Đã ẩn nội dung thành công" : "Nội dung đã hiển thị lại");
-    } catch (error) {
+    } catch {
       showNotificationError("Cập nhật trạng thái thất bại");
     } finally {
       setIsUpdatingStatus(false);
@@ -77,7 +77,7 @@ export default function UnifiedQuestionItem({
     <div className={`mt-4 ${depth > 0 ? "ml-6 md:ml-12 border-l-2 border-slate-100 dark:border-slate-800 pl-4 md:pl-6" : ""}`}>
       <div className={`group relative flex gap-4 p-4 rounded-3xl transition-all ${isHidden ? "bg-slate-50/50 dark:bg-slate-900/30 opacity-70" : "hover:bg-slate-50 dark:hover:bg-slate-900/50"
         }`}>
-        <div className="flex-shrink-0">
+        <div className="shrink-0">
           <SWTAvatar
             icon={<User size={depth === 0 ? 18 : 14} />}
             src={question.userAvatar || undefined}
@@ -110,7 +110,7 @@ export default function UnifiedQuestionItem({
                       icon={question.status === "ACTIVE" ? <Eye size={18} /> : <EyeOff size={18} />}
                       onClick={handleToggleStatus}
                       loading={isUpdatingStatus}
-                      className={`!w-10 !h-10 !p-0 !bg-transparent hover:!bg-transparent !border-none flex items-center justify-center transition-opacity ${isAdminMode ? "opacity-100" : "opacity-0 group-hover:opacity-100"} ${question.status === "ACTIVE" ? "text-slate-300 hover:text-red-500" : "text-brand-500"
+                      className={`w-10! h-10! p-0! bg-transparent! hover:bg-transparent! border-none! flex items-center justify-center transition-opacity ${isAdminMode ? "opacity-100" : "opacity-0 group-hover:opacity-100"} ${question.status === "ACTIVE" ? "text-slate-300 hover:text-red-500" : "text-brand-500"
                         }`}
                     />
                   </SWTTooltip>
@@ -118,7 +118,7 @@ export default function UnifiedQuestionItem({
                     variant="text"
                     icon={<Reply size={14} />}
                     onClick={() => setIsReplying(!isReplying)}
-                    className={`!w-auto !h-auto !bg-transparent hover:!bg-transparent !border-none text-slate-400 hover:text-brand-500 font-black text-[10px] tracking-widest uppercase rounded-lg transition-opacity ${isAdminMode ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}
+                    className={`w-auto! h-auto! bg-transparent! hover:bg-transparent! border-none! text-slate-400 hover:text-brand-500 font-black text-[10px] tracking-widest uppercase rounded-lg transition-opacity ${isAdminMode ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}
                   >
                     Phản hồi
                   </SWTButton>
@@ -143,13 +143,13 @@ export default function UnifiedQuestionItem({
                 className="mb-3 rounded-xl border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm"
               />
               <div className="flex justify-end gap-2">
-                <SWTButton size="sm" onClick={() => setIsReplying(false)} className="!w-auto !h-8 rounded-lg font-bold text-xs uppercase">Hủy</SWTButton>
+                <SWTButton size="sm" onClick={() => setIsReplying(false)} className="w-auto! h-8! rounded-lg font-bold text-xs uppercase">Hủy</SWTButton>
                 <SWTButton
                   size="sm"
                   type="primary"
                   loading={isSubmitting}
                   onClick={handleReply}
-                  className="!w-auto !h-8 bg-brand-600 hover:bg-brand-700 rounded-lg font-black text-[10px] uppercase tracking-widest px-4"
+                  className="w-auto! h-8! bg-brand-600 hover:bg-brand-700 rounded-lg font-black text-[10px] uppercase tracking-widest px-4"
                 >
                   Gửi ngay
                 </SWTButton>

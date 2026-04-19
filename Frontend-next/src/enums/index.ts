@@ -7,6 +7,7 @@ export * from "@/src/enums/purchase-order.enum";
 export * from "@/src/enums/question.enum";
 export * from "@/src/enums/review.enum";
 export * from "@/src/enums/wallet.enum";
+export * from "@/src/enums/rbac.enum";
 
 // Status Configuration (centralized and entity-specific configs)
 export {

@@ -23,7 +23,7 @@ const showMessageSuccess = (content: string = "Xử lý thành công") => {
   return message?.success(content);
 };
 
-const showNotificationError = (description?: string | React.ReactNode, options?: ArgsProps) => {
+const showNotificationError = (description?: string, options?: ArgsProps) => {
   return notification?.error({
     ...options,
     title: "Thao tác không thành công",
@@ -33,7 +33,7 @@ const showNotificationError = (description?: string | React.ReactNode, options?:
   });
 };
 
-const showNotificationSuccess = (description?: string | React.ReactNode, options?: ArgsProps) => {
+const showNotificationSuccess = (description?: string, options?: ArgsProps) => {
   return notification?.success({
     ...options,
     title: options?.title ?? "Thao tác thành công",
@@ -43,7 +43,7 @@ const showNotificationSuccess = (description?: string | React.ReactNode, options
   });
 };
 
-const showNotificationWarning = (description?: string | React.ReactNode, options?: ArgsProps) => {
+const showNotificationWarning = (description?: string, options?: ArgsProps) => {
   return notification?.warning({
     ...options,
     title: options?.title ?? "Lưu ý",
@@ -53,7 +53,7 @@ const showNotificationWarning = (description?: string | React.ReactNode, options
   });
 };
 
-const showNotificationInfo = (description?: string | React.ReactNode, options?: ArgsProps) => {
+const showNotificationInfo = (description?: string, options?: ArgsProps) => {
   return notification?.info({
     ...options,
     title: options?.title ?? "Thông báo",

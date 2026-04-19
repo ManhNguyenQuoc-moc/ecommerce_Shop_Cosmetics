@@ -10,13 +10,16 @@ import { useDebounce } from "@/src/@core/hooks/useDebounce";
 import { useUserModule } from "../provider";
 
 export default function UserFilters() {
-  const { handleSearch, handleFilterChange, filters } = useUserModule();
-  const [localSearch, setLocalSearch] = useState(filters.search);
+  const { handleSearch, handleFilterChange, filters, roles } = useUserModule();
+  const [localSearch, setLocalSearch] = useState(filters.search ?? "");
   const debouncedSearch = useDebounce(localSearch, 500);
 
   useEffect(() => {
-    handleSearch(debouncedSearch);
-  }, [debouncedSearch]);
+    // Only re-run search when the keyword itself changed.
+    // This avoids resetting page back to 1 when only pagination changes.
+    if ((filters.search ?? "") === (debouncedSearch ?? "")) return;
+    handleSearch(debouncedSearch ?? "");
+  }, [debouncedSearch, filters.search, handleSearch]);
 
   return (
     <div className="flex flex-col gap-5 mb-6">
@@ -24,7 +27,7 @@ export default function UserFilters() {
         <div className="flex-1 w-full max-w-2xl">
           <SWTInputSearch 
             placeholder="Tìm kiếm tên, email, số điện thoại..." 
-            className="w-full !h-11 !rounded-2xl shadow-sm"
+            className="w-full rounded-2xl shadow-sm"
             value={localSearch}
             onChange={(e) => setLocalSearch(e.target.value)}
             allowClear
@@ -53,24 +56,33 @@ export default function UserFilters() {
           </div>
 
           <div className="flex flex-wrap items-center gap-3 flex-1">
-            <SWTDatePickerRange className="!h-11 !rounded-xl w-full sm:w-auto" />
+            <SWTDatePickerRange className="rounded-xl w-full sm:w-auto" />
             <SWTSelect 
               placeholder="Vai trò"
-              className="w-full sm:w-[180px] !h-11"
-              value={filters.role}
-              onChange={(val) => handleFilterChange('role', val)}
+              className="w-full sm:w-45"
+              value={filters.roleId}
+              onChange={(val) => handleFilterChange('roleId', String(val))}
               options={[
                 { label: "Tất cả", value: "all" },
-                { label: "Quản trị viên", value: "ADMIN" },
-                { label: "Nhân viên", value: "STAFF" },
-                { label: "Khách hàng", value: "CUSTOMER" }
+                ...roles.map((role) => ({ label: role.name, value: role.id }))
+              ]}
+            />
+            <SWTSelect 
+              placeholder="Loại tài khoản"
+              className="w-full sm:w-45"
+              value={filters.accountType}
+              onChange={(val) => handleFilterChange('accountType', String(val))}
+              options={[
+                { label: "Tất cả", value: "all" },
+                { label: "Customer", value: "CUSTOMER" },
+                { label: "Internal", value: "INTERNAL" }
               ]}
             />
             <SWTSelect 
               placeholder="Trạng thái"
-              className="w-full sm:w-[180px] !h-11"
+              className="w-full sm:w-45"
               value={filters.status}
-              onChange={(val) => handleFilterChange('status', val)}
+              onChange={(val) => handleFilterChange('status', String(val))}
               options={[
                 { label: "Tất cả", value: "all" },
                 { label: "Hoạt động", value: "ACTIVE" },
@@ -84,10 +96,11 @@ export default function UserFilters() {
             type="text"
             onClick={() => {
               setLocalSearch("");
-              handleFilterChange('role', 'all');
+              handleFilterChange('roleId', 'all');
+              handleFilterChange('accountType', 'all');
               handleFilterChange('status', 'all');
             }}
-            className="!h-9 !px-4 !text-xs !rounded-xl !w-auto whitespace-nowrap text-slate-400 hover:!text-red-500 hover:!bg-red-50 dark:hover:!bg-red-500/10 transition-all font-bold"
+            className="h-9 px-4 text-xs rounded-xl w-auto whitespace-nowrap text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all font-bold"
           >
             Xóa bộ lọc
           </SWTButton>

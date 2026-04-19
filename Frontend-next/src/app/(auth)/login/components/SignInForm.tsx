@@ -13,11 +13,8 @@ import { Eye, EyeOff } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "@/src/@core/utils/supabase";
 import { useAuth } from "@/src/context/AuthContext";
-import { useCart } from "@/src/services/customer/cart/cart.hook";
 import { authStorage, AuthUser } from "@/src/@core/utils/authStorage";
 import { getProfile } from "@/src/services/customer/user/user.service";
-import { Alert } from "antd";
-import { AlertOutlined } from "@ant-design/icons";
 
 type LoginFormValues = {
   email: string;
@@ -26,8 +23,7 @@ type LoginFormValues = {
 };
 
 export default function SignInForm() {
-  const { login, logout } = useAuth();
-  const { items, syncCart, setIsMerging } = useCart();
+  const { login } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
@@ -57,8 +53,8 @@ export default function SignInForm() {
       if (error) throw error;
 
       if (data.session && data.user) {
-        // Lưu tạm token vào cookie để API getProfile có thể dùng Authorization Header
-        authStorage.login(data.session.access_token, {} as any); 
+  
+        authStorage.login(data.session.access_token, {} as never); 
 
         try {
           // 2. Gọi API Backend (đã có Middleware check is_banned)
@@ -80,31 +76,24 @@ export default function SignInForm() {
             username: userProfile.email || "",
             email: userProfile.email,
             avatar: userProfile.avatar,
-            role: userProfile.role || "CUSTOMER"
+            accountType: userProfile.accountType || "CUSTOMER"
           };
 
-          // 5. Đồng bộ Cart và Login vào Context
-          const guestItems = [...items];
-          setIsMerging(true);
-          try {
-            await login(data.session.access_token, authUser);
-            await syncCart(data.user.id, guestItems);
-          } finally {
-            setIsMerging(false);
-          }
+          // 5. Login vào Context (cart sync handled by global cart hook flow)
+          await login(data.session.access_token, authUser);
 
           showNotificationSuccess("Đăng nhập thành công! Chào mừng trở lại.");
 
           // 6. Redirect theo Role
-          if (userProfile.role === "ADMIN") {
+          if (userProfile.accountType === "INTERNAL") {
             router.push("/admin");
           } else {
             router.push("/");
           }
 
-        } catch (profileErr: any) {
+        } catch (profileErr: unknown) {
           // Xử lý lỗi từ getProfile() - có thể là banned hoặc lỗi khác
-          const errorMessage = profileErr?.message || "Xác thực tài khoản thất bại";
+          const errorMessage = profileErr instanceof Error ? profileErr.message : "Xác thực tài khoản thất bại";
           
           // Sign out from Supabase để đảm bảo session bị xóa
           await supabase.auth.signOut();
@@ -114,8 +103,8 @@ export default function SignInForm() {
           showNotificationError(errorMessage);
         }
       }
-    } catch (err: any) {
-      showNotificationError(err?.message || "Thông tin đăng nhập không chính xác");
+    } catch (err: unknown) {
+      showNotificationError(err instanceof Error ? err.message : "Thông tin đăng nhập không chính xác");
     } finally {
       setIsLoading(false);
     }
@@ -132,8 +121,8 @@ export default function SignInForm() {
         options: { redirectTo: `${window.location.origin}/` } // Redirect to root, OAuth callback uses hash fragment
       });
       if (error) throw error;
-    } catch (err: any) {
-      showNotificationError(err?.message || "Lỗi đăng nhập Google");
+    } catch (err: unknown) {
+      showNotificationError(err instanceof Error ? err.message : "Lỗi đăng nhập Google");
       setIsLoading(false);
     }
   };
@@ -149,8 +138,8 @@ export default function SignInForm() {
         options: { redirectTo: `${window.location.origin}/` } // Redirect to root, OAuth callback uses hash fragment
       });
       if (error) throw error;
-    } catch (err: any) {
-      showNotificationError(err?.message || "Lỗi đăng nhập Facebook");
+    } catch (err: unknown) {
+      showNotificationError(err instanceof Error ? err.message : "Lỗi đăng nhập Facebook");
       setIsLoading(false);
     }
   };
@@ -212,12 +201,12 @@ export default function SignInForm() {
 
         <div className="flex items-center justify-between text-sm mb-4">
           <SWTFormItem name="remember" valuePropName="checked" noStyle>
-            <SWTCheckbox className="!accent-brand-500">Ghi nhớ đăng nhập</SWTCheckbox>
+            <SWTCheckbox className="accent-brand-500!">Ghi nhớ đăng nhập</SWTCheckbox>
           </SWTFormItem>
-          <a href="#" className="font-medium hover:underline">Quên mật khẩu?</a>
+          <Link href="/forgot-password" className="font-medium hover:underline">Quên mật khẩu?</Link>
         </div>
 
-        <SWTButton htmlType="submit" size="lg" className="w-full py-4 text-lg !text-white !bg-brand-500 hover:!bg-brand-700">
+        <SWTButton htmlType="submit" size="lg" className="w-full py-4 text-lg text-white! bg-brand-500! hover:bg-brand-700!">
           Đăng nhập
         </SWTButton>
 
@@ -236,7 +225,7 @@ export default function SignInForm() {
           </div>
         </div>
         <div className="flex-1">
-          <SWTButton variant="outlined" className="w-full !border-gray-200 !text-gray-700 !h-11 !rounded-lg" startIcon={<FacebookIco />} onClick={handleFacebookLogin} loading={isLoading}>
+          <SWTButton variant="outlined" className="w-full border-gray-200! text-gray-700! h-11! rounded-lg!" startIcon={<FacebookIco />} onClick={handleFacebookLogin} loading={isLoading}>
             <span className="hidden sm:inline">Facebook</span>
           </SWTButton>
         </div>

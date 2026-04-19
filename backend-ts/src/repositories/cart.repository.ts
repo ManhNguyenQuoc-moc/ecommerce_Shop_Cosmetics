@@ -44,23 +44,15 @@ export class CartRepository implements ICartRepository {
   }
 
   async addItem(cartId: string, variantId: string, quantity: number): Promise<CartItem> {
-    // Upsert equivalent if item already in cart
-    const existing = await prisma.cartItem.findUnique({
+    return prisma.cartItem.upsert({
       where: { cartId_variantId: { cartId, variantId } },
-    });
-
-    if (existing) {
-      return prisma.cartItem.update({
-        where: { id: existing.id },
-        data: { quantity: existing.quantity + quantity },
-      });
-    }
-
-    return prisma.cartItem.create({
-      data: {
+      create: {
         cartId,
         variantId,
         quantity,
+      },
+      update: {
+        quantity: { increment: quantity },
       },
     });
   }

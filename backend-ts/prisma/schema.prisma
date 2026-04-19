@@ -11,9 +11,10 @@ model User {
   email                  String?   @unique
   full_name              String?
   phone                  String?   @unique
+  accountType            AccountType @default(CUSTOMER)
   gender                 Gender?
   birthday               DateTime?
-  role                   Role      @default(CUSTOMER)
+  roleId                 String?
   loyalty_points         Int       @default(0)
   lifetime_points        Int       @default(0)
   is_point_wallet_locked Boolean   @default(false)
@@ -31,6 +32,8 @@ model User {
   pointTransactions      PointTransaction[]
   notifications          Notification[]
   questions              Question[]
+
+  @@index([roleId])
 }
 
 model PointTransaction {
@@ -388,10 +391,52 @@ model StockTransaction {
   batch       Batch           @relation(fields: [batchId], references: [id])
 }
 
+// ============ RBAC Models ============
+model RbacRole {
+  id          String           @id @default(uuid())
+  name        String           @unique // "ADMIN", "MANAGER", "STAFF", etc.
+  description String?
+  permissions RolePermission[]
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@index([name])
+}
+
+model Permission {
+  id          String           @id @default(uuid())
+  name        String           @unique // "user:create", "product:edit", "order:view", etc.
+  description String?
+  resource    String           // "user", "product", "order"
+  action      String           // "create", "read", "update", "delete"
+  roles       RolePermission[]
+  createdAt   DateTime         @default(now())
+
+  @@unique([resource, action])
+  @@index([resource])
+}
+
+model RolePermission {
+  id           String   @id @default(uuid())
+  roleId       String
+  permissionId String
+  role         RbacRole @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+  createdAt    DateTime @default(now())
+
+  @@unique([roleId, permissionId])
+  @@index([roleId])
+}
+
 enum Gender {
   MALE
   FEMALE
   OTHER
+}
+
+enum AccountType {
+  CUSTOMER
+  INTERNAL
 }
 
 enum Role {

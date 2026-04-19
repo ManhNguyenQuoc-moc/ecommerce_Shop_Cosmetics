@@ -1,18 +1,20 @@
 import { Router } from "express";
 import { CategoryGroupController } from "../controllers/category-group.controller";
+import { authenticate } from "../middlewares/auth.middleware";
+import { permissionGuard } from "../middlewares/rbac-guard.middleware";
 
 
 const router = Router();
 const controller = new CategoryGroupController();
 
 // Create new group
-router.post("/", controller.createGroup);
+router.post("/", authenticate, permissionGuard("categoryGroup", "create"), controller.createGroup);
 
 // Update group
-router.put("/:id", controller.updateGroup);
+router.put("/:id", authenticate, permissionGuard("categoryGroup", "update"), controller.updateGroup);
 
 // Delete group
-router.delete("/:id", controller.deleteGroup);
+router.delete("/:id", authenticate, permissionGuard("categoryGroup", "delete"), controller.deleteGroup);
 
 // Get all groups
 router.get("/", controller.getGroups);

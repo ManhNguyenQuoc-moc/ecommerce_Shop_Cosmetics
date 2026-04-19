@@ -3,7 +3,7 @@
 import SWTTable from "@/src/@core/component/AntD/SWTTable";
 import SWTStatusTag from "@/src/@core/component/SWTStatusTag";
 import SWTIconButton from "@/src/@core/component/SWTIconButton";
-import { showNotificationSuccess, showNotificationError } from "@/src/@core/utils/message";
+import { showNotificationSuccess } from "@/src/@core/utils/message";
 import { softDeleteProducts, restoreProducts, PRODUCT_API_ENDPOINT } from "@/src/services/admin/product/product.service";
 import { useProducts } from "@/src/services/admin/product/product.hook";
 import { mutate as globalMutate } from "swr";
@@ -69,7 +69,7 @@ export default function ProductTable({ isPending }: ProductTableProps) {
         { revalidate: true }
       );
     } catch {
-      showNotificationError("Có lỗi xảy ra");
+      // Error notification is already handled by HTTP interceptor.
     } finally {
       setIsDeleting(false);
       setConfirmSingle({ open: false, record: null });
@@ -93,8 +93,8 @@ export default function ProductTable({ isPending }: ProductTableProps) {
         undefined,
         { revalidate: true }
       );
-    } catch (err: any) {
-      showNotificationError(err.message || "Có lỗi xảy ra");
+    } catch {
+      // Error notification is already handled by HTTP interceptor.
     } finally {
       setIsDeleting(false);
       setConfirmBulk(false);

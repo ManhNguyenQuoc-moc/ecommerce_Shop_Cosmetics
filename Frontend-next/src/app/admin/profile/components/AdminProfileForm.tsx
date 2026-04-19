@@ -1,8 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import useSWRMutation from "swr/mutation";
-import { Form, Tag, Divider } from "antd";
+import { useState, useEffect, useCallback } from "react";
+import { Form, Divider } from "antd";
 import {
   User,
   Phone,
@@ -48,9 +47,9 @@ export default function AdminProfileForm({ initialData }: Props) {
   const { data: profileData, mutate: mutateProfile } = useUserProfile();
   const profileInfo = profileData || initialData;
 
-  const syncFormValues = () => {
+  const syncFormValues = useCallback(() => {
     if (!profileInfo) return;
-    
+
     const firstAddress = profileInfo.addresses?.[0]?.address || "";
     form.setFieldsValue({
       full_name: profileInfo.full_name || profileInfo.email?.split("@")[0],
@@ -59,16 +58,22 @@ export default function AdminProfileForm({ initialData }: Props) {
       birthday: profileInfo.birthday ? dayjs(profileInfo.birthday) : undefined,
       work_address: firstAddress,
     });
-  };
+  }, [profileInfo, form]);
 
   useEffect(() => {
     if (profileInfo) {
       syncFormValues();
       setAvatarUrl(profileInfo.avatar || "");
     }
-  }, [profileInfo, form]);
+  }, [profileInfo, syncFormValues]);
 
-  const onFinish = async (values: any) => {
+  const onFinish = async (values: {
+    full_name: string;
+    phone: string;
+    gender: "MALE" | "FEMALE" | "OTHER";
+    birthday?: dayjs.Dayjs;
+    work_address?: string;
+  }) => {
     try {
       setIsSubmitting(true);
       const addresses = values.work_address
@@ -79,26 +84,31 @@ export default function AdminProfileForm({ initialData }: Props) {
         full_name: values.full_name,
         phone: values.phone,
         gender: values.gender,
-        birthday: values.birthday ? values.birthday.toISOString() : null,
+        birthday: values.birthday ? values.birthday.toISOString() : undefined,
         addresses: addresses,
         avatar: avatarUrl,
       };
 
       const response = await updateCustomerInfo(updateData);
-      const updatedUserFromApi = (response as any).data || response;
+      const updatedUserFromApi = (response as { data?: UserProfileDTO } | UserProfileDTO) as
+        | { data?: UserProfileDTO }
+        | UserProfileDTO;
+      const normalizedProfile = ("data" in updatedUserFromApi && updatedUserFromApi.data
+        ? updatedUserFromApi.data
+        : updatedUserFromApi) as UserProfileDTO;
 
       updateUser({
-        name: updatedUserFromApi.full_name || updatedUserFromApi.name || values.full_name,
-        full_name: updatedUserFromApi.full_name || values.full_name,
-        avatar: updatedUserFromApi.avatar || avatarUrl || currentUser?.avatar,
+        name: normalizedProfile.full_name || values.full_name,
+        full_name: normalizedProfile.full_name || values.full_name,
+        avatar: normalizedProfile.avatar || avatarUrl || currentUser?.avatar,
       });
 
       // Revalidate the profile data immediately to ensure UI updates
-      await mutateProfile(updatedUserFromApi, false);
+      await mutateProfile(normalizedProfile, false);
       showNotificationSuccess("Cập nhật thông tin quản trị viên thành công");
       setIsEdit(false);
-    } catch (err: any) {
-      showNotificationError(err.message || "Đã có lỗi xảy ra khi cập nhật");
+    } catch (err: unknown) {
+      showNotificationError(err instanceof Error ? err.message : "Đã có lỗi xảy ra khi cập nhật");
     } finally {
       setIsSubmitting(false);
     }
@@ -131,12 +141,12 @@ export default function AdminProfileForm({ initialData }: Props) {
         </div>
 
         <h3 className="mt-8 text-2xl font-black admin-section-heading tracking-tight">
-          {initialData?.full_name || "Quản trị viên"}
+          {profileInfo?.full_name || "Quản trị viên"}
         </h3>
 
         <div className="mt-4 flex flex-col gap-3 w-full">
           <div className="inline-flex items-center justify-center font-bold px-4 py-2 rounded-xl border text-xs bg-brand-50 text-brand-600 border-brand-100 dark:bg-brand-500/10 dark:text-brand-400 dark:border-brand-500/20 uppercase tracking-widest">
-            Super Admin
+            {profileInfo?.role || "—"}
           </div>
           <div className="inline-flex items-center justify-center gap-2 font-bold px-4 py-2 rounded-xl border text-xs bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20 uppercase tracking-widest">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
@@ -144,7 +154,7 @@ export default function AdminProfileForm({ initialData }: Props) {
           </div>
         </div>
 
-        <Divider className="!my-8 dark:!border-slate-800" />
+        <Divider className="my-8! dark:border-slate-800!" />
 
         <div className="w-full space-y-4 px-2">
           <div className="flex flex-col items-center gap-1.5 p-4 rounded-xl admin-subsection">
@@ -162,14 +172,14 @@ export default function AdminProfileForm({ initialData }: Props) {
         <div className="flex justify-between items-center mb-10 relative z-10">
           <div className="flex items-center gap-3">
             <div className="w-1.5 h-6 bg-brand-500 rounded-full" />
-            <h3 className="text-xl font-black admin-section-heading uppercase tracking-wider !m-0">Thông tin chi tiết</h3>
+            <h3 className="text-xl font-black admin-section-heading uppercase tracking-wider m-0!">Thông tin chi tiết</h3>
           </div>
 
           <div className="flex gap-2">
             {!isEdit ? (
               <SWTButton
                 type="primary"
-                className="!bg-brand-500 !text-white !border-transparent !rounded-full !px-6 !font-black transition-all shadow-md shadow-brand-500/20 hover:!bg-brand-600 !h-11"
+                className="bg-brand-500! text-white! border-transparent! rounded-full! px-6! font-black! transition-all shadow-md shadow-brand-500/20 hover:bg-brand-600! h-11!"
                 startIcon={<Edit size={16} />}
                 onClick={handleEdit}
               >
@@ -180,7 +190,7 @@ export default function AdminProfileForm({ initialData }: Props) {
                 <SWTButton
                   onClick={handleCancel}
                   startIcon={<X size={18} />}
-                  className="!rounded-full !px-6 !font-black !h-11 !bg-bg-muted dark:!bg-bg-muted border-none !text-text-sub"
+                  className="rounded-full! px-6! font-black! h-11! bg-bg-muted! dark:bg-bg-muted! border-none text-text-sub!"
                 >
                   Huỷ
                 </SWTButton>
@@ -189,7 +199,7 @@ export default function AdminProfileForm({ initialData }: Props) {
                   onClick={() => form.submit()}
                   loading={isSubmitting}
                   startIcon={<Save size={18} />}
-                  className="!rounded-full !px-6 !font-black !h-11 !bg-brand-500 !shadow-lg shadow-brand-500/20"
+                  className="rounded-full! px-6! font-black! h-11! bg-brand-500! shadow-lg! shadow-brand-500/20"
                 >
                   Lưu
                 </SWTButton>
@@ -208,14 +218,14 @@ export default function AdminProfileForm({ initialData }: Props) {
               {isEdit ? (
                 <SWTFormItem 
                   name="full_name" 
-                  className="!mb-0"
+                  className="mb-0!"
                   rules={[{ required: true, message: "Vui lòng nhập họ và tên" }]}
                 >
-                  <SWTInput className="!h-12 !rounded-xl" />
+                  <SWTInput className="h-12! rounded-xl! dark:bg-slate-800/80! dark:border-slate-700! dark:text-white!" />
                 </SWTFormItem>
               ) : (
                 <div className="admin-field-display flex items-center gap-4 pb-3">
-                  <span className="font-bold text-lg">{initialData?.full_name || "—"}</span>
+                  <span className="font-bold text-lg">{profileInfo?.full_name || "—"}</span>
                 </div>
               )}
             </div>
@@ -226,7 +236,7 @@ export default function AdminProfileForm({ initialData }: Props) {
                 <Mail size={14} /> Email hệ thống
               </label>
               <div className="flex items-center gap-4 text-slate-400 dark:text-slate-500 border-b border-slate-200 dark:border-slate-700/50 pb-3 cursor-not-allowed">
-                <span className="font-bold text-lg">{initialData?.email || "—"}</span>
+                <span className="font-bold text-lg">{profileInfo?.email || "—"}</span>
               </div>
             </div>
 
@@ -238,17 +248,17 @@ export default function AdminProfileForm({ initialData }: Props) {
               {isEdit ? (
                 <SWTFormItem 
                   name="phone" 
-                  className="!mb-0"
+                  className="mb-0!"
                   rules={[
                     { required: true, message: "Vui lòng nhập số điện thoại" },
                     { pattern: /^[0-9+]{10,12}$/, message: "Số điện thoại không hợp lệ" }
                   ]}
                 >
-                  <SWTInput className="!h-12 !rounded-xl" />
+                  <SWTInput className="h-12! rounded-xl! dark:bg-slate-800/80! dark:border-slate-700! dark:text-white!" />
                 </SWTFormItem>
               ) : (
                 <div className="admin-field-display flex items-center gap-4 pb-3">
-                  <span className="font-bold text-lg">{initialData?.phone || "—"}</span>
+                  <span className="font-bold text-lg">{profileInfo?.phone || "—"}</span>
                 </div>
               )}
             </div>
@@ -261,7 +271,7 @@ export default function AdminProfileForm({ initialData }: Props) {
               {isEdit ? (
                 <SWTFormItem 
                   name="birthday" 
-                  className="!mb-0"
+                  className="mb-0!"
                   rules={[
                     { required: true, message: "Vui lòng chọn ngày sinh" },
                     {
@@ -277,12 +287,12 @@ export default function AdminProfileForm({ initialData }: Props) {
                     },
                   ]}
                 >
-                  <SWTDatePicker className="w-full !h-12 !rounded-xl" />
+                  <SWTDatePicker className="w-full h-12! rounded-xl! dark:[&_.ant-picker-input>input]:text-white! dark:bg-slate-800/80! dark:border-slate-700!" />
                 </SWTFormItem>
               ) : (
                 <div className="admin-field-display flex items-center gap-4 pb-3">
                   <span className="font-bold text-lg">
-                    {initialData?.birthday ? dayjs(initialData?.birthday).format("DD/MM/YYYY") : "—"}
+                    {profileInfo?.birthday ? dayjs(profileInfo?.birthday).format("DD/MM/YYYY") : "—"}
                   </span>
                 </div>
               )}
@@ -296,11 +306,11 @@ export default function AdminProfileForm({ initialData }: Props) {
               {isEdit ? (
                 <SWTFormItem 
                   name="gender" 
-                  className="!mb-0"
+                  className="mb-0!"
                   rules={[{ required: true, message: "Vui lòng chọn giới tính" }]}
                 >
                   <SWTSelect
-                    className="!h-12 w-full"
+                    className="h-12! w-full dark:[&_.ant-select-selector]:bg-slate-800/80! dark:[&_.ant-select-selector]:border-slate-700! dark:[&_.ant-select-selection-item]:text-white!"
                     placeholder="Chọn giới tính"
                     options={[
                       { label: "Nam", value: "MALE" },
@@ -311,7 +321,7 @@ export default function AdminProfileForm({ initialData }: Props) {
                 </SWTFormItem>
               ) : (
                 <div className="admin-field-display flex items-center gap-4 pb-3">
-                  <span className="font-bold text-lg">{genderLabel(initialData?.gender)}</span>
+                  <span className="font-bold text-lg">{genderLabel(profileInfo?.gender)}</span>
                 </div>
               )}
             </div>
@@ -324,15 +334,15 @@ export default function AdminProfileForm({ initialData }: Props) {
               {isEdit ? (
                 <SWTFormItem 
                   name="work_address" 
-                  className="!mb-0"
+                  className="mb-0!"
                   rules={[{ required: true, message: "Vui lòng nhập địa chỉ làm việc" }]}
                 >
-                  <SWTInput className="!h-12 !rounded-xl" />
+                  <SWTInput className="h-12! rounded-xl! dark:bg-slate-800/80! dark:border-slate-700! dark:text-white!" />
                 </SWTFormItem>
               ) : (
                 <div className="admin-field-display flex items-center gap-4 pb-3">
                   <span className="font-bold text-lg truncate">
-                    {initialData?.addresses?.[0]?.address || "—"}
+                    {profileInfo?.addresses?.[0]?.address || "—"}
                   </span>
                 </div>
               )}

@@ -48,12 +48,18 @@ export class OrderController {
   getOrders = async (req: Request, res: Response): Promise<void> => {
     try {
       const user = (req as any).user;
+      if (!user?.id) {
+        res.status(401).json({ success: false, message: "Unauthorized" });
+        return;
+      }
+
+      const isCustomer = user.accountType === "CUSTOMER";
       const query = OrderQueryFiltersSchema.parse({
         ...req.query,
         page: req.query.page ? parseInt(req.query.page as string) : undefined,
         pageSize: req.query.pageSize ? parseInt(req.query.pageSize as string) : (req.query.limit ? parseInt(req.query.limit as string) : undefined),
-        // If not admin, restrict to own orders. If admin, allow full view or filter by userId.
-        userId: user?.role === 'CUSTOMER' ? user.id : (req.query.userId as string || undefined),
+        // Customers can only see their own orders. Internal accounts can filter any user.
+        userId: isCustomer ? user.id : (req.query.userId as string || undefined),
       });
 
       const { items, total } = await this.orderService.getOrders(query.page || 1, query.pageSize || 10, query);
@@ -75,11 +81,22 @@ export class OrderController {
  
   getOrderById = async (req: Request, res: Response): Promise<void> => {
     try {
+      const user = (req as any).user;
+      if (!user?.id) {
+        res.status(401).json({ success: false, message: "Unauthorized" });
+        return;
+      }
+
       const id = req.params.id as string;
       const order = await this.orderService.getOrderById(id);
 
       if (!order) {
         res.status(404).json({ success: false, message: "Order not found" });
+        return;
+      }
+
+      if (user.accountType === "CUSTOMER" && order.userId !== user.id) {
+        res.status(403).json({ success: false, message: "Forbidden" });
         return;
       }
 

@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import { prisma } from "../config/prisma";
-import { POPriority, POStatus, Role, ItemStatus, ProductStatus } from "@prisma/client";
+import { POPriority, POStatus, ItemStatus, ProductStatus } from "@prisma/client";
 
 /** 
  * SEEDING SCRIPT
@@ -182,12 +182,12 @@ async function main() {
   const adminEmail = "admin@gmail.com";
   const user = await prisma.user.upsert({
     where: { email: adminEmail },
-    update: { role: Role.ADMIN },
+    update: { accountType: "INTERNAL" },
     create: {
       email: adminEmail,
       full_name: "SWT Admin Root",
       phone: "0999888777",
-      role: Role.ADMIN,
+      accountType: "INTERNAL",
       loyalty_points: 1000,
       is_verified: true
     },

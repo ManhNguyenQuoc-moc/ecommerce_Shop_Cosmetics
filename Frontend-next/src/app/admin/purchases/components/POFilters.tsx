@@ -16,7 +16,7 @@ interface POFiltersProps {
 }
 
 export default function POFilters({ startTransition }: POFiltersProps) {
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+
 
   const searchParams = useSearchParams();
   const router = useRouter();

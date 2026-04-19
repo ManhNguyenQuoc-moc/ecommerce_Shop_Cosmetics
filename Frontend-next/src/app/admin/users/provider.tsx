@@ -1,20 +1,18 @@
 "use client";
-import React, { createContext, useContext } from "react";
-import { useUsers, useUpdateUserStatus, useUpdateUserRole } from "@/src/services/admin/user/user.hook";
+import React, { createContext, useCallback, useContext } from "react";
+import { useUsers, useUpdateUserStatus, useUpdateUserRole, useUpdateUserAccountType } from "@/src/services/admin/user/user.hook";
 import { showNotificationSuccess, showNotificationError } from "@/src/@core/utils/message";
 import { UserProfileDTO } from "@/src/services/admin/user/models/output.model.dto";
+import { UserQueryFilters } from "@/src/services/admin/user/models/input.model.dto";
 import { BaseResultDto } from "@/src/@core/http/models/ApiResponse";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
+import { useRoles } from "@/src/services/admin/rbac/rbac.hooks";
 
 export interface UserContextType {
   users: UserProfileDTO[];
   total: number;
   isLoading: boolean;
-  filters: {
-    search: string;
-    role: string;
-    status: string;
-  };
+  filters: UserQueryFilters;
   pagination: {
     page: number;
     pageSize: number;
@@ -22,9 +20,11 @@ export interface UserContextType {
     setPageSize: (size: number) => void;
   };
   handleSearch: (val: string) => void;
-  handleFilterChange: (key: string, value: any) => void;
+  handleFilterChange: (key: string, value: string) => void;
   handleToggleStatus: (user: UserProfileDTO) => Promise<void>;
-  handleUpdateRole: (user: UserProfileDTO, role: string) => Promise<void>;
+  handleUpdateRole: (user: UserProfileDTO, roleId: string) => Promise<void>;
+  handleUpdateAccountType: (user: UserProfileDTO, accountType: "CUSTOMER" | "INTERNAL") => Promise<void>;
+  roles: { id: string; name: string }[];
   mutate: () => void;
 }
 
@@ -38,15 +38,27 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const page = Number(searchParams.get("page") ?? 1);
   const pageSize = Number(searchParams.get("pageSize") ?? 6);
   const search = searchParams.get("search") || "";
-  const role = searchParams.get("role") || "all";
+  const roleId = searchParams.get("roleId") || "all";
+  const accountType = searchParams.get("accountType") || "all";
   const status = searchParams.get("status") || "all";
 
-  const filters = { search, role, status };
+  const filters: UserQueryFilters = { search, roleId, accountType: accountType as "CUSTOMER" | "INTERNAL" | undefined, status };
   const { users, total, isLoading: isInitialLoading, isValidating, mutate } = useUsers(page, pageSize, filters);
   const { trigger: updateStatusAction } = useUpdateUserStatus();
   const { trigger: updateRoleAction } = useUpdateUserRole();
+  const { trigger: updateAccountTypeAction } = useUpdateUserAccountType();
+  const { roles } = useRoles();
 
-  const handleSearch = (val: string) => {
+  const replaceIfChanged = useCallback((params: URLSearchParams) => {
+    const nextQuery = params.toString();
+    const currentQuery = searchParams.toString();
+
+    if (nextQuery === currentQuery) return;
+
+    router.replace(nextQuery ? `${pathname}?${nextQuery}` : pathname);
+  }, [pathname, router, searchParams]);
+
+  const handleSearch = useCallback((val: string) => {
     const params = new URLSearchParams(searchParams.toString());
     if (val) {
       params.set("search", val);
@@ -54,10 +66,10 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
       params.delete("search");
     }
     params.set("page", "1");
-    router.replace(`${pathname}?${params.toString()}`);
-  };
+    replaceIfChanged(params);
+  }, [replaceIfChanged, searchParams]);
 
-  const handleFilterChange = (key: string, value: any) => {
+  const handleFilterChange = useCallback((key: string, value: string) => {
     const params = new URLSearchParams(searchParams.toString());
     if (value && value !== "all") {
       params.set(key, value);
@@ -65,8 +77,8 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
       params.delete(key);
     }
     params.set("page", "1");
-    router.replace(`${pathname}?${params.toString()}`);
-  };
+    replaceIfChanged(params);
+  }, [replaceIfChanged, searchParams]);
 
   const handleToggleStatus = async (user: UserProfileDTO) => {
     const newStatus = user.is_banned ? "ACTIVE" : "BANNED";
@@ -77,37 +89,50 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
         `Đã ${newStatus === "ACTIVE" ? "mở khóa" : "khóa"} tài khoản thành công`
       );
       mutate();
-    } catch (err: any) {
+    } catch (err: unknown) {
       const apiError = err as BaseResultDto;
       const errorMsg = apiError.error?.message || apiError.message || "Có lỗi xảy ra";
       showNotificationError(errorMsg);
     }
   };
 
-  const handleUpdateRole = async (user: UserProfileDTO, role: string) => {
+  const handleUpdateRole = async (user: UserProfileDTO, roleId: string) => {
     try {
-      await updateRoleAction({ id: user.id, role });
-      showNotificationSuccess(`Đã cập nhật quyền ${role} thành công`);
+      await updateRoleAction({ id: user.id, roleId });
+      const selectedRole = roles.find((item) => item.id === roleId);
+      showNotificationSuccess(`Đã cập nhật quyền ${selectedRole?.name || roleId} thành công`);
       mutate();
-    } catch (err: any) {
+    } catch (err: unknown) {
       const apiError = err as BaseResultDto;
       const errorMsg = apiError.error?.message || apiError.message || "Có lỗi xảy ra";
       showNotificationError(errorMsg);
     }
   };
 
-  const setPage = (newPage: number) => {
+  const handleUpdateAccountType = async (user: UserProfileDTO, accountType: "CUSTOMER" | "INTERNAL") => {
+    try {
+      await updateAccountTypeAction({ id: user.id, accountType });
+      showNotificationSuccess(`Đã cập nhật loại tài khoản ${accountType} thành công`);
+      mutate();
+    } catch (err: unknown) {
+      const apiError = err as BaseResultDto;
+      const errorMsg = apiError.error?.message || apiError.message || "Có lỗi xảy ra";
+      showNotificationError(errorMsg);
+    }
+  };
+
+  const setPage = useCallback((newPage: number) => {
     const params = new URLSearchParams(searchParams.toString());
     params.set("page", newPage.toString());
-    router.replace(`${pathname}?${params.toString()}`);
-  };
+    replaceIfChanged(params);
+  }, [replaceIfChanged, searchParams]);
 
-  const setPageSize = (size: number) => {
+  const setPageSize = useCallback((size: number) => {
     const params = new URLSearchParams(searchParams.toString());
     params.set("pageSize", size.toString());
     params.set("page", "1");
-    router.replace(`${pathname}?${params.toString()}`);
-  };
+    replaceIfChanged(params);
+  }, [replaceIfChanged, searchParams]);
 
   const isLoading = isInitialLoading || isValidating;
 
@@ -123,6 +148,8 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
         handleFilterChange,
         handleToggleStatus,
         handleUpdateRole,
+        handleUpdateAccountType,
+        roles,
         mutate,
       }}
     >
