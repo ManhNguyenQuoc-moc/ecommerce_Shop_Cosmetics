@@ -9,6 +9,7 @@ const SEPAY_CHECKOUT_RETURN_URL = process.env.SEPAY_CHECKOUT_RETURN_URL || "";
 const SEPAY_PAYMENT_METHOD =
   (process.env.SEPAY_PAYMENT_METHOD as "BANK_TRANSFER" | "NAPAS_BANK_TRANSFER" | undefined) ||
   "BANK_TRANSFER";
+const SEPAY_REQUIRE_SIGNATURE = String(process.env.SEPAY_REQUIRE_SIGNATURE || "false").toLowerCase() === "true";
 
 const assertSepayConfig = () => {
   if (!SEPAY_MERCHANT_CODE) {
@@ -71,11 +72,26 @@ export const createSepayCheckoutPayload = ({
   };
 };
 
-export const verifySepaySignature = (payload: Record<string, any>) => {
-  if (!SEPAY_SECRET_KEY) return true;
+export const verifySepaySignature = (payload: Record<string, any>, headers?: Record<string, any>) => {
+  const headerSignatureValue =
+    headers?.["x-sepay-signature"] ||
+    headers?.["x-signature"] ||
+    headers?.["signature"] ||
+    headers?.["x-sepay-sign"] ||
+    "";
 
-  const receivedSignature = String(payload.signature || payload.sign || payload.mac || "");
-  if (!receivedSignature) return false;
+  const headerSignature = Array.isArray(headerSignatureValue)
+    ? String(headerSignatureValue[0] || "")
+    : String(headerSignatureValue || "");
+
+  const receivedSignature = String(payload.signature || payload.sign || payload.mac || headerSignature || "");
+  if (!receivedSignature) {
+    return !SEPAY_REQUIRE_SIGNATURE;
+  }
+
+  if (!SEPAY_SECRET_KEY) {
+    return !SEPAY_REQUIRE_SIGNATURE;
+  }
 
   try {
     const client = getSepayClient();
