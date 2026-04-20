@@ -59,9 +59,9 @@ export const createSepayCheckoutPayload = ({
     order_amount: normalizedAmount,
     currency: "VND",
     order_description: `Thanh toan don hang ${orderId}`,
-    success_url: `${SEPAY_RETURN_URL}?orderId=${encodeURIComponent(orderId)}&status=SUCCESS`,
-    error_url: `${checkoutReturnUrl}?orderId=${encodeURIComponent(orderId)}&status=FAILED`,
-    cancel_url: `${checkoutReturnUrl}?orderId=${encodeURIComponent(orderId)}&status=CANCELLED`,
+    success_url: `${SEPAY_RETURN_URL}?orderId=${encodeURIComponent(orderId)}&payment_status=SUCCESS`,
+    error_url: `${checkoutReturnUrl}?orderId=${encodeURIComponent(orderId)}&payment_status=FAILED`,
+    cancel_url: `${checkoutReturnUrl}?orderId=${encodeURIComponent(orderId)}&payment_status=CANCELLED`,
     custom_data: JSON.stringify({ orderId }),
   });
 

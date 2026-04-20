@@ -42,6 +42,8 @@ router.post("/checkout", orderController.createOrder);
 
 router.use(authenticate);
 
+router.post("/:id/cancel-unpaid", orderController.cancelUnpaidOrder);
+
 router.get("/me", orderController.getMyOrders);
 router.get("/", permissionGuard("order", "list"), orderController.getOrders);
 router.get("/:id", orderController.getOrderById);

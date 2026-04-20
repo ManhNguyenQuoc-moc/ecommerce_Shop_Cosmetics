@@ -216,6 +216,19 @@ export class OrderService implements IOrderService {
       const oldOrder = await this.orderRepository.findWithItems(id, tx);
       if (!oldOrder) throw new Error("Order not found");
 
+      if (data.payment_status === 'REFUNDED') {
+        const nextOrderStatus = data.current_status || oldOrder.current_status;
+        const canRefundStatus = nextOrderStatus === 'RETURNED' || nextOrderStatus === 'CANCELLED';
+
+        if (oldOrder.payment_status !== 'PAID') {
+          throw new Error("Chỉ có thể chuyển sang REFUNDED khi đơn đã thanh toán.");
+        }
+
+        if (!canRefundStatus) {
+          throw new Error("Chỉ có thể đánh dấu REFUNDED cho đơn RETURNED hoặc CANCELLED.");
+        }
+      }
+
       // Automation logic
       if (oldOrder.payment_method === 'COD' && data.current_status === 'DELIVERED') {
         data.payment_status = 'PAID';
@@ -294,5 +307,65 @@ export class OrderService implements IOrderService {
 
   async deleteOrder(id: string): Promise<void> {
     return this.orderRepository.delete(id);
+  }
+
+  async deleteUnpaidOrder(id: string): Promise<void> {
+    await prisma.$transaction(async (tx: any) => {
+      const order = await tx.order.findUnique({
+        where: { id },
+        include: {
+          items: true,
+          discountCode: true,
+        },
+      });
+
+      if (!order) {
+        throw new Error("Order not found");
+      }
+
+      if (order.payment_status === 'PAID') {
+        throw new Error("Order already paid");
+      }
+
+      // Only allow hard-delete while order is still at early stage.
+      if (order.current_status !== 'PENDING') {
+        throw new Error("Chỉ có thể xóa đơn chưa thanh toán ở trạng thái chờ xác nhận.");
+      }
+
+      // In case stock was reserved/deducted (e.g., COD), restore by transaction history.
+      await this.inventoryRepository.restoreStock(id, tx);
+
+      if (order.discountCodeId) {
+        await tx.discountCode.updateMany({
+          where: {
+            id: order.discountCodeId,
+            used_count: { gt: 0 },
+          },
+          data: {
+            used_count: { decrement: 1 },
+          },
+        });
+      }
+
+      // Restore redeemed points only for online payment orders cancelled before payment success.
+      if (order.payment_method !== 'COD' && (order.discountCode?.point_cost || 0) > 0) {
+        const refundedPoints = order.discountCode?.point_cost || 0;
+        await tx.user.update({
+          where: { id: order.userId },
+          data: { loyalty_points: { increment: refundedPoints } },
+        });
+
+        await tx.pointTransaction.create({
+          data: {
+            userId: order.userId,
+            amount: refundedPoints,
+            reason: `Hoàn điểm do hủy đơn chưa thanh toán ${order.id}`,
+            type: 'EARN',
+          },
+        });
+      }
+
+      await tx.order.delete({ where: { id } });
+    });
   }
 }

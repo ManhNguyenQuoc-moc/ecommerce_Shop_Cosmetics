@@ -9,4 +9,7 @@ export const checkoutService = {
   getOrder: async (orderId: string) => {
     return get(`/orders/${orderId}`);
   },
+  cancelUnpaidOrder: async (orderId: string) => {
+    return post(`/orders/${orderId}/cancel-unpaid`, {});
+  },
 };

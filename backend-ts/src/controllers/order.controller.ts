@@ -228,6 +228,47 @@ export class OrderController {
     }
   };
 
+  cancelUnpaidOrder = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const user = (req as any).user;
+      if (!user?.id) {
+        res.status(401).json({ success: false, message: "Unauthorized" });
+        return;
+      }
+
+      const id = req.params.id as string;
+      const order = await this.orderService.getOrderById(id);
+
+      if (!order) {
+        res.status(404).json({ success: false, message: "Order not found" });
+        return;
+      }
+
+      if (user.accountType === "CUSTOMER" && order.userId !== user.id) {
+        res.status(403).json({ success: false, message: "Forbidden" });
+        return;
+      }
+
+      if (order.payment_status === "PAID") {
+        res.status(400).json({ success: false, message: "Order already paid" });
+        return;
+      }
+
+      if (order.current_status === "CANCELLED") {
+        res.status(200).json({ success: true, message: "Order already cancelled", data: order });
+        return;
+      }
+
+      await this.orderService.deleteUnpaidOrder(id);
+      res.status(200).json({
+        success: true,
+        message: "Order deleted successfully",
+      });
+    } catch (error: any) {
+      handleControllerError(res, error, "OrderController");
+    }
+  };
+
   updateOrder = async (req: Request, res: Response): Promise<void> => {
     try {
       const id = req.params.id as string;

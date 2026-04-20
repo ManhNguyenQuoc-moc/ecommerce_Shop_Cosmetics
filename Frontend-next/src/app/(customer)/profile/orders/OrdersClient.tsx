@@ -23,8 +23,11 @@ export default function OrdersClient({ initialData, initialTab, initialPage }: O
   const router = useRouter();
   const searchParams = useSearchParams();
   const paymentHandledRef = useRef(false);
+  const paymentPollingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const allowedOrderStatuses = new Set(["ALL", "PENDING", "CONFIRMED", "SHIPPING", "DELIVERED", "CANCELLED"]);
   
-  const activeTab = searchParams.get("status") || "ALL";
+  const statusFromQuery = searchParams.get("status") || "ALL";
+  const activeTab = allowedOrderStatuses.has(statusFromQuery) ? statusFromQuery : "ALL";
   const page = Number(searchParams.get("page") || 1);
   const pageSize = 6;
 
@@ -39,6 +42,13 @@ export default function OrdersClient({ initialData, initialTab, initialPage }: O
 
   const orders = response?.data || [];
   const total = response?.total || 0;
+
+  const clearPaymentPolling = () => {
+    if (paymentPollingTimerRef.current) {
+      clearTimeout(paymentPollingTimerRef.current);
+      paymentPollingTimerRef.current = null;
+    }
+  };
 
   const tabItems = [
     { key: "ALL", label: "Tất cả" ,},
@@ -66,16 +76,65 @@ export default function OrdersClient({ initialData, initialTab, initialPage }: O
     if (paymentHandledRef.current) return;
 
     const sepayOrderId = searchParams.get("orderId") || searchParams.get("order_id");
-    const sepayStatus = searchParams.get("status") || searchParams.get("payment_status") || searchParams.get("result");
+    const sepayStatus = searchParams.get("payment_status") || searchParams.get("result") || searchParams.get("status");
     if (!sepayOrderId && !sepayStatus) return;
 
     paymentHandledRef.current = true;
 
     const normalizedStatus = String(sepayStatus || "").toUpperCase();
     const successStatuses = new Set(["SUCCESS", "PAID", "COMPLETED", "00", "0", "TRUE", "1"]);
+    const paidStatuses = new Set(["PAID", "SUCCESS", "COMPLETED"]);
+
+    const hasPaidStatus = (paymentStatus?: string) => {
+      const normalizedPaymentStatus = String(paymentStatus || "").toUpperCase();
+      return paidStatuses.has(normalizedPaymentStatus);
+    };
+
+    const isTargetOrderPaid = (orderId: string, latestResponse?: OrderListResponseDTO) => {
+      if (!latestResponse?.data?.length) return false;
+
+      const targetOrder = latestResponse.data.find(
+        (order) => order.id === orderId || order.code === orderId
+      );
+
+      return hasPaidStatus(targetOrder?.payment_status);
+    };
+
+    const startPaymentPolling = (orderId: string) => {
+      const maxPollingMs = 10000;
+      const pollingIntervalMs = 2000;
+      const startAt = Date.now();
+
+      const poll = async () => {
+        const latestResponse = await mutate();
+
+        if (isTargetOrderPaid(orderId, latestResponse)) {
+          clearPaymentPolling();
+          return;
+        }
+
+        if (Date.now() - startAt >= maxPollingMs) {
+          clearPaymentPolling();
+          return;
+        }
+
+        paymentPollingTimerRef.current = setTimeout(poll, pollingIntervalMs);
+      };
+
+      clearPaymentPolling();
+      paymentPollingTimerRef.current = setTimeout(poll, pollingIntervalMs);
+    };
 
     if (successStatuses.has(normalizedStatus)) {
-      showNotificationSuccess("Thanh toán SEPay thành công.");
+      showNotificationSuccess("Thanh toán SEPay thành công. Hệ thống đang xác nhận đơn hàng...");
+
+      void mutate().then((latestResponse) => {
+        if (!sepayOrderId || isTargetOrderPaid(sepayOrderId, latestResponse)) {
+          return;
+        }
+
+        startPaymentPolling(sepayOrderId);
+      });
     } else {
       showNotificationError("Thanh toán SEPay thất bại. Đơn hàng của bạn chưa được thanh toán.");
     }
@@ -95,7 +154,13 @@ export default function OrdersClient({ initialData, initialTab, initialPage }: O
 
     const query = params.toString();
     router.replace(query ? `?${query}` : "?status=ALL&page=1");
-  }, [router, searchParams]);
+  }, [mutate, router, searchParams]);
+
+  useEffect(() => {
+    return () => {
+      clearPaymentPolling();
+    };
+  }, []);
 
   const showLoading = isLoading && !response;
 
