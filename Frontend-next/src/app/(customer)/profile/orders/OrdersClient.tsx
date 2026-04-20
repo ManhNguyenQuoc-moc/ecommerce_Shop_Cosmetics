@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import SWTCard from "@/src/@core/component/AntD/SWTCard";
 import SWTTabs from "@/src/@core/component/AntD/SWTTabs";
@@ -11,6 +11,7 @@ import { getOrders } from "@/src/services/customer/order/order.service";
 import OrderCard from "./components/OrderCard";
 import { OrderStatus, OrderListResponseDTO, OrderDTO } from "@/src/services/models/customer/order.dto";
 import SWTLoading from "@/src/@core/component/AntD/SWTLoading";
+import { showNotificationError, showNotificationSuccess } from "@/src/@core/utils/message";
 
 interface OrdersClientProps {
   initialData?: OrderListResponseDTO;
@@ -21,6 +22,7 @@ interface OrdersClientProps {
 export default function OrdersClient({ initialData, initialTab, initialPage }: OrdersClientProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const paymentHandledRef = useRef(false);
   
   const activeTab = searchParams.get("status") || "ALL";
   const page = Number(searchParams.get("page") || 1);
@@ -59,6 +61,42 @@ export default function OrdersClient({ initialData, initialTab, initialPage }: O
     params.set("page", p.toString());
     router.push(`?${params.toString()}`);
   };
+
+  useEffect(() => {
+    if (paymentHandledRef.current) return;
+
+    const vnpTxnRef = searchParams.get("vnp_TxnRef");
+    const vnpCode = searchParams.get("vnp_ResponseCode");
+    if (!vnpTxnRef && !vnpCode) return;
+
+    paymentHandledRef.current = true;
+
+    if (vnpCode === "00") {
+      showNotificationSuccess("Thanh toán VNPay thành công.");
+    } else {
+      showNotificationError("Thanh toán VNPay thất bại. Đơn hàng của bạn chưa được thanh toán.");
+    }
+
+    const params = new URLSearchParams(searchParams.toString());
+    [
+      "vnp_Amount",
+      "vnp_BankCode",
+      "vnp_BankTranNo",
+      "vnp_CardType",
+      "vnp_OrderInfo",
+      "vnp_PayDate",
+      "vnp_ResponseCode",
+      "vnp_SecureHash",
+      "vnp_SecureHashType",
+      "vnp_TmnCode",
+      "vnp_TransactionNo",
+      "vnp_TransactionStatus",
+      "vnp_TxnRef",
+    ].forEach((key) => params.delete(key));
+
+    const query = params.toString();
+    router.replace(query ? `?${query}` : "?status=ALL&page=1");
+  }, [router, searchParams]);
 
   const showLoading = isLoading && !response;
 
