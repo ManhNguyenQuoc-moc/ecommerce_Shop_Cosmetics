@@ -21,7 +21,6 @@ export default function ProductsPage() {
           placement: "left"
         }}
       />
-      
       <ProductsClient />
     </div>
   );

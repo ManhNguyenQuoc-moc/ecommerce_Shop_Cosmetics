@@ -5,9 +5,7 @@ import SWTButton from "@/src/@core/component/AntD/SWTButton";
 import { SWTInputSearch } from "@/src/@core/component/AntD/SWTInput";
 import SWTSelect from "@/src/@core/component/AntD/SWTSelect";
 import SWTTooltip from "@/src/@core/component/AntD/SWTTooltip";
-import AntSpin from "@/src/@core/component/AntD/AntSpin";
-import { showMessageError, showMessageSuccess } from "@/src/@core/utils/message";
-import { useState, useEffect, TransitionStartFunction } from "react";
+import { useState, useEffect, useCallback, TransitionStartFunction } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useCategories } from "@/src/services/admin/category/category.hook";
 import { useBrands } from "@/src/services/admin/brand/brand.hook";
@@ -33,6 +31,19 @@ export default function ProductFilters({ startTransition }: ProductFiltersProps)
   const [localSearch, setLocalSearch] = useState(searchStr);
   const debouncedSearch = useDebounce(localSearch, 500);
 
+  const updateFilter = useCallback((key: string, value: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (value && value !== "" && value !== "all") {
+      params.set(key, value);
+    } else {
+      params.delete(key);
+    }
+    params.set("page", "1");
+    startTransition(() => {
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    });
+  }, [pathname, router, searchParams, startTransition]);
+
   useEffect(() => {
     setLocalSearch(searchStr);
   }, [searchStr]);
@@ -41,7 +52,7 @@ export default function ProductFilters({ startTransition }: ProductFiltersProps)
     if (debouncedSearch !== searchStr) {
       updateFilter("search", debouncedSearch);
     }
-  }, [debouncedSearch]);
+  }, [debouncedSearch, searchStr, updateFilter]);
 
   const sortByVal = searchParams.get("sortBy") || "newest";
   const categoryVal = searchParams.get("categoryId") || "all";
@@ -62,19 +73,6 @@ export default function ProductFilters({ startTransition }: ProductFiltersProps)
     { label: "Tất cả thương hiệu", value: "all" },
     ...brandList.map((b: any) => ({ label: b.name, value: b.id }))
   ];
-
-  const updateFilter = (key: string, value: string) => {
-    const params = new URLSearchParams(searchParams.toString());
-    if (value && value !== "" && value !== "all") {
-      params.set(key, value);
-    } else {
-      params.delete(key);
-    }
-    params.set("page", "1");
-    startTransition(() => {
-      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
-    });
-  };
 
   const clearFilters = () => {
     const params = new URLSearchParams(searchParams.toString());

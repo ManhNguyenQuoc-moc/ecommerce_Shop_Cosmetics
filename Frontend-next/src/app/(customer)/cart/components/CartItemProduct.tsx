@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { CartItem } from "@/src/stores/useCartStore";
-import { Heart, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 
 type Props = {
   item: CartItem;
@@ -45,12 +45,6 @@ export default function CartItemProduct({ item, onRemove, outOfStock = false }: 
         </div>
         {/* Actions Section */}
         <div className="flex items-center gap-4 mt-auto pt-1">
-          <button
-            className="flex items-center gap-1 text-xs text-text-muted hover:text-status-error-text transition-colors group"
-            title="Yêu thích"
-          >
-            <Heart size={16} className="group-hover:fill-status-error-text transition-all" />
-          </button>
           <div className="h-3 w-[1px] bg-border-default" /> {/* Divider */}
           <button
             onClick={() => onRemove?.(item.id)}

@@ -79,8 +79,8 @@ export default function VoucherFilters({ onAdd, startTransition }: VoucherFilter
           </SWTTooltip>
           <SWTTooltip title="Thêm Voucher Mới" placement="top" color="#6366f1">
             <div 
-              onClick={onAdd}
-              className="flex h-11 w-11 items-center justify-center bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-500/30 rounded-xl shadow-sm transition-all cursor-pointer group"
+               onClick={onAdd}
+               className="flex h-11 w-11 items-center justify-center bg-brand-500/10 hover:bg-brand-500/20 text-brand-600 dark:text-brand-500 border border-brand-500/20 rounded-xl shadow-sm transition-all cursor-pointer group"
             >
               <Plus size={24} className="stroke-[2.5] group-hover:scale-110 group-hover:rotate-90 transition-transform duration-300" />
             </div>

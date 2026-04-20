@@ -13,10 +13,13 @@ import {
   Target,
   Activity,
   BoxSelect,
-  Award
+  Award,
+  FileText,
+  FileSpreadsheet
 } from "lucide-react";
 import MetricCard from "../MetricCard";
 import SWTCard from "@/src/@core/component/AntD/SWTCard";
+import SWTButton from "@/src/@core/component/AntD/SWTButton";
 import RechartsBarChart from "../charts/RechartsBarChart";
 import RechartsPieChart from "../charts/RechartsPieChart";
 import { useFetchSWR } from "@/src/@core/hooks/useFetchSWR";
@@ -25,6 +28,8 @@ import AdminDashboardLoading from "../AdminDashboardLoading";
 import {Typography,  } from "antd";
 import SWTSelect from "@/src/@core/component/AntD/SWTSelect";
 import { useState } from "react";
+import { showNotificationError, showNotificationSuccess } from "@/src/@core/utils/message";
+import { exportDashboardToExcel, exportDashboardToPdf } from "@/src/@core/utils/exportDashboard";
 
 const { Title, Text } = Typography;
 
@@ -35,7 +40,7 @@ export default function SimpleDashboard() {
     brands: 5
   });
 
-  const { data, isLoading } = useFetchSWR(
+  const { data } = useFetchSWR(
     [DASHBOARD_API_ENDPOINT, limits.products, limits.variants, limits.brands], 
     () => getDashboardData({ 
       timeFilter: 'all',
@@ -52,19 +57,59 @@ export default function SimpleDashboard() {
 
   const { productVariantMetrics, purchaseAnalytics, userAnalytics, brandAnalytics, bestSellingProducts, bestSellingVariants } = data;
 
+  const handleExportPdf = () => {
+    try {
+      exportDashboardToPdf(data, "simple", {
+        timeFilter: "all",
+      });
+      showNotificationSuccess("Đã xuất báo cáo PDF cho Tổng Quan Kinh Doanh");
+    } catch {
+      showNotificationError("Không thể xuất PDF. Vui lòng thử lại.");
+    }
+  };
+
+  const handleExportExcel = () => {
+    try {
+      exportDashboardToExcel(data, "simple", {
+        timeFilter: "all",
+      });
+      showNotificationSuccess("Đã xuất báo cáo Excel cho Tổng Quan Kinh Doanh");
+    } catch {
+      showNotificationError("Không thể xuất Excel. Vui lòng thử lại.");
+    }
+  };
+
   return (
     <div className="animate-fade-in flex flex-col gap-10 pb-10">
       
       {/* Overview Header */}
-      <div className="flex items-center gap-3 bg-white/50 dark:bg-slate-900/50 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 backdrop-blur-sm">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 bg-white/50 dark:bg-slate-900/50 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 backdrop-blur-sm">
         <div>
           <Title level={4} className="!mb-0 dark:text-white uppercase tracking-tighter">Tổng Quan Cửa Hàng</Title>
           <Text className="text-slate-500 text-xs font-medium">Toàn bộ dữ liệu hệ thống chuẩn hóa</Text>
         </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <SWTButton
+            size="sm"
+            icon={<FileText size={14} />}
+            onClick={handleExportPdf}
+            className="!w-auto !h-9 !px-4 !bg-rose-500/10 !text-rose-500 !border-rose-500/20 hover:!bg-rose-500/20 !font-bold"
+          >
+            Xuất PDF
+          </SWTButton>
+          <SWTButton
+            size="sm"
+            icon={<FileSpreadsheet size={14} />}
+            onClick={handleExportExcel}
+            className="!w-auto !h-9 !px-4 !bg-emerald-500/10 !text-emerald-500 !border-emerald-500/20 hover:!bg-emerald-500/20 !font-bold"
+          >
+            Xuất Excel
+          </SWTButton>
+        </div>
       </div>
       
       {/* Expanded Metrics Grid - 2 ROWS of 4 */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-6">
         <MetricCard title="Khách Hàng" value={data.metrics.totalUsers.value} icon={Users} trend={15} isUp={true} />
         <MetricCard title="Khách Mới (Tháng)" value={data.metrics.monthlyNewUsers.value} icon={UserPlus} trend={10} isUp={true} />
         <MetricCard title="Sản Phẩm" value={productVariantMetrics.totalProducts} icon={Package} trend={5} isUp={true} />
@@ -79,7 +124,13 @@ export default function SimpleDashboard() {
           trend={18} 
           isUp={true} 
         />
-        <MetricCard title="Phiếu Nhập" value={purchaseAnalytics.statusDistribution.reduce((a: any, b: any) => a + b.count, 0)} icon={Truck} trend={5} isUp={true} />
+        <MetricCard
+          title="Phiếu Nhập"
+          value={purchaseAnalytics.statusDistribution.reduce((total, item) => total + item.count, 0)}
+          icon={Truck}
+          trend={5}
+          isUp={true}
+        />
       </div>
 
       {/* SECTION 1: INVENTORY & LOGISTICS */}

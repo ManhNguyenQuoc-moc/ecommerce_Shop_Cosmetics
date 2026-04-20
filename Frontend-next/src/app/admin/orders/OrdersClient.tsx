@@ -36,8 +36,8 @@ export default function OrdersClient() {
   };
 
   return (
-    <div className="p-0 bg-bg-card backdrop-blur-md rounded-2xl shadow-sm border border-border-default dark:border-border-brand transition-colors overflow-hidden">
-      <div className="px-6 py-4 border-b border-border-default dark:border-border-brand/20">
+    <div>
+      <div>
         <SWTTabs
           activeKey={params.status || "ALL"}
           onChange={(key) => handleParamChange({ status: key === "ALL" ? undefined : key as any })}
@@ -53,7 +53,7 @@ export default function OrdersClient() {
         />
       </div>
 
-      <div className="p-6">
+      <div className=" admin-card p-6">
         <OrderFilters
           params={params}
           onParamChange={handleParamChange}

@@ -17,7 +17,9 @@ import {
   Truck,
   AlertTriangle,
   History,
-  Coins
+  Coins,
+  FileText,
+  FileSpreadsheet
 } from "lucide-react";
 import MetricCard from "../MetricCard";
 import RechartsPieChart from "../charts/RechartsPieChart";
@@ -34,6 +36,9 @@ import dayjs, { Dayjs } from "dayjs";
 import RechartsFunnelChart from "../charts/RechartsFunnelChart";
 import RechartsHeatmap from "../charts/RechartsHeatmap";
 import RechartsAreaChart from "../charts/RechartsAreaChart";
+import SWTButton from "@/src/@core/component/AntD/SWTButton";
+import { showNotificationError, showNotificationSuccess } from "@/src/@core/utils/message";
+import { exportDashboardToExcel, exportDashboardToPdf } from "@/src/@core/utils/exportDashboard";
 
 const { Title, Text } = Typography;
 
@@ -68,14 +73,40 @@ export default function AdvancedDashboard() {
     return <AdminDashboardLoading />;
   }
 
+  const handleExportPdf = () => {
+    try {
+      exportDashboardToPdf(data, "advanced", {
+        timeFilter,
+        startDate: dateRange?.[0]?.format("YYYY-MM-DD"),
+        endDate: dateRange?.[1]?.format("YYYY-MM-DD"),
+      });
+      showNotificationSuccess("Đã xuất báo cáo PDF cho Phân Tích Chi Tiết");
+    } catch {
+      showNotificationError("Không thể xuất PDF. Vui lòng thử lại.");
+    }
+  };
+
+  const handleExportExcel = () => {
+    try {
+      exportDashboardToExcel(data, "advanced", {
+        timeFilter,
+        startDate: dateRange?.[0]?.format("YYYY-MM-DD"),
+        endDate: dateRange?.[1]?.format("YYYY-MM-DD"),
+      });
+      showNotificationSuccess("Đã xuất báo cáo Excel cho Phân Tích Chi Tiết");
+    } catch {
+      showNotificationError("Không thể xuất Excel. Vui lòng thử lại.");
+    }
+  };
+
   const { userAnalytics, brandAnalytics, orderManagement, inventoryAnalytics, purchaseAnalytics } = data;
 
   return (
     <div className="flex flex-col gap-10 animate-fade-in pb-10">
       
       {/* Filters Header - REFINED */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 bg-white/60 dark:bg-slate-900/60 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 backdrop-blur-md sticky top-24 z-30 shadow-sm">
-        <div className="flex items-center gap-4">
+      <div className="flex flex-col xl:flex-row xl:flex-wrap justify-between items-start xl:items-center gap-6 bg-white/60 dark:bg-slate-900/60 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 backdrop-blur-md sticky top-24 z-30 shadow-sm">
+        <div className="flex items-center gap-4 min-w-0">
           <div className="p-3 bg-brand-500/10 rounded-2xl text-brand-600 dark:text-cyan-400">
             <Filter size={24} />
           </div>
@@ -85,7 +116,7 @@ export default function AdvancedDashboard() {
           </div>
         </div>
         
-        <div className="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto">
+        <div className="flex flex-col sm:flex-row items-center gap-4 w-full xl:w-auto">
           <div className="flex items-center gap-2 w-full sm:w-auto">
             <CalendarDays size={18} className="text-slate-400 shrink-0" />
             <SWTSelect 
@@ -109,6 +140,25 @@ export default function AdvancedDashboard() {
             onChange={handleRangeChange}
             className="w-full sm:w-72"
           />
+        </div>
+
+        <div className="flex items-center gap-2 w-full xl:w-auto">
+          <SWTButton
+            size="sm"
+            icon={<FileText size={14} />}
+            onClick={handleExportPdf}
+            className="!w-auto !h-9 !px-4 !bg-rose-500/10 !text-rose-500 !border-rose-500/20 hover:!bg-rose-500/20 !font-bold"
+          >
+            Xuất PDF
+          </SWTButton>
+          <SWTButton
+            size="sm"
+            icon={<FileSpreadsheet size={14} />}
+            onClick={handleExportExcel}
+            className="!w-auto !h-9 !px-4 !bg-emerald-500/10 !text-emerald-500 !border-emerald-500/20 hover:!bg-emerald-500/20 !font-bold"
+          >
+            Xuất Excel
+          </SWTButton>
         </div>
       </div>
 

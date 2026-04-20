@@ -34,12 +34,8 @@ export default function BrandCard({
           {brandName}
         </h3>
         <p className="text-xs text-gray-500">
-          {followers.toLocaleString()} người theo dõi
+          {followers.toLocaleString()} lượt mua hàng
         </p>
-        <SWTButton className="w-full !bg-brand-600 !text-white py-2 rounded-lg text-sm font-medium hover:!bg-brand-500 transition">
-          Theo dõi
-        </SWTButton>
-
       </div>
 
     </SWTCard>

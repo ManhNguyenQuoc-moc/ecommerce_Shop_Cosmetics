@@ -9,9 +9,9 @@ export default function PurchasesClient() {
   const [isPending, startTransition] = useTransition();
 
   return (
-    <>
+    <div className="admin-card p-6">
       <POFilters startTransition={startTransition} />
       <POTable isPending={isPending} />
-    </>
+    </div>
   );
 }

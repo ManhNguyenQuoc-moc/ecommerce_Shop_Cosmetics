@@ -27,7 +27,6 @@ export default function DiscountsClient() {
     <div className="admin-card p-6">
       <VoucherFilters onAdd={handleOpenAdd} startTransition={startTransition} />
       <VoucherTable onEdit={handleOpenEdit} />
-
       <AddVoucherModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
