@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { CartItem } from "@/src/stores/useCartStore";
-import { Heart, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 
 type Props = {
   item: CartItem;
@@ -10,7 +10,7 @@ type Props = {
   outOfStock?: boolean;
 };
 
-export default function CartItemProduct({ item, onRemove, onWishlist, outOfStock = false }: Props) {
+export default function CartItemProduct({ item, onRemove, outOfStock = false }: Props) {
   return (
     <div className={`flex gap-4 items-start py-2 relative ${outOfStock ? "opacity-50" : ""}`}>
       {outOfStock && (
