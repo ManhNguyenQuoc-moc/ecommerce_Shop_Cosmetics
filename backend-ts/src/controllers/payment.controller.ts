@@ -12,6 +12,24 @@ const asNumber = (value: unknown): number => {
   return Number.isFinite(n) ? n : 0;
 };
 
+const getObject = (value: unknown): Record<string, any> => {
+  return value && typeof value === "object" ? (value as Record<string, any>) : {};
+};
+
+type SePayNormalizedPayload = {
+  nestedOrder: Record<string, any>;
+  nestedTransaction: Record<string, any>;
+  orderCandidates: string[];
+  transferAmount: number;
+  transferType: string;
+  statusRaw: string;
+  isSuccess: boolean;
+};
+
+const isOfficialSepayIPN = (payload: Record<string, any>): boolean => {
+  return Boolean(payload.notification_type && payload.order && payload.transaction);
+};
+
 const extractUuidFromText = (value: unknown): string | null => {
   const text = String(value || "");
   const match = text.match(/[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/i);
@@ -19,6 +37,11 @@ const extractUuidFromText = (value: unknown): string | null => {
 };
 
 const extractSepayOrderCandidates = (payload: Record<string, any>): string[] => {
+  const nestedOrder = getObject(payload.order);
+  const nestedTransaction = getObject(payload.transaction);
+  const nestedCustomData = getObject(payload.custom_data);
+  const nestedOrderCustomData = getObject(nestedOrder.custom_data);
+
   const direct = [
     payload.orderId,
     payload.order_id,
@@ -27,27 +50,86 @@ const extractSepayOrderCandidates = (payload: Record<string, any>): string[] => 
     payload.ref,
     payload.code,
     payload.content,
+    nestedOrder.id,
+    nestedOrder.order_id,
+    nestedOrder.order_invoice_number,
+    nestedOrder.custom_data?.orderId,
+    nestedOrder.custom_data?.order_id,
+    nestedOrderCustomData.orderId,
+    nestedOrderCustomData.order_id,
+    nestedCustomData.orderId,
+    nestedCustomData.order_id,
   ]
     .map((v) => String(v || "").trim())
     .filter(Boolean);
 
-  const textSources = [payload.description, payload.content, payload.code, payload.reference, payload.ref];
+  const textSources = [
+    payload.description,
+    payload.content,
+    payload.code,
+    payload.reference,
+    payload.ref,
+    nestedOrder.order_description,
+    nestedOrder.order_invoice_number,
+    nestedOrder.order_id,
+    nestedTransaction.transaction_id,
+  ];
   const uuidInText = textSources.map(extractUuidFromText).filter((v): v is string => Boolean(v));
 
   return Array.from(new Set([...direct, ...uuidInText]));
 };
 
-const resolveSepayOrderId = async (payload: Record<string, any>): Promise<string> => {
-  const candidates = extractSepayOrderCandidates(payload);
+const normalizeSepayPayload = (payload: Record<string, any>): SePayNormalizedPayload => {
+  const nestedOrder = getObject(payload.order);
+  const nestedTransaction = getObject(payload.transaction);
+  const orderCandidates = extractSepayOrderCandidates(payload);
+  const transferAmount = asNumber(
+    payload.transferAmount ||
+      payload.transfer_amount ||
+      payload.amount ||
+      nestedTransaction.transaction_amount ||
+      nestedOrder.order_amount
+  );
+  const statusRaw = String(
+    payload.status ||
+      payload.payment_status ||
+      payload.order_status ||
+      payload.result ||
+      payload.code ||
+      nestedOrder.order_status ||
+      nestedTransaction.transaction_status ||
+      nestedTransaction.authentication_status ||
+      ""
+  ).toUpperCase();
+  const transferType = String(payload.transferType || payload.transfer_type || nestedTransaction.transaction_type || "").toLowerCase();
+  const successStatuses = new Set(["SUCCESS", "PAID", "COMPLETED", "CAPTURED", "APPROVED", "ORDER_PAID", "0", "00", "TRUE", "1"]);
+  const isSuccess =
+    successStatuses.has(statusRaw) ||
+    (transferType === "in" && transferAmount > 0) ||
+    String(nestedOrder.order_status || "").toUpperCase() === "CAPTURED" ||
+    String(nestedTransaction.transaction_status || "").toUpperCase() === "APPROVED";
 
-  for (const candidate of candidates) {
+  return {
+    nestedOrder,
+    nestedTransaction,
+    orderCandidates,
+    transferAmount,
+    transferType,
+    statusRaw,
+    isSuccess,
+  };
+};
+
+const resolveSepayOrderId = async (payload: Record<string, any>, normalized: SePayNormalizedPayload): Promise<string> => {
+  const { nestedOrder, nestedTransaction, orderCandidates, transferAmount } = normalized;
+
+  for (const candidate of orderCandidates) {
     const found = await prisma.order.findUnique({ where: { id: candidate }, select: { id: true } });
     if (found?.id) {
       return found.id;
     }
   }
 
-  const transferAmount = asNumber(payload.transferAmount || payload.transfer_amount || payload.amount);
   if (transferAmount <= 0) {
     return "";
   }
@@ -76,6 +158,9 @@ const resolveSepayOrderId = async (payload: Record<string, any>): Promise<string
     webhookCode: payload.code,
     webhookReferenceCode: payload.referenceCode,
     webhookContent: payload.content,
+    webhookOrderId: nestedOrder.order_id,
+    webhookOrderInvoiceNumber: nestedOrder.order_invoice_number,
+    webhookCustomOrderId: nestedOrder.custom_data?.orderId,
   });
 
   if (matched.length === 1) {
@@ -133,6 +218,24 @@ export const handleSepayIPN = async (req: Request, res: Response) => {
     const payload = { ...(req.method === "GET" ? req.query : req.body) } as Record<string, any>;
     console.log("SEPay IPN Received:", payload);
 
+    if (!isOfficialSepayIPN(payload)) {
+      console.info("SEPay webhook ignored (non-official IPN payload)", {
+        hasNotificationType: Boolean(payload.notification_type),
+        hasOrder: Boolean(payload.order),
+        hasTransaction: Boolean(payload.transaction),
+      });
+      res.status(200).json({ success: true, message: "Ignored non-official webhook" });
+      return;
+    }
+
+    if (String(payload.notification_type || "").toUpperCase() !== "ORDER_PAID") {
+      console.info("SEPay IPN ignored (unsupported notification type)", {
+        notificationType: payload.notification_type,
+      });
+      res.status(200).json({ success: true, message: "Ignored notification type" });
+      return;
+    }
+
     const isValid = verifySepaySignature(payload, req.headers as Record<string, any>);
     if (!isValid) {
       console.error("SEPay IPN Signature Mismatch!");
@@ -140,35 +243,30 @@ export const handleSepayIPN = async (req: Request, res: Response) => {
       return;
     }
 
-    const orderId = await resolveSepayOrderId(payload);
-
-    const statusRaw = String(
-      payload.status || payload.payment_status || payload.order_status || payload.result || payload.code || ""
-    ).toUpperCase();
-
-    const successStatuses = new Set(["SUCCESS", "PAID", "COMPLETED", "0", "00", "TRUE", "1"]);
-    const transferType = String(payload.transferType || payload.transfer_type || "").toLowerCase();
-    const transferAmount = asNumber(payload.transferAmount || payload.transfer_amount || payload.amount);
-    const isInboundTransferSuccess = transferType === "in" && transferAmount > 0;
-    const isSuccess = successStatuses.has(statusRaw) || isInboundTransferSuccess;
+    const normalized = normalizeSepayPayload(payload);
+    const orderId = await resolveSepayOrderId(payload, normalized);
 
     if (!orderId) {
+      const { nestedOrder, nestedTransaction, transferAmount } = normalized;
       console.warn("SEPay IPN cannot resolve order id", {
         code: payload.code,
         content: payload.content,
         referenceCode: payload.referenceCode,
         transferAmount,
+        nestedOrderInvoiceNumber: nestedOrder.order_invoice_number,
+        nestedOrderId: nestedOrder.order_id,
+        nestedCustomOrderId: nestedOrder.custom_data?.orderId,
       });
       res.status(200).json({ success: false, message: "Missing order id" });
       return;
     }
 
-    if (isSuccess) {
+    if (normalized.isSuccess) {
       await markOrderPaidAndDeductStock(orderId);
       console.log(`Order ${orderId} marked as PAID via SEPay IPN`);
       res.status(200).json({ success: true, message: "Success" });
     } else {
-      console.warn(`Order ${orderId} payment failed with status ${statusRaw}`);
+      console.warn(`Order ${orderId} payment failed with status ${normalized.statusRaw}`);
       res.status(200).json({ success: true, message: "Payment failed recorded" });
     }
   } catch (error) {

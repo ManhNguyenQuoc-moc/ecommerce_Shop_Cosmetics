@@ -70,6 +70,7 @@ export const PAYMENT_STATUS_CONFIG: Record<
 > = {
   [PaymentStatus.PAID]: { label: "Đã thanh toán", variant: "PAID" },
   [PaymentStatus.UNPAID]: { label: "Chưa thanh toán", variant: "UNPAID" },
+  [PaymentStatus.REFUNDED]: { label: "Đã hoàn tiền", variant: "REFUNDED" },
 };
 
 export const PO_STATUS_CONFIG: Record<

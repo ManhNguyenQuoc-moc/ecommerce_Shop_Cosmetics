@@ -286,6 +286,21 @@ export class OrderController {
     }
   };
 
+  refundPaidOrder = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const id = req.params.id as string;
+      const order = await this.orderService.refundPaidOrder(id);
+
+      res.status(200).json({
+        success: true,
+        message: "Refund approved successfully",
+        data: order,
+      });
+    } catch (error: any) {
+      handleControllerError(res, error, "OrderController");
+    }
+  };
+
   deleteOrder = async (req: Request, res: Response): Promise<void> => {
     try {
       const id = req.params.id as string;

@@ -276,6 +276,35 @@ export class OrderService implements IOrderService {
     });
   }
 
+  async refundPaidOrder(id: string): Promise<Order> {
+    return await prisma.$transaction(async (tx: any) => {
+      const order = await this.orderRepository.findWithItems(id, tx);
+      if (!order) throw new Error("Order not found");
+
+      if (order.payment_status === "REFUNDED") {
+        return order;
+      }
+
+      if (order.payment_status !== "PAID") {
+        throw new Error("Chỉ có thể hoàn tiền cho đơn đã thanh toán.");
+      }
+
+      if (!["CANCELLED", "RETURNED"].includes(order.current_status)) {
+        throw new Error("Chỉ có thể hoàn tiền cho đơn CANCELLED hoặc RETURNED.");
+      }
+
+      console.info("[MANUAL_REFUND_APPROVED]", {
+        orderId: order.id,
+        currentStatus: order.current_status,
+        paymentMethod: order.payment_method,
+        finalAmount: order.final_amount,
+        reason: "Manual refund approved in admin",
+      });
+
+      return await this.orderRepository.update(id, { payment_status: "REFUNDED" }, tx);
+    });
+  }
+
   private async syncSoldCounts(orderId: string, oldStatus: OrderStatus, newStatus: OrderStatus, tx: any) {
     const isNowSold = ["CONFIRMED", "SHIPPING", "DELIVERED"].includes(newStatus);
     const wasSold = ["CONFIRMED", "SHIPPING", "DELIVERED"].includes(oldStatus);

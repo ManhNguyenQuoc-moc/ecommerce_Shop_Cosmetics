@@ -53,6 +53,7 @@ export const createSepayCheckoutPayload = ({
   const checkoutReturnUrl = SEPAY_CHECKOUT_RETURN_URL || fallbackCheckoutReturnUrl;
 
   const checkoutUrl = client.checkout.initCheckoutUrl();
+  
   const checkoutFields = client.checkout.initOneTimePaymentFields({
     operation: "PURCHASE",
     payment_method: SEPAY_PAYMENT_METHOD,

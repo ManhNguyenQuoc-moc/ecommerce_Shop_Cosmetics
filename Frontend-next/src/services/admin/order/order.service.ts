@@ -1,5 +1,5 @@
 // order.service.ts
-import { get, put } from "../../../@core/utils/api";
+import { get, put, post } from "../../../@core/utils/api";
 import { OrderDto, OrderListResponseDto } from "../../models/order/output.dto";
 import { buildQueryString } from "../../../@core/utils/query.util";
 
@@ -30,4 +30,8 @@ export const updateOrderStatus = (id: string, status: string, note?: string) => 
 
 export const updateOrderPaymentStatus = (id: string, paymentStatus: 'PAID' | 'UNPAID') => {
   return put(`${ORDER_API_ENDPOINT}/${id}`, { payment_status: paymentStatus });
+};
+
+export const refundPaidOrder = (id: string) => {
+  return post(`${ORDER_API_ENDPOINT}/${id}/refund`);
 };
