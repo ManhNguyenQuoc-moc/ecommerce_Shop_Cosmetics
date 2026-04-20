@@ -160,7 +160,7 @@ export class OrderService implements IOrderService {
       }).catch(console.error);
 
       // 6. Send Email (Non-blocking, after transaction)
-      // Only send immediately for COD. For MOMO/VNPAY, we wait for payment link success or actual payment.
+      // Only send immediately for COD. For online payments, we wait for payment link success or actual payment.
       if (data.paymentMethod === 'COD') {
         if (data.customer?.email) {
           this.mailService.sendOrderConfirmation(data.customer.email, order, rawPassword).catch(console.error);

@@ -1,10 +1,10 @@
 import { Request, Response } from "express";
 import { IOrderService } from "../interfaces/IOrderService";
-import { createVnpayUrl } from "../services/vnpay.service";
 import { createMomoPaymentUrl } from "../services/momo.service";
 import { createZaloPayOrder } from "../services/zalopay.service";
 import { CreateOrderSchema, OrderQueryFiltersSchema, UpdateOrderSchema } from "../DTO/order/order.dto";
 import { handleControllerError } from "../utils/errorHandler";
+import { createSepayCheckoutPayload } from "../services/sepay.service";
 
 export class OrderController {
   private readonly orderService: IOrderService;
@@ -112,6 +112,8 @@ export class OrderController {
 
   createOrder = async (req: Request, res: Response): Promise<void> => {
     try {
+      const gatewayFromRequest = req.body?.paymentMethod === "SEPAY" ? "SEPAY" : req.body?.paymentMethod;
+
       // 1. Validate with Zod
       const validatedData = CreateOrderSchema.parse({
         ...req.body,
@@ -121,18 +123,26 @@ export class OrderController {
       // 2. Pre-validate payment URL generation BEFORE creating order
       // This prevents address duplication if payment generation fails
       let paymentUrl: string | undefined;
-      
-      if (validatedData.paymentMethod === "VNPAY" || validatedData.paymentMethod === "MOMO" || validatedData.paymentMethod === "ZALOPAY") {
+      let sepayCheckout:
+        | {
+            checkoutUrl: string;
+            checkoutFields: Record<string, string | number | undefined>;
+          }
+        | undefined;
+      const paymentGateway = gatewayFromRequest || validatedData.paymentMethod;
+
+      if (paymentGateway === "SEPAY" || validatedData.paymentMethod === "MOMO" || validatedData.paymentMethod === "ZALOPAY") {
         try {
           // Generate payment URL first to catch errors early
           const tempOrderId = `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
           const tempAmount = validatedData.total || 0;
 
-          if (validatedData.paymentMethod === "VNPAY") {
-            paymentUrl = createVnpayUrl({
+          if (paymentGateway === "SEPAY") {
+            sepayCheckout = createSepayCheckoutPayload({
               amount: tempAmount,
               orderId: tempOrderId,
             });
+            paymentUrl = sepayCheckout.checkoutUrl;
           } else if (validatedData.paymentMethod === "MOMO") {
             const momoData = await createMomoPaymentUrl({
               amount: tempAmount,
@@ -153,7 +163,7 @@ export class OrderController {
           }
         } catch (paymentError: any) {
           // Payment generation failed - DON'T create order, just return error
-          console.error(`${validatedData.paymentMethod} payment creation error:`, paymentError);
+          console.error(`${paymentGateway} payment creation error:`, paymentError);
           res.status(400).json({
             success: false,
             message: "Không thể khởi tạo thanh toán. Vui lòng kiểm tra lại thông tin hoặc thử lại sau."
@@ -169,12 +179,19 @@ export class OrderController {
       if (paymentUrl) {
         // Re-generate with real order ID
         let finalPaymentUrl: string | undefined;
+        let finalSepayCheckout:
+          | {
+              checkoutUrl: string;
+              checkoutFields: Record<string, string | number | undefined>;
+            }
+          | undefined;
 
-        if (validatedData.paymentMethod === "VNPAY") {
-          finalPaymentUrl = createVnpayUrl({
+        if (paymentGateway === "SEPAY") {
+          finalSepayCheckout = createSepayCheckoutPayload({
             amount: validatedData.total || (order as any).total_amount,
             orderId: order.id,
           });
+          finalPaymentUrl = finalSepayCheckout.checkoutUrl;
         } else if (validatedData.paymentMethod === "MOMO") {
           const momoData = await createMomoPaymentUrl({
             amount: validatedData.total || (order as any).total_amount,
@@ -191,13 +208,11 @@ export class OrderController {
         }
 
         if (finalPaymentUrl) {
-          // Trigger the confirmation email now that the order is created
-          this.orderService.sendOrderConfirmationEmail(order.id).catch(console.error);
-
           res.status(200).json({
             success: true,
-            message: `Redirect to ${validatedData.paymentMethod}`,
+            message: `Redirect to ${paymentGateway}`,
             paymentUrl: finalPaymentUrl,
+            sepayCheckout: finalSepayCheckout,
           });
           return;
         }

@@ -135,7 +135,7 @@ export default function CheckoutSummary() {
           className="w-full"
           options={[
             { value: "COD", label: "Thanh toán khi nhận hàng (COD)" },
-            { value: "VNPAY", label: "VNPay (Thẻ ATM / QR)" },
+            { value: "SEPAY", label: "SEPay (Chuyển khoản / QR)" },
             { value: "MOMO", label: "Thanh toán qua Ví MoMo" },
             { value: "ZALOPAY", label: "Thanh toán qua Ví ZaloPay" },
           ]}

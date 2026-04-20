@@ -65,33 +65,32 @@ export default function OrdersClient({ initialData, initialTab, initialPage }: O
   useEffect(() => {
     if (paymentHandledRef.current) return;
 
-    const vnpTxnRef = searchParams.get("vnp_TxnRef");
-    const vnpCode = searchParams.get("vnp_ResponseCode");
-    if (!vnpTxnRef && !vnpCode) return;
+    const sepayOrderId = searchParams.get("orderId") || searchParams.get("order_id");
+    const sepayStatus = searchParams.get("status") || searchParams.get("payment_status") || searchParams.get("result");
+    if (!sepayOrderId && !sepayStatus) return;
 
     paymentHandledRef.current = true;
 
-    if (vnpCode === "00") {
-      showNotificationSuccess("Thanh toán VNPay thành công.");
+    const normalizedStatus = String(sepayStatus || "").toUpperCase();
+    const successStatuses = new Set(["SUCCESS", "PAID", "COMPLETED", "00", "0", "TRUE", "1"]);
+
+    if (successStatuses.has(normalizedStatus)) {
+      showNotificationSuccess("Thanh toán SEPay thành công.");
     } else {
-      showNotificationError("Thanh toán VNPay thất bại. Đơn hàng của bạn chưa được thanh toán.");
+      showNotificationError("Thanh toán SEPay thất bại. Đơn hàng của bạn chưa được thanh toán.");
     }
 
     const params = new URLSearchParams(searchParams.toString());
     [
-      "vnp_Amount",
-      "vnp_BankCode",
-      "vnp_BankTranNo",
-      "vnp_CardType",
-      "vnp_OrderInfo",
-      "vnp_PayDate",
-      "vnp_ResponseCode",
-      "vnp_SecureHash",
-      "vnp_SecureHashType",
-      "vnp_TmnCode",
-      "vnp_TransactionNo",
-      "vnp_TransactionStatus",
-      "vnp_TxnRef",
+      "orderId",
+      "order_id",
+      "status",
+      "payment_status",
+      "result",
+      "amount",
+      "signature",
+      "sign",
+      "mac",
     ].forEach((key) => params.delete(key));
 
     const query = params.toString();

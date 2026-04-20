@@ -1,41 +1,54 @@
 -- CreateEnum
-CREATE TYPE "Gender" AS ENUM ('MALE', 'FEMALE', 'OTHER');
+CREATE TYPE "Gender" AS ENUM
+('MALE', 'FEMALE', 'OTHER');
 
 -- CreateEnum
-CREATE TYPE "Role" AS ENUM ('CUSTOMER', 'ADMIN');
+CREATE TYPE "Role" AS ENUM
+('CUSTOMER', 'ADMIN');
 
 -- CreateEnum
-CREATE TYPE "Provider" AS ENUM ('LOCAL', 'GOOGLE', 'FACEBOOK');
+CREATE TYPE "Provider" AS ENUM
+('LOCAL', 'GOOGLE', 'FACEBOOK');
 
 -- CreateEnum
-CREATE TYPE "ProductStatus" AS ENUM ('BEST_SELLING', 'TRENDING', 'NEW');
+CREATE TYPE "ProductStatus" AS ENUM
+('BEST_SELLING', 'TRENDING', 'NEW');
 
 -- CreateEnum
-CREATE TYPE "ItemStatus" AS ENUM ('ACTIVE', 'HIDDEN', 'STOPPED');
+CREATE TYPE "ItemStatus" AS ENUM
+('ACTIVE', 'HIDDEN', 'STOPPED');
 
 -- CreateEnum
-CREATE TYPE "OrderStatus" AS ENUM ('PENDING', 'CONFIRMED', 'SHIPPING', 'DELIVERED', 'CANCELLED');
+CREATE TYPE "OrderStatus" AS ENUM
+('PENDING', 'CONFIRMED', 'SHIPPING', 'DELIVERED', 'CANCELLED');
 
 -- CreateEnum
-CREATE TYPE "PaymentMethod" AS ENUM ('COD', 'VNPAY');
+CREATE TYPE "PaymentMethod" AS ENUM
+('COD', 'MOMO', 'ZALOPAY');
 
 -- CreateEnum
-CREATE TYPE "PaymentStatus" AS ENUM ('UNPAID', 'PAID', 'REFUNDED');
+CREATE TYPE "PaymentStatus" AS ENUM
+('UNPAID', 'PAID', 'REFUNDED');
 
 -- CreateEnum
-CREATE TYPE "DiscountType" AS ENUM ('PERCENTAGE', 'FLAT_AMOUNT');
+CREATE TYPE "DiscountType" AS ENUM
+('PERCENTAGE', 'FLAT_AMOUNT');
 
 -- CreateEnum
-CREATE TYPE "POStatus" AS ENUM ('DRAFT', 'CONFIRMED', 'PARTIALLY_RECEIVED', 'COMPLETED', 'CANCELLED');
+CREATE TYPE "POStatus" AS ENUM
+('DRAFT', 'CONFIRMED', 'PARTIALLY_RECEIVED', 'COMPLETED', 'CANCELLED');
 
 -- CreateEnum
-CREATE TYPE "TransactionType" AS ENUM ('IN', 'OUT', 'ADJUSTMENT');
+CREATE TYPE "TransactionType" AS ENUM
+('IN', 'OUT', 'ADJUSTMENT');
 
 -- CreateEnum
-CREATE TYPE "POPriority" AS ENUM ('LOW', 'NORMAL', 'HIGH');
+CREATE TYPE "POPriority" AS ENUM
+('LOW', 'NORMAL', 'HIGH');
 
 -- CreateTable
-CREATE TABLE "User" (
+CREATE TABLE "User"
+(
     "id" TEXT NOT NULL,
     "email" TEXT,
     "password_hash" TEXT,
@@ -60,7 +73,8 @@ CREATE TABLE "User" (
 );
 
 -- CreateTable
-CREATE TABLE "Address" (
+CREATE TABLE "Address"
+(
     "id" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
     "address" TEXT NOT NULL,
@@ -74,7 +88,8 @@ CREATE TABLE "Address" (
 );
 
 -- CreateTable
-CREATE TABLE "Image" (
+CREATE TABLE "Image"
+(
     "id" TEXT NOT NULL,
     "url" TEXT NOT NULL,
     "altText" TEXT,
@@ -84,7 +99,8 @@ CREATE TABLE "Image" (
 );
 
 -- CreateTable
-CREATE TABLE "Brand" (
+CREATE TABLE "Brand"
+(
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "slug" TEXT NOT NULL,
@@ -101,7 +117,8 @@ CREATE TABLE "Brand" (
 );
 
 -- CreateTable
-CREATE TABLE "Category" (
+CREATE TABLE "Category"
+(
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "slug" TEXT NOT NULL,
@@ -114,7 +131,8 @@ CREATE TABLE "Category" (
 );
 
 -- CreateTable
-CREATE TABLE "Product" (
+CREATE TABLE "Product"
+(
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "slug" TEXT NOT NULL,
@@ -135,7 +153,8 @@ CREATE TABLE "Product" (
 );
 
 -- CreateTable
-CREATE TABLE "ProductImage" (
+CREATE TABLE "ProductImage"
+(
     "id" TEXT NOT NULL,
     "productId" TEXT NOT NULL,
     "imageId" TEXT NOT NULL,
@@ -145,7 +164,8 @@ CREATE TABLE "ProductImage" (
 );
 
 -- CreateTable
-CREATE TABLE "ProductVariant" (
+CREATE TABLE "ProductVariant"
+(
     "id" TEXT NOT NULL,
     "productId" TEXT NOT NULL,
     "color" TEXT,
@@ -164,7 +184,8 @@ CREATE TABLE "ProductVariant" (
 );
 
 -- CreateTable
-CREATE TABLE "Review" (
+CREATE TABLE "Review"
+(
     "id" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
     "productId" TEXT NOT NULL,
@@ -177,7 +198,8 @@ CREATE TABLE "Review" (
 );
 
 -- CreateTable
-CREATE TABLE "Order" (
+CREATE TABLE "Order"
+(
     "id" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
     "addressId" TEXT,
@@ -194,7 +216,8 @@ CREATE TABLE "Order" (
 );
 
 -- CreateTable
-CREATE TABLE "OrderItem" (
+CREATE TABLE "OrderItem"
+(
     "id" TEXT NOT NULL,
     "orderId" TEXT NOT NULL,
     "variantId" TEXT,
@@ -205,7 +228,8 @@ CREATE TABLE "OrderItem" (
 );
 
 -- CreateTable
-CREATE TABLE "OrderStatusHistory" (
+CREATE TABLE "OrderStatusHistory"
+(
     "id" TEXT NOT NULL,
     "orderId" TEXT NOT NULL,
     "status" "OrderStatus" NOT NULL,
@@ -215,7 +239,8 @@ CREATE TABLE "OrderStatusHistory" (
 );
 
 -- CreateTable
-CREATE TABLE "DiscountCode" (
+CREATE TABLE "DiscountCode"
+(
     "id" TEXT NOT NULL,
     "code" TEXT NOT NULL,
     "discount" DOUBLE PRECISION NOT NULL,
@@ -230,7 +255,8 @@ CREATE TABLE "DiscountCode" (
 );
 
 -- CreateTable
-CREATE TABLE "Cart" (
+CREATE TABLE "Cart"
+(
     "id" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -240,7 +266,8 @@ CREATE TABLE "Cart" (
 );
 
 -- CreateTable
-CREATE TABLE "CartItem" (
+CREATE TABLE "CartItem"
+(
     "id" TEXT NOT NULL,
     "cartId" TEXT NOT NULL,
     "variantId" TEXT NOT NULL,
@@ -250,7 +277,8 @@ CREATE TABLE "CartItem" (
 );
 
 -- CreateTable
-CREATE TABLE "PurchaseOrder" (
+CREATE TABLE "PurchaseOrder"
+(
     "id" TEXT NOT NULL,
     "code" TEXT NOT NULL,
     "brandId" TEXT NOT NULL,
@@ -265,7 +293,8 @@ CREATE TABLE "PurchaseOrder" (
 );
 
 -- CreateTable
-CREATE TABLE "PurchaseOrderItem" (
+CREATE TABLE "PurchaseOrderItem"
+(
     "id" TEXT NOT NULL,
     "purchaseOrderId" TEXT NOT NULL,
     "variantId" TEXT NOT NULL,
@@ -279,7 +308,8 @@ CREATE TABLE "PurchaseOrderItem" (
 );
 
 -- CreateTable
-CREATE TABLE "Batch" (
+CREATE TABLE "Batch"
+(
     "id" TEXT NOT NULL,
     "variantId" TEXT NOT NULL,
     "batchNumber" TEXT NOT NULL,
@@ -295,7 +325,8 @@ CREATE TABLE "Batch" (
 );
 
 -- CreateTable
-CREATE TABLE "StockTransaction" (
+CREATE TABLE "StockTransaction"
+(
     "id" TEXT NOT NULL,
     "variantId" TEXT NOT NULL,
     "batchId" TEXT NOT NULL,
@@ -384,13 +415,17 @@ ALTER TABLE "ProductVariant" ADD CONSTRAINT "ProductVariant_productId_fkey" FORE
 ALTER TABLE "ProductVariant" ADD CONSTRAINT "ProductVariant_imageId_fkey" FOREIGN KEY ("imageId") REFERENCES "Image"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Review" ADD CONSTRAINT "Review_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Review" ADD CONSTRAINT "Review_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id")
+ON DELETE RESTRICT ON
+UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Review" ADD CONSTRAINT "Review_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Order" ADD CONSTRAINT "Order_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Order" ADD CONSTRAINT "Order_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id")
+ON DELETE RESTRICT ON
+UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Order" ADD CONSTRAINT "Order_discountCodeId_fkey" FOREIGN KEY ("discountCodeId") REFERENCES "DiscountCode"("id") ON DELETE SET NULL ON UPDATE CASCADE;
@@ -414,13 +449,17 @@ ALTER TABLE "CartItem" ADD CONSTRAINT "CartItem_cartId_fkey" FOREIGN KEY ("cartI
 ALTER TABLE "CartItem" ADD CONSTRAINT "CartItem_variantId_fkey" FOREIGN KEY ("variantId") REFERENCES "ProductVariant"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "PurchaseOrder" ADD CONSTRAINT "PurchaseOrder_brandId_fkey" FOREIGN KEY ("brandId") REFERENCES "Brand"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "PurchaseOrder" ADD CONSTRAINT "PurchaseOrder_brandId_fkey" FOREIGN KEY ("brandId") REFERENCES "Brand"("id")
+ON DELETE RESTRICT ON
+UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "PurchaseOrderItem" ADD CONSTRAINT "PurchaseOrderItem_purchaseOrderId_fkey" FOREIGN KEY ("purchaseOrderId") REFERENCES "PurchaseOrder"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "PurchaseOrderItem" ADD CONSTRAINT "PurchaseOrderItem_variantId_fkey" FOREIGN KEY ("variantId") REFERENCES "ProductVariant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "PurchaseOrderItem" ADD CONSTRAINT "PurchaseOrderItem_variantId_fkey" FOREIGN KEY ("variantId") REFERENCES "ProductVariant"("id")
+ON DELETE RESTRICT ON
+UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Batch" ADD CONSTRAINT "Batch_variantId_fkey" FOREIGN KEY ("variantId") REFERENCES "ProductVariant"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -429,4 +468,6 @@ ALTER TABLE "Batch" ADD CONSTRAINT "Batch_variantId_fkey" FOREIGN KEY ("variantI
 ALTER TABLE "Batch" ADD CONSTRAINT "Batch_purchaseOrderId_fkey" FOREIGN KEY ("purchaseOrderId") REFERENCES "PurchaseOrder"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "StockTransaction" ADD CONSTRAINT "StockTransaction_batchId_fkey" FOREIGN KEY ("batchId") REFERENCES "Batch"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "StockTransaction" ADD CONSTRAINT "StockTransaction_batchId_fkey" FOREIGN KEY ("batchId") REFERENCES "Batch"("id")
+ON DELETE RESTRICT ON
+UPDATE CASCADE;

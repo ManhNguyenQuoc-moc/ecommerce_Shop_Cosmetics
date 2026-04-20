@@ -182,13 +182,32 @@ export const useCheckout = () => {
         ));
       }
       
+      if (res?.sepayCheckout?.checkoutUrl && res?.sepayCheckout?.checkoutFields) {
+        const form = document.createElement("form");
+        form.method = "POST";
+        form.action = res.sepayCheckout.checkoutUrl;
+
+        Object.entries(res.sepayCheckout.checkoutFields).forEach(([key, value]) => {
+          if (value === undefined || value === null) return;
+          const input = document.createElement("input");
+          input.type = "hidden";
+          input.name = key;
+          input.value = String(value);
+          form.appendChild(input);
+        });
+
+        document.body.appendChild(form);
+        form.submit();
+        return;
+      }
+
       if (res?.paymentUrl) {
         window.location.href = res.paymentUrl;
         return;
       }
 
-      if (paymentMethod === "VNPAY") {
-        showNotificationError("Không thể chuyển tới cổng VNPay. Vui lòng thử lại.");
+      if (paymentMethod === "SEPAY") {
+        showNotificationError("Không thể chuyển tới cổng SEPay. Vui lòng thử lại.");
         return;
       }
 

@@ -4,7 +4,7 @@ import { CheckoutResponseDTO } from "@/src/services/models/checkout/output.dto";
 
 export const mapCheckoutModelToDTO = (
   model: CheckoutModel,
-  paymentMethod: "COD" | "VNPAY"
+  paymentMethod: "COD" | "SEPAY" | "MOMO" | "ZALOPAY"
 ): CheckoutRequestDTO => {
   return {
     items: model.items.map((item) => ({
