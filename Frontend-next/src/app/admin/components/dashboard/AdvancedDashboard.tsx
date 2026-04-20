@@ -30,7 +30,7 @@ import RechartsRadarChart from "../charts/RechartsRadarChart";
 import RechartsScatterChart from "../charts/RechartsScatterChart";
 import SWTSelect from "@/src/@core/component/AntD/SWTSelect";
 import SWTDatePickerRange from "@/src/@core/component/AntD/SWTDatePickerRange";
-import moment from "moment";
+import dayjs, { Dayjs } from "dayjs";
 import RechartsFunnelChart from "../charts/RechartsFunnelChart";
 import RechartsHeatmap from "../charts/RechartsHeatmap";
 import RechartsAreaChart from "../charts/RechartsAreaChart";
@@ -39,7 +39,10 @@ const { Title, Text } = Typography;
 
 export default function AdvancedDashboard() {
   const [timeFilter, setTimeFilter] = useState<string>('daily');
-  const [dateRange, setDateRange] = useState<any>([moment().subtract(9, 'days'), moment()]);
+  const [dateRange, setDateRange] = useState<[Dayjs | null, Dayjs | null] | null>([
+    dayjs().subtract(9, 'day'),
+    dayjs()
+  ]);
 
   const { data, isLoading } = useFetchSWR(
     [DASHBOARD_API_ENDPOINT, timeFilter, dateRange],
@@ -54,7 +57,7 @@ export default function AdvancedDashboard() {
     setTimeFilter(value);
   };
 
-  const handleRangeChange = (dates: any) => {
+  const handleRangeChange = (dates: [Dayjs | null, Dayjs | null] | null) => {
     setDateRange(dates);
     if (dates) {
       // Keep current timeFilter (daily/monthly etc) when changing range
