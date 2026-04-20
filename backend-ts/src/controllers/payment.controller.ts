@@ -4,8 +4,10 @@ import { verifyZaloPayCallback } from "../services/zalopay.service";
 import { verifySepaySignature } from "../services/sepay.service";
 import { prisma } from "../config/prisma";
 import { InventoryRepository } from "../repositories/inventory.repository";
+import { MailService } from "../services/mail.service";
 
 const inventoryRepository = new InventoryRepository();
+const mailService = new MailService();
 
 const asNumber = (value: unknown): number => {
   const n = Number(value);
@@ -181,8 +183,8 @@ const resolveSepayOrderId = async (payload: Record<string, any>, normalized: SeP
   return "";
 };
 
-const markOrderPaidAndDeductStock = async (orderId: string) => {
-  await prisma.$transaction(async (tx: any) => {
+const markOrderPaidAndDeductStock = async (orderId: string): Promise<{ becamePaid: boolean }> => {
+  return prisma.$transaction(async (tx: any) => {
     const order = await tx.order.findUnique({
       where: { id: orderId },
       include: { items: true },
@@ -194,7 +196,7 @@ const markOrderPaidAndDeductStock = async (orderId: string) => {
 
     // Idempotency: callback can be retried by gateways.
     if (order.payment_status === "PAID") {
-      return;
+      return { becamePaid: false };
     }
 
     if (order.payment_method !== "COD") {
@@ -207,7 +209,26 @@ const markOrderPaidAndDeductStock = async (orderId: string) => {
       where: { id: orderId },
       data: { payment_status: "PAID" },
     });
+    return { becamePaid: true };
   });
+};
+
+const sendPaidOrderConfirmationEmail = async (orderId: string) => {
+  try {
+    const order = await prisma.order.findUnique({
+      where: { id: orderId },
+      include: { user: true },
+    });
+
+    const email = order?.user?.email;
+    if (!order || !email) {
+      return;
+    }
+
+    await mailService.sendOrderConfirmation(email, order as any);
+  } catch (error) {
+    console.error(`Failed to send paid order email for ${orderId}:`, error);
+  }
 };
 
 /**
@@ -262,7 +283,10 @@ export const handleSepayIPN = async (req: Request, res: Response) => {
     }
 
     if (normalized.isSuccess) {
-      await markOrderPaidAndDeductStock(orderId);
+      const result = await markOrderPaidAndDeductStock(orderId);
+      if (result.becamePaid) {
+        sendPaidOrderConfirmationEmail(orderId).catch(console.error);
+      }
       console.log(`Order ${orderId} marked as PAID via SEPay IPN`);
       res.status(200).json({ success: true, message: "Success" });
     } else {
@@ -294,7 +318,10 @@ export const handleMomoIPN = async (req: Request, res: Response) => {
     const resultCode = parseInt(body.resultCode);
 
     if (resultCode === 0) {
-      await markOrderPaidAndDeductStock(orderId);
+      const result = await markOrderPaidAndDeductStock(orderId);
+      if (result.becamePaid) {
+        sendPaidOrderConfirmationEmail(orderId).catch(console.error);
+      }
       console.log(`Order ${orderId} marked as PAID via MoMo IPN`);
     } else {
       console.warn(`Order ${orderId} payment failed with code ${resultCode}`);
@@ -326,7 +353,10 @@ export const handleZaloPayCallback = async (req: Request, res: Response) => {
     // Format was YYMMDD_orderId, extract orderId
     const orderId = app_trans_id.split("_")[1];
 
-    await markOrderPaidAndDeductStock(orderId);
+    const result = await markOrderPaidAndDeductStock(orderId);
+    if (result.becamePaid) {
+      sendPaidOrderConfirmationEmail(orderId).catch(console.error);
+    }
 
     console.log(`Order ${orderId} marked as PAID via ZaloPay Callback`);
     return res.status(200).json({ return_code: 1, return_message: "OK" });
