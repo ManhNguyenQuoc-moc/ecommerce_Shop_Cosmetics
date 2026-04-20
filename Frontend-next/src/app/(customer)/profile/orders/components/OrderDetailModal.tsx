@@ -123,8 +123,8 @@ export default function OrderDetailModal({ orderId, isOpen, onClose }: Props) {
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-text-muted font-medium">Trạng thái</span>
-                      <span className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase ${order.payment_status === 'PAID' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'}`}>
-                        {order.payment_status === 'PAID' ? 'Đã thanh toán' : 'Chờ thanh toán'}
+                      <span className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase ${order.payment_status === 'PAID' ? 'bg-emerald-50 text-emerald-600' : order.payment_status === 'REFUNDED' ? 'bg-slate-100 text-slate-600' : 'bg-amber-50 text-amber-600'}`}>
+                        {order.payment_status === 'PAID' ? 'Đã thanh toán' : order.payment_status === 'REFUNDED' ? 'Đã hoàn tiền' : 'Chờ thanh toán'}
                       </span>
                     </div>
                   </div>

@@ -10,6 +10,7 @@ export enum OrderStatus {
 export enum PaymentStatus {
   PAID = "PAID",
   UNPAID = "UNPAID",
+  REFUNDED = "REFUNDED",
 }
 
 export type OrderStatusType = `${OrderStatus}`;

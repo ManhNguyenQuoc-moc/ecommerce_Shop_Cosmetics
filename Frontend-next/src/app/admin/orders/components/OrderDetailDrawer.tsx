@@ -1,10 +1,10 @@
 import { OrderStatus } from "@/src/enums";
-import { getStatusLabel, getStatusVariant } from "@/src/enums/status-config";
+import { getStatusLabel } from "@/src/enums/status-config";
 import { useOrder } from "@/src/services/admin/order/order.hook";
-import { updateOrderStatus, updateOrderPaymentStatus } from "@/src/services/admin/order/order.service";
+import { refundPaidOrder, updateOrderStatus, updateOrderPaymentStatus } from "@/src/services/admin/order/order.service";
 import { showNotificationSuccess, showNotificationError } from "@/src/@core/utils/message";
 import { useState } from "react";
-import { Package, User, CreditCard, Clock, CheckCircle2, Truck, XCircle, Undo2, ChevronRight, Hash, ShieldCheck, MapPin, Ticket } from "lucide-react";
+import { Package, User, CreditCard, Clock, CheckCircle2, Truck, XCircle, Undo2, Hash, ShieldCheck, MapPin, Ticket } from "lucide-react";
 import Image from "next/image";
 import SWTCard from "@/src/@core/component/AntD/SWTCard";
 import SWTButton from "@/src/@core/component/AntD/SWTButton";
@@ -55,8 +55,9 @@ export default function OrderDetailDrawer({ orderId, open, onClose, onUpdate }: 
       showNotificationSuccess(`Đã cập nhật: ${getStatusLabel(newStatus)}`);
       mutate();
       onUpdate?.();
-    } catch (err: any) {
-      showNotificationError(err.message || "Không thể cập nhật trạng thái");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Không thể cập nhật trạng thái";
+      showNotificationError(message);
     } finally {
       setUpdating(false);
     }
@@ -79,8 +80,25 @@ export default function OrderDetailDrawer({ orderId, open, onClose, onUpdate }: 
       showNotificationSuccess(`Trạng thái thanh toán: ${newStatus === 'PAID' ? 'Đã thanh toán' : 'Chưa thanh toán'}`);
       mutate();
       onUpdate?.();
-    } catch (err: any) {
-      showNotificationError(err.message || "Không thể cập nhật thanh toán");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Không thể cập nhật thanh toán";
+      showNotificationError(message);
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  const handleRefundApproval = async () => {
+    if (!orderId) return;
+    setUpdating(true);
+    try {
+      await refundPaidOrder(orderId);
+      showNotificationSuccess("Đã duyệt hoàn tiền thủ công");
+      mutate();
+      onUpdate?.();
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Không thể duyệt hoàn tiền";
+      showNotificationError(message);
     } finally {
       setUpdating(false);
     }
@@ -101,8 +119,9 @@ export default function OrderDetailDrawer({ orderId, open, onClose, onUpdate }: 
     if (!order) return null;
     const nextStatuses = getNextStatuses(order.current_status);
     const canConfirmPayment = order.payment_status === "UNPAID" && (order.current_status === "DELIVERED" || order.current_status === "SHIPPING");
+    const canRefundPaidOrder = order.payment_status === "PAID" && (order.current_status === "CANCELLED" || order.current_status === "RETURNED");
 
-    if (nextStatuses.length === 0 && !canConfirmPayment) return null;
+    if (nextStatuses.length === 0 && !canConfirmPayment && !canRefundPaidOrder) return null;
 
     return (
       <div className="mt-5 pt-5 border-t border-border-default flex flex-wrap items-center justify-between gap-4">
@@ -134,6 +153,19 @@ export default function OrderDetailDrawer({ orderId, open, onClose, onUpdate }: 
               className="!bg-status-success-bg !border-status-success-border !text-status-success-text hover:opacity-80 !rounded-xl !h-10 px-5 !font-bold shadow-sm !w-auto transition-all"
             >
               Xác nhận Thanh toán
+            </SWTButton>
+          )}
+
+          {canRefundPaidOrder && (
+            <SWTButton
+              size="sm"
+              loading={updating}
+              variant="outlined"
+              onClick={handleRefundApproval}
+              startIcon={<Undo2 size={16} />}
+              className="!bg-status-neutral-bg !border-status-neutral-border !text-status-neutral-text hover:opacity-80 !rounded-xl !h-10 px-5 !font-bold shadow-sm !w-auto transition-all"
+            >
+              Duyệt hoàn tiền
             </SWTButton>
           )}
         </div>
@@ -233,8 +265,8 @@ export default function OrderDetailDrawer({ orderId, open, onClose, onUpdate }: 
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-xs text-text-muted">Trạng thái TT</span>
-                      <span className={`px-2 py-1 rounded text-[11px] font-bold uppercase border shadow-sm ${order.payment_status === 'PAID' ? 'bg-status-success-bg text-status-success-text border-status-success-border' : 'bg-status-warning-bg text-status-warning-text border-status-warning-border'}`}>
-                        {order.payment_status === 'PAID' ? 'Đã thanh toán' : 'Chưa thanh toán'}
+                      <span className={`px-2 py-1 rounded text-[11px] font-bold uppercase border shadow-sm ${order.payment_status === 'PAID' ? 'bg-status-success-bg text-status-success-text border-status-success-border' : order.payment_status === 'REFUNDED' ? 'bg-status-neutral-bg text-status-neutral-text border-status-neutral-border' : 'bg-status-warning-bg text-status-warning-text border-status-warning-border'}`}>
+                        {order.payment_status === 'PAID' ? 'Đã thanh toán' : order.payment_status === 'REFUNDED' ? 'Đã hoàn tiền' : 'Chưa thanh toán'}
                       </span>
                     </div>
                     <div className="flex justify-between items-center">

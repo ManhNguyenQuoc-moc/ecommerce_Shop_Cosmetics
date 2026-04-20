@@ -53,7 +53,7 @@ export default function OrderTable({ orders, total, isLoading, page, pageSize, o
       title: 'Số SP',
       key: 'items_count',
       align: 'center' as const,
-      render: (_: any, record: OrderDto) => (
+      render: (_: unknown, record: OrderDto) => (
           <div className="text-text-sub font-black bg-bg-muted w-8 h-8 rounded-lg flex items-center justify-center mx-auto text-xs border border-border-default shadow-inner">
               {record.items?.length || 0}
           </div>
@@ -68,11 +68,11 @@ export default function OrderTable({ orders, total, isLoading, page, pageSize, o
     {
       title: 'Thanh toán',
       key: 'payment',
-      render: (_: any, record: OrderDto) => (
+      render: (_: unknown, record: OrderDto) => (
           <div className="flex flex-col">
               <span className="text-text-sub text-xs font-bold uppercase tracking-tight">{record.payment_method}</span>
-              <span className={`text-[10px] font-black ${record.payment_status === 'PAID' ? 'text-status-success-text' : 'text-status-warning-text'} uppercase`}>
-                  {record.payment_status === 'PAID' ? 'Đã trả' : 'Chưa trả'}
+          <span className={`text-[10px] font-black ${record.payment_status === 'PAID' ? 'text-status-success-text' : record.payment_status === 'REFUNDED' ? 'text-status-neutral-text' : 'text-status-warning-text'} uppercase`}>
+            {record.payment_status === 'PAID' ? 'Đã trả' : record.payment_status === 'REFUNDED' ? 'Đã hoàn' : 'Chưa trả'}
               </span>
           </div>
       ),
@@ -98,7 +98,7 @@ export default function OrderTable({ orders, total, isLoading, page, pageSize, o
       title: 'Thao tác',
       key: 'actions',
       align: 'center' as const,
-      render: (_: any, record: OrderDto) => {
+      render: (_: unknown, record: OrderDto) => {
         const actionItems: MenuProps['items'] = [
           {
             key: 'view',
