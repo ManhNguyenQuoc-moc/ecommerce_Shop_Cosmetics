@@ -25,7 +25,6 @@ export default function InventoryPage() {
           placement: "left"
         }}
       />
-
       <InventoryClient />
     </div>
   );

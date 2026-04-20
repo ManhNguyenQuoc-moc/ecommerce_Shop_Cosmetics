@@ -1,12 +1,12 @@
 "use client";
 
-import { Filter, FileSpreadsheet, Download, Search, X } from "lucide-react";
+import { Filter, Download } from "lucide-react";
 import SWTButton from "@/src/@core/component/AntD/SWTButton";
 import { SWTInputSearch } from "@/src/@core/component/AntD/SWTInput";
 import SWTSelect from "@/src/@core/component/AntD/SWTSelect";
 import SWTTooltip from "@/src/@core/component/AntD/SWTTooltip";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
-import { TransitionStartFunction, useState, useEffect } from "react";
+import { TransitionStartFunction, useState, useEffect, useCallback } from "react";
 import { useDebounce } from "@/src/@core/hooks/useDebounce";
 import { SWTDateRangePicker } from "@/src/@core/component/AntD/SWTDatePicker";
 import dayjs from "dayjs";
@@ -24,17 +24,7 @@ export default function InventoryFilters({ startTransition }: InventoryFiltersPr
   const [localSearch, setLocalSearch] = useState(searchStr);
   const debouncedSearch = useDebounce(localSearch, 500);
 
-  useEffect(() => {
-    setLocalSearch(searchStr);
-  }, [searchStr]);
-
-  useEffect(() => {
-    if (debouncedSearch !== searchStr) {
-      handleFilterChange("search", debouncedSearch);
-    }
-  }, [debouncedSearch]);
-
-  const handleFilterChange = (key: string, value: string | undefined) => {
+  const handleFilterChange = useCallback((key: string, value: string | undefined) => {
     startTransition(() => {
       const params = new URLSearchParams(searchParams.toString());
       if (value && value !== 'all') {
@@ -45,7 +35,17 @@ export default function InventoryFilters({ startTransition }: InventoryFiltersPr
       params.set("page", "1");
       router.replace(`${pathname}?${params.toString()}`);
     });
-  };
+  }, [pathname, router, searchParams, startTransition]);
+
+  useEffect(() => {
+    setLocalSearch(searchStr);
+  }, [searchStr]);
+
+  useEffect(() => {
+    if (debouncedSearch !== searchStr) {
+      handleFilterChange("search", debouncedSearch);
+    }
+  }, [debouncedSearch, handleFilterChange, searchStr]);
 
   const clearFilters = () => {
     startTransition(() => {
@@ -94,11 +94,11 @@ export default function InventoryFilters({ startTransition }: InventoryFiltersPr
           </div>
 
           <div className="flex items-center gap-2">
-            <SWTTooltip title="Xuất báo cáo tồn kho" placement="top" color="#ff4d94">
-              <div className="flex h-11 w-11 items-center justify-center bg-white dark:bg-slate-900/50 hover:bg-brand-50 dark:hover:bg-brand-500/20 text-brand-600 dark:text-admin-accent border border-slate-200 dark:border-brand-500/50 rounded-xl shadow-sm transition-all cursor-pointer group">
-                <Download size={20} className="group-hover:scale-110 transition-transform duration-300" />
-              </div>
-            </SWTTooltip>
+            <SWTTooltip title="Xuất báo cáo tồn kho" placement="top">
+            <div className="flex h-11 w-11 items-center justify-center bg-white dark:bg-slate-900/50 hover:bg-emerald-50 dark:hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-slate-200 dark:border-emerald-500/50 rounded-xl shadow-sm transition-all cursor-pointer group">
+              <Download size={20} className="group-hover:scale-110 transition-transform duration-300" />
+            </div>
+          </SWTTooltip>
           </div>
         </div>
       </div>

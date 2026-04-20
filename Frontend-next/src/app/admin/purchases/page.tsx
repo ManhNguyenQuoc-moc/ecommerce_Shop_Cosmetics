@@ -26,10 +26,7 @@ export default function PurchasesPage() {
           placement: "left"
         }}
       />
-
-      <Suspense fallback={<div>Đang tải...</div>}>
         <PurchasesClient />
-      </Suspense>
     </div>
   );
 }

@@ -21,7 +21,6 @@ export default function SuppliersPage() {
           placement: "left"
         }}
       />
-
       <SuppliersClient />
     </div>
   );

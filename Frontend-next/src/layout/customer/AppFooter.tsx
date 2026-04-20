@@ -113,21 +113,20 @@ export default function AppFooter() {
               <li><Link href="#" className="text-brand-900/70 hover:text-brand-600 hover:pl-1 transition-all">Kiểm tra đơn hàng</Link></li>
             </ul>
           </div>
-
           {/* CONTACT */}
           <div className="lg:col-span-3">
             <h3 className="font-bold text-brand-900 text-lg mb-6">Liên hệ</h3>
             <ul className="space-y-5 text-sm font-medium text-brand-900/70">
               <li className="flex items-start gap-4">
-                <MapPin size={20} className="text-brand-500 mt-0.5 shrink-0" />
-                <span className="leading-relaxed">123 Đường Sắc Đẹp, Quận 1, TP. Hồ Chí Minh</span>
+                {/* <MapPin size={20} className="text-brand-500 mt-0.5 shrink-0" /> */}
+                <span className="leading-relaxed">123 Quận 1, TP. Hồ Chí Minh</span>
               </li>
               <li className="flex items-center gap-4">
-                <Phone size={20} className="text-brand-500 shrink-0" />
+                {/* <Phone size={20} className="text-brand-500 shrink-0" /> */}
                 <span>1900 1234 (Miễn phí)</span>
               </li>
               <li className="flex items-center gap-4">
-                <Mail size={20} className="text-brand-500 shrink-0" />
+                {/* <Mail size={20} className="text-brand-500 shrink-0" /> */}
                 <span>support@cosmetics.com</span>
               </li>
             </ul>

@@ -84,7 +84,7 @@ export default function AdminAppHeader() {
       <div className="flex-1 max-w-md px-4 md:px-8 hidden md:block">
         <div className="relative group">
           <SWTInputSearch
-            placeholder="Tìm kiếm mã đơn hàng, sản phẩm..."
+            placeholder="Tìm kiếm chức năng ..."
             className="w-full rounded-xl! bg-bg-muted! border-border-default! dark:border-border-brand/20! text-text-main placeholder:text-text-muted transition-colors"
           />
         </div>

@@ -15,8 +15,6 @@ export default function UserFilters() {
   const debouncedSearch = useDebounce(localSearch, 500);
 
   useEffect(() => {
-    // Only re-run search when the keyword itself changed.
-    // This avoids resetting page back to 1 when only pagination changes.
     if ((filters.search ?? "") === (debouncedSearch ?? "")) return;
     handleSearch(debouncedSearch ?? "");
   }, [debouncedSearch, filters.search, handleSearch]);
@@ -40,11 +38,11 @@ export default function UserFilters() {
               <Download size={20} className="group-hover:scale-110 transition-transform duration-300" />
             </div>
           </SWTTooltip>
-          <SWTTooltip title="Thêm Người Dùng Mới" placement="top" color="#6366f1">
+          {/* <SWTTooltip title="Thêm Người Dùng Mới" placement="top" color="#6366f1">
             <div className="flex h-11 w-11 items-center justify-center bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-500/30 rounded-xl shadow-sm transition-all cursor-pointer group">
               <Plus size={24} className="stroke-[2.5] group-hover:scale-110 group-hover:rotate-90 transition-transform duration-300" />
             </div>
-          </SWTTooltip>
+          </SWTTooltip> */}
         </div>
       </div>
 

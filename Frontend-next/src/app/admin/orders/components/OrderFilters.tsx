@@ -31,13 +31,6 @@ export default function OrderFilters({ params, onParamChange, onClear }: OrderFi
               <Download size={20} className="group-hover:scale-110 transition-transform duration-300" />
             </div>
           </SWTTooltip>
-          <SWTTooltip title="Tạo Đơn Hàng Mới" placement="top" color="#ff4d94">
-            <div 
-              className="flex h-11 w-11 items-center justify-center bg-brand-500 hover:bg-brand-600 text-white border-none rounded-xl shadow-md shadow-brand-500/20 transition-all cursor-pointer group"
-            >
-              <Plus size={24} className="stroke-[2.5] group-hover:scale-110 group-hover:rotate-90 transition-transform duration-300" />
-            </div>
-          </SWTTooltip>
         </div>
       </div>
 

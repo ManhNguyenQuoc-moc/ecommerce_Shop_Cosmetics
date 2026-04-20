@@ -10,7 +10,7 @@ type Props = {
   outOfStock?: boolean;
 };
 
-export default function CartItemProduct({ item, onRemove, outOfStock = false }: Props) {
+export default function CartItemProduct({ item, onRemove, onWishlist, outOfStock = false }: Props) {
   return (
     <div className={`flex gap-4 items-start py-2 relative ${outOfStock ? "opacity-50" : ""}`}>
       {outOfStock && (
@@ -45,12 +45,6 @@ export default function CartItemProduct({ item, onRemove, outOfStock = false }: 
         </div>
         {/* Actions Section */}
         <div className="flex items-center gap-4 mt-auto pt-1">
-          <button
-            className="flex items-center gap-1 text-xs text-text-muted hover:text-status-error-text transition-colors group"
-            title="Yêu thích"
-          >
-            <Heart size={16} className="group-hover:fill-status-error-text transition-all" />
-          </button>
           <div className="h-3 w-[1px] bg-border-default" /> {/* Divider */}
           <button
             onClick={() => onRemove?.(item.id)}

@@ -163,8 +163,6 @@ export default function AddVoucherModal({ isOpen, onClose, initialData }: AddVou
             className="dark:bg-slate-800/80! dark:border-slate-700! dark:text-white! rounded-xl!" 
           />
         </SWTFormItem>
-
-        <div className="p-4 bg-brand-50 dark:bg-brand-900/20 border border-brand-100 dark:border-brand-800/50 rounded-2xl mb-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6">
             <SWTFormItem
               name="type"
@@ -247,7 +245,7 @@ export default function AddVoucherModal({ isOpen, onClose, initialData }: AddVou
               />
             </SWTFormItem>
           </div>
-        </div>
+      
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6">
           <SWTFormItem

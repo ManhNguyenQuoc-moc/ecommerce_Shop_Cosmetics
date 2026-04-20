@@ -21,7 +21,6 @@ export default function OrdersPage() {
           placement: "left"
         }}
       />
-
       <OrdersClient />
     </div>
   );

@@ -22,7 +22,6 @@ export default function DiscountsPage() {
           placement: "left"
         }}
       />
-
       <DiscountsClient />
     </div>
   );

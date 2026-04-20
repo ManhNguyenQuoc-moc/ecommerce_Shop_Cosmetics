@@ -2,6 +2,7 @@
 
 import { Carousel } from "antd";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { Sparkles, Trophy, Flame, Gift, ChevronLeft, ChevronRight } from "lucide-react";
 import SWTCard from "@/src/@core/component/AntD/SWTCard";
 import SWTButton from "@/src/@core/component/AntD/SWTButton";
@@ -19,6 +20,8 @@ type Props = {
 };
 
 const HeroBanner = ({ banners }: Props) => {
+  const router = useRouter();
+
   if (!banners || banners.length === 0) return null;
 
   return (
@@ -58,23 +61,14 @@ const HeroBanner = ({ banners }: Props) => {
                   <p className="text-[10px] font-semibold text-white/90 uppercase tracking-wider mb-0.5">
                     Ưu đãi có hạn
                   </p>
-                  <button className="text-xs md:text-sm font-black text-white hover:text-brand-200 transition-colors duration-200 flex items-center gap-1 group cursor-pointer">
-                    Lấy mã ngay
-                    <svg
-                      className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M9 5l7 7-7 7" />
-                    </svg>
-                  </button>
+                  <p className="text-[10px] font-medium text-white/70 uppercase tracking-wider mb-0">Đến 31/12/2026</p>
                 </div>
               </div>
             </div>
             <div className="relative z-10">
               <SWTButton
                 type="primary"
+                onClick={() => router.push("/profile/vouchers")}
                 size="sm"
                 className="!h-[38px] !w-full !rounded-xl !bg-white !border-none !text-brand-600 !text-[10px] !font-black hover:!scale-[1.05] hover:!shadow-xl !transition-all active:scale-95"
               >

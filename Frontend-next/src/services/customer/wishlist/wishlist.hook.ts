@@ -6,13 +6,11 @@ import { wishlistService } from "@/src/services/customer/wishlist/wishlist.servi
 import { WishlistProductDto } from "@/src/services/models/customer/wishlist.dto";
 import { showNotificationSuccess, showNotificationWarning, showNotificationError } from "@/src/@core/utils/message";
 import { authStorage } from "@/src/@core/utils/authStorage";
-import { useEffect, useMemo } from "react";
+import { useEffect } from "react";
 import { useAuth } from "@/src/context/AuthContext";
 import { useFetchSWR } from "@/src/@core/hooks/useFetchSWR";
 
-/**
- * Mapping helper for Wishlist DTO from backend to Product List DTO for UI
- */
+
 const mapWishlistToProduct = (item: WishlistProductDto): ProductListItemDto => ({
   id: item.productId,
   variantId: item.variantId,
