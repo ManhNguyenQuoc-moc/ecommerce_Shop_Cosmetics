@@ -7,6 +7,95 @@ import { InventoryRepository } from "../repositories/inventory.repository";
 
 const inventoryRepository = new InventoryRepository();
 
+const asNumber = (value: unknown): number => {
+  const n = Number(value);
+  return Number.isFinite(n) ? n : 0;
+};
+
+const extractUuidFromText = (value: unknown): string | null => {
+  const text = String(value || "");
+  const match = text.match(/[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/i);
+  return match ? match[0] : null;
+};
+
+const extractSepayOrderCandidates = (payload: Record<string, any>): string[] => {
+  const direct = [
+    payload.orderId,
+    payload.order_id,
+    payload.order_invoice_number,
+    payload.reference,
+    payload.ref,
+    payload.code,
+    payload.content,
+  ]
+    .map((v) => String(v || "").trim())
+    .filter(Boolean);
+
+  const textSources = [payload.description, payload.content, payload.code, payload.reference, payload.ref];
+  const uuidInText = textSources.map(extractUuidFromText).filter((v): v is string => Boolean(v));
+
+  return Array.from(new Set([...direct, ...uuidInText]));
+};
+
+const resolveSepayOrderId = async (payload: Record<string, any>): Promise<string> => {
+  const candidates = extractSepayOrderCandidates(payload);
+
+  for (const candidate of candidates) {
+    const found = await prisma.order.findUnique({ where: { id: candidate }, select: { id: true } });
+    if (found?.id) {
+      return found.id;
+    }
+  }
+
+  const transferAmount = asNumber(payload.transferAmount || payload.transfer_amount || payload.amount);
+  if (transferAmount <= 0) {
+    return "";
+  }
+
+  const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+  const candidatesByAmount = await prisma.order.findMany({
+    where: {
+      payment_method: "SEPAY",
+      payment_status: "UNPAID",
+      createdAt: { gte: oneDayAgo },
+    },
+    select: { id: true, final_amount: true, total_amount: true },
+    orderBy: { createdAt: "desc" },
+    take: 10,
+  });
+
+  const matched = candidatesByAmount.filter(
+    (o) => Math.abs(Number(o.final_amount || 0) - transferAmount) < 0.5 || Math.abs(Number(o.total_amount || 0) - transferAmount) < 0.5
+  );
+
+  console.info("SEPay fallback amount matching", {
+    transferAmount,
+    scannedCount: candidatesByAmount.length,
+    matchedCount: matched.length,
+    matchedOrderIds: matched.map((o) => o.id),
+    webhookCode: payload.code,
+    webhookReferenceCode: payload.referenceCode,
+    webhookContent: payload.content,
+  });
+
+  if (matched.length === 1) {
+    console.info("SEPay fallback resolved order", {
+      orderId: matched[0].id,
+      transferAmount,
+    });
+    return matched[0].id;
+  }
+
+  if (matched.length > 1) {
+    console.warn("SEPay fallback is ambiguous", {
+      transferAmount,
+      matchedOrderIds: matched.map((o) => o.id),
+    });
+  }
+
+  return "";
+};
+
 const markOrderPaidAndDeductStock = async (orderId: string) => {
   await prisma.$transaction(async (tx: any) => {
     const order = await tx.order.findUnique({
@@ -44,30 +133,32 @@ export const handleSepayIPN = async (req: Request, res: Response) => {
     const payload = { ...(req.method === "GET" ? req.query : req.body) } as Record<string, any>;
     console.log("SEPay IPN Received:", payload);
 
-    const isValid = verifySepaySignature(payload);
+    const isValid = verifySepaySignature(payload, req.headers as Record<string, any>);
     if (!isValid) {
       console.error("SEPay IPN Signature Mismatch!");
       res.status(200).json({ success: false, message: "Invalid signature" });
       return;
     }
 
-    const orderId = String(
-      payload.orderId ||
-        payload.order_id ||
-        payload.order_invoice_number ||
-        payload.reference ||
-        payload.ref ||
-        ""
-    );
+    const orderId = await resolveSepayOrderId(payload);
 
     const statusRaw = String(
       payload.status || payload.payment_status || payload.order_status || payload.result || payload.code || ""
     ).toUpperCase();
 
     const successStatuses = new Set(["SUCCESS", "PAID", "COMPLETED", "0", "00", "TRUE", "1"]);
-    const isSuccess = successStatuses.has(statusRaw);
+    const transferType = String(payload.transferType || payload.transfer_type || "").toLowerCase();
+    const transferAmount = asNumber(payload.transferAmount || payload.transfer_amount || payload.amount);
+    const isInboundTransferSuccess = transferType === "in" && transferAmount > 0;
+    const isSuccess = successStatuses.has(statusRaw) || isInboundTransferSuccess;
 
     if (!orderId) {
+      console.warn("SEPay IPN cannot resolve order id", {
+        code: payload.code,
+        content: payload.content,
+        referenceCode: payload.referenceCode,
+        transferAmount,
+      });
       res.status(200).json({ success: false, message: "Missing order id" });
       return;
     }
