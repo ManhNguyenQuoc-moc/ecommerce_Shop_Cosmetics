@@ -2,13 +2,18 @@ import http from "@/src/@core/http";
 import { ApiResponse } from "@/src/@core/http/models/ApiResponse";
 
 const unwrapResponse = <T>(res: { data: ApiResponse<T> }): T => {
-  const apiResponse = res.data;
+  const apiResponse = res.data as ApiResponse<T> & { data?: T };
 
   // Nếu API trả về success: false, chúng ta có thể handle thêm logic ở đây nếu cần
   // Tuy nhiên Interceptor của bạn thường đã handle status code rồi.
   
-  // Trả về data (T) - Theo Interface của bạn, data luôn tồn tại trong ApiResponse<T>
-  return apiResponse.data;
+  // Some endpoints return payload directly at top-level instead of inside `data`.
+  // Keep backward compatibility by falling back to the whole response object.
+  if (apiResponse.data !== undefined) {
+    return apiResponse.data;
+  }
+
+  return apiResponse as unknown as T;
 };
 
 /**
