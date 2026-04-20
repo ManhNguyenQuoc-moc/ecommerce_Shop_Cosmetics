@@ -6,6 +6,7 @@ import CheckoutForm from "./CheckoutForm";
 import CheckoutSummary from "./CheckoutSummary";
 import SWTBreadcrumb from "@/src/@core/component/AntD/SWTBreadcrumb";
 import { showNotificationError, showNotificationSuccess } from "@/src/@core/utils/message";
+import { checkoutService } from "@/src/services/customer/checkout/checkout.service";
 
 export default function CheckoutClient() {
   const router = useRouter();
@@ -15,7 +16,7 @@ export default function CheckoutClient() {
   useEffect(() => {
     if (paymentHandledRef.current) return;
 
-    const status = searchParams.get("status");
+    const status = searchParams.get("payment_status") || searchParams.get("status");
     const orderId = searchParams.get("orderId") || searchParams.get("order_id");
     if (!status && !orderId) return;
 
@@ -23,7 +24,13 @@ export default function CheckoutClient() {
 
     const normalizedStatus = String(status || "").toUpperCase();
     if (normalizedStatus === "CANCELLED" || normalizedStatus === "FAILED") {
-      showNotificationError("Giao dịch SEPay không thành công. Vui lòng thử lại.");
+      if (orderId) {
+        void checkoutService.cancelUnpaidOrder(orderId).catch((error: unknown) => {
+          console.error("Cancel unpaid order error:", error);
+        });
+      }
+
+      showNotificationError("Giao dịch SEPay không thành công. Đơn chưa thanh toán đã được xóa.");
     } else if (normalizedStatus === "SUCCESS") {
       showNotificationSuccess("Thanh toán SEPay thành công.");
     }

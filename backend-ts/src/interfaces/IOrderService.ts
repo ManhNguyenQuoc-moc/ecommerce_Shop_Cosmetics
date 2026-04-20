@@ -7,5 +7,6 @@ export interface IOrderService {
   createOrder(data: CreateOrderDTO): Promise<Order>;
   updateOrder(id: string, data: UpdateOrderDTO): Promise<Order>;
   deleteOrder(id: string): Promise<void>;
+  deleteUnpaidOrder(id: string): Promise<void>;
   sendOrderConfirmationEmail(orderId: string): Promise<void>;
 }
