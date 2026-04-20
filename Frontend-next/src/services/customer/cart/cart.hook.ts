@@ -158,7 +158,9 @@ export const useCart = () => {
     setItems(items.map((i) => (i.id === id ? { ...i, quantity } : i)));
   };
 
-  const removeItem = async (id: string) => {
+  const removeItem = async (id: string, options?: { silent?: boolean }) => {
+    const silent = !!options?.silent;
+
     if (user?.id) {
       const previousItems = [...items];
       // Optimistic Update: Remove locally first
@@ -168,11 +170,15 @@ export const useCart = () => {
         const data = await cartService.removeItemAsync(user.id, id);
         setItems(data.items);
         mutate(data, false);
-        showNotificationSuccess("Đã xóa sản phẩm khỏi giỏ hàng");
+        if (!silent) {
+          showNotificationSuccess("Đã xóa sản phẩm khỏi giỏ hàng");
+        }
       } catch {
         // Rollback on error
         setItems(previousItems);
-        showNotificationError("Xóa sản phẩm thất bại");
+        if (!silent) {
+          showNotificationError("Xóa sản phẩm thất bại");
+        }
       }
       return;
     }

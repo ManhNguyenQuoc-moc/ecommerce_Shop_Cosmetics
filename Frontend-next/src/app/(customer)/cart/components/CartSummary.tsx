@@ -9,34 +9,47 @@ import { useState } from "react";
 import { useCart } from "@/src/services/customer/cart/cart.hook";
 import { useCheckoutStore } from "@/src/stores/useCheckoutStore";
 import { showNotificationError } from "@/src/@core/utils/message";
+import { CartItem } from "@/src/stores/useCartStore";
 
-export default function CartSummary() {
+type CartSummaryProps = {
+  selectedItems: CartItem[];
+};
+
+export default function CartSummary({ selectedItems }: CartSummaryProps) {
   const [loading, setLoading] = useState(false);
-  const { items, total } = useCart();
+  const { items } = useCart();
   const router = useRouter();
 
-  const subtotal = items.reduce(
+  const selectedSubtotal = selectedItems.reduce(
     (sum, item) =>
       sum + (item.originalPrice ?? item.price) * item.quantity,
     0
   );
 
-  const discount = subtotal - total;
+  const selectedTotal = selectedItems.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
+
+  const discount = selectedSubtotal - selectedTotal;
 
   const formatPrice = (value: number) =>
     value.toLocaleString("vi-VN") + " đ";
   const handleCheckout = async () => {
-    if (items.length === 0) return;
+    if (selectedItems.length === 0) {
+      showNotificationError("Vui lòng chọn ít nhất 1 sản phẩm để đặt hàng.");
+      return;
+    }
 
     // Kiểm tra sản phẩm hết hàng
-    const outOfStockItems = items.filter((item) => item.stock === 0);
+    const outOfStockItems = selectedItems.filter((item) => item.stock === 0);
     if (outOfStockItems.length > 0) {
       const names = outOfStockItems.map((i) => i.productName).join(", ");
       showNotificationError(`Sản phẩm đã hết hàng: ${names}. Vui lòng xóa khỏi giỏ hàng trước khi tiếp tục.`);
       return;
     }
 
-    const checkoutItems = items.map((item) => ({
+    const checkoutItems = selectedItems.map((item) => ({
       id: item.id,
       productId: item.productId,
       variantId: item.variantId,
@@ -58,13 +71,13 @@ export default function CartSummary() {
     <>
       <SWTCard
         title="Hóa đơn của bạn"
-        className="!rounded-xl !shadow-md !border border-border-default !bg-bg-card"
+        className="rounded-xl! shadow-md! border! border-border-default bg-bg-card!"
         bodyClassName="!p-4 !space-y-4"
       >
         <div className="space-y-3 max-h-60 overflow-auto pr-1 pb-3 border-b border-border-default">
-          {items.map((item) => (
+          {selectedItems.map((item) => (
             <div key={item.id} className="flex gap-3 items-start">
-              <div className="w-12 h-12 relative flex-shrink-0">
+              <div className="w-12 h-12 relative shrink-0">
                 <div className="w-full h-full relative border border-border-default rounded overflow-hidden">
                   <Image
                     src={item.image || "/placeholder-image.png"}
@@ -77,7 +90,7 @@ export default function CartSummary() {
               </div>
 
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-text-main line-clamp-1 break-words">
+                <p className="text-sm font-medium text-text-main line-clamp-1 wrap-break-word">
                   {item.productName}
                 </p>
                 <p className="text-xs text-text-muted font-bold">
@@ -106,7 +119,7 @@ export default function CartSummary() {
         <div className="space-y-2 pt-1">
           <div className="flex justify-between text-sm text-text-sub">
             <span>Tạm tính:</span>
-            <span className="font-semibold">{formatPrice(subtotal)}</span>
+            <span className="font-semibold">{formatPrice(selectedSubtotal)}</span>
           </div>
 
           <div className="flex justify-between text-sm text-text-sub">
@@ -120,7 +133,7 @@ export default function CartSummary() {
         <div className="border-t border-border-default pt-3 flex justify-between font-bold text-base mt-2">
           <span className="text-text-main">Tổng cộng:</span>
           <span className="text-brand-500 text-lg">
-            {formatPrice(total)}
+            {formatPrice(selectedTotal)}
           </span>
         </div>
 
@@ -129,10 +142,12 @@ export default function CartSummary() {
           block
           size="lg"
           onClick={handleCheckout}
-          disabled={!items.length}
-          className="!bg-brand-500 hover:!bg-brand-600 !text-white !border-none"
+          disabled={!selectedItems.length || !items.length}
+          className="bg-brand-500! hover:bg-brand-600! text-white! border-none!"
         >
-          Tiến hành đặt hàng
+          {selectedItems.length > 0
+            ? `Đặt hàng (${selectedItems.length} sản phẩm đã chọn)`
+            : "Chọn sản phẩm để đặt hàng"}
         </SWTButton>
       </SWTCard>
       {loading && <SWTLoading fullPage tip="Đang chuẩn bị thanh toán..." />}

@@ -6,11 +6,17 @@ import CartItemProduct from "./CartItemProduct";
 import CartQuantity from "./CartQuantity";
 import { useCart } from "@/src/services/customer/cart/cart.hook";
 import type { ColumnsType } from "antd/es/table";
+import { CartItem } from "@/src/stores/useCartStore";
 
-export default function CartTable() {
+type CartTableProps = {
+  selectedItemIds: string[];
+  onSelectionChange: (ids: string[]) => void;
+};
+
+export default function CartTable({ selectedItemIds, onSelectionChange }: CartTableProps) {
   const { items, updateQuantity, removeItem } = useCart();
 
-  const columns: ColumnsType<any> = [
+  const columns: ColumnsType<CartItem> = [
     {
       title: "Sản phẩm",
       width: "40%",
@@ -62,6 +68,13 @@ export default function CartTable() {
         rowKey="id"
         columns={columns}
         dataSource={items}
+        rowSelection={{
+          selectedRowKeys: selectedItemIds,
+          onChange: (keys) => onSelectionChange(keys as string[]),
+          getCheckboxProps: (record: CartItem) => ({
+            disabled: record.stock === 0 || record.availableStock === 0,
+          }),
+        }}
         scroll={{ x: "max-content" }}
       />
     </SWTCard>

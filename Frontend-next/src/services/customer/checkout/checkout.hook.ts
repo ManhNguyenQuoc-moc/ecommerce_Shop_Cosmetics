@@ -13,7 +13,7 @@ import { useSWRConfig } from "swr";
 
 export const useCheckout = () => {
   const router = useRouter();
-  const { clearCart } = useCart();
+  const { removeItem } = useCart();
   const { mutate } = useSWRConfig();  // ← Get global SWR mutate function
   const {
     mode,
@@ -187,10 +187,18 @@ export const useCheckout = () => {
         return;
       }
 
+      if (paymentMethod === "VNPAY") {
+        showNotificationError("Không thể chuyển tới cổng VNPay. Vui lòng thử lại.");
+        return;
+      }
+
       showNotificationSuccess("Đặt hàng thành công 🎉");
       
       if (mode === "cart") {
-        await clearCart();
+        const purchasedItemIds = items.map((item) => item.id).filter(Boolean);
+        for (const itemId of purchasedItemIds) {
+          await removeItem(itemId, { silent: true });
+        }
       }
       
       reset();
