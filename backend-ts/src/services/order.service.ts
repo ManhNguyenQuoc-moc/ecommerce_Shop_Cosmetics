@@ -146,9 +146,33 @@ export class OrderService implements IOrderService {
         total_amount: subtotal 
       }, tx);
 
-      // 4. Deduct Stock (FEFO)
-      for (const item of data.items) {
-        await this.inventoryRepository.deductStock(item.variantId, item.quantity, order.id, tx);
+      // 4. Stock handling
+      // - COD: deduct immediately.
+      // - Online payment: only validate availability now; real deduction happens on payment callback success.
+      const isOnlinePayment = data.paymentMethod !== 'COD';
+      if (!isOnlinePayment) {
+        for (const item of data.items) {
+          await this.inventoryRepository.deductStock(item.variantId, item.quantity, order.id, tx);
+        }
+      } else {
+        const minExpiry = new Date();
+        minExpiry.setMonth(minExpiry.getMonth() + 3);
+
+        for (const item of data.items) {
+          const aggregate = await tx.batch.aggregate({
+            where: {
+              variantId: item.variantId,
+              expiryDate: { gt: minExpiry },
+              quantity: { gt: 0 }
+            },
+            _sum: { quantity: true }
+          });
+
+          const availableQty = aggregate._sum.quantity || 0;
+          if (availableQty < item.quantity) {
+            throw new Error(`Sản phẩm [${item.variantId}] không đủ tồn kho hợp lệ (hạn sử dụng > 3 tháng).`);
+          }
+        }
       }
 
       // 5. Create Notification for Admin
