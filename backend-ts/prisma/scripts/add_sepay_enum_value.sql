@@ -1,3 +1,0 @@
-ALTER TYPE "PaymentMethod"
-ADD VALUE
-IF NOT EXISTS 'SEPAY';
