@@ -474,7 +474,7 @@ enum OrderStatus {
 
 enum PaymentMethod {
   COD
-  VNPAY
+  SEPAY
   MOMO
   ZALOPAY
 }

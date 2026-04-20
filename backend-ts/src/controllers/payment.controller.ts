@@ -1,42 +1,59 @@
 import { Request, Response } from "express";
-import { verifyVnpaySignature } from "../services/vnpay.service";
 import { verifyMomoSignature } from "../services/momo.service";
 import { verifyZaloPayCallback } from "../services/zalopay.service";
+import { verifySepaySignature } from "../services/sepay.service";
 import { prisma } from "../config/prisma";
 
 /**
- * Handle VNPay IPN (Asynchronous notification)
+ * Handle SEPay IPN/Callback
  */
-export const handleVnpayIPN = async (req: Request, res: Response) => {
+export const handleSepayIPN = async (req: Request, res: Response) => {
   try {
-    const vnp_Params = req.query;
-    console.log("VNPay IPN Received:", vnp_Params);
+    const payload = { ...(req.method === "GET" ? req.query : req.body) } as Record<string, any>;
+    console.log("SEPay IPN Received:", payload);
 
-    const isValid = verifyVnpaySignature(vnp_Params);
+    const isValid = verifySepaySignature(payload);
     if (!isValid) {
-      console.error("VNPay IPN Signature Mismatch!");
-      res.status(200).json({ RspCode: "97", Message: "Checksum failed" });
+      console.error("SEPay IPN Signature Mismatch!");
+      res.status(200).json({ success: false, message: "Invalid signature" });
       return;
     }
 
-    const orderId = vnp_Params["vnp_TxnRef"] as string;
-    const responseCode = vnp_Params["vnp_ResponseCode"];
+    const orderId = String(
+      payload.orderId ||
+        payload.order_id ||
+        payload.order_invoice_number ||
+        payload.reference ||
+        payload.ref ||
+        ""
+    );
 
-    // 00 means success in VNPay
-    if (responseCode === "00") {
+    const statusRaw = String(
+      payload.status || payload.payment_status || payload.order_status || payload.result || payload.code || ""
+    ).toUpperCase();
+
+    const successStatuses = new Set(["SUCCESS", "PAID", "COMPLETED", "0", "00", "TRUE", "1"]);
+    const isSuccess = successStatuses.has(statusRaw);
+
+    if (!orderId) {
+      res.status(200).json({ success: false, message: "Missing order id" });
+      return;
+    }
+
+    if (isSuccess) {
       await prisma.order.update({
         where: { id: orderId },
         data: { payment_status: "PAID" },
       });
-      console.log(`Order ${orderId} marked as PAID via VNPay IPN`);
-      res.status(200).json({ RspCode: "00", Message: "Success" });
+      console.log(`Order ${orderId} marked as PAID via SEPay IPN`);
+      res.status(200).json({ success: true, message: "Success" });
     } else {
-      console.warn(`Order ${orderId} payment failed with code ${responseCode}`);
-      res.status(200).json({ RspCode: "00", Message: "Success (Payment Failed caught)" });
+      console.warn(`Order ${orderId} payment failed with status ${statusRaw}`);
+      res.status(200).json({ success: true, message: "Payment failed recorded" });
     }
   } catch (error) {
-    console.error("VNPay IPN Error:", error);
-    res.status(200).json({ RspCode: "99", Message: "Unknow error" });
+    console.error("SEPay IPN Error:", error);
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
 

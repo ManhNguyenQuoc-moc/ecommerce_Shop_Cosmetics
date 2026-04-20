@@ -16,7 +16,7 @@ type CheckoutState = {
   addresses: AddressModel[];
   selectedAddress: AddressModel | null;
   shippingMethod: "standard" | "express";
-  paymentMethod: "COD" | "VNPAY";
+  paymentMethod: "COD" | "SEPAY" | "MOMO" | "ZALOPAY";
   appliedVoucher: VoucherDTO | null;
   setCustomer: (data: Partial<CheckoutState["customer"]>) => void;
   setAddresses: (list: AddressModel[]) => void;

@@ -22,6 +22,6 @@ export type CheckoutRequestDTO = {
   total: number;
   shippingFee: number;
   shippingMethod: string;
-  paymentMethod: "COD" | "VNPAY";
+  paymentMethod: "COD" | "SEPAY" | "MOMO" | "ZALOPAY";
   discountCodeId?: string;
 };
