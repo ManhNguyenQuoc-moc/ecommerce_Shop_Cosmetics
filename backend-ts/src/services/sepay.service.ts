@@ -5,6 +5,7 @@ const SEPAY_ENV = (process.env.SEPAY_ENV || "sandbox") as "sandbox" | "productio
 const SEPAY_MERCHANT_CODE = process.env.SEPAY_MERCHANT_CODE || "";
 const SEPAY_SECRET_KEY = process.env.SEPAY_SECRET_KEY || "";
 const SEPAY_RETURN_URL = process.env.SEPAY_RETURN_URL || "http://localhost:3000/profile/orders";
+const SEPAY_CHECKOUT_RETURN_URL = process.env.SEPAY_CHECKOUT_RETURN_URL || "";
 const SEPAY_PAYMENT_METHOD =
   (process.env.SEPAY_PAYMENT_METHOD as "BANK_TRANSFER" | "NAPAS_BANK_TRANSFER" | undefined) ||
   "BANK_TRANSFER";
@@ -39,6 +40,17 @@ export const createSepayCheckoutPayload = ({
   const client = getSepayClient();
   const normalizedAmount = Math.max(0, Math.round(Number(amount) || 0));
 
+  const fallbackCheckoutReturnUrl = (() => {
+    try {
+      const successUrl = new URL(SEPAY_RETURN_URL);
+      return `${successUrl.origin}/checkout`;
+    } catch {
+      return "http://localhost:3000/checkout";
+    }
+  })();
+
+  const checkoutReturnUrl = SEPAY_CHECKOUT_RETURN_URL || fallbackCheckoutReturnUrl;
+
   const checkoutUrl = client.checkout.initCheckoutUrl();
   const checkoutFields = client.checkout.initOneTimePaymentFields({
     operation: "PURCHASE",
@@ -48,8 +60,8 @@ export const createSepayCheckoutPayload = ({
     currency: "VND",
     order_description: `Thanh toan don hang ${orderId}`,
     success_url: `${SEPAY_RETURN_URL}?orderId=${encodeURIComponent(orderId)}&status=SUCCESS`,
-    error_url: `${SEPAY_RETURN_URL}?orderId=${encodeURIComponent(orderId)}&status=FAILED`,
-    cancel_url: `${SEPAY_RETURN_URL}?orderId=${encodeURIComponent(orderId)}&status=CANCELLED`,
+    error_url: `${checkoutReturnUrl}?orderId=${encodeURIComponent(orderId)}&status=FAILED`,
+    cancel_url: `${checkoutReturnUrl}?orderId=${encodeURIComponent(orderId)}&status=CANCELLED`,
     custom_data: JSON.stringify({ orderId }),
   });
 

@@ -1,10 +1,42 @@
 "use client";
 
+import { useEffect, useRef } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import CheckoutForm from "./CheckoutForm";
 import CheckoutSummary from "./CheckoutSummary";
 import SWTBreadcrumb from "@/src/@core/component/AntD/SWTBreadcrumb";
+import { showNotificationError, showNotificationSuccess } from "@/src/@core/utils/message";
 
 export default function CheckoutClient() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const paymentHandledRef = useRef(false);
+
+  useEffect(() => {
+    if (paymentHandledRef.current) return;
+
+    const status = searchParams.get("status");
+    const orderId = searchParams.get("orderId") || searchParams.get("order_id");
+    if (!status && !orderId) return;
+
+    paymentHandledRef.current = true;
+
+    const normalizedStatus = String(status || "").toUpperCase();
+    if (normalizedStatus === "CANCELLED" || normalizedStatus === "FAILED") {
+      showNotificationError("Giao dịch SEPay không thành công. Vui lòng thử lại.");
+    } else if (normalizedStatus === "SUCCESS") {
+      showNotificationSuccess("Thanh toán SEPay thành công.");
+    }
+
+    const params = new URLSearchParams(searchParams.toString());
+    ["status", "orderId", "order_id", "payment_status", "result", "sign", "signature", "mac", "amount"].forEach(
+      (key) => params.delete(key)
+    );
+
+    const query = params.toString();
+    router.replace(query ? `/checkout?${query}` : "/checkout");
+  }, [router, searchParams]);
+
   return (
     <div className="max-w-7xl mx-auto px-4 py-6">
       <SWTBreadcrumb
