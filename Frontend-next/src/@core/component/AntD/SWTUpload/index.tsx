@@ -13,7 +13,7 @@ import {
 } from "@/src/@core/utils/message";
 
 export type SWTUploadProps = UploadProps & {
-    uploadType?: "avatar" | "image";
+    uploadType?: "avatar" | "image" | "file";
     limitFile: number;
     isShowlistFile?: boolean;
     label?: string;
@@ -46,7 +46,7 @@ const SWTUpload = ({
     const FILE_ACCEPT_MAP = {
         image: "image/png, image/jpeg, image/webp",
         avatar: "image/png, image/jpeg",
-        // file: ".csv, .xlsx, .xls"
+        file: ".csv, .xlsx, .xls"
     };
 
     const accept = FILE_ACCEPT_MAP[uploadType] || FILE_ACCEPT_MAP.image;

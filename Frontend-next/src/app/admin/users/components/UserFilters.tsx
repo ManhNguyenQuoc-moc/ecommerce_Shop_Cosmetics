@@ -1,5 +1,5 @@
 "use client";
-import { Download, Filter, Plus } from "lucide-react";
+import { Download, Filter } from "lucide-react";
 import SWTButton from "@/src/@core/component/AntD/SWTButton";
 import { SWTInputSearch } from "@/src/@core/component/AntD/SWTInput";
 import SWTSelect from "@/src/@core/component/AntD/SWTSelect";
@@ -33,6 +33,24 @@ export default function UserFilters() {
         </div>
 
         <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+          <div className="flex items-center gap-2 rounded-xl px-1 h-11">
+            <span className="text-sm font-bold text-text-muted pl-3">Sắp xếp:</span>
+            <SWTSelect
+              placeholder="Sắp xếp theo"
+              className="min-w-45 h-full [&_.ant-select-selector]:bg-transparent! [&_.ant-select-selector]:border-none! [&_.ant-select-selector]:shadow-none!"
+              value={filters.sortBy || "newest"}
+              onChange={(val) => handleFilterChange('sortBy', String(val))}
+              options={[
+                { label: "Mới nhất", value: "newest" },
+                { label: "Cũ nhất", value: "oldest" },
+                { label: "Tên: A-Z", value: "name_asc" },
+                { label: "Tên: Z-A", value: "name_desc" },
+                { label: "Điểm tích lũy: Cao nhất", value: "points_desc" },
+                { label: "Điểm tích lũy: Thấp nhất", value: "points_asc" },
+              ]}
+            />
+          </div>
+
           <SWTTooltip title="Xuất dữ liệu người dùng" placement="top">
             <div className="flex h-11 w-11 items-center justify-center bg-white dark:bg-slate-900/50 hover:bg-emerald-50 dark:hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-slate-200 dark:border-emerald-500/50 rounded-xl shadow-sm transition-all cursor-pointer group">
               <Download size={20} className="group-hover:scale-110 transition-transform duration-300" />
@@ -61,7 +79,7 @@ export default function UserFilters() {
               value={filters.roleId}
               onChange={(val) => handleFilterChange('roleId', String(val))}
               options={[
-                { label: "Tất cả", value: "all" },
+                { label: "Tất cả vai trò", value: "all" },
                 ...roles.map((role) => ({ label: role.name, value: role.id }))
               ]}
             />
@@ -71,7 +89,7 @@ export default function UserFilters() {
               value={filters.accountType}
               onChange={(val) => handleFilterChange('accountType', String(val))}
               options={[
-                { label: "Tất cả", value: "all" },
+                { label: "Tất cả loại", value: "all" },
                 { label: "Customer", value: "CUSTOMER" },
                 { label: "Internal", value: "INTERNAL" }
               ]}
@@ -82,7 +100,7 @@ export default function UserFilters() {
               value={filters.status}
               onChange={(val) => handleFilterChange('status', String(val))}
               options={[
-                { label: "Tất cả", value: "all" },
+                { label: "Tất cả trạng thái", value: "all" },
                 { label: "Hoạt động", value: "ACTIVE" },
                 { label: "Khóa", value: "BANNED" }
               ]}
@@ -97,6 +115,7 @@ export default function UserFilters() {
               handleFilterChange('roleId', 'all');
               handleFilterChange('accountType', 'all');
               handleFilterChange('status', 'all');
+              handleFilterChange('sortBy', 'newest');
             }}
             className="h-9 px-4 text-xs rounded-xl w-auto whitespace-nowrap text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all font-bold"
           >

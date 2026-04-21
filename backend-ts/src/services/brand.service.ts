@@ -1,11 +1,28 @@
+import { Brand } from "@prisma/client";
 import { BrandRepository } from "../repositories/brand.repository";
-// Workaround for Prisma type export issues
-type Brand = any;
+
+type BrandQueryFilters = {
+  searchTerm?: string;
+  minimal?: boolean;
+  sortBy?: string;
+  mediaStatus?: string;
+};
+
+type BrandInput = {
+  name: string;
+  description?: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+  slug?: string;
+  logo?: { url: string };
+  banner?: { url: string };
+};
 
 export class BrandService {
   constructor(private readonly brandRepository: BrandRepository = new BrandRepository()) {}
 
-  async getAllBrands(page?: number, limit?: number, filters?: any): Promise<{ items: Brand[], total: number }> {
+  async getAllBrands(page?: number, limit?: number, filters?: BrandQueryFilters): Promise<{ items: Brand[], total: number }> {
     const skip = page && limit ? (page - 1) * limit : undefined;
     const [items, total] = await this.brandRepository.findAll(skip, limit, filters);
     return { items, total };
@@ -15,14 +32,14 @@ export class BrandService {
     return this.brandRepository.findById(id);
   }
 
-  async createBrand(data: any): Promise<Brand> {
+  async createBrand(data: BrandInput): Promise<Brand> {
     if (!data.slug && data.name) {
       data.slug = data.name.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
     }
     return this.brandRepository.create(data);
   }
 
-  async updateBrand(id: string, data: any): Promise<Brand> {
+  async updateBrand(id: string, data: BrandInput): Promise<Brand> {
     if (data.name && !data.slug) {
        data.slug = data.name.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
     }

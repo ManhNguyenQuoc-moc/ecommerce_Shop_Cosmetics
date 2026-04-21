@@ -24,9 +24,9 @@ export class PurchaseService {
     return { data: orders, total, page, pageSize: limit };
   }
 
-  async getPurchaseOrderItems(id: string, page: number, limit: number): Promise<PagedResult<any>> {
+  async getPurchaseOrderItems(id: string, page: number, limit: number, search?: string): Promise<PagedResult<any>> {
     const skip = (page - 1) * limit;
-    const [items, total] = await this.purchaseRepo.getPurchaseOrderItems(id, skip, limit);
+    const [items, total] = await this.purchaseRepo.getPurchaseOrderItems(id, skip, limit, search);
     return { data: items, total, page, pageSize: limit };
   }
 
@@ -40,17 +40,19 @@ export class PurchaseService {
     return this.purchaseRepo.getPurchaseOrderById(id);
   }
 
-  async createPurchaseOrder(data: CreatePODTO) {
+  async createPurchaseOrder(data: CreatePODTO, userId: string) {
     if (!data.items || data.items.length === 0) {
       throw new Error("Phiếu nhập phải có ít nhất 1 mặt hàng");
     }
-    return this.purchaseRepo.createPurchaseOrder(data);
+    return this.purchaseRepo.createPurchaseOrder(data, userId);
   }
 
   async updatePurchaseOrder(id: string, data: UpdatePODTO) {
     const po = await this.purchaseRepo.getPurchaseOrderById(id);
     if (!po) throw new Error("Không tìm thấy phiếu nhập");
-    if (po.status !== "DRAFT") throw new Error("Chỉ phiếu ở trạng thái DRAFT mới được chỉnh sửa");
+    if (po.status !== "DRAFT" && po.status !== "CANCELLED") {
+      throw new Error("Chỉ phiếu ở trạng thái DRAFT hoặc CANCELLED mới được chỉnh sửa");
+    }
     if (!data.items || data.items.length === 0) {
       throw new Error("Phiếu nhập phải có ít nhất 1 mặt hàng");
     }
@@ -68,12 +70,22 @@ export class PurchaseService {
     return this.purchaseRepo.updatePurchaseOrderStatus(id, "CONFIRMED" as POStatus);
   }
 
-  async cancelPurchaseOrder(id: string) {
+  async cancelPurchaseOrder(id: string, reason: string) {
     const po = await this.purchaseRepo.getPurchaseOrderById(id);
     if (!po) throw new Error("Không tìm thấy phiếu nhập");
     if (po.status === "COMPLETED") throw new Error("Không thể hủy phiếu đã hoàn tất");
-    if (po.status === "CANCELLED") throw new Error("Phiếu này đã bị hủy trước đó");
+    // If reason is provided, we set it back to DRAFT as requested
+    if (reason) {
+      return this.purchaseRepo.rejectPurchaseOrder(id, reason);
+    }
     return this.purchaseRepo.updatePurchaseOrderStatus(id, "CANCELLED" as POStatus);
+  }
+  
+  async resubmitPurchaseOrder(id: string) {
+    const po = await this.purchaseRepo.getPurchaseOrderById(id);
+    if (!po) throw new Error("Không tìm thấy phiếu nhập");
+    if (po.status !== "CANCELLED") throw new Error("Chỉ có thể gửi duyệt lại phiếu ở trạng thái CANCELLED");
+    return this.purchaseRepo.updatePurchaseOrderStatus(id, "DRAFT" as POStatus);
   }
 
   async receiveStock(dto: ReceiveStockDTO) {

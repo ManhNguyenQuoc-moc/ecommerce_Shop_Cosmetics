@@ -333,3 +333,56 @@ export const exportPOToExcel = (po: any, includeReceipt: boolean = false) => {
   XLSX.utils.book_append_sheet(wb, ws, "Purchase Order");
   XLSX.writeFile(wb, `${includeReceipt ? "Receipt" : "PO"}-${po.code}.xlsx`);
 };
+
+export const exportReceiptTemplate = (po: any, pendingItems: any[]) => {
+  const wsData = [
+    ["STOCK RECEIPT TEMPLATE (BẢN MẪU NHẬP KHO)"],
+    ["PO Number:", po.code],
+    ["Supplier:", po.brand?.name || "N/A"],
+    ["Instructions:", "Điền thông tin vào các cột: Qty to Import, Batch Number, MFG Date, Expiry Date. Định dạng ngày: DD/MM/YYYY"],
+    [],
+    ["#", "Product Name", "Variant", "SKU", "Qty Ordered", "Received Qty", "Qty to Import", "Batch Number", "MFG Date (DD/MM/YYYY)", "Expiry Date (DD/MM/YYYY)", "Variant ID"]
+  ];
+
+  pendingItems.forEach((item, index) => {
+    const variantName = [item.variant?.color, item.variant?.size].filter(Boolean).join(" - ") || "Standard";
+    const sku = item.variant?.sku || "-";
+    const remainingQty = item.orderedQty - item.receivedQty;
+    const defaultBatch = `LOT-${new Date().toISOString().slice(2, 10).replace(/-/g, '')}`;
+
+    wsData.push([
+      index + 1,
+      item.variant?.product?.name || "Unknown",
+      variantName,
+      sku,
+      item.orderedQty,
+      item.receivedQty,
+      remainingQty, // Pre-fill with remaining qty
+      defaultBatch,
+      "", // MFG Date empty
+      "", // Expiry Date empty
+      item.variantId
+    ]);
+  });
+
+  const ws = XLSX.utils.aoa_to_sheet(wsData);
+  
+  // Set column widths
+  ws['!cols'] = [
+    { wch: 5 },   // #
+    { wch: 35 },  // Product
+    { wch: 20 },  // Variant
+    { wch: 15 },  // SKU
+    { wch: 12 },  // Qty Ordered
+    { wch: 12 },  // Received Qty
+    { wch: 15 },  // Qty to Import
+    { wch: 20 },  // Batch
+    { wch: 25 },  // MFG
+    { wch: 25 },  // Expiry
+    { wch: 30 }   // Variant ID
+  ];
+
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Receipt Template");
+  XLSX.writeFile(wb, `Receipt-Template-${po.code}.xlsx`);
+};

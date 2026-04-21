@@ -54,7 +54,9 @@ const PODetailCards: React.FC<PODetailCardsProps> = ({ po }) => {
                   <User size={14} className="text-text-muted" />
                   <span className="text-text-muted font-bold uppercase text-[10px] tracking-tight">Người tạo:</span>
                 </div>
-                <span className="font-bold text-text-main bg-bg-muted px-3 py-0.5 rounded-full uppercase text-[10px] tracking-widest">Admin</span>
+                <span className="font-bold text-text-main bg-bg-muted px-3 py-0.5 rounded-full uppercase text-[10px] tracking-widest">
+                  {po.creator?.full_name || "Admin"}
+                </span>
               </div>
               <div className="flex justify-between items-center pb-2.5 border-b border-border-default">
                 <div className="flex items-center gap-2">
@@ -66,12 +68,21 @@ const PODetailCards: React.FC<PODetailCardsProps> = ({ po }) => {
                 </span>
               </div>
            </div>
-           <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-2">
               <span className="text-text-muted font-bold text-[10px] uppercase tracking-widest pl-1 mb-2 block">Ghi chú</span>
               <div className="p-4 bg-bg-muted/50 rounded-2xl border border-dashed border-border-default min-h-[70px] text-text-sub italic font-medium">
-                 {po.note || "Không có ghi chú dành cho phiếu này."}
+                 {po.rejectionNote ? (
+                   <div className="flex flex-col gap-1">
+                     <span className="text-red-500 font-bold not-italic text-[10px] uppercase tracking-wider mb-1">Lý do từ chối:</span>
+                     <span className="text-red-600 dark:text-red-400 font-bold">{po.rejectionNote}</span>
+                     <div className="h-[1px] bg-red-200 dark:bg-red-900/50 my-2" />
+                     <span>{po.note || "Không có ghi chú thêm."}</span>
+                   </div>
+                 ) : (
+                   po.note || "Không có ghi chú dành cho phiếu này."
+                 )}
               </div>
-           </div>
+            </div>
         </div>
       </div>
     </div>

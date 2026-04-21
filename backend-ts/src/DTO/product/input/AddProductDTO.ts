@@ -22,8 +22,6 @@ export interface CreateProductDTO {
     short_description?: string;
     long_description?: string;
     status?: 'ACTIVE' | 'HIDDEN' | 'STOPPED';
-    price: number;
-    salePrice?: number | null;
     specifications?: ProductSpecificationDTO[];
     images?: string[]; 
     variants?: CreateVariantDTO[];

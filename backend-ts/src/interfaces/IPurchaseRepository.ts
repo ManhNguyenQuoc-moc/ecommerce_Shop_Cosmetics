@@ -12,11 +12,12 @@ export interface IPurchaseRepository {
 
   getPurchaseOrderById(id: string): Promise<PODetailDTO | null>;
 
-  createPurchaseOrder(data: CreatePODTO): Promise<PurchaseOrder>;
+  createPurchaseOrder(data: CreatePODTO, userId: string): Promise<PurchaseOrder>;
 
   updatePurchaseOrder(id: string, data: UpdatePODTO): Promise<PurchaseOrder>;
 
-  getPurchaseOrderItems(id: string, skip: number, take: number): Promise<[any[], number]>;
+  getPurchaseOrderItems(id: string, skip: number, take: number, search?: string): Promise<[any[], number]>;
   getPurchaseOrderReceipts(id: string, skip: number, take: number): Promise<[any[], number]>;
   updatePurchaseOrderStatus(id: string, status: POStatus): Promise<PurchaseOrder>;
+  rejectPurchaseOrder(id: string, reason: string): Promise<PurchaseOrder>;
 }

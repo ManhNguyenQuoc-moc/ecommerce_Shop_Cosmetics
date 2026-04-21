@@ -13,6 +13,7 @@ import AddProductModal from "./AddProductModal";
 import { mutate } from "swr";
 import { PRODUCT_API_ENDPOINT, createProduct } from "@/src/services/admin/product/product.service";
 import { useDebounce } from "@/src/@core/hooks/useDebounce";
+import ImportProductModal from "./ImportProductModal";
 
 interface ProductFiltersProps {
   startTransition: TransitionStartFunction;
@@ -20,6 +21,7 @@ interface ProductFiltersProps {
 
 export default function ProductFilters({ startTransition }: ProductFiltersProps) {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
 
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -88,6 +90,14 @@ export default function ProductFilters({ startTransition }: ProductFiltersProps)
     });
   };
 
+  const revalidate = () => {
+    mutate(
+      (key: any) => typeof key === 'string' && key.startsWith(PRODUCT_API_ENDPOINT),
+      undefined,
+      { revalidate: true }
+    );
+  };
+
   return (
     <>
       <div className="flex flex-col gap-5 mb-6">
@@ -130,7 +140,10 @@ export default function ProductFilters({ startTransition }: ProductFiltersProps)
             {/* Action Buttons */}
             <div className="flex items-center gap-2">
               <SWTTooltip title="Nhập dữ liệu từ CSV/XLSX" placement="top">
-                <div className="flex h-11 w-11 items-center justify-center bg-bg-card hover:bg-status-success-bg text-status-success-text border border-border-default dark:border-status-success-border rounded-xl shadow-sm transition-all cursor-pointer group">
+                <div 
+                  className="flex h-11 w-11 items-center justify-center bg-bg-card hover:bg-status-success-bg text-status-success-text border border-border-default dark:border-status-success-border rounded-xl shadow-sm transition-all cursor-pointer group"
+                  onClick={() => setIsImportModalOpen(true)}
+                >
                   <FileSpreadsheet size={20} className="group-hover:scale-110 transition-transform duration-300" />
                 </div>
               </SWTTooltip>
@@ -225,17 +238,18 @@ export default function ProductFilters({ startTransition }: ProductFiltersProps)
         onAdd={async (data) => {
           try {
             await createProduct(data);
-            mutate(
-              (key: any) => typeof key === 'string' && key.startsWith(PRODUCT_API_ENDPOINT),
-              undefined,
-              { revalidate: true }
-            );
+            revalidate();
             setIsAddModalOpen(false);
           } catch (err: any) {
             console.error("Create product error", err);
             throw err;
           }
         }}
+      />
+      <ImportProductModal 
+        isOpen={isImportModalOpen}
+        onClose={() => setIsImportModalOpen(false)}
+        onSuccess={revalidate}
       />
     </>
   );

@@ -20,12 +20,15 @@ export default function RewardFilters({ startTransition }: RewardFiltersProps) {
 
   const searchStr = searchParams.get("search") || "";
   const [localSearch, setLocalSearch] = useState(searchStr);
+  const sortVal = searchParams.get("sortBy") || "points_desc";
   const debouncedSearch = useDebounce(localSearch, 500);
+  const memberRankVal = searchParams.get("memberRank") || "all";
+  const userStatusVal = searchParams.get("status") || "all";
   const statusVal = searchParams.get("walletStatus") || "all";
 
   const updateFilter = useCallback((key: string, value: string) => {
     const params = new URLSearchParams(searchParams.toString());
-    if (value && value !== "" && value !== "all") {
+    if (value && value !== "" && value !== "all" && value !== "undefined") {
       params.set(key, value);
     } else {
       params.delete(key);
@@ -48,7 +51,10 @@ export default function RewardFilters({ startTransition }: RewardFiltersProps) {
 
   const clearFilters = () => {
     const params = new URLSearchParams(searchParams.toString());
+    params.delete("sortBy");
     params.delete("search");
+    params.delete("memberRank");
+    params.delete("status");
     params.delete("walletStatus");
     params.set("page", "1");
     startTransition(() => {
@@ -62,12 +68,27 @@ export default function RewardFilters({ startTransition }: RewardFiltersProps) {
         <div className="flex-1 w-full max-w-2xl">
           <SWTInputSearch 
             placeholder="Tìm kiếm tên khách hàng, email, số điện thoại..." 
-            className="w-full !h-11 !rounded-2xl shadow-sm"
+            className="w-full h-11! rounded-2xl! shadow-sm"
             value={localSearch}
             onChange={(e) => setLocalSearch(e.target.value)}
             allowClear
           />
         </div>
+          <div className="flex items-center gap-2 rounded-xl px-1 h-11">
+            <span className="text-sm font-bold text-text-muted pl-3">Sắp xếp:</span>
+            <SWTSelect
+              placeholder="Sắp xếp"
+              className="min-w-45 h-full [&_.ant-select-selector]:bg-transparent! [&_.ant-select-selector]:border-none! [&_.ant-select-selector]:shadow-none!"
+              value={sortVal}
+              onChange={(v) => updateFilter("sortBy", String(v))}
+              options={[
+                { label: "Điểm tích lũy: Cao nhất", value: "points_desc" },
+                { label: "Điểm tích lũy: Thấp nhất", value: "points_asc" },
+                { label: "Mới nhất", value: "newest" },
+                { label: "Tên: A-Z", value: "name_asc" }
+              ]}
+            />
+          </div>
 
         <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
           <SWTTooltip title="Xuất báo cáo giao dịch" placement="top">
@@ -88,22 +109,44 @@ export default function RewardFilters({ startTransition }: RewardFiltersProps) {
 
       {/* FILTER BAR */}
       <div className="flex flex-col md:flex-row md:items-center gap-4 w-full p-4 lg:p-5 transition-all duration-300">
-        
         <div className="flex flex-wrap items-center gap-3 flex-1 w-full">
-          <div className="flex items-center gap-2 text-brand-500 
-          font-bold md:pr-4 border-b md:border-b-0 md:border-r border-border-default pb-2 md:pb-0 w-full md:w-auto">
+          <div className="flex items-center gap-2 text-brand-500 font-bold md:pr-4 border-b md:border-b-0 md:border-r border-border-default pb-2 md:pb-0 w-full md:w-auto">
             <Filter size={18} className="text-brand-500" />
             <span className="text-xs uppercase tracking-widest whitespace-nowrap">Bộ lọc</span>
           </div>
 
           <div className="flex flex-wrap items-center gap-3 flex-1">
-            <SWTSelect 
-              placeholder="Trạng thái ví"
-              className="w-full sm:w-[180px] !h-11"
-              value={statusVal}
-              onChange={(v) => updateFilter("walletStatus", v)}
+            <SWTSelect
+              placeholder="Hạng thành viên"
+              className="w-full sm:w-45 h-11!"
+              value={memberRankVal}
+              onChange={(v) => updateFilter("memberRank", String(v))}
+              options={[
+                { label: "Tất cả hạng", value: "all" },
+                { label: "Bronze", value: "Bronze" },
+                { label: "Silver", value: "Silver" },
+                { label: "Gold", value: "Gold" },
+                { label: "Diamond", value: "Diamond" }
+              ]}
+            />
+            {/* <SWTSelect
+              placeholder="Trạng thái tài khoản"
+              className="w-full sm:w-45 h-11!"
+              value={userStatusVal}
+              onChange={(v) => updateFilter("status", String(v))}
               options={[
                 { label: "Tất cả", value: "all" },
+                { label: "Hoạt động", value: "ACTIVE" },
+                { label: "Khóa", value: "BANNED" }
+              ]}
+            /> */}
+            <SWTSelect
+              placeholder="Trạng thái ví"
+              className="w-full sm:w-45 h-11!"
+              value={statusVal}
+              onChange={(v) => updateFilter("walletStatus", String(v))}
+              options={[
+                { label: "Tất cả trạng thái ví", value: "all" },
                 { label: "Hoạt động", value: "active" },
                 { label: "Đã khóa", value: "locked" }
               ]}
@@ -115,8 +158,7 @@ export default function RewardFilters({ startTransition }: RewardFiltersProps) {
           <SWTButton
             type="text"
             onClick={clearFilters}
-            className="!h-9 !px-4 !text-xs !rounded-xl !w-auto whitespace-nowrap
-            text-text-muted hover:!text-status-error-text hover:!bg-status-error-bg/10 transition-all font-bold"
+            className="h-9! px-4! text-xs! rounded-xl! w-auto! whitespace-nowrap text-text-muted hover:text-status-error-text! hover:bg-status-error-bg/10! transition-all font-bold"
           >
             Xóa bộ lọc
           </SWTButton>

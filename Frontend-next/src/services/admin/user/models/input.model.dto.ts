@@ -15,6 +15,8 @@ export interface UserQueryFilters {
   pageSize?: number;
   roleId?: string;
   accountType?: "CUSTOMER" | "INTERNAL";
+  memberRank?: "Bronze" | "Silver" | "Gold" | "Diamond";
   status?: string;
   wallet_status?: string;
+  sortBy?: "newest" | "oldest" | "name_asc" | "name_desc" | "points_desc" | "points_asc";
 }

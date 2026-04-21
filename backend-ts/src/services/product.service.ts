@@ -364,16 +364,27 @@ export class ProductService implements IProductService {
   async createProduct(data: CreateProductDTO): Promise<Product> {
     const slug = data.name.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
     
+    // Helper to check if string is a valid UUID
+    const isUUID = (str: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str);
+
     // Resolve Brand
-    if (data.brandId && !data.brandId.includes('-')) {
+    if (data.brandId && !isUUID(data.brandId)) {
       const brand = await prisma.brand.findFirst({ where: { name: { equals: data.brandId, mode: 'insensitive' } } });
-      if (brand) data.brandId = brand.id;
+      if (brand) {
+        data.brandId = brand.id;
+      } else {
+        throw new Error(`Thương hiệu "${data.brandId}" không tồn tại trong hệ thống.`);
+      }
     }
 
     // Resolve Category
-    if (data.categoryId && !data.categoryId.includes('-')) {
+    if (data.categoryId && !isUUID(data.categoryId)) {
       const category = await prisma.category.findFirst({ where: { name: { equals: data.categoryId, mode: 'insensitive' } } });
-      if (category) data.categoryId = category.id;
+      if (category) {
+        data.categoryId = category.id;
+      } else {
+        throw new Error(`Danh mục "${data.categoryId}" không tồn tại trong hệ thống.`);
+      }
     }
     const existing = await prisma.product.findUnique({ where: { slug } });
     if (existing) throw new Error(`Product with slug ${slug} already exists`);
@@ -543,5 +554,122 @@ export class ProductService implements IProductService {
         status: p.status
       };
     });
+  }
+
+  /**
+   * Bulk import products from CSV/Excel data
+   * Option A: Skip duplicates
+   */
+  async bulkImportProducts(items: CreateProductDTO[]): Promise<{
+    successCount: number;
+    skipCount: number;
+    errors: string[];
+  }> {
+    let successCount = 0;
+    let skipCount = 0;
+    const errors: string[] = [];
+
+    // Process items sequentially to ensure brands/categories are resolved correctly and errors are traceable
+    for (const item of items) {
+      try {
+        // 1. Generate slug to check for existing product
+        const slug = item.name.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
+        const existingProduct = await prisma.product.findUnique({ where: { slug } });
+
+        if (existingProduct) {
+          skipCount++;
+          continue;
+        }
+
+        // 2. Check for duplicate SKUs in the request's variants
+        if (item.variants && item.variants.length > 0) {
+          const skus = item.variants.map(v => v.sku).filter(Boolean);
+          if (skus.length > 0) {
+            const existingVariant = await prisma.productVariant.findFirst({
+              where: { sku: { in: skus as string[] } }
+            });
+            if (existingVariant) {
+              skipCount++;
+              continue;
+            }
+          }
+        }
+
+        // 3. Use internal createProduct logic
+        await this.createProduct(item);
+        successCount++;
+      } catch (err: any) {
+        console.error(`Error importing product ${item.name}:`, err);
+        errors.push(`Sản phẩm "${item.name}": ${err.message || 'Lỗi không xác định'}`);
+      }
+    }
+
+    return {
+      successCount,
+      skipCount,
+      errors
+    };
+  }
+
+  /**
+   * Bulk import variants from CSV/Excel data
+   */
+  async bulkImportVariants(items: (CreateVariantDTO & { productName: string })[]): Promise<{
+    successCount: number;
+    skipCount: number;
+    errors: string[];
+  }> {
+    let successCount = 0;
+    let skipCount = 0;
+    const errors: string[] = [];
+
+    for (const item of items) {
+      try {
+        // 1. Resolve Product by Name
+        const product = await prisma.product.findFirst({
+          where: { name: { equals: item.productName, mode: 'insensitive' } },
+          select: { id: true }
+        });
+
+        if (!product) {
+          errors.push(`Sản phẩm "${item.productName}" không tồn tại trong hệ thống.`);
+          continue;
+        }
+
+        // 2. Check if SKU already exists
+        if (item.sku) {
+          const existingVariant = await prisma.productVariant.findUnique({
+            where: { sku: item.sku }
+          });
+          if (existingVariant) {
+            skipCount++;
+            continue;
+          }
+        }
+
+        // 3. Handle Image if provided
+        if (item.imageUrl) {
+          const img = await prisma.image.create({ data: { url: item.imageUrl } });
+          (item as any).imageId = img.id;
+        }
+
+        // 4. Create Variant via Repository
+        await this.productRepository.createVariant({
+          ...item,
+          productId: product.id
+        });
+
+        successCount++;
+      } catch (err: any) {
+        console.error(`Error importing variant for product ${item.productName}:`, err);
+        errors.push(`Sản phẩm "${item.productName}" - SKU ${item.sku || 'N/A'}: ${err.message || 'Lỗi không xác định'}`);
+      }
+    }
+
+    return {
+      successCount,
+      skipCount,
+      errors
+    };
   }
 }

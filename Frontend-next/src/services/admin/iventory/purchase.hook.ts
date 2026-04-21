@@ -26,8 +26,8 @@ export const usePurchaseOrders = (page: number, limit: number, filters?: POQuery
   };
 };
 
-export const usePurchaseOrderItems = (id: string | null, page: number, limit: number) => {
-  const queryObj = { page, limit };
+export const usePurchaseOrderItems = (id: string | null, page: number, limit: number, search?: string) => {
+  const queryObj = { page, limit, search };
   const query = buildQueryString(queryObj);
   const url = id ? `${PURCHASE_API_ENDPOINT}/${id}/items${query}` : null;
 

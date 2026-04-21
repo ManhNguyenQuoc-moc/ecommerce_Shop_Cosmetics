@@ -54,6 +54,11 @@ export const VoucherResponseSchema = z.object({
 export type VoucherResponseDTO = z.infer<typeof VoucherResponseSchema>;
 
 export const VoucherQueryFiltersSchema = z.object({
+  search: z.string().optional(),
+  status: z.enum(["active", "out", "pending", "expired"]).optional(),
+  type: z.nativeEnum(DiscountType).optional(),
+  redeemType: z.enum(["normal", "point"]).optional(),
+  sortBy: z.enum(["newest", "oldest", "end_soon", "end_late", "discount_desc", "discount_asc", "used_desc", "used_asc"]).optional(),
   page: z.number().optional().default(1),
   pageSize: z.number().optional().default(6),
   limit: z.number().optional(),

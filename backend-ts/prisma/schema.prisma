@@ -32,6 +32,7 @@ model User {
   pointTransactions      PointTransaction[]
   notifications          Notification[]
   questions              Question[]
+  purchaseOrders         PurchaseOrder[] @relation("PurchaseOrderCreator")
 
   @@index([roleId])
 }
@@ -335,15 +336,18 @@ model PurchaseOrder {
   id          String              @id @default(uuid())
   code        String              @unique
   brandId     String
-  status      POStatus            @default(DRAFT)
-  totalAmount Float               @default(0)
-  note        String?
-  priority    POPriority          @default(NORMAL)
+  status          POStatus            @default(DRAFT)
+  createdByUserId String?
+  rejectionNote   String?
+  totalAmount     Float               @default(0)
+  note            String?
+  priority        POPriority          @default(NORMAL)
   createdAt   DateTime            @default(now())
   updatedAt   DateTime            @updatedAt
   batches     Batch[]
-  brand       Brand               @relation(fields: [brandId], references: [id])
-  items       PurchaseOrderItem[]
+  brand         Brand               @relation(fields: [brandId], references: [id])
+  creator       User?               @relation("PurchaseOrderCreator", fields: [createdByUserId], references: [id])
+  items         PurchaseOrderItem[]
 }
 
 model PurchaseOrderItem {

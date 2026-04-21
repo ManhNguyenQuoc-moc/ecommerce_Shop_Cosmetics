@@ -33,8 +33,11 @@ export const updatePurchaseOrder = (id: string, data: UpdatePOInput) =>
 export const confirmPurchaseOrder = (id: string) =>
   post(`${PURCHASE_API_ENDPOINT}/${id}/confirm`, {});
 
-export const cancelPurchaseOrder = (id: string) =>
-  post(`${PURCHASE_API_ENDPOINT}/${id}/cancel`, {});
+export const cancelPurchaseOrder = (id: string, reason?: string) =>
+  post(`${PURCHASE_API_ENDPOINT}/${id}/cancel`, { reason });
+
+export const resubmitPurchaseOrder = (id: string) =>
+  post(`${PURCHASE_API_ENDPOINT}/${id}/resubmit`, {});
 
 export const receiveStock = (payload: ReceiveStockInput) =>
   post(`${PURCHASE_API_ENDPOINT}/receive-stock`, payload);

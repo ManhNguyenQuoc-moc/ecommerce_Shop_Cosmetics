@@ -16,6 +16,8 @@ import SWTCheckbox from "@/src/@core/component/AntD/SWTCheckbox";
 import { showNotificationSuccess, showNotificationError, showNotificationWarning } from "@/src/@core/utils/message";
 import {usePurchaseOrderReceipts } from "@/src/services/admin/iventory/purchase.hook";
 import { receiveStock } from "@/src/services/admin/iventory/purchase.service";
+import { exportReceiptTemplate } from "@/src/@core/utils/exportPO";
+import { importReceiptFromExcel } from "@/src/@core/utils/importPO";
 
 const COLUMN_WIDTH = {
   product : 200,
@@ -123,6 +125,51 @@ const POReceiptSection: React.FC<POReceiptSectionProps> = ({
     }
   };
 
+  const handleExportTemplate = () => {
+    exportReceiptTemplate(po, pendingItems);
+    showNotificationSuccess("Đã xuất file mẫu nhập kho!");
+  };
+
+  const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const results = await importReceiptFromExcel(file, po.code);
+      if (results.length === 0) {
+        showNotificationWarning("Không tìm thấy dữ liệu hợp lệ trong file Excel!");
+        return;
+      }
+
+      const newVals: any = {};
+      const newSelectedIds = [...selectedVariantIds];
+
+      results.forEach((item) => {
+        // Check if this variantId is in pendingItems
+        const isPending = pendingItems.some(pi => pi.variantId === item.variantId);
+        if (!isPending) return;
+
+        newVals[`qty_${item.variantId}`] = item.qty;
+        newVals[`batch_${item.variantId}`] = item.batch;
+        newVals[`mfg_${item.variantId}`] = item.mfg;
+        newVals[`expiry_${item.variantId}`] = item.expiry;
+
+        if (!newSelectedIds.includes(item.variantId)) {
+          newSelectedIds.push(item.variantId);
+        }
+      });
+
+      form.setFieldsValue(newVals);
+      setSelectedVariantIds(newSelectedIds);
+      showNotificationSuccess(`Đã nhập dữ liệu cho ${results.length} mặt hàng!`);
+    } catch (error: any) {
+      showNotificationError(error.message || "Lỗi khi nhập file Excel!");
+    } finally {
+      // Reset input value to allow selecting same file again
+      if (e.target) e.target.value = "";
+    }
+  };
+
   if (!hasReceived && !showReceiveForm && po.status === "COMPLETED") return null;
 
   return (
@@ -131,23 +178,52 @@ const POReceiptSection: React.FC<POReceiptSectionProps> = ({
         <h3 className="admin-section-heading font-bold flex items-center gap-2 text-sm uppercase tracking-wider">
           2. Thông tin thực nhận (Stock Receipt)
         </h3>
-        {hasReceived && !showReceiveForm && (
-          <div className="flex gap-2.5">
+        {showReceiveForm ? (
+          <div className="flex items-center gap-2.5">
             <SWTButton
-              icon={<FileText size={18} />}
-              onClick={() => onExport("pdf", true)}
-              className="!bg-red-500/10 !border-red-500/20 !text-red-600 dark:!text-red-400 !rounded-xl font-bold !h-10 pl-4 pr-5 hover:!bg-red-500/20 transition-all border shadow-sm"
+              icon={<FileSpreadsheet size={16} />}
+              onClick={handleExportTemplate}
+              className="!bg-blue-500/10 !border-blue-500/20 !text-blue-600 dark:!text-blue-400 !rounded-xl font-bold !h-9 text-xs pl-3 pr-4 hover:!bg-blue-500/20 transition-all border shadow-sm"
             >
-              PDF
+              Tải File Mẫu
             </SWTButton>
-            <SWTButton
-              icon={<FileSpreadsheet size={18} />}
-              onClick={() => onExport("excel", true)}
-              className="!bg-emerald-500/10 !border-emerald-500/20 !text-emerald-600 dark:!text-emerald-400 !rounded-xl font-bold !h-10 pl-4 pr-5 hover:!bg-emerald-500/20 transition-all border shadow-sm"
-            >
-              Excel
-            </SWTButton>
+            <div className="flex items-center">
+              <input
+                type="file"
+                accept=".xlsx, .xls"
+                className="hidden"
+                id="excel-import-input"
+                onChange={handleImportExcel}
+              />
+              <label htmlFor="excel-import-input" className="cursor-pointer m-0">
+                <SWTButton
+                  icon={<Layers size={16} />}
+                  className="!bg-amber-500/10 !border-amber-500/20 !text-amber-600 dark:!text-amber-400 !rounded-xl font-bold !h-9 text-xs pl-3 pr-4 hover:!bg-amber-500/20 transition-all border shadow-sm pointer-events-none"
+                >
+                  Import Excel
+                </SWTButton>
+              </label>
+            </div>
           </div>
+        ) : (
+          hasReceived && (
+            <div className="flex items-center gap-2.5">
+              <SWTButton
+                icon={<FileText size={18} />}
+                onClick={() => onExport("pdf", true)}
+                className="!bg-red-500/10 !border-red-500/20 !text-red-600 dark:!text-red-400 !rounded-xl font-bold !h-10 pl-4 pr-5 hover:!bg-red-500/20 transition-all border shadow-sm"
+              >
+                PDF
+              </SWTButton>
+              <SWTButton
+                icon={<FileSpreadsheet size={18} />}
+                onClick={() => onExport("excel", true)}
+                className="!bg-emerald-500/10 !border-emerald-500/20 !text-emerald-600 dark:!text-emerald-400 !rounded-xl font-bold !h-10 pl-4 pr-5 hover:!bg-emerald-500/20 transition-all border shadow-sm"
+              >
+                Excel
+              </SWTButton>
+            </div>
+          )
         )}
       </div>
 
@@ -271,8 +347,8 @@ const POReceiptSection: React.FC<POReceiptSectionProps> = ({
                     return (
                       <SWTFormItem name={`batch_${record.variantId}`} rules={[{ required: isSelected }]} className="!mb-0">
                         <SWTInput
-                          disabled={true}
-                          showCount ={false}
+                          disabled={!isSelected}
+                          showCount={false}
                           className="!w-full !rounded-xl text-xs uppercase !bg-white dark:!bg-slate-800/50 !border-slate-200 dark:!border-slate-700/50 !h-9 px-2"
                           placeholder="BATCH..."
                         />

@@ -30,13 +30,33 @@ export class UserRepository implements IUserRepository {
     if (filters?.accountType) {
       where.accountType = filters.accountType;
     }
+    if (filters?.memberRank) {
+      const pointsFilter = this.getLifetimePointsFilter(filters.memberRank);
+      if (pointsFilter) {
+        where.lifetime_points = pointsFilter;
+      }
+    }
+    if (filters?.status === "ACTIVE") {
+      where.is_banned = false;
+    }
+    if (filters?.status === "BANNED") {
+      where.is_banned = true;
+    }
+    if (filters?.wallet_status === "active") {
+      where.is_point_wallet_locked = false;
+    }
+    if (filters?.wallet_status === "locked") {
+      where.is_point_wallet_locked = true;
+    }
+
+    const orderBy = this.buildOrderBy(filters?.sortBy);
 
     const [users, total] = await Promise.all([
       prisma.user.findMany({
         where,
         skip,
         take,
-        orderBy: { createdAt: 'desc' },
+        orderBy,
         include: { addresses: true }
       }),
       prisma.user.count({ where })
@@ -44,6 +64,38 @@ export class UserRepository implements IUserRepository {
 
     const usersWithRole = await Promise.all(users.map((user) => this.attachRole(user)));
     return [usersWithRole as (User & { role?: string | null })[], total];
+  }
+
+  private buildOrderBy(sortBy?: UserQueryFiltersDTO["sortBy"]): Prisma.UserOrderByWithRelationInput[] {
+    switch (sortBy) {
+      case "oldest":
+        return [{ createdAt: "asc" }, { id: "asc" }];
+      case "name_asc":
+        return [{ full_name: "asc" }, { createdAt: "desc" }];
+      case "name_desc":
+        return [{ full_name: "desc" }, { createdAt: "desc" }];
+      case "points_desc":
+        return [{ loyalty_points: "desc" }, { createdAt: "desc" }];
+      case "points_asc":
+        return [{ loyalty_points: "asc" }, { createdAt: "desc" }];
+      case "newest":
+      default:
+        return [{ createdAt: "desc" }, { id: "desc" }];
+    }
+  }
+
+  private getLifetimePointsFilter(memberRank: NonNullable<UserQueryFiltersDTO["memberRank"]>): Prisma.IntFilter {
+    switch (memberRank) {
+      case "Diamond":
+        return { gte: 10000 };
+      case "Gold":
+        return { gte: 5000, lt: 10000 };
+      case "Silver":
+        return { gte: 1000, lt: 5000 };
+      case "Bronze":
+      default:
+        return { lt: 1000 };
+    }
   }
 
   async findById(id: string): Promise<(User & { role?: string | null }) | null> {
