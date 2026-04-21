@@ -94,14 +94,18 @@ export default function PODetailClient({ id }: { id: string }) {
     }
   };
 
-  const handleExport = (type: "pdf" | "excel", includeReceipt: boolean) => {
+  const handleExport = async (type: "pdf" | "excel", includeReceipt: boolean) => {
     if (!po) return;
-    if (type === "pdf") {
-      exportPOTopdf(po, includeReceipt);
-      showNotificationSuccess(`Đã xuất file PDF ${includeReceipt ? "Thực nhận" : "Phiếu nhập"}!`);
-    } else {
-      exportPOToExcel(po, includeReceipt);
-      showNotificationSuccess(`Đã xuất file Excel ${includeReceipt ? "Thực nhận" : "Phiếu nhập"}!`);
+    try {
+      if (type === "pdf") {
+        await exportPOTopdf(po, includeReceipt);
+        showNotificationSuccess(`Đã xuất file PDF ${includeReceipt ? "Thực nhận" : "Phiếu nhập"}!`);
+      } else {
+        await exportPOToExcel(po, includeReceipt);
+        showNotificationSuccess(`Đã xuất file Excel ${includeReceipt ? "Thực nhận" : "Phiếu nhập"}!`);
+      }
+    } catch {
+      showNotificationError("Xuất file thất bại. Vui lòng thử lại.");
     }
   };
 

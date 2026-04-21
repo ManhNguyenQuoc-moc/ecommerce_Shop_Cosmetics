@@ -1,5 +1,5 @@
 "use client";
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect, useRef } from "react";
 
 type SidebarContextType = {
   isExpanded: boolean;
@@ -33,21 +33,34 @@ export const SidebarProvider: React.FC<{ children: React.ReactNode }> = ({
   const [isHovered, setIsHovered] = useState(false);
   const [activeItem, setActiveItem] = useState<string | null>(null);
   const [openSubmenu, setOpenSubmenu] = useState<string | null>(null);
+  const resizeRafRef = useRef<number | null>(null);
 
   useEffect(() => {
-    const handleResize = () => {
+    const syncResponsiveState = () => {
       const mobile = window.innerWidth < 1024;
-      setIsMobile(mobile);
+      setIsMobile((prev) => (prev !== mobile ? mobile : prev));
       if (!mobile) {
-        setIsMobileOpen(false);
+        setIsMobileOpen((prev) => (prev ? false : prev));
       }
     };
 
-    handleResize();
+    const handleResize = () => {
+      if (resizeRafRef.current !== null) return;
+
+      resizeRafRef.current = window.requestAnimationFrame(() => {
+        resizeRafRef.current = null;
+        syncResponsiveState();
+      });
+    };
+
+    syncResponsiveState();
     window.addEventListener("resize", handleResize);
 
     return () => {
       window.removeEventListener("resize", handleResize);
+      if (resizeRafRef.current !== null) {
+        window.cancelAnimationFrame(resizeRafRef.current);
+      }
     };
   }, []);
 

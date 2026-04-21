@@ -12,7 +12,7 @@ export default function HeaderActionButtons() {
   const wishlistHref = useMemo(() => (currentUser ? "/wishlist" : "/login"), [currentUser]);
 
   return (
-    <div className="flex items-center gap-1.5 sm:gap-2 md:gap-3 shrink-0">
+    <div className="flex items-center gap-1.5 sm:gap-2 md:gap-3 shrink-0 md:min-w-60 md:justify-end">
       {/* Wishlist - Show on all screens */}
       <Link
         href={wishlistHref}

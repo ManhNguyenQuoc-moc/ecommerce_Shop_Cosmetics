@@ -1,4 +1,3 @@
-"use client";
 import Image from "next/image";
 import Link from "next/link";
 import { Award } from "lucide-react";
@@ -27,16 +26,16 @@ export default function BrandSection({
           <div className="w-10 h-10 rounded-full bg-brand-500 flex items-center justify-center text-white shrink-0 shadow-lg shadow-brand-200">
             <Award size={20} fill="currentColor" />
           </div>
-          <h2 className="text-2xl !mb-0 font-black text-gray-900 tracking-tight uppercase italic">Thương hiệu nổi bật</h2>
+          <h2 className="text-2xl mb-0 font-black text-gray-900 tracking-tight uppercase italic">Thương hiệu nổi bật</h2>
         </div>
-        <Link href="/brands" className="group flex items-center gap-2 !text-brand-600 font-black text-xs uppercase tracking-widest hover:gap-3 transition-all">
+        <Link href="/brands" className="group flex items-center gap-2 text-brand-600 font-black text-xs uppercase tracking-widest hover:gap-3 transition-all">
           Xem tất cả
         </Link>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        <div className="lg:col-span-6 xl:col-span-5 rounded-[2rem] overflow-hidden group hover:shadow-2xl hover:shadow-brand-500/10 transition-all duration-700 bg-white border-2 border-slate-50">
-          <div className="aspect-[16/9] flex items-center justify-center relative overflow-hidden p-12">
+        <div className="lg:col-span-6 xl:col-span-5 rounded-4xl overflow-hidden group hover:shadow-2xl hover:shadow-brand-500/10 transition-all duration-700 bg-white border-2 border-slate-50">
+          <div className="aspect-video flex items-center justify-center relative overflow-hidden p-12">
             {loading ? (
               <div className="w-32 h-32 bg-gray-200 animate-pulse rounded-full" />
             ) : (
@@ -65,7 +64,7 @@ export default function BrandSection({
               </p>
               <Link
                 href={`/products?brandId=${featuredBrands[0].id || featuredBrands[0].name}`}
-                className="inline-flex items-center gap-2 px-8 py-2.5 !bg-brand-600 hover:!bg-brand-700 !text-white font-black rounded-xl shadow-xl shadow-brand-600/20 transition-all hover:-translate-y-1 w-fit text-sm"
+                className="inline-flex items-center gap-2 px-8 py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-black rounded-xl shadow-xl shadow-brand-600/20 transition-all hover:-translate-y-1 w-fit text-sm"
               >
                 Khám phá ngay
               </Link>
@@ -75,7 +74,7 @@ export default function BrandSection({
 
         <div className="lg:col-span-6 xl:col-span-7 flex flex-col gap-6">
           {((loading ? skeletonArray : featuredBrands.slice(1, 3)) as BrandResponseDto[]).map((brand, idx) => (
-            <div key={idx} className="flex-1 rounded-[2rem] overflow-hidden group hover:shadow-2xl hover:shadow-brand-500/10 transition-all duration-700 flex flex-col sm:flex-row bg-white border-2 border-slate-50">
+            <div key={idx} className="flex-1 rounded-4xl overflow-hidden group hover:shadow-2xl hover:shadow-brand-500/10 transition-all duration-700 flex flex-col sm:flex-row bg-white border-2 border-slate-50">
               <div className="sm:w-2/5 flex items-center justify-center relative overflow-hidden p-8">
                 {loading ? (
                   <div className="w-20 h-20 bg-gray-200 animate-pulse rounded-full" />
@@ -100,7 +99,7 @@ export default function BrandSection({
                   </p>
                   <Link
                     href={`/products?brandId=${brand.id || brand.name}`}
-                    className="inline-flex items-center gap-2 !text-brand-600 font-black text-xs uppercase tracking-widest hover:pl-2 transition-all"
+                    className="inline-flex items-center gap-2 text-brand-600 font-black text-xs uppercase tracking-widest hover:pl-2 transition-all"
                   >
                     Xem chi tiết
                   </Link>
@@ -119,7 +118,7 @@ export default function BrandSection({
               href={`/products?brandId=${brand.id || brand.name}`}
               className="rounded-2xl p-6 flex flex-col items-center justify-center gap-4 hover:shadow-xl hover:shadow-brand-500/10 transition-all group border-0 bg-white"
             >
-              <div className="relative w-full aspect-[2/1] transition-transform duration-500 group-hover:scale-110">
+              <div className="relative w-full aspect-2/1 transition-transform duration-500 group-hover:scale-110">
                 <Image
                   src={brand.logo?.url || "/images/placeholder.png"}
                   alt={brand.name}

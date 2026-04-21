@@ -3,7 +3,7 @@
 import { Carousel } from "antd";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Sparkles, Trophy, Flame, Gift, ChevronLeft, ChevronRight } from "lucide-react";
+import { Sparkles, Trophy } from "lucide-react";
 import SWTCard from "@/src/@core/component/AntD/SWTCard";
 import SWTButton from "@/src/@core/component/AntD/SWTButton";
 
@@ -102,6 +102,8 @@ const HeroBanner = ({ banners }: Props) => {
                     fill
                     sizes="(max-width: 1024px) 100vw, 75vw"
                     priority={index === 0}
+                    loading={index === 0 ? "eager" : "lazy"}
+                    fetchPriority={index === 0 ? "high" : "auto"}
                     className="object-cover"
                   />
                 </div>

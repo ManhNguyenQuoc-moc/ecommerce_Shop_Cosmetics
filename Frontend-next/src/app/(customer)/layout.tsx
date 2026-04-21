@@ -3,13 +3,8 @@ import AppFooter from "@/src/layout/customer/AppFooter";
 import BackgroundDecor from "@/src/layout/customer/BackgroundDecor";
 import type { Metadata } from "next";
 import { getServerCategories, getServerBrands } from "@/src/services/customer/home/customer.service";
-import { Suspense } from "react";
-import dynamic from "next/dynamic";
 import ThemeForceLight from "@/src/@core/component/Theme/ThemeForceLight";
-import HeaderSkeleton from "@/src/layout/customer/HeaderSkeleton";
 import HeaderActionButtons from "@/src/layout/customer/HeaderActionButtons";
-
-const HeaderSearchInput = dynamic(() => import("@/src/layout/customer/HeaderSearchInput"));
 
 export const metadata: Metadata = {
   title: "Cosmetics Shop - Trang chủ",
@@ -44,13 +39,10 @@ export default function CustomerLayout({
       <ThemeForceLight />
       <BackgroundDecor />
       <div className="relative z-10 flex flex-col min-h-screen">
-        {/* Header with granular Suspense boundaries */}
-        <Suspense fallback={<HeaderSkeleton />}>
-          <HeaderDataWrapper />
-        </Suspense>
+        <HeaderDataWrapper />
         {/* Mobile search bar was fixed positioned, now inline - removed this gap */}
 
-        <main className="flex-1 max-w-7xl mx-auto px-4 md:px-6 py-8 w-full">
+        <main className="flex-1 min-h-[62vh] max-w-7xl mx-auto px-4 md:px-6 py-8 w-full">
           {children}
         </main>
 

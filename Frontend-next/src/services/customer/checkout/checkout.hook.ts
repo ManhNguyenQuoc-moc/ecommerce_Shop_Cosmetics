@@ -120,8 +120,26 @@ export const useCheckout = () => {
 
       setVoucher(voucher);
       showNotificationSuccess("Áp dụng mã giảm giá thành công");
-    } catch (err) {
-      showNotificationError("Không thể kiểm tra mã giảm giá");
+    } catch (err: unknown) {
+      const error = err as { status?: number; response?: { status?: number }; message?: string };
+      const status = error?.status ?? error?.response?.status;
+
+      if (status === 401) {
+        showNotificationError("Bạn cần đăng nhập để áp dụng mã giảm giá này.");
+        return;
+      }
+
+      if (status === 403) {
+        showNotificationError(error?.message || "Mã giảm giá không áp dụng cho tài khoản hiện tại.");
+        return;
+      }
+
+      if (status === 404) {
+        showNotificationError("Mã giảm giá không tồn tại");
+        return;
+      }
+
+      showNotificationError(error?.message || "Không thể kiểm tra mã giảm giá");
     }
   };
 

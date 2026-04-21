@@ -92,6 +92,10 @@ export const getVoucherByCode = async (code: string): Promise<VoucherDTO | null>
     };
   } catch (error) {
     console.error("Failed to fetch voucher by code:", error);
-    return null;
+    if ((error as { status?: number })?.status === 404) {
+      return null;
+    }
+
+    throw error;
   }
 };

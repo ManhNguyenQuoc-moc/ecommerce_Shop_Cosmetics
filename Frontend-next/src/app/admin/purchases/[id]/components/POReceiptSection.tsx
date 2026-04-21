@@ -125,9 +125,13 @@ const POReceiptSection: React.FC<POReceiptSectionProps> = ({
     }
   };
 
-  const handleExportTemplate = () => {
-    exportReceiptTemplate(po, pendingItems);
-    showNotificationSuccess("Đã xuất file mẫu nhập kho!");
+  const handleExportTemplate = async () => {
+    try {
+      await exportReceiptTemplate(po, pendingItems);
+      showNotificationSuccess("Đã xuất file mẫu nhập kho!");
+    } catch {
+      showNotificationError("Xuất file mẫu thất bại. Vui lòng thử lại.");
+    }
   };
 
   const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {

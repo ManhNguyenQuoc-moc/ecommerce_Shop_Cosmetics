@@ -10,6 +10,13 @@ type Props = {
     pageSize?: string;
     category?: string;
     brandId?: string;
+    minPrice?: string;
+    maxPrice?: string;
+    sortBy?: string;
+    isSale?: string;
+    inStock?: string;
+    rating?: string;
+    searchTerm?: string;
   }>;
 };
 
@@ -37,6 +44,13 @@ export default async function ProductsPage({ searchParams }: Props) {
   const params: any = { page, pageSize };
   if (resolvedSearchParams.category) params.category = resolvedSearchParams.category;
   if (resolvedSearchParams.brandId) params.brandId = resolvedSearchParams.brandId;
+  if (resolvedSearchParams.minPrice) params.minPrice = Number(resolvedSearchParams.minPrice);
+  if (resolvedSearchParams.maxPrice) params.maxPrice = Number(resolvedSearchParams.maxPrice);
+  if (resolvedSearchParams.sortBy) params.sortBy = resolvedSearchParams.sortBy;
+  if (resolvedSearchParams.isSale === "true") params.isSale = true;
+  if (resolvedSearchParams.inStock === "true") params.inStock = true;
+  if (resolvedSearchParams.rating) params.rating = Number(resolvedSearchParams.rating);
+  if (resolvedSearchParams.searchTerm?.trim()) params.searchTerm = resolvedSearchParams.searchTerm.trim();
 
   return (
     <ProductsDataWrapper params={params} />

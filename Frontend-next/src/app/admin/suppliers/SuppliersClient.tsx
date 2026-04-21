@@ -83,7 +83,7 @@ export default function SuppliersClient() {
       }
 
       if (format === 'excel') {
-        exportSuppliersToExcel(allBrands);
+        await exportSuppliersToExcel(allBrands);
       } else {
         await exportSuppliersToPDF(allBrands);
       }

@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import {
   Menu,
   Sparkles,
@@ -27,6 +27,20 @@ interface HeaderProps extends CustomerHeaderProps {
   children?: React.ReactNode;
   scrolled?: boolean;
   setSidebarOpen?: (open: boolean) => void;
+}
+
+function HeaderSearchFallback() {
+  return (
+    <>
+      <div className="hidden md:flex flex-1 mx-2 relative group h-10.5">
+        <div className="h-full w-full rounded-2xl border border-brand-200/60 bg-white/80 shadow-sm animate-pulse" />
+      </div>
+
+      <div className="md:hidden w-full py-2.5 border-t border-brand-200/40">
+        <div className="h-10.5 rounded-lg border border-brand-200/60 bg-white/80 shadow-sm animate-pulse" />
+      </div>
+    </>
+  );
 }
 
 export default function CustomerHeader({
@@ -108,7 +122,9 @@ export default function CustomerHeader({
             </div>
             
             {/* Bottom row: Search full width */}
-            <HeaderSearchInput />
+            <Suspense fallback={<HeaderSearchFallback />}>
+              <HeaderSearchInput />
+            </Suspense>
           </div>
 
           {/* Desktop: Search + Buttons on one row with logo */}
@@ -136,7 +152,9 @@ export default function CustomerHeader({
 
             {/* Desktop: Search + Buttons on same row */}
             <div className="flex items-center gap-1.5 sm:gap-2 md:gap-4 flex-1 md:flex-1">
-              <HeaderSearchInput />
+              <Suspense fallback={<HeaderSearchFallback />}>
+                <HeaderSearchInput />
+              </Suspense>
               {children}
             </div>
           </div>
@@ -146,7 +164,9 @@ export default function CustomerHeader({
         <div className={`hidden lg:block overflow-hidden transition-all duration-[250ms] ease-out origin-top ${scrolled ? "max-h-0 opacity-0 -translate-y-2" : "max-h-[76px] opacity-100 translate-y-0"}`}>
           <div className="pt-5 border-t border-brand-200/50 mt-2">
             <div className="max-w-7xl mx-auto h-[48px] flex items-center justify-center">
-              <MenuCustomer categories={dynamicCategories} />
+              <Suspense fallback={null}>
+                <MenuCustomer categories={dynamicCategories} />
+              </Suspense>
             </div>
           </div>
         </div>
