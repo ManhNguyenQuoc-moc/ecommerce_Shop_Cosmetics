@@ -50,6 +50,9 @@ export type UpdateOrderDTO = z.infer<typeof UpdateOrderSchema>;
 export const OrderQueryFiltersSchema = z.object({
   searchTerm: z.string().optional(),
   status: z.string().optional(),
+  paymentStatus: z.string().optional(),
+  paymentMethod: z.string().optional(),
+  sortBy: z.string().optional(),
   startDate: z.string().optional(),
   endDate: z.string().optional(),
   page: z.number().int().positive().optional(),

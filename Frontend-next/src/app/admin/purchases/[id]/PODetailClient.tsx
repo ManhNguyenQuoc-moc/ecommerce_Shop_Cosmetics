@@ -5,7 +5,8 @@ import {
   usePurchaseOrderById,
 } from "@/src/services/admin/iventory/purchase.hook";
 import {  confirmPurchaseOrder,
-  cancelPurchaseOrder} from "@/src/services/admin/iventory/purchase.service";
+  cancelPurchaseOrder,
+  resubmitPurchaseOrder } from "@/src/services/admin/iventory/purchase.service";
 import { exportPOTopdf, exportPOToExcel } from "@/src/@core/utils/exportPO";
 import {
   CheckCircle2,
@@ -40,6 +41,8 @@ export default function PODetailClient({ id }: { id: string }) {
 
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [cancelOpen, setCancelOpen] = useState(false);
+  const [resubmitOpen, setResubmitOpen] = useState(false);
+  const [cancelReason, setCancelReason] = useState("");
 
   const handleConfirm = async () => {
     if (!po) return;
@@ -58,16 +61,36 @@ export default function PODetailClient({ id }: { id: string }) {
 
   const handleCancel = async () => {
     if (!po) return;
+    if (!cancelReason.trim()) {
+      showNotificationError("Vui lòng nhập lý do hủy/chỉnh sửa!");
+      return;
+    }
     try {
       setIsCancelling(true);
-      await cancelPurchaseOrder(po.id);
-      showNotificationSuccess("Đã hủy phiếu nhập!");
+      await cancelPurchaseOrder(po.id, cancelReason);
+      showNotificationSuccess("Phiếu nhập đã được chuyển sang trạng thái đã hủy!");
+      setCancelReason("");
+      setCancelOpen(false);
       mutate();
     } catch {
       showNotificationError("Lỗi khi hủy phiếu!");
     } finally {
       setIsCancelling(false);
-      setCancelOpen(false);
+    }
+  };
+
+  const handleResubmit = async () => {
+    if (!po) return;
+    try {
+      setIsConfirming(true); // Using isConfirming spinner
+      await resubmitPurchaseOrder(po.id);
+      showNotificationSuccess("Phiếu nhập đã được gửi duyệt lại!");
+      setResubmitOpen(false);
+      mutate();
+    } catch {
+      showNotificationError("Lỗi khi gửi duyệt lại!");
+    } finally {
+      setIsConfirming(false);
     }
   };
 
@@ -124,7 +147,7 @@ export default function PODetailClient({ id }: { id: string }) {
         onBack={() => router.push("/admin/purchases")}
         extraActions={
           <>
-            {po.status === "DRAFT" && (
+            {(po.status === "DRAFT" || po.status === "CANCELLED") && (
               <Link href={`/admin/purchases/${po.id}/edit`}>
                 <SWTButton
                   type="primary"
@@ -158,6 +181,18 @@ export default function PODetailClient({ id }: { id: string }) {
                   Duyệt Phiếu
                 </SWTButton>
               </div>
+            )}
+            {po.status === "CANCELLED" && (
+              <SWTButton
+                type="primary"
+                icon={<PackageCheck size={16} />}
+                onClick={() => setResubmitOpen(true)}
+                loading={isConfirming}
+                size="sm"
+                className="!bg-emerald-500/10 !border-emerald-500/20 !text-emerald-600 dark:!text-emerald-400 hover:!bg-emerald-500/20 !rounded-xl !h-10 px-6 !font-bold shadow-sm !w-auto transition-all"
+              >
+                Gửi Duyệt Lại
+              </SWTButton>
             )}
             {(po.status === "CONFIRMED" || po.status === "PARTIALLY_RECEIVED") && !showReceiveForm && (
               <SWTButton
@@ -203,13 +238,37 @@ export default function PODetailClient({ id }: { id: string }) {
       <SWTConfirmModal
         open={cancelOpen}
         variant="danger"
-        title="Hủy phiếu nhập hàng?"
-        description={`Bạn có chắc chắn muốn hủy phiếu ${po.code}? Hành động này sẽ không thể hoàn tác.`}
-        confirmText="Xác nhận Hủy"
-        cancelText="Không quay lại"
+        title="Hủy / Yêu cầu chỉnh sửa?"
+        description={`Nhập lý do để chuyển phiếu ${po.code} sang trạng thái đã hủy. Nhân viên có thể chỉnh sửa lại sau đó.`}
+        confirmText="Xác nhận"
+        cancelText="Quay lại"
         loading={isCancelling}
         onConfirm={handleCancel}
-        onCancel={() => setCancelOpen(false)}
+        onCancel={() => {
+          setCancelOpen(false);
+          setCancelReason("");
+        }}
+      >
+        <div className="mt-4">
+          <textarea
+            className="w-full h-24 p-3 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 outline-none focus:ring-2 focus:ring-red-500/20 transition-all resize-none"
+            placeholder="Màu sắc không đúng, thay đổi số lượng, v.v..."
+            value={cancelReason}
+            onChange={(e) => setCancelReason(e.target.value)}
+          />
+        </div>
+      </SWTConfirmModal>
+
+      <SWTConfirmModal
+        open={resubmitOpen}
+        variant="info"
+        title="Gửi duyệt lại phiếu nhập hàng?"
+        description={`Phiếu ${po.code} sẽ chuyển sang trạng thái "Nháp" để quản trị viên có thể xem xét và phê duyệt lại.`}
+        confirmText="Xác nhận gửi"
+        cancelText="Để sau"
+        loading={isConfirming}
+        onConfirm={handleResubmit}
+        onCancel={() => setResubmitOpen(false)}
       />
     </div>
   );

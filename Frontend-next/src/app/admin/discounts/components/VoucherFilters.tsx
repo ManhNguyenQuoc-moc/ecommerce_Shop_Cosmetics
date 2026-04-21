@@ -5,7 +5,7 @@ import SWTButton from "@/src/@core/component/AntD/SWTButton";
 import { SWTInputSearch } from "@/src/@core/component/AntD/SWTInput";
 import SWTSelect from "@/src/@core/component/AntD/SWTSelect";
 import SWTTooltip from "@/src/@core/component/AntD/SWTTooltip";
-import { useState, useEffect, TransitionStartFunction } from "react";
+import { useState, useEffect, TransitionStartFunction, useCallback } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useDebounce } from "@/src/@core/hooks/useDebounce";
 
@@ -27,17 +27,14 @@ export default function VoucherFilters({ onAdd, startTransition }: VoucherFilter
     setLocalSearch(searchStr);
   }, [searchStr]);
 
-  useEffect(() => {
-    if (debouncedSearch !== searchStr) {
-      updateFilter("search", debouncedSearch);
-    }
-  }, [debouncedSearch]);
-
+  const sortByVal = searchParams.get("sortBy") || "newest";
   const statusVal = searchParams.get("status") || "all";
+  const typeVal = searchParams.get("type") || "all";
+  const redeemTypeVal = searchParams.get("redeemType") || "all";
 
-  const updateFilter = (key: string, value: string) => {
+  const updateFilter = useCallback((key: string, value: string) => {
     const params = new URLSearchParams(searchParams.toString());
-    if (value && value !== "" && value !== "all") {
+    if (value && value !== "" && value !== "all" && value !== "undefined") {
       params.set(key, value);
     } else {
       params.delete(key);
@@ -46,12 +43,21 @@ export default function VoucherFilters({ onAdd, startTransition }: VoucherFilter
     startTransition(() => {
       router.replace(`${pathname}?${params.toString()}`, { scroll: false });
     });
-  };
+  }, [pathname, router, searchParams, startTransition]);
+
+  useEffect(() => {
+    if (debouncedSearch !== searchStr) {
+      updateFilter("search", debouncedSearch);
+    }
+  }, [debouncedSearch, searchStr, updateFilter]);
 
   const clearFilters = () => {
     const params = new URLSearchParams(searchParams.toString());
     params.delete("search");
+    params.delete("sortBy");
     params.delete("status");
+    params.delete("type");
+    params.delete("redeemType");
     params.set("page", "1");
     startTransition(() => {
       router.replace(`${pathname}?${params.toString()}`, { scroll: false });
@@ -64,7 +70,7 @@ export default function VoucherFilters({ onAdd, startTransition }: VoucherFilter
         <div className="flex-1 w-full max-w-2xl">
           <SWTInputSearch 
             placeholder="Tìm kiếm mã voucher, tên chương trình..." 
-            className="w-full !h-11 !rounded-2xl shadow-sm"
+            className="w-full h-11 rounded-2xl shadow-sm"
             value={localSearch}
             onChange={(e) => setLocalSearch(e.target.value)}
             allowClear
@@ -72,6 +78,26 @@ export default function VoucherFilters({ onAdd, startTransition }: VoucherFilter
         </div>
 
         <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+          <div className="flex items-center gap-2 rounded-xl px-1 h-11">
+            <span className="text-sm font-bold text-text-muted pl-3">Sắp xếp:</span>
+            <SWTSelect
+              placeholder="Sắp xếp"
+              className="min-w-45 h-full [&_.ant-select-selector]:bg-transparent! [&_.ant-select-selector]:border-none! [&_.ant-select-selector]:shadow-none!"
+              value={sortByVal}
+              onChange={(v) => updateFilter("sortBy", String(v))}
+              options={[
+                { label: "Ngày tạo: Mới nhất", value: "newest" },
+                { label: "Ngày tạo: Cũ nhất", value: "oldest" },
+                { label: "Hạn dùng: Sớm nhất", value: "end_soon" },
+                { label: "Hạn dùng: Muộn nhất", value: "end_late" },
+                { label: "Mức giảm: Cao nhất", value: "discount_desc" },
+                { label: "Mức giảm: Thấp nhất", value: "discount_asc" },
+                { label: "Lượt dùng: Nhiều nhất", value: "used_desc" },
+                { label: "Lượt dùng: Ít nhất", value: "used_asc" }
+              ]}
+            />
+          </div>
+
           <SWTTooltip title="Xuất dữ liệu voucher" placement="top">
             <div className="flex h-11 w-11 items-center justify-center bg-white dark:bg-slate-900/50 hover:bg-emerald-50 dark:hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-slate-200 dark:border-slate-700/50 rounded-xl shadow-sm transition-all cursor-pointer group">
               <Download size={20} className="group-hover:scale-110 transition-transform duration-300" />
@@ -101,14 +127,38 @@ export default function VoucherFilters({ onAdd, startTransition }: VoucherFilter
           <div className="flex flex-wrap items-center gap-3 flex-1">
             <SWTSelect 
               placeholder="Trạng thái"
-              className="w-full sm:w-[180px] !h-11"
+              className="w-full sm:w-45 h-11!"
               value={statusVal}
-              onChange={(v) => updateFilter("status", v)}
+              onChange={(v) => updateFilter("status", String(v))}
               options={[
                 { label: "Tất cả", value: "all" },
-                { label: "Hoạt động / Diễn ra", value: "active" },
+                { label: "Đang diễn ra", value: "active" },
                 { label: "Hết lượt", value: "out" },
-                { label: "Chờ kích hoạt", value: "pending" }
+                { label: "Sắp diễn ra", value: "pending" },
+                { label: "Hết hạn / Tắt", value: "expired" }
+              ]}
+            />
+            <SWTSelect
+              placeholder="Loại giảm giá"
+              className="w-full sm:w-45 h-11!"
+              value={typeVal}
+              onChange={(v) => updateFilter("type", String(v))}
+              options={[
+                { label: "Tất cả loại", value: "all" },
+                { label: "Giảm theo %", value: "PERCENTAGE" },
+                { label: "Giảm số tiền", value: "FLAT_AMOUNT" },
+                { label: "Miễn phí vận chuyển", value: "FREE_SHIPPING" }
+              ]}
+            />
+            <SWTSelect
+              placeholder="Hình thức"
+              className="w-full sm:w-45 h-11!"
+              value={redeemTypeVal}
+              onChange={(v) => updateFilter("redeemType", String(v))}
+              options={[
+                { label: "Tất cả", value: "all" },
+                { label: "Voucher thường", value: "normal" },
+                { label: "Đổi bằng điểm", value: "point" }
               ]}
             />
           </div>
@@ -118,8 +168,7 @@ export default function VoucherFilters({ onAdd, startTransition }: VoucherFilter
           <SWTButton
             type="text"
             onClick={clearFilters}
-            className="!h-9 !px-4 !text-xs !rounded-xl !w-auto whitespace-nowrap
-            text-slate-400 hover:!text-red-500 hover:!bg-red-50 dark:hover:!bg-red-500/10 transition-all font-bold"
+            className="h-9! px-4! text-xs! rounded-xl! w-auto! whitespace-nowrap text-slate-400 hover:text-red-500! hover:bg-red-50! dark:hover:bg-red-500/10! transition-all font-bold"
           >
             Xóa bộ lọc
           </SWTButton>

@@ -2,24 +2,28 @@
 
 import React, { useState, useMemo } from 'react';
 import SWTTable from "@/src/@core/component/AntD/SWTTable";
-import { Edit, Trash2, Globe, Phone, Mail, MapPin, MoreVertical } from "lucide-react";
+import { Edit, Trash2, Phone, Mail, MapPin, MoreVertical } from "lucide-react";
 import SWTConfirmModal from "@/src/@core/component/AntD/SWTConfirmModal";
 import { showNotificationError, showNotificationSuccess } from "@/src/@core/utils/message";
-import { useBrands, useDeleteBrand } from "@/src/services/admin/brand/brand.hook";
 import SWTAvatar from "@/src/@core/component/AntD/SWTAvatar";
 import SWTIconButton from "@/src/@core/component/SWTIconButton";
 import { Dropdown } from "antd";
 import type { MenuProps } from "antd";
+import { mutate as globalMutate } from "swr";
+import { BRAND_API_ENDPOINT, useBrands, useDeleteBrand } from "@/src/services/admin/brand/brand.hook";
+import { BrandQueryFilters } from "@/src/services/models/brand/input.dto";
+import { BrandResponseDto } from "@/src/services/models/brand/output.dto";
 
 interface BrandTableProps {
-  onEdit?: (brand: any) => void;
-  searchTerm?: string;
+  params: BrandQueryFilters;
+  onEdit?: (brand: BrandResponseDto) => void;
+  onParamChange: (newParams: Partial<BrandQueryFilters>) => void;
 }
 
-export default function BrandTable({ onEdit, searchTerm }: BrandTableProps) {
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(6);
-  const { brands, total, isLoading, mutate } = useBrands(page, pageSize);
+export default function BrandTable({ onEdit, onParamChange, params }: BrandTableProps) {
+  const page = params.page || 1;
+  const pageSize = params.pageSize || 6;
+  const { brands, total, isLoading, mutate } = useBrands(page, pageSize, params);
   const { trigger: deleteBrand, isMutating: isDeleting } = useDeleteBrand();
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
@@ -29,9 +33,15 @@ export default function BrandTable({ onEdit, searchTerm }: BrandTableProps) {
       await deleteBrand(id);
       showNotificationSuccess("Xóa nhà cung cấp thành công!");
       mutate();
+      globalMutate(
+        (key) => typeof key === "string" && key.startsWith(BRAND_API_ENDPOINT),
+        undefined,
+        { revalidate: true }
+      );
       setDeletingId(null);
-    } catch (e: any) {
-      showNotificationError(e.message || "Lỗi khi xóa nhà cung cấp");
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : "Lỗi khi xóa nhà cung cấp";
+      showNotificationError(message);
     }
   };
 
@@ -40,7 +50,7 @@ export default function BrandTable({ onEdit, searchTerm }: BrandTableProps) {
       title: 'Nhà cung cấp',
       dataIndex: 'name',
       key: 'name',
-      render: (text: string, record: any) => (
+      render: (text: string, record: BrandResponseDto) => (
         <div className="flex items-center gap-3">
           <SWTAvatar
             src={record.logo?.url}
@@ -59,7 +69,7 @@ export default function BrandTable({ onEdit, searchTerm }: BrandTableProps) {
     {
       title: 'Liên hệ',
       key: 'contact',
-      render: (_: any, record: any) => (
+      render: (_: unknown, record: BrandResponseDto) => (
         <div className="space-y-1">
           {record.email && (
             <div className="flex items-center gap-1.5 text-xs text-text-sub font-medium">
@@ -81,7 +91,7 @@ export default function BrandTable({ onEdit, searchTerm }: BrandTableProps) {
       dataIndex: 'address',
       key: 'address',
       render: (text: string) => (
-        <div className="max-w-[200px] truncate text-xs text-text-sub flex items-center gap-1.5 font-medium">
+        <div className="max-w-50 truncate text-xs text-text-sub flex items-center gap-1.5 font-medium">
           {text ? <><MapPin size={12} className="text-status-success-text shrink-0" /> {text}</> : "N/A"}
         </div>
       )
@@ -100,7 +110,7 @@ export default function BrandTable({ onEdit, searchTerm }: BrandTableProps) {
       title: 'Thao tác',
       key: 'actions',
       align: 'center' as const,
-      render: (_: any, record: any) => {
+      render: (_: unknown, record: BrandResponseDto) => {
         const actionItems: MenuProps['items'] = [
           {
             key: 'edit',
@@ -140,7 +150,7 @@ export default function BrandTable({ onEdit, searchTerm }: BrandTableProps) {
 
   return (
     <div className="w-full">
-      <div className="!bg-bg-card/90 backdrop-blur-xl !rounded-xl overflow-hidden !border !border-border-default !shadow-lg mt-4 transition-colors">
+      <div className="bg-bg-card/90! backdrop-blur-xl rounded-xl! overflow-hidden border! border-border-default! shadow-lg! mt-4 transition-colors">
         <SWTTable
           columns={columns}
           dataSource={brands}
@@ -148,11 +158,14 @@ export default function BrandTable({ onEdit, searchTerm }: BrandTableProps) {
           loading={isLoading}
           pagination={{
             totalCount: total,
-            page: page,
+            page,
             fetch: pageSize,
             onChange: (p: number, f: number) => {
-              setPage(p);
-              setPageSize(f);
+              if (f !== pageSize) {
+                onParamChange({ page: 1, pageSize: f });
+              } else {
+                onParamChange({ page: p, pageSize: f });
+              }
             }
           }}
         />

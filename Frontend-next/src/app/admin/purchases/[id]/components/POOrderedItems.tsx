@@ -6,8 +6,9 @@ import { FileSpreadsheet, FileText, Layers, Search } from "lucide-react";
 import { PODetailDto } from "@/src/services/models/purchase/output.dto";
 import SWTButton from "@/src/@core/component/AntD/SWTButton";
 import SWTTable from "@/src/@core/component/AntD/SWTTable";
-import { SWTInput } from "@/src/@core/component/AntD/SWTInput";
 import { usePurchaseOrderItems } from "@/src/services/admin/iventory/purchase.hook";
+import { useDebounce } from "@/src/@core/hooks/useDebounce";
+import { SWTInputSearch } from "@/src/@core/component/AntD/SWTInput";
 
 const COLUMN_WIDTH = {
   variant: 160,
@@ -25,18 +26,16 @@ const POOrderedItems: React.FC<POOrderedItemsProps> = ({ po, onExport }) => {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(6);
   const [search, setSearch] = useState("");
-  const { items, total, isLoading } = usePurchaseOrderItems(po.id, page, pageSize);
+  const debouncedSearch = useDebounce(search, 500);
 
-  const filteredItems = useMemo(() => {
-    if (!search.trim()) return items;
-    const q = search.toLowerCase();
-    return items.filter((item: any) => {
-      const name = item.variant?.product?.name?.toLowerCase() ?? "";
-      const variant = [item.variant?.color, item.variant?.size].join(" ").toLowerCase();
-      const sku = item.variant?.sku?.toLowerCase() ?? "";
-      return name.includes(q) || variant.includes(q) || sku.includes(q);
-    });
-  }, [items, search]);
+  const { items, total, isLoading } = usePurchaseOrderItems(po.id, page, pageSize, debouncedSearch);
+
+  const filteredItems = useMemo(() => items, [items]);
+
+  // Reset to first page when search changes
+  React.useEffect(() => {
+    setPage(1);
+  }, [debouncedSearch]);
 
   return (
     <div className="admin-card-form p-6 flex flex-col gap-4">
@@ -62,16 +61,17 @@ const POOrderedItems: React.FC<POOrderedItemsProps> = ({ po, onExport }) => {
         </div>
       </div>
 
-      {/* Search bar */}
-      <div className="px-1">
-        <SWTInput
-          prefix={<Search size={14} className="text-slate-400" />}
-          placeholder="Tìm theo tên sản phẩm, biến thể, SKU..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          allowClear
-          className="!rounded-xl !h-9 max-w-sm text-sm"
-        />
+      {/* Search bar — Redesigned for consistency */}
+      <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 px-2 mb-2">
+        <div className="flex-1 w-full max-w-2xl">
+          <SWTInputSearch
+            placeholder="Tìm theo tên sản phẩm, mã SKU, màu sắc..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            allowClear
+            className="w-full !h-11 !rounded-2xl shadow-sm"
+          />
+        </div>
       </div>
 
       <div className="admin-table-wrap p-4">
@@ -79,10 +79,10 @@ const POOrderedItems: React.FC<POOrderedItemsProps> = ({ po, onExport }) => {
           rowKey="id"
           dataSource={filteredItems}
           loading={isLoading}
-         pagination={{
+          pagination={{
             page: page,
             fetch: pageSize,
-            totalCount: search.trim() ? filteredItems.length : total,
+            totalCount: total,
             onChange: (p: number, f: number) => {
               setPage(p);
               if (f && f !== pageSize) setPageSize(f);

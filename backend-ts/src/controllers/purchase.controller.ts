@@ -33,7 +33,8 @@ export class PurchaseController {
       const id = req.params.id as string;
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 10;
-      const result = await purchaseService.getPurchaseOrderItems(id, page, limit);
+      const search = req.query.search as string | undefined;
+      const result = await purchaseService.getPurchaseOrderItems(id, page, limit, search);
       res.json({ success: true, data: result });
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : "Lỗi hệ thống";
@@ -68,7 +69,10 @@ export class PurchaseController {
   async createPO(req: Request, res: Response) {
     try {
       const dto = req.body as CreatePODTO;
-      const po = await purchaseService.createPurchaseOrder(dto);
+      const userId = req.user?.id;
+      if (!userId) throw new Error("Chưa xác thực người dùng");
+      
+      const po = await purchaseService.createPurchaseOrder(dto, userId);
       res.status(201).json({ success: true, data: po, message: "Tạo phiếu nhập thành công" });
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : "Lỗi hệ thống";
@@ -99,8 +103,19 @@ export class PurchaseController {
 
   async cancelPO(req: Request, res: Response) {
     try {
-      const po = await purchaseService.cancelPurchaseOrder(req.params.id as string);
-      res.json({ success: true, data: po, message: "Phiếu nhập đã bị hủy" });
+      const { reason } = req.body;
+      const po = await purchaseService.cancelPurchaseOrder(req.params.id as string, reason);
+      res.json({ success: true, data: po, message: reason ? "Phiếu nhập đã được từ chối" : "Phiếu nhập đã bị hủy" });
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Lỗi hệ thống";
+      res.status(400).json({ success: false, message });
+    }
+  }
+
+  async resubmitPO(req: Request, res: Response) {
+    try {
+      const po = await purchaseService.resubmitPurchaseOrder(req.params.id as string);
+      res.json({ success: true, data: po, message: "Phiếu nhập đã được gửi duyệt lại" });
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : "Lỗi hệ thống";
       res.status(400).json({ success: false, message });

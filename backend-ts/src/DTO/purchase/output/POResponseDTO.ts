@@ -42,6 +42,9 @@ export interface POListItemDTO {
   priority: POPriority;
   totalAmount: number;
   note?: string | null;
+  creator?: {
+    full_name: string | null;
+  };
   createdAt: string;
   updatedAt: string;
 }
@@ -55,6 +58,7 @@ export interface POReceiptItemDTO {
 }
 
 export interface PODetailDTO extends POListItemDTO {
+  rejectionNote?: string | null;
   items: POItemResponseDTO[];
   receipts?: POReceiptItemDTO[];
 }

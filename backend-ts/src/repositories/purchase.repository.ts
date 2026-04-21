@@ -40,13 +40,31 @@ export class PurchaseRepository implements IPurchaseRepository {
         skip,
         take,
         where,
-        include: { brand: true },
+        include: { brand: true, creator: true },
         orderBy,
       }),
       prisma.purchaseOrder.count({ where }),
     ]);
 
-    return [orders as unknown as POListItemDTO[], total];
+    const mappedOrders = (orders as any[]).map((po: any) => ({
+      id: po.id,
+      code: po.code,
+      brandId: po.brandId,
+      status: po.status as POStatus,
+      priority: po.priority as POPriority,
+      totalAmount: po.totalAmount,
+      note: po.note,
+      brand: {
+        id: po.brand.id,
+        name: po.brand.name,
+        logoUrl: po.brand.logoId,
+      },
+      creator: po.creator ? { full_name: po.creator.full_name } : undefined,
+      createdAt: po.createdAt.toISOString(),
+      updatedAt: po.updatedAt.toISOString(),
+    }));
+
+    return [mappedOrders as unknown as POListItemDTO[], total];
   }
 
   async getPurchaseOrderById(id: string): Promise<PODetailDTO | null> {
@@ -54,6 +72,7 @@ export class PurchaseRepository implements IPurchaseRepository {
       where: { id },
       include: {
         brand: true,
+        creator: true,
         items: {
           take: 50, // Initial load limit for performance
           include: {
@@ -139,6 +158,8 @@ export class PurchaseRepository implements IPurchaseRepository {
       priority: po.priority as POPriority,
       totalAmount: po.totalAmount,
       note: po.note,
+      rejectionNote: po.rejectionNote,
+      creator: po.creator ? { full_name: po.creator.full_name } : undefined,
       brand: {
         id: po.brand.id,
         name: po.brand.name,
@@ -153,7 +174,7 @@ export class PurchaseRepository implements IPurchaseRepository {
     return detail;
   }
 
-  async createPurchaseOrder(data: CreatePODTO): Promise<PurchaseOrder> {
+  async createPurchaseOrder(data: CreatePODTO, userId: string): Promise<PurchaseOrder> {
     return prisma.$transaction(async (tx) => {
       const count = await tx.purchaseOrder.count();
       const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
@@ -172,6 +193,7 @@ export class PurchaseRepository implements IPurchaseRepository {
           priority: data.priority || 'NORMAL',
           totalAmount,
           status: 'DRAFT',
+          createdByUserId: userId,
         } as any,
       });
 
@@ -230,10 +252,22 @@ export class PurchaseRepository implements IPurchaseRepository {
     });
   }
 
-  async getPurchaseOrderItems(id: string, skip: number, take: number): Promise<[any[], number]> {
+  async getPurchaseOrderItems(id: string, skip: number, take: number, search?: string): Promise<[any[], number]> {
+    const where: Prisma.PurchaseOrderItemWhereInput = { purchaseOrderId: id };
+
+    if (search) {
+      const q = search.trim();
+      where.OR = [
+        { variant: { sku: { contains: q, mode: 'insensitive' } } },
+        { variant: { product: { name: { contains: q, mode: 'insensitive' } } } },
+        { variant: { color: { contains: q, mode: 'insensitive' } } },
+        { variant: { size: { contains: q, mode: 'insensitive' } } },
+      ];
+    }
+
     const [items, total] = await Promise.all([
       prisma.purchaseOrderItem.findMany({
-        where: { purchaseOrderId: id },
+        where,
         skip,
         take,
         include: {
@@ -245,7 +279,7 @@ export class PurchaseRepository implements IPurchaseRepository {
           },
         },
       }),
-      prisma.purchaseOrderItem.count({ where: { purchaseOrderId: id } }),
+      prisma.purchaseOrderItem.count({ where }),
     ]);
 
     const mappedItems = items.map((item: any) => ({
@@ -323,6 +357,16 @@ export class PurchaseRepository implements IPurchaseRepository {
     return prisma.purchaseOrder.update({
       where: { id },
       data: { status },
+    });
+  }
+
+  async rejectPurchaseOrder(id: string, reason: string): Promise<PurchaseOrder> {
+    return prisma.purchaseOrder.update({
+      where: { id },
+      data: {
+        status: 'CANCELLED' as POStatus,
+        rejectionNote: reason,
+      },
     });
   }
 }

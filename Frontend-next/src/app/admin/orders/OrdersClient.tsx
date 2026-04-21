@@ -9,12 +9,14 @@ import { useOrders } from "@/src/services/admin/order/order.hook";
 import { OrderQueryParams } from "@/src/services/admin/order/order.service";
 import OrderDetailDrawer from "./components/OrderDetailDrawer";
 import { OrderDto } from "@/src/services/models/order/output.dto";
+import { OrderStatus } from "@/src/enums";
 
 export default function OrdersClient() {
   useSWTTilte("Quản lý đơn hàng");
   const [params, setParams] = useState<OrderQueryParams>({
     page: 1,
     pageSize: 6,
+    sortBy: "newest",
   });
 
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
@@ -23,11 +25,23 @@ export default function OrdersClient() {
   const { orders, total, isLoading, mutate } = useOrders(params);
 
   const handleParamChange = (newParams: Partial<OrderQueryParams>) => {
-    setParams(prev => ({ ...prev, ...newParams, page: newParams.page || 1 }));
+    setParams(prev => {
+      const nextParams = { ...prev, ...newParams };
+
+      if (newParams.page !== undefined || newParams.pageSize !== undefined) {
+        return nextParams;
+      }
+
+      return { ...nextParams, page: 1 };
+    });
   };
 
   const handleClear = () => {
-    setParams({ page: 1, pageSize: 6 });
+    setParams({
+      page: 1,
+      pageSize: 6,
+      sortBy: "newest",
+    });
   };
 
   const handleView = (order: OrderDto) => {
@@ -40,7 +54,7 @@ export default function OrdersClient() {
       <div>
         <SWTTabs
           activeKey={params.status || "ALL"}
-          onChange={(key) => handleParamChange({ status: key === "ALL" ? undefined : key as any })}
+          onChange={(key) => handleParamChange({ status: key === "ALL" ? undefined : (key as OrderStatus) })}
           items={[
             { key: "ALL", label: "Tất cả" },
             { key: "PENDING", label: "Chờ xác nhận" },

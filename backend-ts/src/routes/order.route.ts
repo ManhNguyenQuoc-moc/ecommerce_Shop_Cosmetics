@@ -48,7 +48,7 @@ router.get("/me", orderController.getMyOrders);
 router.get("/", permissionGuard("order", "list"), orderController.getOrders);
 router.get("/:id", orderController.getOrderById);
 
-router.put("/:id", permissionGuard("order", "update"), orderController.updateOrder);
+router.put("/:id", orderController.updateOrder);
 router.post("/:id/refund", permissionGuard("order", "update"), orderController.refundPaidOrder);
 router.delete("/:id", permissionGuard("order", "delete"), orderController.deleteOrder);
 

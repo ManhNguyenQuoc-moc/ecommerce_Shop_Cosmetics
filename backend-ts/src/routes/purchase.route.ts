@@ -15,6 +15,7 @@ router.get("/:id/receipts", authenticate, permissionGuard("purchase", "viewPOs")
 router.put("/:id", authenticate, permissionGuard("purchase", "updatePO"), controller.updatePO.bind(controller));
 router.post("/:id/confirm", authenticate, permissionGuard("purchase", "confirmPO"), controller.confirmPO.bind(controller));
 router.post("/:id/cancel", authenticate, permissionGuard("purchase", "cancelPO"), controller.cancelPO.bind(controller));
+router.post("/:id/resubmit", authenticate, permissionGuard("purchase", "updatePO"), controller.resubmitPO.bind(controller));
 
 
 export default router;

@@ -15,6 +15,7 @@ interface AdminPageHeaderProps {
   subtitle: string;
   icon: ReactNode;
   breadcrumbs: BreadcrumbItem[];
+  rightActions?: ReactNode;
   tooltip?: {
     title: string;
     placement?: "left" | "right" | "top" | "bottom";
@@ -27,6 +28,7 @@ export default function AdminPageHeader({
   subtitle,
   icon,
   breadcrumbs,
+  rightActions,
   tooltip,
 }: AdminPageHeaderProps) {
   return (
@@ -48,16 +50,21 @@ export default function AdminPageHeader({
           </p>
         </div>
 
-        {tooltip && (
-          <SWTTooltip
-            title={<span className="text-sm">{tooltip.title}</span>}
-            placement={tooltip.placement || "left"}
-            color={tooltip.color || "pink"}
-          >
-            <div className="!h-11 !w-11 flex items-center justify-center shrink-0 bg-brand-50 hover:bg-brand-500/10 dark:bg-slate-800 dark:hover:bg-slate-700 text-brand-600 dark:text-admin-accent rounded-xl cursor-help transition-all shadow-sm border border-brand-200 dark:border-slate-700 group">
-              <Info size={22} className="stroke-[2.5] group-hover:scale-110 transition-transform" />
-            </div>
-          </SWTTooltip>
+        {(rightActions || tooltip) && (
+          <div className="flex items-center gap-2 shrink-0">
+            {rightActions}
+            {tooltip && (
+              <SWTTooltip
+                title={<span className="text-sm">{tooltip.title}</span>}
+                placement={tooltip.placement || "left"}
+                color={tooltip.color || "pink"}
+              >
+                <div className="!h-11 !w-11 flex items-center justify-center shrink-0 bg-brand-50 hover:bg-brand-500/10 dark:bg-slate-800 dark:hover:bg-slate-700 text-brand-600 dark:text-admin-accent rounded-xl cursor-help transition-all shadow-sm border border-brand-200 dark:border-slate-700 group">
+                  <Info size={22} className="stroke-[2.5] group-hover:scale-110 transition-transform" />
+                </div>
+              </SWTTooltip>
+            )}
+          </div>
         )}
       </div>
     </div>

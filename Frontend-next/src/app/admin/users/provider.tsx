@@ -20,7 +20,7 @@ export interface UserContextType {
     setPageSize: (size: number) => void;
   };
   handleSearch: (val: string) => void;
-  handleFilterChange: (key: string, value: string) => void;
+  handleFilterChange: (key: string, value?: string) => void;
   handleToggleStatus: (user: UserProfileDTO) => Promise<void>;
   handleUpdateRole: (user: UserProfileDTO, roleId: string) => Promise<void>;
   handleUpdateAccountType: (user: UserProfileDTO, accountType: "CUSTOMER" | "INTERNAL") => Promise<void>;
@@ -41,8 +41,15 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const roleId = searchParams.get("roleId") || "all";
   const accountType = searchParams.get("accountType") || "all";
   const status = searchParams.get("status") || "all";
+  const sortBy = searchParams.get("sortBy") || "newest";
 
-  const filters: UserQueryFilters = { search, roleId, accountType: accountType as "CUSTOMER" | "INTERNAL" | undefined, status };
+  const filters: UserQueryFilters = {
+    search,
+    roleId,
+    accountType: accountType as "CUSTOMER" | "INTERNAL" | undefined,
+    status,
+    sortBy: sortBy as UserQueryFilters["sortBy"],
+  };
   const { users, total, isLoading: isInitialLoading, isValidating, mutate } = useUsers(page, pageSize, filters);
   const { trigger: updateStatusAction } = useUpdateUserStatus();
   const { trigger: updateRoleAction } = useUpdateUserRole();
@@ -69,9 +76,9 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     replaceIfChanged(params);
   }, [replaceIfChanged, searchParams]);
 
-  const handleFilterChange = useCallback((key: string, value: string) => {
+  const handleFilterChange = useCallback((key: string, value?: string) => {
     const params = new URLSearchParams(searchParams.toString());
-    if (value && value !== "all") {
+    if (value && value !== "all" && value !== "undefined") {
       params.set(key, value);
     } else {
       params.delete(key);

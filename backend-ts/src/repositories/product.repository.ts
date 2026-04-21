@@ -204,8 +204,8 @@ export class ProductRepository implements IProductRepository {
           ...(data.categoryId && { categoryId: data.categoryId }),
           ...(data.brandId && { brandId: data.brandId }),
           ...(data.status && { status: data.status }),
-          ...(data.price !== undefined && { price: Number(data.price) }),
-          ...(data.salePrice !== undefined && { salePrice: data.salePrice ? Number(data.salePrice) : null }),
+          price: 0,
+          salePrice: null,
           ...(data.specifications !== undefined && { specifications: data.specifications as any }),
         },
       });
@@ -582,8 +582,8 @@ export class ProductRepository implements IProductRepository {
           long_description: data.long_description,
           brandId: data.brandId,
           categoryId: data.categoryId,
-          price: data.price,
-          salePrice: data.salePrice,
+          price: 0,
+          salePrice: null,
           status: data.status || 'HIDDEN',
           specifications: (data.specifications as unknown as Prisma.InputJsonValue) || [],
         }

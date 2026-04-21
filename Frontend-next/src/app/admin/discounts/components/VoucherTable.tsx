@@ -27,9 +27,19 @@ export default function VoucherTable({ onEdit }: VoucherTableProps) {
   const page = Number(searchParams.get("page") ?? 1);
   const pageSize = Number(searchParams.get("pageSize") ?? 6);
   const searchTerm = searchParams.get("search") || "";
-  const statusVal = searchParams.get("status") || "";
+  const sortBy = searchParams.get("sortBy") || "newest";
+  const statusVal = searchParams.get("status") || "all";
+  const typeVal = searchParams.get("type") || "all";
+  const redeemTypeVal = searchParams.get("redeemType") || "all";
 
-  const { vouchers, total, isLoading, mutate } = useGetVouchers(page, pageSize, { search: searchTerm, status: statusVal });
+  const { vouchers, total, isLoading, mutate } = useGetVouchers(page, pageSize, {
+    includeExpired: "true",
+    search: searchTerm,
+    sortBy,
+    status: statusVal,
+    type: typeVal,
+    redeemType: redeemTypeVal,
+  });
   const { trigger: deleteVoucher } = useDeleteVoucher();
 
   const handleDeleteConfirm = async () => {
@@ -169,7 +179,7 @@ export default function VoucherTable({ onEdit }: VoucherTableProps) {
 
   return (
     <div className="w-full mt-2">
-      <div className="!bg-white/90 dark:!bg-slate-900/80 backdrop-blur-xl !rounded-xl overflow-hidden !border !border-slate-100 dark:!border-fuchsia-500/20 !shadow-sm transition-colors">
+      <div className="bg-white/90! dark:bg-slate-900/80! backdrop-blur-xl rounded-xl! overflow-hidden border! border-slate-100! dark:border-fuchsia-500/20! shadow-sm! transition-colors">
         <SWTTable 
           columns={columns} 
           dataSource={vouchers} 

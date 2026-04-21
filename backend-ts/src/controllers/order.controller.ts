@@ -271,8 +271,44 @@ export class OrderController {
 
   updateOrder = async (req: Request, res: Response): Promise<void> => {
     try {
+      const user = (req as any).user;
+      if (!user?.id) {
+        res.status(401).json({ success: false, message: "Unauthorized" });
+        return;
+      }
+
       const id = req.params.id as string;
       const validatedData = UpdateOrderSchema.parse(req.body);
+
+      const existingOrder = await this.orderService.getOrderById(id);
+      if (!existingOrder) {
+        res.status(404).json({ success: false, message: "Order not found" });
+        return;
+      }
+
+      const isCustomer = user.accountType === "CUSTOMER";
+      if (isCustomer) {
+        if (existingOrder.userId !== user.id) {
+          res.status(403).json({ success: false, message: "Forbidden" });
+          return;
+        }
+
+        if (validatedData.current_status !== "CANCELLED") {
+          res.status(403).json({
+            success: false,
+            message: "Khách hàng chỉ được phép hủy đơn hàng của chính mình.",
+          });
+          return;
+        }
+
+        if (!["PENDING", "CONFIRMED"].includes(existingOrder.current_status)) {
+          res.status(400).json({
+            success: false,
+            message: "Chỉ có thể hủy đơn khi đơn đang ở trạng thái chờ xác nhận hoặc đã xác nhận.",
+          });
+          return;
+        }
+      }
       
       const order = await this.orderService.updateOrder(id, validatedData);
       

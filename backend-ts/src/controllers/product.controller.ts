@@ -313,5 +313,45 @@ export class ProductController {
       res.status(500).json({ success: false, message: error.message || "Internal server error" });
     }
   };
+
+  importProducts = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { items } = req.body;
+      if (!items || !Array.isArray(items)) {
+        res.status(400).json({ success: false, message: "items array is required" });
+        return;
+      }
+
+      const result = await this.productService.bulkImportProducts(items);
+
+      res.status(201).json({
+        success: true,
+        message: "Bulk import processed",
+        data: result,
+      });
+    } catch (error: any) {
+      res.status(500).json({ success: false, message: error.message || "Internal server error" });
+    }
+  };
+
+  importVariants = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { items } = req.body;
+      if (!items || !Array.isArray(items)) {
+        res.status(400).json({ success: false, message: "items array is required" });
+        return;
+      }
+
+      const result = await this.productService.bulkImportVariants(items);
+
+      res.status(201).json({
+        success: true,
+        message: "Bulk import processed",
+        data: result,
+      });
+    } catch (error: any) {
+      res.status(500).json({ success: false, message: error.message || "Internal server error" });
+    }
+  };
 }
 

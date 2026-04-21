@@ -64,3 +64,19 @@ export const softDeleteVariants = (ids: string[]) => {
 export const restoreVariants = (ids: string[]) => {
   return post<void>(`${PRODUCT_API_ENDPOINT}/variants/bulk-restore`, { ids });
 };
+
+export const bulkImportProducts = (items: CreateProductInput[]) => {
+  return post<{
+    successCount: number;
+    skipCount: number;
+    errors: string[];
+  }>(`${PRODUCT_API_ENDPOINT}/bulk-import`, { items });
+};
+
+export const bulkImportVariants = (items: any[]) => {
+  return post<{
+    successCount: number;
+    skipCount: number;
+    errors: string[];
+  }>(`${PRODUCT_API_ENDPOINT}/variants/bulk-import`, { items });
+};

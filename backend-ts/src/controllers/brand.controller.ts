@@ -10,7 +10,9 @@ export class BrandController {
       const limit = (req.query.limit || req.query.pageSize) ? parseInt((req.query.limit || req.query.pageSize) as string) : null;
       const filters = {
         searchTerm: (req.query.searchTerm || req.query.search) as string,
-        minimal: req.query.minimal === 'true'
+        minimal: req.query.minimal === 'true',
+        sortBy: req.query.sortBy as string | undefined,
+        mediaStatus: req.query.mediaStatus as string | undefined,
       };
       
       const { items, total } = await this.brandService.getAllBrands(page || undefined, limit || undefined, filters);

@@ -23,9 +23,18 @@ export default function RewardsTable() {
   const page = Number(searchParams.get("page") ?? 1);
   const pageSize = Number(searchParams.get("pageSize") ?? 6);
   const searchTerm = searchParams.get("search") || "";
-  const walletStatusVal = searchParams.get("walletStatus") || "";
+  const memberRank = searchParams.get("memberRank") || "all";
+  const userStatus = searchParams.get("status") || "all";
+  const walletStatusVal = searchParams.get("walletStatus") || "all";
+  const sortBy = searchParams.get("sortBy") || "points_desc";
 
-  const { users, total, isLoading, mutate } = useUsers(page, pageSize, { search: searchTerm, wallet_status: walletStatusVal });
+  const { users, total, isLoading, mutate } = useUsers(page, pageSize, {
+    search: searchTerm,
+    memberRank: memberRank === "all" ? undefined : (memberRank as "Bronze" | "Silver" | "Gold" | "Diamond"),
+    status: userStatus === "all" ? undefined : userStatus,
+    wallet_status: walletStatusVal,
+    sortBy: sortBy as "newest" | "oldest" | "name_asc" | "name_desc" | "points_desc" | "points_asc",
+  });
   const { trigger: toggleWallet } = useToggleWalletLock();
 
   const [drawerOpen, setDrawerOpen] = useState(false);

@@ -10,6 +10,9 @@ export interface OrderQueryParams {
   pageSize?: number;
   searchTerm?: string;
   status?: string;
+  paymentStatus?: string;
+  paymentMethod?: string;
+  sortBy?: string;
   startDate?: string;
   endDate?: string;
 }

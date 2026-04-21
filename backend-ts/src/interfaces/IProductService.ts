@@ -32,5 +32,15 @@ export interface IProductService {
   // Related & Brand Products
   getRelatedProducts(productId: string, limit: number): Promise<any[]>;
   getBrandProducts(brandId: string, excludeProductId: string | null, limit: number): Promise<any[]>;
+  bulkImportProducts(items: CreateProductDTO[]): Promise<{
+    successCount: number;
+    skipCount: number;
+    errors: string[];
+  }>;
+  bulkImportVariants(items: (CreateVariantDTO & { productName: string })[]): Promise<{
+    successCount: number;
+    skipCount: number;
+    errors: string[];
+  }>;
 }
 

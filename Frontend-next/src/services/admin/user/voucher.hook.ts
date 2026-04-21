@@ -11,6 +11,10 @@ export const VOUCHER_API_ENDPOINT = "/vouchers";
 export interface VoucherQueryFilters {
   search?: string;
   status?: string;
+  type?: string;
+  redeemType?: string;
+  sortBy?: string;
+  includeExpired?: string;
   [key: string]: string | number | undefined;
 }
 

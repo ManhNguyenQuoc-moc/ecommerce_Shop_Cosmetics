@@ -9,6 +9,11 @@ export class VoucherController {
   async getVouchers(req: Request, res: Response): Promise<void> {
     try {
       const query = VoucherQueryFiltersSchema.parse({
+        search: req.query.search as string | undefined,
+        status: req.query.status as string | undefined,
+        type: req.query.type as string | undefined,
+        redeemType: req.query.redeemType as string | undefined,
+        sortBy: req.query.sortBy as string | undefined,
         page: req.query.page ? parseInt(req.query.page as string) : 1,
         pageSize: req.query.pageSize ? parseInt(req.query.pageSize as string) : 6,
         limit: req.query.limit ? parseInt(req.query.limit as string) : (req.query.pageSize ? parseInt(req.query.pageSize as string) : undefined),
@@ -21,8 +26,8 @@ export class VoucherController {
       const includeExpired = req.query.includeExpired === 'true';
       const userId = (req as any).user?.id;
       const result = includeExpired 
-        ? await this.discountService.getAllVouchers(userId, skip, pageSize)
-        : await this.discountService.getActiveVouchers(userId, skip, pageSize);
+        ? await this.discountService.getAllVouchers(userId, skip, pageSize, query)
+        : await this.discountService.getActiveVouchers(userId, skip, pageSize, query);
 
       res.status(200).json({
         success: true,

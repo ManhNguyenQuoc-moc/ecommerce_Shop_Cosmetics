@@ -1,4 +1,4 @@
-import { Users, Info } from "lucide-react";
+import { Users } from "lucide-react";
 import dynamicImport from "next/dynamic";
 import { UserProvider } from "./provider";
 import AdminPageHeader from "../components/AdminPageHeader";
@@ -24,7 +24,6 @@ export default function UserModule() {
             placement: "left"
           }}
         />
-
         <UsersPageContent />
       </div>
     </UserProvider>

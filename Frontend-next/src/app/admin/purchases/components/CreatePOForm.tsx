@@ -45,6 +45,24 @@ interface SelectedPOItem extends POItemInput {
   size?: string;
 }
 
+interface VariantListItem {
+  id: string;
+  productId: string;
+  productName: string;
+  sku?: string;
+  color?: string;
+  size?: string;
+  stock?: number;
+  sold?: number;
+  price?: number;
+  costPrice?: number;
+}
+
+interface SourceRow {
+  product: { id: string; name: string };
+  variant: VariantListItem;
+}
+
 type Props = {
   onSuccess?: () => void;
 };
@@ -82,6 +100,55 @@ export default function CreatePOForm({ onSuccess }: Props) {
   const [newlyAddedIds, setNewlyAddedIds] = useState<string[]>([]);
 
   const isAdded = (vid: string) => selectedItems.some((i) => i.variantId === vid);
+
+  const sourceRows = useMemo(
+    () => ((variants ?? []) as VariantListItem[]).map((v) => ({ product: { name: v.productName, id: v.productId }, variant: { ...v, id: v.id } })),
+    [variants]
+  );
+
+  const buildSelectedItem = (record: SourceRow): SelectedPOItem => ({
+    variantId: record.variant.id,
+    name: record.product.name,
+    sku: record.variant.sku,
+    color: record.variant.color,
+    size: record.variant.size,
+    orderedQty: 1,
+    costPrice: record.variant.costPrice ?? record.variant.price ?? 0,
+  });
+
+  const visibleVariantIds = useMemo(() => sourceRows.map((row) => row.variant.id), [sourceRows]);
+  const visibleSelectedCount = useMemo(
+    () => visibleVariantIds.filter((id) => selectedItems.some((item) => item.variantId === id)).length,
+    [visibleVariantIds, selectedItems]
+  );
+  const isAllVisibleSelected = visibleVariantIds.length > 0 && visibleSelectedCount === visibleVariantIds.length;
+  const isPartiallyVisibleSelected = visibleSelectedCount > 0 && !isAllVisibleSelected;
+
+  const handleToggleSelectAllVisible = (checked: boolean) => {
+    if (checked) {
+      const addedIds: string[] = [];
+      setSelectedItems((prev) => {
+        const existing = new Set(prev.map((item) => item.variantId));
+        const toAdd = sourceRows
+          .filter((row) => !existing.has(row.variant.id))
+          .map((row) => {
+            addedIds.push(row.variant.id);
+            return buildSelectedItem(row);
+          });
+        return toAdd.length ? [...prev, ...toAdd] : prev;
+      });
+
+      if (addedIds.length > 0) {
+        setNewlyAddedIds(addedIds);
+        setTimeout(() => selectedItemsRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" }), 150);
+        setTimeout(() => setNewlyAddedIds([]), 2700);
+      }
+      return;
+    }
+
+    const visibleSet = new Set(visibleVariantIds);
+    setSelectedItems((prev) => prev.filter((item) => !visibleSet.has(item.variantId)));
+  };
 
   const updateItem = (index: number, field: keyof Pick<SelectedPOItem, "orderedQty" | "costPrice">, value: number) => {
     setSelectedItems((prev) => {
@@ -246,7 +313,13 @@ export default function CreatePOForm({ onSuccess }: Props) {
                 loading={variantsLoading}
                 columns={[
                   {
-                    title: "",
+                    title: (
+                      <SWTCheckbox
+                        checked={isAllVisibleSelected}
+                        indeterminate={isPartiallyVisibleSelected}
+                        onChange={(e) => handleToggleSelectAllVisible(e.target.checked)}
+                      />
+                    ),
                     key: "checkbox",
                     width: COLUMN_WIDTH.checkbox,
                     render: (_: any, record: any) => (
@@ -255,15 +328,7 @@ export default function CreatePOForm({ onSuccess }: Props) {
                           checked={isAdded(record.variant.id)}
                           onChange={(e) => {
                             if (e.target.checked) {
-                              const newItem: SelectedPOItem = {
-                                variantId: record.variant.id,
-                                name: record.product.name,
-                                sku: record.variant.sku,
-                                color: record.variant.color,
-                                size: record.variant.size,
-                                orderedQty: 1,
-                                costPrice: record.variant.costPrice ?? record.variant.price ?? 0,
-                              };
+                              const newItem = buildSelectedItem(record);
                               setSelectedItems((prev) => [...prev, newItem]);
                               setNewlyAddedIds([record.variant.id]);
 
@@ -349,7 +414,7 @@ export default function CreatePOForm({ onSuccess }: Props) {
                       new Intl.NumberFormat("vi-VN").format(r.variant.costPrice ?? r.variant.price ?? 0),
                   },
                 ]}
-                dataSource={(variants ?? []).map((v: any) => ({ product: { name: v.productName, id: v.productId }, variant: { ...v, id: v.id } }))}
+                dataSource={sourceRows}
                 pagination={{
                   fetch: pageSize,
                   page: page,

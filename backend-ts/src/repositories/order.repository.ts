@@ -19,7 +19,15 @@ export class OrderRepository implements IOrderRepository {
     if (filters?.status && filters.status !== 'ALL') {
       where.current_status = filters.status;
     }
-    
+
+    if (filters?.paymentStatus && filters.paymentStatus !== 'ALL') {
+      where.payment_status = filters.paymentStatus;
+    }
+
+    if (filters?.paymentMethod && filters.paymentMethod !== 'ALL') {
+      where.payment_method = filters.paymentMethod;
+    }
+
     if (filters?.userId) {
       where.userId = filters.userId;
     }
@@ -41,21 +49,36 @@ export class OrderRepository implements IOrderRepository {
               variant: {
                 include: {
                   product: true,
-                  image: true
-                }
-              }
-            }
+                  image: true,
+                },
+              },
+            },
           },
           user: true,
           address: true,
           status_history: true,
           discountCode: true,
         },
-        orderBy: { createdAt: "desc" },
+        orderBy: this.buildOrderBy(filters?.sortBy),
       }),
-      prisma.order.count({ where })
+      prisma.order.count({ where }),
     ]);
+
     return [orders, total];
+  }
+
+  private buildOrderBy(sortBy?: string): Prisma.OrderOrderByWithRelationInput[] {
+    switch (sortBy) {
+      case "oldest":
+        return [{ createdAt: "asc" }, { id: "asc" }];
+      case "amount_desc":
+        return [{ final_amount: "desc" }, { createdAt: "desc" }, { id: "desc" }];
+      case "amount_asc":
+        return [{ final_amount: "asc" }, { createdAt: "asc" }, { id: "asc" }];
+      case "newest":
+      default:
+        return [{ createdAt: "desc" }, { id: "desc" }];
+    }
   }
 
   async findById(id: string): Promise<Order | null> {
@@ -67,10 +90,10 @@ export class OrderRepository implements IOrderRepository {
             variant: {
               include: {
                 product: true,
-                image: true
-              }
-            }
-          }
+                image: true,
+              },
+            },
+          },
         },
         user: true,
         address: true,
@@ -84,7 +107,7 @@ export class OrderRepository implements IOrderRepository {
     const db = tx || prisma;
     return db.order.findUnique({
       where: { id },
-      include: { items: true }
+      include: { items: true },
     }) as any;
   }
 
@@ -128,11 +151,11 @@ export class OrderRepository implements IOrderRepository {
 
   async update(id: string, data: UpdateOrderDTO, tx?: Prisma.TransactionClient): Promise<Order> {
     const db = tx || prisma;
-    
+
     const updatedOrder = await db.order.update({
       where: { id },
       data: data as any,
-      include: { items: true }
+      include: { items: true },
     });
 
     if (data.current_status) {
@@ -140,7 +163,7 @@ export class OrderRepository implements IOrderRepository {
         data: {
           orderId: id,
           status: data.current_status,
-        }
+        },
       });
     }
 

@@ -1,9 +1,9 @@
 import { DiscountCode } from "@prisma/client";
-import { CreateVoucherDTO, UpdateVoucherDTO } from "../DTO/voucher/voucher.dto";
+import { CreateVoucherDTO, UpdateVoucherDTO, VoucherQueryFiltersDTO } from "../DTO/voucher/voucher.dto";
 
 export interface IDiscountRepository {
-  findAll(skip?: number, take?: number): Promise<[DiscountCode[], number]>;
-  findAllActive(skip?: number, take?: number): Promise<[DiscountCode[], number]>;
+  findAll(skip?: number, take?: number, filters?: VoucherQueryFiltersDTO): Promise<[DiscountCode[], number]>;
+  findAllActive(skip?: number, take?: number, filters?: VoucherQueryFiltersDTO): Promise<[DiscountCode[], number]>;
   findByCode(code: string): Promise<DiscountCode | null>;
   findById(id: string): Promise<DiscountCode | null>;
   create(data: CreateVoucherDTO): Promise<DiscountCode>;

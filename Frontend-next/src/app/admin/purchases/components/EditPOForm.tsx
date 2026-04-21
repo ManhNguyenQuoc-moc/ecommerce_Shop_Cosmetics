@@ -147,6 +147,54 @@ export default function EditPOForm({ po, onCancel, onSuccess }: Props) {
     });
   }, [selectedItems, itemSearch]);
 
+  // Logic for Select All in Table 1
+  const sourceRows = useMemo(
+    () => (variants ?? []).map((v: any) => ({ product: { name: v.productName, id: v.productId }, variant: { ...v, id: v.id } })),
+    [variants]
+  );
+
+  const visibleVariantIds = useMemo(() => sourceRows.map((row) => row.variant.id), [sourceRows]);
+  const visibleSelectedCount = useMemo(
+    () => visibleVariantIds.filter((id) => selectedItems.some((item) => item.variantId === id)).length,
+    [visibleVariantIds, selectedItems]
+  );
+  const isAllVisibleSelected = visibleVariantIds.length > 0 && visibleSelectedCount === visibleVariantIds.length;
+  const isPartiallyVisibleSelected = visibleSelectedCount > 0 && !isAllVisibleSelected;
+
+  const handleToggleSelectAllVisible = (checked: boolean) => {
+    if (checked) {
+      const addedIds: string[] = [];
+      setSelectedItems((prev) => {
+        const existing = new Set(prev.map((item) => item.variantId));
+        const toAdd = sourceRows
+          .filter((row) => !existing.has(row.variant.id))
+          .map((row) => {
+            addedIds.push(row.variant.id);
+            return {
+              variantId: row.variant.id,
+              name: row.product.name,
+              sku: row.variant.sku,
+              color: row.variant.color,
+              size: row.variant.size,
+              orderedQty: 1,
+              costPrice: row.variant.costPrice ?? row.variant.price ?? 0,
+            };
+          });
+        return toAdd.length ? [...prev, ...toAdd] : prev;
+      });
+
+      if (addedIds.length > 0) {
+        setNewlyAddedIds(addedIds);
+        setTimeout(() => selectedItemsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 150);
+        setTimeout(() => setNewlyAddedIds([]), 2700);
+      }
+      return;
+    }
+
+    const visibleSet = new Set(visibleVariantIds);
+    setSelectedItems((prev) => prev.filter((item) => !visibleSet.has(item.variantId)));
+  };
+
   const handleSubmit = async () => {
     if (!po) return;
 
@@ -281,7 +329,15 @@ export default function EditPOForm({ po, onCancel, onSuccess }: Props) {
                   loading={variantsLoading}
                   columns={[
                     {
-                      title: "",
+                      title: (
+                        <div className="flex justify-center">
+                          <SWTCheckbox
+                            checked={isAllVisibleSelected}
+                            indeterminate={isPartiallyVisibleSelected}
+                            onChange={(e) => handleToggleSelectAllVisible(e.target.checked)}
+                          />
+                        </div>
+                      ),
                       key: "checkbox",
                       width: COLUMN_WIDTH.checkbox,
                       render: (_: any, record: any) => (
@@ -375,8 +431,8 @@ export default function EditPOForm({ po, onCancel, onSuccess }: Props) {
                       ),
                     },
                   ]}
-                  dataSource={(variants ?? []).map((v: any) => ({ product: { name: v.productName, id: v.productId }, variant: { ...v, id: v.id } }))}
-                  pagination={{ fetch: page, page, totalCount: total || 0, onChange: (p: number) => setPage(p) }}
+                  dataSource={sourceRows}
+                  pagination={{ fetch: pageSize, page, totalCount: total || 0, onChange: (p: number) => setPage(p) }}
                   className="dark:[&_.ant-table]:!bg-slate-900/40 dark:[&_.ant-table-thead_th]:!bg-slate-800/80 dark:[&_.ant-table-tbody_tr:hover_td]:!bg-brand-500/5"
                 />
               </div>
@@ -521,7 +577,7 @@ export default function EditPOForm({ po, onCancel, onSuccess }: Props) {
                 loading={saving}
                 className="!bg-brand-500/10 !border-brand-500/20 !text-brand-500 hover:!bg-brand-500/20 !rounded-xl !font-bold shadow-sm !w-auto transition-all px-8 py-2"
               >
-                Cập Nhật Phiếu (DRAFT)
+                Cập Nhật Phiếu
               </SWTButton>
             </div>
           </div>

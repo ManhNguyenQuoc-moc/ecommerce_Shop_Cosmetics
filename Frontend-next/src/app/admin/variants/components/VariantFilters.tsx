@@ -7,6 +7,7 @@ import { SWTInputSearch } from "@/src/@core/component/AntD/SWTInput";
 import SWTSelect from "@/src/@core/component/AntD/SWTSelect";
 import SWTTooltip from "@/src/@core/component/AntD/SWTTooltip";
 import AddVariantModal from "./AddVariantModal";
+import ImportVariantModal from "./ImportVariantModal";
 import { useDebounce } from "@/src/@core/hooks/useDebounce";
 import { TransitionStartFunction } from "react";
 
@@ -17,6 +18,7 @@ interface VariantFiltersProps {
 
 export default function VariantFilters({ onUpdate, startTransition }: VariantFiltersProps) {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -108,7 +110,10 @@ export default function VariantFilters({ onUpdate, startTransition }: VariantFil
             {/* Action Buttons */}
             <div className="flex items-center gap-2">
               <SWTTooltip title="Nhập dữ liệu quy đổi từ Excel" placement="top">
-                <div className="flex h-11 w-11 items-center justify-center bg-bg-card hover:bg-status-success-bg/10 text-status-success-text border border-border-default hover:border-status-success-border rounded-xl shadow-sm transition-all cursor-pointer group">
+                <div 
+                  onClick={() => setIsImportModalOpen(true)}
+                  className="flex h-11 w-11 items-center justify-center bg-bg-card hover:bg-status-success-bg/10 text-status-success-text border border-border-default hover:border-status-success-border rounded-xl shadow-sm transition-all cursor-pointer group"
+                >
                   <FileSpreadsheet size={20} className="group-hover:scale-110 transition-transform duration-300" />
                 </div>
               </SWTTooltip>
@@ -198,6 +203,11 @@ export default function VariantFilters({ onUpdate, startTransition }: VariantFil
         isOpen={isAddModalOpen} 
         onClose={() => setIsAddModalOpen(false)} 
         onAdd={() => onUpdate()}
+      />
+      <ImportVariantModal 
+        isOpen={isImportModalOpen} 
+        onClose={() => setIsImportModalOpen(false)} 
+        onSuccess={() => onUpdate()}
       />
     </>
   );

@@ -124,15 +124,15 @@ export default function CategoryGroupTable({ onEdit, onAdd }: CategoryGroupTable
     <div className="w-full">
       <div className="flex items-center justify-between p-5 border-b border-slate-100 dark:border-emerald-500/10">
         <div className="flex items-center gap-3">
-          <div className="flex flex-col">
+          {/* <div className="flex flex-col">
             <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200 mb-0 leading-tight">Danh sách nhóm danh mục</h3>
             <span className="text-xs text-slate-500 font-medium">Tất cả các nhóm phân loại chính</span>
-          </div>
+          </div> */}
         </div>
 
-        <SWTTooltip title="Thêm Nhóm Mới" placement="top" color="#10b981">
+        <SWTTooltip title="Thêm Nhóm Mới" placement="top">
           <div
-            className="flex h-11 w-11 items-center justify-center bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-500/30 rounded-xl shadow-sm transition-all cursor-pointer group"
+            className="flex h-11 w-11 items-center justify-center bg-brand-500/10 hover:bg-brand-500/20 text-brand-600 dark:text-brand-400 border border-brand-100 dark:border-brand-500/30 rounded-xl shadow-sm transition-all cursor-pointer group"
             onClick={onAdd}
           >
             <Plus size={24} className="stroke-[2.5] group-hover:scale-110 group-hover:rotate-90 transition-transform duration-300" />

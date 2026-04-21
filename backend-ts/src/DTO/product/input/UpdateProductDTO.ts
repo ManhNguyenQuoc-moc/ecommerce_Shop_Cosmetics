@@ -20,8 +20,6 @@ export interface UpdateProductDTO {
     short_description?: string;
     long_description?: string;
     status?: 'ACTIVE' | 'HIDDEN' | 'STOPPED';
-    price?: number;
-    salePrice?: number | null;
     specifications?: ProductSpecificationDTO[];
     newImages?: string[]; // URLs of new images added to gallery
     imageIdsToRemove?: string[]; // IDs of existing gallery images to remove
