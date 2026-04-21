@@ -30,17 +30,17 @@ export class BrandRepository {
     }
 
     const include = filters?.minimal ? undefined : { logo: true, banner: true };
-    const orderBy = (() => {
+    const orderBy: Prisma.BrandOrderByWithRelationInput[] = (() => {
       switch (filters?.sortBy) {
         case 'oldest':
-          return [{ createdAt: 'asc' }, { id: 'asc' }];
+          return [{ createdAt: 'asc' as Prisma.SortOrder }, { id: 'asc' as Prisma.SortOrder }];
         case 'name_asc':
-          return [{ name: 'asc' }, { id: 'asc' }];
+          return [{ name: 'asc' as Prisma.SortOrder }, { id: 'asc' as Prisma.SortOrder }];
         case 'name_desc':
-          return [{ name: 'desc' }, { id: 'desc' }];
+          return [{ name: 'desc' as Prisma.SortOrder }, { id: 'desc' as Prisma.SortOrder }];
         case 'newest':
         default:
-          return [{ createdAt: 'desc' }, { id: 'desc' }];
+          return [{ createdAt: 'desc' as Prisma.SortOrder }, { id: 'desc' as Prisma.SortOrder }];
       }
     })();
 

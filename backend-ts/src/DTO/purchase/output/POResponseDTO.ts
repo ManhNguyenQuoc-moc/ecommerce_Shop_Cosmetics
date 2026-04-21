@@ -43,7 +43,7 @@ export interface POListItemDTO {
   totalAmount: number;
   note?: string | null;
   creator?: {
-    full_name: string;
+    full_name: string | null;
   };
   createdAt: string;
   updatedAt: string;
