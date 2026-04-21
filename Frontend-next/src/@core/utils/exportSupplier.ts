@@ -8,7 +8,7 @@ import { ROBOTO_REGULAR_BASE64 } from "./fontRoboto";
  * Xuất danh sách nhà cung cấp ra file Excel
  */
 export const exportSuppliersToExcel = (data: BrandResponseDto[]) => {
-  const wsData = [
+  const wsData: (string | number)[][] = [
     ["DANH SÁCH NHÀ CUNG CẤP"],
     ["Ngày xuất:", new Date().toLocaleString("vi-VN")],
     [],
@@ -27,7 +27,7 @@ export const exportSuppliersToExcel = (data: BrandResponseDto[]) => {
   });
 
   const ws = XLSX.utils.aoa_to_sheet(wsData);
-  
+
   // Set column widths
   ws['!cols'] = [
     { wch: 5 },   // #
@@ -48,7 +48,7 @@ export const exportSuppliersToExcel = (data: BrandResponseDto[]) => {
  */
 export const exportSuppliersToPDF = async (data: BrandResponseDto[]) => {
   const doc = new jsPDF();
-  
+
   // Nạp font Roboto để hỗ trợ Tiếng Việt
   try {
     if (ROBOTO_REGULAR_BASE64 && ROBOTO_REGULAR_BASE64.length > 200) {
@@ -64,7 +64,7 @@ export const exportSuppliersToPDF = async (data: BrandResponseDto[]) => {
   const PAGE_WIDTH = doc.internal.pageSize.getWidth();
   doc.setFontSize(18);
   doc.text("DANH SÁCH NHÀ CUNG CẤP", PAGE_WIDTH / 2, 20, { align: "center" });
-  
+
   doc.setFontSize(10);
   doc.text(`Ngày xuất: ${new Date().toLocaleString("vi-VN")}`, 14, 28);
 
@@ -87,7 +87,7 @@ export const exportSuppliersToPDF = async (data: BrandResponseDto[]) => {
     startY: 35,
     head: [tableColumn],
     body: tableRows,
-    styles: { 
+    styles: {
       font: doc.getFont().fontName === "Roboto" ? "Roboto" : "helvetica",
       fontSize: 8
     }
