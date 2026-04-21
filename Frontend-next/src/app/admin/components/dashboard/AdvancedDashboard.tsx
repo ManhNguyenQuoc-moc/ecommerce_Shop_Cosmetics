@@ -73,9 +73,9 @@ export default function AdvancedDashboard() {
     return <AdminDashboardLoading />;
   }
 
-  const handleExportPdf = () => {
+  const handleExportPdf = async () => {
     try {
-      exportDashboardToPdf(data, "advanced", {
+      await exportDashboardToPdf(data, "advanced", {
         timeFilter,
         startDate: dateRange?.[0]?.format("YYYY-MM-DD"),
         endDate: dateRange?.[1]?.format("YYYY-MM-DD"),
@@ -86,9 +86,9 @@ export default function AdvancedDashboard() {
     }
   };
 
-  const handleExportExcel = () => {
+  const handleExportExcel = async () => {
     try {
-      exportDashboardToExcel(data, "advanced", {
+      await exportDashboardToExcel(data, "advanced", {
         timeFilter,
         startDate: dateRange?.[0]?.format("YYYY-MM-DD"),
         endDate: dateRange?.[1]?.format("YYYY-MM-DD"),

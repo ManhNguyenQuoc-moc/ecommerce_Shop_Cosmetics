@@ -1,12 +1,8 @@
-"use client";
-
+import Link from "next/link";
 import { Sparkles, Zap, ArrowRight, Gift } from "lucide-react";
-import { useRouter } from "next/navigation";
 import SWTButton from "@/src/@core/component/AntD/SWTButton";
 
 const PromoBanner = () => {
-  const router = useRouter();
-
   return (
     <div className="container mx-auto px-4">
       <div className="w-full h-[80px] md:h-[100px] relative overflow-hidden rounded-[2rem] shadow-xl group">
@@ -36,13 +32,12 @@ const PromoBanner = () => {
             <div className="hidden lg:flex items-center gap-6 mr-4">
               
             </div>
-            <SWTButton
-              type="primary"
-              onClick={() => router.push("/profile/vouchers")}
-              className="!h-[48px] !px-8 !rounded-xl !bg-white !text-brand-600 !border-none !font-black hover:!bg-brand-50 hover:!scale-105 !transition-all flex items-center gap-2 group/btn"
+            <Link
+              href="/profile/vouchers"
+              className="inline-flex items-center justify-center h-[48px] px-8 rounded-xl bg-white text-brand-600 border-none font-black hover:bg-brand-50 hover:scale-105 transition-all flex items-center gap-2 group/btn"
             >
               SĂN NGAY
-            </SWTButton>
+            </Link>
           </div>
         </div>
 

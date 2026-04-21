@@ -1,13 +1,36 @@
-import * as XLSX from "xlsx";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
 import { BrandResponseDto } from "@/src/services/models/brand/output.dto";
 import { ROBOTO_REGULAR_BASE64 } from "./fontRoboto";
+
+type ExportLibs = {
+  XLSX: typeof import("xlsx");
+  jsPDF: typeof import("jspdf").default;
+  autoTable: typeof import("jspdf-autotable").default;
+};
+
+let exportLibsPromise: Promise<ExportLibs> | null = null;
+
+const loadExportLibs = async (): Promise<ExportLibs> => {
+  if (!exportLibsPromise) {
+    exportLibsPromise = Promise.all([
+      import("xlsx"),
+      import("jspdf"),
+      import("jspdf-autotable"),
+    ]).then(([XLSX, jsPDFModule, autoTableModule]) => ({
+      XLSX,
+      jsPDF: jsPDFModule.default,
+      autoTable: autoTableModule.default,
+    }));
+  }
+
+  return exportLibsPromise;
+};
 
 /**
  * Xuất danh sách nhà cung cấp ra file Excel
  */
-export const exportSuppliersToExcel = (data: BrandResponseDto[]) => {
+export const exportSuppliersToExcel = async (data: BrandResponseDto[]) => {
+  const { XLSX } = await loadExportLibs();
+
   const wsData: (string | number)[][] = [
     ["DANH SÁCH NHÀ CUNG CẤP"],
     ["Ngày xuất:", new Date().toLocaleString("vi-VN")],
@@ -47,6 +70,7 @@ export const exportSuppliersToExcel = (data: BrandResponseDto[]) => {
  * Xuất danh sách nhà cung cấp ra file PDF (Hỗ trợ Tiếng Việt)
  */
 export const exportSuppliersToPDF = async (data: BrandResponseDto[]) => {
+  const { jsPDF, autoTable } = await loadExportLibs();
   const doc = new jsPDF();
 
   // Nạp font Roboto để hỗ trợ Tiếng Việt

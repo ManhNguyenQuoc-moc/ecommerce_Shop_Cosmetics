@@ -1,7 +1,5 @@
-"use client";
-
 import Link from "next/link";
-import { Facebook, Instagram, Youtube, MapPin, Phone, Mail } from "lucide-react";
+import { Facebook, Instagram, Youtube } from "lucide-react";
 import NewsletterSection from "@/src/app/(customer)/home/components/NewsletterSection";
 
 export default function AppFooter() {
@@ -131,7 +129,7 @@ export default function AppFooter() {
               </li>
             </ul>
           </div>
-          <div className="lg:col-span-8 lg:col-start-5 w-full pt-8 lg:pt-0 self-end">
+          <div className="lg:col-span-8 lg:col-start-5 w-full pt-8 lg:pt-0 self-end min-h-58">
             <NewsletterSection />
           </div>
 

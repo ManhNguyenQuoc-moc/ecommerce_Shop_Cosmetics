@@ -1,6 +1,26 @@
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
-import * as XLSX from "xlsx";
+type ExportLibs = {
+  XLSX: typeof import("xlsx");
+  jsPDF: typeof import("jspdf").default;
+  autoTable: typeof import("jspdf-autotable").default;
+};
+
+let exportLibsPromise: Promise<ExportLibs> | null = null;
+
+const loadExportLibs = async (): Promise<ExportLibs> => {
+  if (!exportLibsPromise) {
+    exportLibsPromise = Promise.all([
+      import("xlsx"),
+      import("jspdf"),
+      import("jspdf-autotable"),
+    ]).then(([XLSX, jsPDFModule, autoTableModule]) => ({
+      XLSX,
+      jsPDF: jsPDFModule.default,
+      autoTable: autoTableModule.default,
+    }));
+  }
+
+  return exportLibsPromise;
+};
 
 const formatCurrency = (val: number) => {
   return new Intl.NumberFormat('vi-VN').format(val) + " VND";
@@ -30,7 +50,8 @@ const removeVietnameseTones = (str: string) => {
 
 const COMPANY_LOGO_BASE64 = "data:image/png;base64,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";
 
-export const exportPOTopdf = (po: any, includeReceipt: boolean = false) => {
+export const exportPOTopdf = async (po: any, includeReceipt: boolean = false) => {
+  const { jsPDF, autoTable } = await loadExportLibs();
   const doc = new jsPDF();
   const PAGE_WIDTH = doc.internal.pageSize.getWidth();
   const MARGIN = 14;
@@ -260,7 +281,8 @@ export const exportPOTopdf = (po: any, includeReceipt: boolean = false) => {
   doc.save(`${includeReceipt ? "Receipt" : "PO"}-${po.code}.pdf`);
 };
 
-export const exportPOToExcel = (po: any, includeReceipt: boolean = false) => {
+export const exportPOToExcel = async (po: any, includeReceipt: boolean = false) => {
+  const { XLSX } = await loadExportLibs();
   // Cấu trúc File Excel chuyên nghiệp hơn
   const wsData = [
     [includeReceipt ? "STOCK RECEIPT (PO + ACTUAL RECEIPT)" : "PURCHASE ORDER (PHIẾU ĐẶT HÀNG)"],
@@ -334,7 +356,8 @@ export const exportPOToExcel = (po: any, includeReceipt: boolean = false) => {
   XLSX.writeFile(wb, `${includeReceipt ? "Receipt" : "PO"}-${po.code}.xlsx`);
 };
 
-export const exportReceiptTemplate = (po: any, pendingItems: any[]) => {
+export const exportReceiptTemplate = async (po: any, pendingItems: any[]) => {
+  const { XLSX } = await loadExportLibs();
   const wsData = [
     ["STOCK RECEIPT TEMPLATE (BẢN MẪU NHẬP KHO)"],
     ["PO Number:", po.code],

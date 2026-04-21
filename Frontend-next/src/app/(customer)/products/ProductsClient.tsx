@@ -5,7 +5,6 @@ import useSWTTitle from "@/src/@core/hooks/useSWTTitle";
 import { useSearchParams, useRouter } from "next/navigation";
 import type { BreadcrumbProps } from "antd";
 
-import { useFetchSWR } from "@/src/@core/hooks/useFetchSWR";
 import SWTBreadcrumb from "@/src/@core/component/AntD/SWTBreadcrumb";
 import ProductListSection from "./components/ProductListSection";
 
@@ -14,14 +13,10 @@ import { ProductListItemDto } from "@/src/services/models/product/output.dto";
 import { CategoryResponseDto } from "@/src/services/models/category/output.dto";
 import { BrandResponseDto } from "@/src/services/customer/home/customer.service";
 import { customerCategories, getDynamicCategories, Category } from "@/src/@core/http/routes/customer-categories";
-import { getProducts } from "@/src/services/customer/product/product.service";
-import { useCustomerCategories } from "@/src/services/customer/category/category.hook";
-import { useCustomerBrands } from "@/src/services/customer/brand/brand.hook";
 import SWTCheckboxGroup from "@/src/@core/component/AntD/SWTCheckboxGroup";
 import SWTSelect from "@/src/@core/component/AntD/SWTSelect";
 import { SWTInput } from "@/src/@core/component/AntD/SWTInput";
 import { Search } from "lucide-react";
-import { useDebounce } from "@/src/@core/hooks/useDebounce";
 
 type Props = {
   initialData: PaginationResponse<ProductListItemDto>;
@@ -36,10 +31,6 @@ export default function ProductsClient({ initialData, initialCategories, initial
 
   const categorySlug = searchParams.get("category");
   const brandId = searchParams.get("brandId");
-  const searchTerm = searchParams.get("searchTerm") || undefined;
-
-  const page = Number(searchParams.get("page") ?? 1);
-  const pageSize = Number(searchParams.get("pageSize") ?? 9);
 
   const minPrice = searchParams.get("minPrice") ? Number(searchParams.get("minPrice")) : undefined;
   const maxPrice = searchParams.get("maxPrice") ? Number(searchParams.get("maxPrice")) : undefined;
@@ -49,54 +40,25 @@ export default function ProductsClient({ initialData, initialCategories, initial
   const rating = searchParams.get("rating") ? Number(searchParams.get("rating")) : undefined;
 
   const [brandSearch, setBrandSearch] = React.useState("");
-  const debouncedBrandSearch = useDebounce(brandSearch, 500);
-
-  const { categories: apiCategories } = useCustomerCategories({
-    fallbackData: initialCategories,
-    revalidateIfStale: false,
-    revalidateOnFocus: false,
-    revalidateOnMount: false,
-  });
   const dynamicCategories = React.useMemo(() => {
-    return apiCategories && apiCategories.length > 0
-      ? getDynamicCategories(apiCategories)
+    return initialCategories && initialCategories.length > 0
+      ? getDynamicCategories(initialCategories)
       : customerCategories;
-  }, [apiCategories]);
+  }, [initialCategories]);
 
-  const { brands: apiBrands } = useCustomerBrands(1, 20, debouncedBrandSearch, undefined, {
-    fallbackData: initialBrands,
-    revalidateIfStale: debouncedBrandSearch !== "",
-    revalidateOnFocus: false,
-    revalidateOnMount: false,
-  });
+  const filteredBrands = React.useMemo(() => {
+    const query = brandSearch.trim().toLowerCase();
+    if (!query) return initialBrands;
 
-  const { data, isLoading, isValidating } = useFetchSWR<PaginationResponse<ProductListItemDto>>(
-    ["products", page, pageSize, categorySlug, brandId, minPrice, maxPrice, sortBy, isSale, inStock, rating, searchTerm],
-    () => {
-      const params: any = { page, pageSize, sortBy, flatten: true };
-      if (categorySlug) params.category = categorySlug;
-      if (brandId) params.brandId = brandId;
-      if (minPrice !== undefined) params.minPrice = minPrice;
-      if (maxPrice !== undefined) params.maxPrice = maxPrice;
-      if (isSale) params.isSale = true;
-      if (inStock) params.inStock = true;
-      if (rating !== undefined) params.rating = rating;
-      if (searchTerm) params.searchTerm = searchTerm;
+    return initialBrands.filter((brand) =>
+      [brand.name, brand.description]
+        .filter(Boolean)
+        .some((value) => value!.toLowerCase().includes(query))
+    );
+  }, [initialBrands, brandSearch]);
 
-      return getProducts(params);
-    },
-    {
-      fallbackData: initialData,
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false
-    }
-  );
-
-  const loading = !data && isLoading;
-  const isFetching = isValidating;
-
-  const productsdata = data?.data ?? [];
-  const total = data?.total ?? 0;
+  const productsdata = initialData.data ?? [];
+  const total = initialData.total ?? 0;
 
   // Resolve dynamic category info - Memoized
   const resolved = React.useMemo(() => {
@@ -285,13 +247,13 @@ export default function ProductsClient({ initialData, initialCategories, initial
                 value={brandSearch}
                 onChange={(e) => setBrandSearch(e.target.value)}
                 allowClear
-                className="!rounded-lg !h-9 text-sm"
+                className="rounded-lg! h-9! text-sm"
               />
             </div>
 
-            <div className="max-h-[250px] overflow-y-auto pr-2 custom-scrollbar">
+            <div className="max-h-62.5 overflow-y-auto pr-2 custom-scrollbar">
               <SWTCheckboxGroup
-                options={apiBrands.map((b: any) => ({ label: b.name, value: b.id }))}
+                options={filteredBrands.map((b) => ({ label: b.name, value: b.id }))}
                 value={brandId ? brandId.split(",") : []}
                 onChange={(values) => {
                   const params = new URLSearchParams(searchParams.toString());
@@ -311,8 +273,7 @@ export default function ProductsClient({ initialData, initialCategories, initial
         <ProductListSection
           products={productsdata}
           total={total}
-          loading={loading}
-          isFetching={isFetching}
+          loading={false}
           sortBy={sortBy}
         />
       </div>

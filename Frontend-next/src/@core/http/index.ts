@@ -51,7 +51,10 @@ const onResponseInterceptor = async (error: AxiosError) => {
             // Optional: Notify user or redirect gracefully
         }
     }
-    return Promise.reject(error.response.data);
+    return Promise.reject({
+      ...(error.response.data as Record<string, unknown>),
+      status: error.response.status,
+    });
   }
 
   const _response = error.response?.data as { message?: string } | undefined;

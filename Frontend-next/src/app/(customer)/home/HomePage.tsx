@@ -1,4 +1,3 @@
-"use client";
 import Image from "next/image";
 import HeroBanner from "./components/HeroBanner";
 import CategorySection from "./components/CategorySection";
@@ -8,11 +7,6 @@ import TrustSection from "./components/TrustSection";
 import FlashSaleSection from "./components/FlashSaleSection";
 import PromoBanner from "./components/PromoBanner";
 
-import { useFetchSWR } from "@/src/@core/hooks/useFetchSWR";
-import useSWTTitle from "@/src/@core/hooks/useSWTTitle";
-
-import { getHomeData } from "@/src/services/customer/home/home.service";
-
 import { HomeData } from "@/src/services/customer/home/models/home.model";
 
 type Props = {
@@ -20,17 +14,7 @@ type Props = {
 };
 
 export default function HomePage({ initialData }: Props) {
-  useSWTTitle("Trang chủ");
-  const { data, isValidating } = useFetchSWR<HomeData>(
-    "home",
-    getHomeData,
-    {
-      fallbackData: initialData,
-      revalidateOnMount: false,
-    }
-  );
-
-  const isActuallyLoading = !data && !initialData && isValidating;
+  const data = initialData;
 
   const tomorrowMidnight = new Date();
   tomorrowMidnight.setDate(tomorrowMidnight.getDate() + 1);
@@ -52,7 +36,6 @@ export default function HomePage({ initialData }: Props) {
           <FlashSaleSection
             products={data?.flashSaleProducts ?? []}
             endDate={tomorrowMidnight.toISOString()}
-            loading={isActuallyLoading}
           />
         </div>
       </section>
@@ -63,7 +46,6 @@ export default function HomePage({ initialData }: Props) {
         <div className="container mx-auto">
           <CategorySection
             categories={data?.categories ?? []}
-            loading={isActuallyLoading}
           />
         </div>
       </section>
@@ -73,7 +55,6 @@ export default function HomePage({ initialData }: Props) {
           <ProductSection
             title="Xu hướng mua sắm"
             products={data?.trendingProducts ?? []}
-            loading={isActuallyLoading}
           />
         </div>
       </section>
@@ -83,7 +64,6 @@ export default function HomePage({ initialData }: Props) {
           <ProductSection
             title="Bán chạy nhất"
             products={data?.bestSellingProducts ?? []}
-            loading={isActuallyLoading}
           />
         </div>
       </section>
@@ -92,7 +72,6 @@ export default function HomePage({ initialData }: Props) {
         <div className="container mx-auto px-4">
           <BrandSection
             brands={data?.brands ?? []}
-            loading={isActuallyLoading}
           />
         </div>
       </section>
@@ -108,7 +87,6 @@ export default function HomePage({ initialData }: Props) {
           <ProductSection
             title="Sản phẩm mới nhất"
             products={data?.newestProducts ?? []}
-            loading={isActuallyLoading}
           />
         </div>
       </section>
@@ -120,12 +98,11 @@ export default function HomePage({ initialData }: Props) {
           
       <section className="w-full relative px-4 mt-4">
         <div className="container mx-auto">
-          <div className="relative w-full aspect-[21/9] md:aspect-[3/1] rounded-[2.5rem] overflow-hidden shadow-2xl shadow-brand-500/10 border-4 border-white">
+          <div className="relative w-full aspect-21/9 md:aspect-3/1 rounded-4xl overflow-hidden shadow-2xl shadow-brand-500/10 border-4 border-white">
             <Image
               src="/images/main/background.jpg"
               alt="Cosmetics banner"
               fill
-              priority
               className="object-cover transition-transform duration-1000 hover:scale-105"
             />
           </div>

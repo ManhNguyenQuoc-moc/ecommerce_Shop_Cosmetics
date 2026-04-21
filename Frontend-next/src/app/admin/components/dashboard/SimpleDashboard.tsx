@@ -57,9 +57,9 @@ export default function SimpleDashboard() {
 
   const { productVariantMetrics, purchaseAnalytics, userAnalytics, brandAnalytics, bestSellingProducts, bestSellingVariants } = data;
 
-  const handleExportPdf = () => {
+  const handleExportPdf = async () => {
     try {
-      exportDashboardToPdf(data, "simple", {
+      await exportDashboardToPdf(data, "simple", {
         timeFilter: "all",
       });
       showNotificationSuccess("Đã xuất báo cáo PDF cho Tổng Quan Kinh Doanh");
@@ -68,9 +68,9 @@ export default function SimpleDashboard() {
     }
   };
 
-  const handleExportExcel = () => {
+  const handleExportExcel = async () => {
     try {
-      exportDashboardToExcel(data, "simple", {
+      await exportDashboardToExcel(data, "simple", {
         timeFilter: "all",
       });
       showNotificationSuccess("Đã xuất báo cáo Excel cho Tổng Quan Kinh Doanh");

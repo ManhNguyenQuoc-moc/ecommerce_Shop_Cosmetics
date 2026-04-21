@@ -1,5 +1,3 @@
-"use client";
-
 import { ShieldCheck, Truck, RefreshCcw, Headphones } from "lucide-react";
 
 const features = [
@@ -31,7 +29,7 @@ export default function TrustSection() {
       {features.map((feature, index) => (
         <div 
           key={index} 
-          className="group p-5 md:p-6 rounded-[2rem] bg-white backdrop-blur-xl border border-white/20 hover:bg-white/60 transition-all duration-300 shadow-sm hover:shadow-xl hover:-translate-y-1 flex flex-col items-center text-center gap-3"
+          className="group p-5 md:p-6 rounded-4xl bg-white backdrop-blur-xl border border-white/20 hover:bg-white/60 transition-all duration-300 shadow-sm hover:shadow-xl hover:-translate-y-1 flex flex-col items-center text-center gap-3"
         >
           <div className="w-12 h-12 rounded-2xl bg-white/85 flex items-center justify-center text-brand-500 group-hover:scale-110 transition-transform">
             {feature.icon}

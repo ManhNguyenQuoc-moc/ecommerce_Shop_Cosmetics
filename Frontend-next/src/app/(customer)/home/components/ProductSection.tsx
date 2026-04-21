@@ -1,4 +1,3 @@
-"use client";
 import ProductCard from "./ProductCard";
 import { ProductListItemDto } from "@/src/services/models/product/output.dto";
 import SWTEmpty from "@/src/@core/component/AntD/SWTEmpty";

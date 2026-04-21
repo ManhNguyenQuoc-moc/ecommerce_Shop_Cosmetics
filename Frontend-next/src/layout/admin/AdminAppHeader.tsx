@@ -36,6 +36,15 @@ export default function AdminAppHeader() {
     router.push('/login');
   };
 
+  const handleSidebarToggle = () => {
+    if (window.matchMedia("(min-width: 1024px)").matches) {
+      toggleSidebar();
+      return;
+    }
+
+    toggleMobileSidebar();
+  };
+
   const accountMenu: MenuProps = {
     items: [
       {
@@ -68,10 +77,7 @@ export default function AdminAppHeader() {
       {/* Left: Hamburger & Dynamic Title */}
       <div className="flex items-center gap-3 md:gap-4">
         <SWTIconButton
-          onClick={() => {
-            if (window.innerWidth >= 1024) toggleSidebar();
-            else toggleMobileSidebar();
-          }}
+          onClick={handleSidebarToggle}
           icon={<Menu size={24} />}
           className="p-2 -ml-2 rounded-xl text-text-sub hover:bg-bg-muted dark:hover:bg-white/5 dark:hover:text-white transition-colors"
         />

@@ -1,7 +1,28 @@
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
-import * as XLSX from "xlsx";
 import { DashboardResponseDTO } from "@/src/services/admin/dashboard/models/output.model";
+
+type ExportLibs = {
+  XLSX: typeof import("xlsx");
+  jsPDF: typeof import("jspdf").default;
+  autoTable: typeof import("jspdf-autotable").default;
+};
+
+let exportLibsPromise: Promise<ExportLibs> | null = null;
+
+const loadExportLibs = async (): Promise<ExportLibs> => {
+  if (!exportLibsPromise) {
+    exportLibsPromise = Promise.all([
+      import("xlsx"),
+      import("jspdf"),
+      import("jspdf-autotable"),
+    ]).then(([XLSX, jsPDFModule, autoTableModule]) => ({
+      XLSX,
+      jsPDF: jsPDFModule.default,
+      autoTable: autoTableModule.default,
+    }));
+  }
+
+  return exportLibsPromise;
+};
 
 type DashboardMode = "simple" | "advanced";
 
@@ -44,7 +65,7 @@ const buildMetricsRows = (data: DashboardResponseDTO) => [
   ["Khach moi", data.metrics.monthlyNewUsers.formattedValue || formatNumber(data.metrics.monthlyNewUsers.value), `${data.metrics.monthlyNewUsers.trend}%`],
 ];
 
-const ensureSpace = (doc: jsPDF, y: number, heightNeeded: number) => {
+const ensureSpace = (doc: any, y: number, heightNeeded: number) => {
   if (y + heightNeeded > 280) {
     doc.addPage();
     return 18;
@@ -55,7 +76,7 @@ const ensureSpace = (doc: jsPDF, y: number, heightNeeded: number) => {
 type ChartItem = { label: string; value: number };
 
 const drawBarChartSection = (
-  doc: jsPDF,
+  doc: any,
   title: string,
   items: ChartItem[],
   color: [number, number, number],
@@ -95,7 +116,7 @@ const drawBarChartSection = (
   return y + 2;
 };
 
-const addTitleBlock = (doc: jsPDF, title: string, subtitle: string) => {
+const addTitleBlock = (doc: any, title: string, subtitle: string) => {
   doc.setFont("helvetica", "bold");
   doc.setFontSize(16);
   doc.text(removeVietnameseTones(title), 14, 18);
@@ -107,11 +128,12 @@ const addTitleBlock = (doc: jsPDF, title: string, subtitle: string) => {
   doc.setTextColor(0, 0, 0);
 };
 
-export const exportDashboardToPdf = (
+export const exportDashboardToPdf = async (
   data: DashboardResponseDTO,
   mode: DashboardMode,
   options?: ExportOptions
 ) => {
+  const { jsPDF, autoTable } = await loadExportLibs();
   const doc = new jsPDF();
   const generatedAt = new Date().toLocaleString("vi-VN");
   const subtitleParts = [
@@ -256,11 +278,12 @@ export const exportDashboardToPdf = (
   doc.save(fileName);
 };
 
-export const exportDashboardToExcel = (
+export const exportDashboardToExcel = async (
   data: DashboardResponseDTO,
   mode: DashboardMode,
   options?: ExportOptions
 ) => {
+  const { XLSX } = await loadExportLibs();
   const wb = XLSX.utils.book_new();
 
   const metricsSheet = XLSX.utils.json_to_sheet(
