@@ -51,8 +51,8 @@ export default function AdminAppHeader() {
         key: 'profile',
         label: (
           <div className="flex items-center gap-2 text-slate-700 font-medium px-2 py-1" onClick={() => router.push('/admin/profile')}>
-            <User size={16} className="text-white" />
-            <span className="text-white" >Hồ sơ Quản trị viên</span>
+            <User size={16} className="text-brand-500" />
+            <span className="text-brand-500 " >Hồ sơ Quản trị viên</span>
           </div>
         ),
       },
@@ -64,7 +64,7 @@ export default function AdminAppHeader() {
         label: (
           <div className="flex items-center gap-2 text-red-500 font-medium px-2 py-1 hover:text-red-600" onClick={handleLogout}>
             <LogOut size={16} />
-            <span className="text-white">Đăng xuất</span>
+            <span className="text-red-500">Đăng xuất</span>
           </div>
         ),
       },

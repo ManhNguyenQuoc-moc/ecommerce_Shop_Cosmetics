@@ -116,9 +116,8 @@ export default function UnifiedQuestionItem({
                   </SWTTooltip>
                   <SWTButton
                     variant="text"
-                    icon={<Reply size={14} />}
                     onClick={() => setIsReplying(!isReplying)}
-                    className={`w-auto! h-auto! bg-transparent! hover:bg-transparent! border-none! text-slate-400 hover:text-brand-500 font-black text-[10px] tracking-widest uppercase rounded-lg transition-opacity ${isAdminMode ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}
+                    className={`!w-auto !h-auto! !bg-transparent hover:!bg-transparent! !border-none !text-slate-400 hover:text-brand-500 !font-black text-[10px] tracking-widest uppercase rounded-lg transition-opacity ${isAdminMode ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}
                   >
                     Phản hồi
                   </SWTButton>
@@ -136,20 +135,20 @@ export default function UnifiedQuestionItem({
             <div className="mt-4 p-4 rounded-2xl bg-brand-500/5 border border-brand-500/10 animate-slide-down">
               <SWTInput.TextArea
                 rows={2}
+                showCount={false}
                 placeholder={`Phản hồi cho ${question.userName}...`}
                 value={replyText}
                 autoFocus
                 onChange={(e) => setReplyText(e.target.value)}
-                className="mb-3 rounded-xl border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm"
+                className="!mb-3 !rounded-xl !border-slate-200 dark:!border-slate-700 !bg-white dark:!bg-slate-900 !text-sm"
               />
               <div className="flex justify-end gap-2">
-                <SWTButton size="sm" onClick={() => setIsReplying(false)} className="w-auto! h-8! rounded-lg font-bold text-xs uppercase">Hủy</SWTButton>
+                <SWTButton size="sm" onClick={() => setIsReplying(false)} className="!w-auto !px-4">Hủy</SWTButton>
                 <SWTButton
                   size="sm"
-                  type="primary"
                   loading={isSubmitting}
                   onClick={handleReply}
-                  className="w-auto! h-8! bg-brand-600 hover:bg-brand-700 rounded-lg font-black text-[10px] uppercase tracking-widest px-4"
+                  className="w-auto!  !bg-brand-600 !text-white !rounded-lg !font-black !text-[10px] !uppercase tracking-widest !px-4"
                 >
                   Gửi ngay
                 </SWTButton>

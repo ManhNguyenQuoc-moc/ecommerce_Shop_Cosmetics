@@ -109,9 +109,8 @@ export default function UnifiedReviewItem({
 
               {isAdminMode && review.sentiment && (
                 <SWTTag 
-                  icon={<BrainCircuit size={10} />} 
                   color={sentimentConfig[review.sentiment]?.color} 
-                  className="rounded-full font-black uppercase tracking-widest text-[8px] flex items-center gap-1 m-0 px-2 py-0.5 border-none shadow-sm"
+                  className="!rounded-full !font-black !uppercase !tracking-widest !text-[8px] !flex !items-center !gap-1 !m-0 !px-2 !py-0.5 !border-none !shadow-sm"
                 >
                   AI: {sentimentConfig[review.sentiment]?.label}
                 </SWTTag>
@@ -139,7 +138,6 @@ export default function UnifiedReviewItem({
                   </SWTTooltip>
                     <SWTButton 
                       variant="text" 
-                      icon={<Reply size={14} />} 
                       onClick={() => setIsReplying(!isReplying)}
                       className={`w-auto! h-auto! bg-transparent! hover:bg-transparent! border-none! text-slate-400 hover:text-brand-500 font-black text-[10px] tracking-widest uppercase rounded-lg transition-opacity ${isAdminMode ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}
                     >
@@ -161,18 +159,19 @@ export default function UnifiedReviewItem({
                 rows={2}
                 placeholder={`Phản hồi cho ${review.userName}...`}
                 value={replyContent}
+                showCount={false}
                 autoFocus
                 onChange={(e) => setReplyContent(e.target.value)}
-                className="mb-3 rounded-xl border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm"
+                className="!mb-3 !rounded-xl !border-slate-200 dark:!border-slate-700 !bg-white dark:!bg-slate-900 !text-sm"
               />
               <div className="flex justify-end gap-2">
-                <SWTButton size="sm" onClick={() => setIsReplying(false)} className="w-auto! h-8! rounded-lg font-bold text-xs uppercase">Hủy</SWTButton>
+                <SWTButton size="sm" onClick={() => setIsReplying(false)} className="!w-auto !px-4">Hủy</SWTButton>
                 <SWTButton 
                   size="sm"
                   type="primary" 
                   loading={isSubmitting}
                   onClick={handleReply}
-                  className="w-auto! h-8! bg-brand-600 hover:bg-brand-700 rounded-lg font-black text-[10px] uppercase tracking-widest px-4"
+                  className="w-auto! !bg-brand-600 !text-white !rounded-lg !font-black !text-[10px] !uppercase tracking-widest !px-4"
                 >
                   Gửi ngay
                 </SWTButton>
