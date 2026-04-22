@@ -1,6 +1,6 @@
 import { Product } from "@prisma/client";
 import { ProductQueryFilters, VariantQueryFilters } from "./IProductRepository";
-import { PagedResult } from "../common/paged-result";
+import { PagedResult } from "../utils/paged-result";
 import { ProductListItemDto } from "../DTO/product/output/ProductListItemDto";
 import { CreateProductDTO, CreateVariantDTO } from "../DTO/product/input/AddProductDTO";
 import { UpdateProductDTO, UpdateVariantDTO } from "../DTO/product/input/UpdateProductDTO";

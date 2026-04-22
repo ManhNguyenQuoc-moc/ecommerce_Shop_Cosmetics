@@ -6,7 +6,7 @@ import { UpdatePODTO } from "../DTO/purchase/input/UpdatePODTO";
 import { ReceiveStockDTO } from "../DTO/purchase/input/ReceiveStockDTO";
 import { POListItemDTO, POStatus } from "../DTO/purchase/output/POResponseDTO";
 
-import { PagedResult } from "../common/paged-result";
+import { PagedResult } from "../utils/paged-result";
 const inventoryRepo = new InventoryRepository();
 
 export class PurchaseService {

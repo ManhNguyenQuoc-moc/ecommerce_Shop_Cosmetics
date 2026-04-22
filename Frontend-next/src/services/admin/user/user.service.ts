@@ -3,12 +3,18 @@ import {UpdateUserProfileDTO} from "./models/input.model.dto";
 import {UserProfileDTO} from "./models/output.model.dto";
 
 import { get, put } from "../../../@core/utils/api";
+import { PaginationResponse } from "../../../@core/http/models/PaginationResponse";
 
 export const USER_API_ENDPOINT = "/users";
 
-export const getUsers = (filters?: UserProfileDTO) => {
-  return get<UserProfileDTO>(`${USER_API_ENDPOINT}`, filters);
+export const getUsers = (filters?: any) => {
+  return get<PaginationResponse<UserProfileDTO>>(`${USER_API_ENDPOINT}`, filters);
 };
+
+export const fetchAllUsers = async (filters?: any) => {
+    const response = await getUsers({ ...filters, page: 1, pageSize: 9999 });
+    return response.data;
+  };
 
 export const getUserById = (id: string) => {
   return get<UserProfileDTO>(`${USER_API_ENDPOINT}/${id}`);

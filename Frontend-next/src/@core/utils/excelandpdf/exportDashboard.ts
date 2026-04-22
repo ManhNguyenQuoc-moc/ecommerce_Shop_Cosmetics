@@ -1,28 +1,5 @@
 import { DashboardResponseDTO } from "@/src/services/admin/dashboard/models/output.model";
-
-type ExportLibs = {
-  XLSX: typeof import("xlsx");
-  jsPDF: typeof import("jspdf").default;
-  autoTable: typeof import("jspdf-autotable").default;
-};
-
-let exportLibsPromise: Promise<ExportLibs> | null = null;
-
-const loadExportLibs = async (): Promise<ExportLibs> => {
-  if (!exportLibsPromise) {
-    exportLibsPromise = Promise.all([
-      import("xlsx"),
-      import("jspdf"),
-      import("jspdf-autotable"),
-    ]).then(([XLSX, jsPDFModule, autoTableModule]) => ({
-      XLSX,
-      jsPDF: jsPDFModule.default,
-      autoTable: autoTableModule.default,
-    }));
-  }
-
-  return exportLibsPromise;
-};
+import { loadExportLibs, setupPdfFont, getPdfTableStyles } from "./exportGeneral";
 
 type DashboardMode = "simple" | "advanced";
 
@@ -36,33 +13,12 @@ type ExportOptions = {
 const formatCurrency = (value: number) => new Intl.NumberFormat("vi-VN").format(value) + " VND";
 const formatNumber = (value: number) => new Intl.NumberFormat("vi-VN").format(value);
 
-const removeVietnameseTones = (str: string) => {
-  if (!str) return "";
-  return str
-    .replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g, "a")
-    .replace(/è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ/g, "e")
-    .replace(/ì|í|ị|ỉ|ĩ/g, "i")
-    .replace(/ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ/g, "o")
-    .replace(/ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ/g, "u")
-    .replace(/ỳ|ý|ỵ|ỷ|ỹ/g, "y")
-    .replace(/đ/g, "d")
-    .replace(/À|Á|Ạ|Ả|Ã|Â|Ầ|Ấ|Ậ|Ẩ|Ẫ|Ă|Ằ|Ắ|Ặ|Ẳ|Ẵ/g, "A")
-    .replace(/È|É|Ẹ|Ẻ|Ẽ|Ê|Ề|Ế|Ệ|Ể|Ễ/g, "E")
-    .replace(/Ì|Í|Ị|Ỉ|Ĩ/g, "I")
-    .replace(/Ò|Ó|Ọ|Ỏ|Õ|Ô|Ồ|Ố|Ộ|Ổ|Ỗ|Ơ|Ờ|Ớ|Ợ|Ở|Ỡ/g, "O")
-    .replace(/Ù|Ú|Ụ|Ủ|Ũ|Ư|Ừ|Ứ|Ự|Ử|Ữ/g, "U")
-    .replace(/Ỳ|Ý|Ỵ|Ỷ|Ỹ/g, "Y")
-    .replace(/Đ/g, "D")
-    .replace(/[\u0300\u0301\u0303\u0309\u0323]/g, "")
-    .replace(/[\u02C6\u0306\u031B]/g, "");
-};
-
 const buildMetricsRows = (data: DashboardResponseDTO) => [
-  ["Tong don hang", formatNumber(data.metrics.totalOrders.value), `${data.metrics.totalOrders.trend}%`],
-  ["Tong doanh thu", formatCurrency(data.metrics.totalRevenue.value), `${data.metrics.totalRevenue.trend}%`],
-  ["Loi nhuan", formatCurrency(data.metrics.netProfit.value), `${data.metrics.netProfit.trend}%`],
-  ["Tong khach hang", formatNumber(data.metrics.totalUsers.value), `${data.metrics.totalUsers.trend}%`],
-  ["Khach moi", data.metrics.monthlyNewUsers.formattedValue || formatNumber(data.metrics.monthlyNewUsers.value), `${data.metrics.monthlyNewUsers.trend}%`],
+  ["Tổng đơn hàng", formatNumber(data.metrics.totalOrders.value), `${data.metrics.totalOrders.trend}%`],
+  ["Tổng doanh thu", formatCurrency(data.metrics.totalRevenue.value), `${data.metrics.totalRevenue.trend}%`],
+  ["Lợi nhuận", formatCurrency(data.metrics.netProfit.value), `${data.metrics.netProfit.trend}%`],
+  ["Tổng khách hàng", formatNumber(data.metrics.totalUsers.value), `${data.metrics.totalUsers.trend}%`],
+  ["Khách mới", data.metrics.monthlyNewUsers.formattedValue || formatNumber(data.metrics.monthlyNewUsers.value), `${data.metrics.monthlyNewUsers.trend}%`],
 ];
 
 const ensureSpace = (doc: any, y: number, heightNeeded: number) => {
@@ -84,22 +40,22 @@ const drawBarChartSection = (
 ) => {
   let y = ensureSpace(doc, yStart, items.length * 10 + 24);
 
-  doc.setFont("helvetica", "bold");
+  doc.setFont("Roboto", "bold");
   doc.setFontSize(11);
-  doc.text(removeVietnameseTones(title), 14, y);
+  doc.text(title, 14, y);
   y += 8;
 
   const maxValue = Math.max(...items.map((i) => i.value), 1);
   const barX = 88;
   const barMaxWidth = 82;
 
-  doc.setFont("helvetica", "normal");
+  doc.setFont("Roboto", "normal");
   doc.setFontSize(9);
 
   items.forEach((item) => {
     const rowY = y;
     const barWidth = Math.max(1, (item.value / maxValue) * barMaxWidth);
-    const label = removeVietnameseTones(item.label).slice(0, 28);
+    const label = item.label.length > 28 ? item.label.slice(0, 25) + "..." : item.label;
 
     doc.setTextColor(55, 65, 81);
     doc.text(label, 14, rowY);
@@ -117,60 +73,74 @@ const drawBarChartSection = (
 };
 
 const addTitleBlock = (doc: any, title: string, subtitle: string) => {
-  doc.setFont("helvetica", "bold");
+  doc.setFont("Roboto", "bold");
   doc.setFontSize(16);
-  doc.text(removeVietnameseTones(title), 14, 18);
+  doc.text(title, 14, 18);
 
-  doc.setFont("helvetica", "normal");
+  doc.setFont("Roboto", "normal");
   doc.setFontSize(10);
   doc.setTextColor(107, 114, 128);
-  doc.text(removeVietnameseTones(subtitle), 14, 25);
+  doc.text(subtitle, 14, 25);
   doc.setTextColor(0, 0, 0);
 };
 
-export const exportDashboardToPdf = async (
+/**
+ * Xuất báo cáo Dashboard ra file PDF
+ * Hỗ trợ Unicode Tiếng Việt
+ */
+export const exportDashboardToPDF = async (
   data: DashboardResponseDTO,
   mode: DashboardMode,
   options?: ExportOptions
 ) => {
   const { jsPDF, autoTable } = await loadExportLibs();
   const doc = new jsPDF();
+  await setupPdfFont(doc);
+
   const generatedAt = new Date().toLocaleString("vi-VN");
   const subtitleParts = [
-    `Generated: ${generatedAt}`,
-    options?.timeFilter ? `Filter: ${options.timeFilter}` : "",
-    options?.startDate ? `From: ${options.startDate}` : "",
-    options?.endDate ? `To: ${options.endDate}` : "",
+    `Ngày xuất: ${generatedAt}`,
+    options?.timeFilter ? `Lọc: ${options.timeFilter}` : "",
+    options?.startDate ? `Từ: ${options.startDate}` : "",
+    options?.endDate ? `Đến: ${options.endDate}` : "",
   ].filter(Boolean);
 
   addTitleBlock(
     doc,
-    mode === "simple" ? "BAO CAO TONG QUAN KINH DOANH" : "BAO CAO PHAN TICH CHI TIET",
+    mode === "simple" ? "BÁO CÁO TỔNG QUAN KINH DOANH" : "BÁO CÁO PHÂN TÍCH CHI TIẾT",
     subtitleParts.join(" | ")
   );
 
   autoTable(doc, {
     startY: 32,
-    head: [["Chi so", "Gia tri", "Xu huong"]],
+    head: [["Chỉ số", "Giá trị", "Xu hướng"]],
     body: buildMetricsRows(data),
-    headStyles: { fillColor: [99, 102, 241] },
-    styles: { font: "helvetica", fontSize: 10 },
+    ...getPdfTableStyles(doc),
+    headStyles: { 
+      fontStyle: 'normal',
+      fillColor: [99, 102, 241],
+      textColor: [255, 255, 255]
+    },
   });
 
   let y = (doc as any).lastAutoTable.finalY + 8;
 
   const topProductsRows = data.bestSellingProducts.slice(0, 10).map((item, index) => [
     index + 1,
-    removeVietnameseTones(item.name),
+    item.name,
     formatNumber(item.sales),
   ]);
 
   autoTable(doc, {
     startY: y,
-    head: [["Top products", "Ten", "So luong ban"]],
+    head: [["Top sản phẩm", "Tên sản phẩm", "Số lượng bán"]],
     body: topProductsRows,
-    headStyles: { fillColor: [6, 182, 212] },
-    styles: { font: "helvetica", fontSize: 9 },
+    ...getPdfTableStyles(doc),
+    headStyles: { 
+      fontStyle: 'normal',
+      fillColor: [6, 182, 212],
+      textColor: [255, 255, 255]
+    },
     columnStyles: { 0: { halign: "center", cellWidth: 24 } },
   });
 
@@ -179,16 +149,20 @@ export const exportDashboardToPdf = async (
   if (mode === "simple") {
     const topVariantsRows = data.bestSellingVariants.slice(0, 10).map((item, index) => [
       index + 1,
-      removeVietnameseTones(item.name),
+      item.name,
       formatNumber(item.sales),
     ]);
 
     autoTable(doc, {
       startY: y,
-      head: [["Top variants", "Ten", "So luong ban"]],
+      head: [["Top biến thể", "Tên biến thể", "Số lượng bán"]],
       body: topVariantsRows,
-      headStyles: { fillColor: [16, 185, 129] },
-      styles: { font: "helvetica", fontSize: 9 },
+      ...getPdfTableStyles(doc),
+      headStyles: { 
+        fontStyle: 'normal',
+        fillColor: [16, 185, 129],
+        textColor: [255, 255, 255]
+      },
       columnStyles: { 0: { halign: "center", cellWidth: 24 } },
     });
 
@@ -196,16 +170,20 @@ export const exportDashboardToPdf = async (
 
     const marketShareRows = data.brandAnalytics.marketShare.slice(0, 10).map((item, index) => [
       index + 1,
-      removeVietnameseTones(item.name),
+      item.name,
       formatNumber(item.value),
     ]);
 
     autoTable(doc, {
       startY: y,
-      head: [["Thi phan thuong hieu", "Thuong hieu", "Gia tri"]],
+      head: [["Thị phần thương hiệu", "Thương hiệu", "Giá trị"]],
       body: marketShareRows,
-      headStyles: { fillColor: [245, 158, 11] },
-      styles: { font: "helvetica", fontSize: 9 },
+      ...getPdfTableStyles(doc),
+      headStyles: { 
+        fontStyle: 'normal',
+        fillColor: [245, 158, 11],
+        textColor: [255, 255, 255]
+      },
       columnStyles: { 0: { halign: "center", cellWidth: 24 } },
     });
 
@@ -214,7 +192,7 @@ export const exportDashboardToPdf = async (
     if (options?.includeCharts !== false) {
       y = drawBarChartSection(
         doc,
-        "BIEU DO TOP SAN PHAM",
+        "BIỂU ĐỒ TOP SẢN PHẨM",
         data.bestSellingProducts.slice(0, 5).map((item) => ({ label: item.name, value: item.sales })),
         [6, 182, 212],
         y
@@ -223,16 +201,20 @@ export const exportDashboardToPdf = async (
   } else {
     const statusRows = data.orderManagement.statusDistribution.map((item, index) => [
       index + 1,
-      removeVietnameseTones(item.status),
+      item.status,
       formatNumber(item.count),
     ]);
 
     autoTable(doc, {
       startY: y,
-      head: [["Trang thai don hang", "Trang thai", "So luong"]],
+      head: [["Trạng thái đơn hàng", "Trạng thái", "Số lượng"]],
       body: statusRows,
-      headStyles: { fillColor: [239, 68, 68] },
-      styles: { font: "helvetica", fontSize: 9 },
+      ...getPdfTableStyles(doc),
+      headStyles: { 
+        fontStyle: 'normal',
+        fillColor: [239, 68, 68],
+        textColor: [255, 255, 255]
+      },
       columnStyles: { 0: { halign: "center", cellWidth: 24 } },
     });
 
@@ -240,16 +222,20 @@ export const exportDashboardToPdf = async (
 
     const spendingRows = data.purchaseAnalytics.spendingByBrand.slice(0, 10).map((item, index) => [
       index + 1,
-      removeVietnameseTones(item.name),
+      item.name,
       formatCurrency(item.value),
     ]);
 
     autoTable(doc, {
       startY: y,
-      head: [["Chi phi nhap theo thuong hieu", "Thuong hieu", "Tong chi phi"]],
+      head: [["Chi phí nhập theo thương hiệu", "Thương hiệu", "Tổng chi phí"]],
       body: spendingRows,
-      headStyles: { fillColor: [168, 85, 247] },
-      styles: { font: "helvetica", fontSize: 9 },
+      ...getPdfTableStyles(doc),
+      headStyles: { 
+        fontStyle: 'normal',
+        fillColor: [168, 85, 247],
+        textColor: [255, 255, 255]
+      },
       columnStyles: { 0: { halign: "center", cellWidth: 24 } },
     });
 
@@ -258,7 +244,7 @@ export const exportDashboardToPdf = async (
     if (options?.includeCharts !== false) {
       y = drawBarChartSection(
         doc,
-        "BIEU DO TRANG THAI DON HANG",
+        "BIỂU ĐỒ TRẠNG THÁI ĐƠN HÀNG",
         data.orderManagement.statusDistribution.slice(0, 5).map((item) => ({ label: item.status, value: item.count })),
         [239, 68, 68],
         y
@@ -266,7 +252,7 @@ export const exportDashboardToPdf = async (
 
       y = drawBarChartSection(
         doc,
-        "BIEU DO CHI PHI NHAP THEO THUONG HIEU",
+        "BIỂU ĐỒ CHI PHÍ NHẬP THEO THƯƠNG HIỆU",
         data.purchaseAnalytics.spendingByBrand.slice(0, 5).map((item) => ({ label: item.name, value: item.value })),
         [168, 85, 247],
         y
@@ -274,10 +260,13 @@ export const exportDashboardToPdf = async (
     }
   }
 
-  const fileName = `${mode === "simple" ? "Dashboard-Summary" : "Dashboard-Advanced"}-${new Date().toISOString().slice(0, 10)}.pdf`;
+  const fileName = `${mode === "simple" ? "Dashboard-Tong-Quan" : "Dashboard-Nang-Cao"}-${new Date().getTime()}.pdf`;
   doc.save(fileName);
 };
 
+/**
+ * Xuất dữ liệu Dashboard ra file Excel
+ */
 export const exportDashboardToExcel = async (
   data: DashboardResponseDTO,
   mode: DashboardMode,
@@ -288,66 +277,66 @@ export const exportDashboardToExcel = async (
 
   const metricsSheet = XLSX.utils.json_to_sheet(
     buildMetricsRows(data).map((row) => ({
-      Metric: row[0],
-      Value: row[1],
-      Trend: row[2],
-      TimeFilter: options?.timeFilter || "N/A",
-      StartDate: options?.startDate || "N/A",
-      EndDate: options?.endDate || "N/A",
+      "Chỉ số": row[0],
+      "Giá trị": row[1],
+      "Xu hướng": row[2],
+      "Bộ lọc": options?.timeFilter || "N/A",
+      "Ngày bắt đầu": options?.startDate || "N/A",
+      "Ngày kết thúc": options?.endDate || "N/A",
     }))
   );
 
   const topProductsSheet = XLSX.utils.json_to_sheet(
     data.bestSellingProducts.map((item, index) => ({
-      Rank: index + 1,
-      Product: item.name,
-      Sales: item.sales,
+      "Hạng": index + 1,
+      "Sản phẩm": item.name,
+      "Số lượng bán": item.sales,
     }))
   );
 
   const topVariantsSheet = XLSX.utils.json_to_sheet(
     data.bestSellingVariants.map((item, index) => ({
-      Rank: index + 1,
-      Variant: item.name,
-      Sales: item.sales,
+      "Hạng": index + 1,
+      "Biến thể": item.name,
+      "Số lượng bán": item.sales,
     }))
   );
 
   const marketShareSheet = XLSX.utils.json_to_sheet(
     data.brandAnalytics.marketShare.map((item, index) => ({
-      Rank: index + 1,
-      Brand: item.name,
-      Value: item.value,
+      "Hạng": index + 1,
+      "Thương hiệu": item.name,
+      "Giá trị": item.value,
     }))
   );
 
-  XLSX.utils.book_append_sheet(wb, metricsSheet, "Metrics");
-  XLSX.utils.book_append_sheet(wb, topProductsSheet, "TopProducts");
+  XLSX.utils.book_append_sheet(wb, metricsSheet, "Chỉ số");
+  XLSX.utils.book_append_sheet(wb, topProductsSheet, "Top sản phẩm");
 
   if (mode === "simple") {
-    XLSX.utils.book_append_sheet(wb, topVariantsSheet, "TopVariants");
-    XLSX.utils.book_append_sheet(wb, marketShareSheet, "BrandShare");
+    XLSX.utils.book_append_sheet(wb, topVariantsSheet, "Top biến thể");
+    XLSX.utils.book_append_sheet(wb, marketShareSheet, "Thị phần");
   } else {
     const orderStatusSheet = XLSX.utils.json_to_sheet(
       data.orderManagement.statusDistribution.map((item, index) => ({
-        Rank: index + 1,
-        Status: item.status,
-        Count: item.count,
+        "Hạng": index + 1,
+        "Trạng thái": item.status,
+        "Số lượng": item.count,
       }))
     );
 
     const spendingByBrandSheet = XLSX.utils.json_to_sheet(
       data.purchaseAnalytics.spendingByBrand.map((item, index) => ({
-        Rank: index + 1,
-        Brand: item.name,
-        Spending: item.value,
+        "Hạng": index + 1,
+        "Thương hiệu": item.name,
+        "Chi phí": item.value,
       }))
     );
 
-    XLSX.utils.book_append_sheet(wb, orderStatusSheet, "OrderStatus");
-    XLSX.utils.book_append_sheet(wb, spendingByBrandSheet, "SpendingByBrand");
+    XLSX.utils.book_append_sheet(wb, orderStatusSheet, "Trạng thái ĐH");
+    XLSX.utils.book_append_sheet(wb, spendingByBrandSheet, "Chi phí Nhập");
   }
 
-  const fileName = `${mode === "simple" ? "Dashboard-Summary" : "Dashboard-Advanced"}-${new Date().toISOString().slice(0, 10)}.xlsx`;
+  const fileName = `${mode === "simple" ? "Dashboard-Tong-Quan" : "Dashboard-Nang-Cao"}-${new Date().getTime()}.xlsx`;
   XLSX.writeFile(wb, fileName);
 };

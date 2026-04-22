@@ -18,13 +18,13 @@ export type AuthUser = {
 export const authStorage = {
 
   login: (token: string, user: AuthUser): void => {
-    Cookies.set(TOKEN_KEY, token, { expires: 7 });
-    Cookies.set(USER_KEY, JSON.stringify(user), { expires: 7 });
+    Cookies.set(TOKEN_KEY, token, { expires: 7, path: "/" });
+    Cookies.set(USER_KEY, JSON.stringify(user), { expires: 7, path: "/" });
   },
 
   logout: (): void => {
-    Cookies.remove(TOKEN_KEY);
-    Cookies.remove(USER_KEY);
+    Cookies.remove(TOKEN_KEY, { path: "/" });
+    Cookies.remove(USER_KEY, { path: "/" });
   },
 
   getToken: (): string | undefined => {
@@ -42,6 +42,10 @@ export const authStorage = {
 },
 
   setUser: (user: AuthUser): void => {
-    Cookies.set(USER_KEY, JSON.stringify(user), { expires: 7 });
+    Cookies.set(USER_KEY, JSON.stringify(user), { expires: 7, path: "/" });
+  },
+
+  setToken: (token: string): void => {
+    Cookies.set(TOKEN_KEY, token, { expires: 7, path: "/" });
   }
 }

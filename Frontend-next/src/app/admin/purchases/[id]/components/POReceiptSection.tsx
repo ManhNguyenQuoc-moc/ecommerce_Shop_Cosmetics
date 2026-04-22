@@ -16,8 +16,8 @@ import SWTCheckbox from "@/src/@core/component/AntD/SWTCheckbox";
 import { showNotificationSuccess, showNotificationError, showNotificationWarning } from "@/src/@core/utils/message";
 import {usePurchaseOrderReceipts } from "@/src/services/admin/iventory/purchase.hook";
 import { receiveStock } from "@/src/services/admin/iventory/purchase.service";
-import { exportReceiptTemplate } from "@/src/@core/utils/exportPO";
-import { importReceiptFromExcel } from "@/src/@core/utils/importPO";
+import { exportReceiptTemplate } from "@/src/@core/utils/excelandpdf/exportPO";
+import { importReceiptFromExcel } from "@/src/@core/utils/excelandpdf/importPO";
 
 const COLUMN_WIDTH = {
   product : 200,

@@ -4,7 +4,7 @@ import { useOrder } from "@/src/services/admin/order/order.hook";
 import { refundPaidOrder, updateOrderStatus, updateOrderPaymentStatus } from "@/src/services/admin/order/order.service";
 import { showNotificationSuccess, showNotificationError } from "@/src/@core/utils/message";
 import { useState } from "react";
-import { Package, User, CreditCard, Clock, CheckCircle2, Truck, XCircle, Undo2, Hash, ShieldCheck, MapPin, Ticket } from "lucide-react";
+import { Package, User, CreditCard, Clock, CheckCircle2, Truck, XCircle, Undo2, Hash, ShieldCheck, MapPin, Ticket, FileText, RefreshCw } from "lucide-react";
 import Image from "next/image";
 import SWTCard from "@/src/@core/component/AntD/SWTCard";
 import SWTButton from "@/src/@core/component/AntD/SWTButton";
@@ -12,6 +12,7 @@ import SWTSteps from "@/src/@core/component/AntD/SWTSteps";
 import SWTDrawer from "@/src/@core/component/AntD/SWTDrawer";
 import SWTTimeline from "@/src/@core/component/AntD/SWTTimeline";
 import SWTSpin from "@/src/@core/component/AntD/SWTSpin";
+import { exportOrderInvoicePDF } from "@/src/@core/utils/excelandpdf/exportOrderInvoice";
 
 interface OrderDetailDrawerProps {
   orderId: string | null;
@@ -44,6 +45,8 @@ const getStatusClasses = (status: string) => {
 export default function OrderDetailDrawer({ orderId, open, onClose, onUpdate }: OrderDetailDrawerProps) {
   const { order, isLoading, mutate } = useOrder(orderId || undefined);
   const [updating, setUpdating] = useState(false);
+  const [isExportingInvoice, setIsExportingInvoice] = useState(false);
+
 
   const formatVND = (v: number) => new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(v || 0);
 
@@ -103,6 +106,21 @@ export default function OrderDetailDrawer({ orderId, open, onClose, onUpdate }: 
       setUpdating(false);
     }
   };
+
+  const handleExportInvoice = async () => {
+    if (!order) return;
+    setIsExportingInvoice(true);
+    try {
+      await exportOrderInvoicePDF(order);
+      showNotificationSuccess("Đang tạo hóa đơn...");
+    } catch (error) {
+      console.error("Invoice export error:", error);
+      showNotificationError("Không thể xuất hóa đơn. Vui lòng thử lại.");
+    } finally {
+      setIsExportingInvoice(false);
+    }
+  };
+
 
   const getSoftActionClasses = (status: string) => {
     const mapping: Record<string, string> = {
@@ -175,7 +193,7 @@ export default function OrderDetailDrawer({ orderId, open, onClose, onUpdate }: 
   return (
     <SWTDrawer
       title={
-        <div className="flex flex-col items-center justify-between w-full">
+        <div className="flex flex-row items-center justify-between w-full">
           <div className="flex items-center gap-3">
             <div className="flex flex-col">
               <span className="text-xl text-brand-500 font-bold uppercase tracking-widest">Chi tiết đơn hàng</span>
@@ -185,12 +203,33 @@ export default function OrderDetailDrawer({ orderId, open, onClose, onUpdate }: 
               <span>{order?.code || "..."}</span>
             </div>
           </div>
-          {order && (
-            <div className={`px-3 py-1.5 rounded-lg border text-xs font-bold uppercase shadow-sm ${getStatusClasses(order.current_status)}`}>
-              {getStatusLabel(order.current_status, 'order')}
-            </div>
-          )}
+          
+          <div className="flex items-center gap-3">
+            {order && (
+              <div 
+                onClick={handleExportInvoice}
+                className={`flex h-10 w-10 items-center justify-center bg-white dark:bg-slate-900/50 
+                hover:bg-indigo-50 dark:hover:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 
+                border border-slate-200 dark:border-indigo-500/50 rounded-xl shadow-sm transition-all cursor-pointer group
+                ${isExportingInvoice ? 'pointer-events-none opacity-70' : ''}`}
+                title="Xuất hóa đơn PDF"
+              >
+                {isExportingInvoice ? (
+                  <RefreshCw size={18} className="animate-spin text-indigo-600" />
+                ) : (
+                  <FileText size={18} className="group-hover:scale-110 transition-transform duration-300" />
+                )}
+              </div>
+            )}
+            
+            {order && (
+              <div className={`px-3 py-1.5 rounded-lg border text-xs font-bold uppercase shadow-sm ${getStatusClasses(order.current_status)}`}>
+                {getStatusLabel(order.current_status, 'order')}
+              </div>
+            )}
+          </div>
         </div>
+
       }
       width={900}
       onClose={onClose}

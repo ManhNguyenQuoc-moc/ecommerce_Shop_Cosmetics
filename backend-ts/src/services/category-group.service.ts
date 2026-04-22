@@ -4,7 +4,7 @@ import { ICategoryGroupRepository } from "../interfaces/ICategoryGroupRepository
 import { ICategoryGroupService } from "../interfaces/ICategoryGroupService";
 import { CreateCategoryGroupDTO } from "../DTO/category-group/input/CreateCategoryGroupDTO";
 import { UpdateCategoryGroupDTO } from "../DTO/category-group/input/UpdateCategoryGroupDTO";
-import { PagedResult } from "../common/paged-result";
+import { PagedResult } from "../utils/paged-result";
 import { generateSlug } from "../utils/slugify";
 
 export class CategoryGroupService implements ICategoryGroupService {

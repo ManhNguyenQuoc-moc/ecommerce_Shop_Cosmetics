@@ -15,7 +15,7 @@ import SWTModal from "@/src/@core/component/AntD/SWTModal";
 import SWTButton from "@/src/@core/component/AntD/SWTButton";
 import SWTTable from "@/src/@core/component/AntD/SWTTable";
 import { showNotificationSuccess, showNotificationError } from "@/src/@core/utils/message";
-import { parseVariantExcel, downloadVariantTemplate, ImportedVariant } from "@/src/@core/utils/importVariant";
+import { parseVariantExcel, downloadVariantTemplate, ImportedVariant } from "@/src/@core/utils/excelandpdf/importVariant";
 import { bulkImportVariants } from "@/src/services/admin/product/product.service";
 
 interface ImportVariantModalProps {

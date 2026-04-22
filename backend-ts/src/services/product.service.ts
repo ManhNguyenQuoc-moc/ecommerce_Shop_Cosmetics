@@ -1,6 +1,6 @@
 import { ProductVariantRawResult, VariantQueryFilters, ProductQueryFilters } from "../interfaces/IProductRepository";
 import { IProductRepository } from "../interfaces/IProductRepository";
-import { PagedResult } from "../common/paged-result";
+import { PagedResult } from "../utils/paged-result";
 import { ProductListItemDto } from "../DTO/product/output/ProductListItemDto";
 import { InventoryService } from "./inventory.service";
 
@@ -12,7 +12,7 @@ import { prisma } from "../config/prisma";
 import { IProductService } from "../interfaces/IProductService";
 import { CreateProductDTO, CreateVariantDTO } from "../DTO/product/input/AddProductDTO";
 import { UpdateProductDTO, UpdateVariantDTO } from "../DTO/product/input/UpdateProductDTO";
-import { ProductMapper } from "../mapper/product.mapper";
+import { ProductMapper } from "../mappers/product.mapper";
 import { VariantDetailDto } from "../DTO/product/output/VariantDetailDto";
 import { VariantListItemDto } from "../DTO/product/output/VariantListItemDto";
 

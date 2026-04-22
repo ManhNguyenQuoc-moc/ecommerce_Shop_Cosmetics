@@ -1,6 +1,6 @@
 "use client";
 
-import { Filter, Download } from "lucide-react";
+import { Filter, Download, FileSpreadsheet, FileText, RefreshCw } from "lucide-react";
 import SWTButton from "@/src/@core/component/AntD/SWTButton";
 import { SWTInputSearch } from "@/src/@core/component/AntD/SWTInput";
 import SWTSelect from "@/src/@core/component/AntD/SWTSelect";
@@ -10,12 +10,16 @@ import { TransitionStartFunction, useState, useEffect, useCallback } from "react
 import { useDebounce } from "@/src/@core/hooks/useDebounce";
 import { SWTDateRangePicker } from "@/src/@core/component/AntD/SWTDatePicker";
 import dayjs from "dayjs";
+import { Dropdown } from "antd";
 
 interface InventoryFiltersProps {
   startTransition: TransitionStartFunction;
+  onExportExcel?: () => void;
+  onExportPDF?: () => void;
+  isExporting?: boolean;
 }
 
-export default function InventoryFilters({ startTransition }: InventoryFiltersProps) {
+export default function InventoryFilters({ startTransition, onExportExcel, onExportPDF, isExporting }: InventoryFiltersProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -94,11 +98,35 @@ export default function InventoryFilters({ startTransition }: InventoryFiltersPr
           </div>
 
           <div className="flex items-center gap-2">
-            <SWTTooltip title="Xuất báo cáo tồn kho" placement="top">
-            <div className="flex h-11 w-11 items-center justify-center bg-white dark:bg-slate-900/50 hover:bg-emerald-50 dark:hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-slate-200 dark:border-emerald-500/50 rounded-xl shadow-sm transition-all cursor-pointer group">
-              <Download size={20} className="group-hover:scale-110 transition-transform duration-300" />
-            </div>
-          </SWTTooltip>
+            <Dropdown
+              disabled={isExporting}
+              menu={{
+                items: [
+                  {
+                    key: "excel",
+                    label: "Xuất file Excel (.xlsx)",
+                    icon: <FileSpreadsheet size={16} className="text-emerald-600" />,
+                    onClick: onExportExcel
+                  },
+                  {
+                    key: "pdf",
+                    label: "Xuất file PDF (.pdf)",
+                    icon: <FileText size={16} className="text-rose-600" />,
+                    onClick: onExportPDF
+                  }
+                ]
+              }}
+              placement="bottomRight"
+              trigger={['click']}
+            >
+              <div className="flex h-11 w-11 items-center justify-center bg-white dark:bg-slate-900/50 hover:bg-emerald-50 dark:hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-slate-200 dark:border-emerald-500/50 rounded-xl shadow-sm transition-all cursor-pointer group">
+                {isExporting ? (
+                  <RefreshCw size={20} className="animate-spin text-emerald-600" />
+                ) : (
+                  <Download size={20} className="group-hover:scale-110 transition-transform duration-300" />
+                )}
+              </div>
+            </Dropdown>
           </div>
         </div>
       </div>

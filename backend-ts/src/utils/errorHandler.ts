@@ -7,12 +7,6 @@ interface ErrorResponse {
   errors?: Array<{ path: string; message: string }>;
 }
 
-/**
- * Xử lý lỗi chung từ controllers
- * - ZodError (validation)
- * - Prisma errors (database constraints)
- * - Custom errors
- */
 export const handleControllerError = (res: Response, error: any, controllerName: string = "Controller"): void => {
   // Log error để debug
   console.error(`${controllerName} Error:`, error);

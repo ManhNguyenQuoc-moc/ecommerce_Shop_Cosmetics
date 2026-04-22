@@ -1,29 +1,5 @@
 import { BrandResponseDto } from "@/src/services/models/brand/output.dto";
-import { ROBOTO_REGULAR_BASE64 } from "./fontRoboto";
-
-type ExportLibs = {
-  XLSX: typeof import("xlsx");
-  jsPDF: typeof import("jspdf").default;
-  autoTable: typeof import("jspdf-autotable").default;
-};
-
-let exportLibsPromise: Promise<ExportLibs> | null = null;
-
-const loadExportLibs = async (): Promise<ExportLibs> => {
-  if (!exportLibsPromise) {
-    exportLibsPromise = Promise.all([
-      import("xlsx"),
-      import("jspdf"),
-      import("jspdf-autotable"),
-    ]).then(([XLSX, jsPDFModule, autoTableModule]) => ({
-      XLSX,
-      jsPDF: jsPDFModule.default,
-      autoTable: autoTableModule.default,
-    }));
-  }
-
-  return exportLibsPromise;
-};
+import { loadExportLibs, setupPdfFont, getPdfTableStyles } from "./exportGeneral";
 
 /**
  * Xuất danh sách nhà cung cấp ra file Excel
@@ -72,17 +48,7 @@ export const exportSuppliersToExcel = async (data: BrandResponseDto[]) => {
 export const exportSuppliersToPDF = async (data: BrandResponseDto[]) => {
   const { jsPDF, autoTable } = await loadExportLibs();
   const doc = new jsPDF();
-
-  // Nạp font Roboto để hỗ trợ Tiếng Việt
-  try {
-    if (ROBOTO_REGULAR_BASE64 && ROBOTO_REGULAR_BASE64.length > 200) {
-      doc.addFileToVFS("Roboto-Regular.ttf", ROBOTO_REGULAR_BASE64);
-      doc.addFont("Roboto-Regular.ttf", "Roboto", "normal");
-      doc.setFont("Roboto");
-    }
-  } catch (e) {
-    console.error("Lỗi khi nạp font Roboto:", e);
-  }
+  await setupPdfFont(doc);
 
   // Tiêu đề & Cấu hình PDF
   const PAGE_WIDTH = doc.internal.pageSize.getWidth();
@@ -93,28 +59,20 @@ export const exportSuppliersToPDF = async (data: BrandResponseDto[]) => {
   doc.text(`Ngày xuất: ${new Date().toLocaleString("vi-VN")}`, 14, 28);
 
   const tableColumn = ["#", "Tên nhà cung cấp", "Email", "Số điện thoại", "Địa chỉ", "Ngày tạo"];
-  const tableRows: any[] = [];
-
-  data.forEach((item, index) => {
-    tableRows.push([
+  const tableRows = data.map((item, index) => [
       index + 1,
       item.name || "",
       item.email || "N/A",
       item.phone || "N/A",
       item.address || "N/A",
       new Date(item.createdAt).toLocaleDateString("vi-VN")
-    ]);
-  });
+  ]);
 
-  // Sử dụng autoTable trực tiếp
   autoTable(doc, {
     startY: 35,
     head: [tableColumn],
     body: tableRows,
-    styles: {
-      font: doc.getFont().fontName === "Roboto" ? "Roboto" : "helvetica",
-      fontSize: 8
-    }
+    ...getPdfTableStyles(doc),
   });
 
   doc.save(`Danh-sach-Nha-Cung-Cap-${new Date().getTime()}.pdf`);

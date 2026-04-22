@@ -225,7 +225,7 @@ const sendPaidOrderConfirmationEmail = async (orderId: string) => {
       return;
     }
 
-    await mailService.sendOrderConfirmation(email, order as any);
+    await mailService.sendPaymentSuccess(email, order as any);
   } catch (error) {
     console.error(`Failed to send paid order email for ${orderId}:`, error);
   }

@@ -1,6 +1,6 @@
 "use client";
 
-import { Download, Filter } from "lucide-react";
+import { Download, Filter, FileSpreadsheet, FileText, RefreshCw } from "lucide-react";
 import SWTButton from "@/src/@core/component/AntD/SWTButton";
 import { SWTInputSearch } from "@/src/@core/component/AntD/SWTInput";
 import SWTSelect from "@/src/@core/component/AntD/SWTSelect";
@@ -8,12 +8,17 @@ import SWTTooltip from "@/src/@core/component/AntD/SWTTooltip";
 import { useState, useEffect, useCallback, TransitionStartFunction } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useDebounce } from "@/src/@core/hooks/useDebounce";
+import { Dropdown } from "antd";
+import type { MenuProps } from "antd";
 
 interface RewardFiltersProps {
   startTransition: TransitionStartFunction;
+  onExportExcel?: () => void;
+  onExportPDF?: () => void;
+  isExporting?: boolean;
 }
 
-export default function RewardFilters({ startTransition }: RewardFiltersProps) {
+export default function RewardFilters({ startTransition, onExportExcel, onExportPDF, isExporting }: RewardFiltersProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -91,20 +96,37 @@ export default function RewardFilters({ startTransition }: RewardFiltersProps) {
           </div>
 
         <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
-          <SWTTooltip title="Xuất báo cáo giao dịch" placement="top">
-            <div className="flex h-11 w-11 items-center justify-center bg-bg-card hover:bg-status-success-bg/10 text-status-success-text border border-border-default hover:border-status-success-border rounded-xl shadow-sm transition-all cursor-pointer group">
-              <Download size={20} className="group-hover:scale-110 transition-transform duration-300" />
+          <Dropdown
+            disabled={isExporting}
+            menu={{
+              items: [
+                {
+                  key: "excel",
+                  label: "Xuất file Excel (.xlsx)",
+                  icon: <FileSpreadsheet size={16} className="text-emerald-600" />,
+                  onClick: onExportExcel
+                },
+                {
+                  key: "pdf",
+                  label: "Xuất file PDF (.pdf)",
+                  icon: <FileText size={16} className="text-rose-600" />,
+                  onClick: onExportPDF
+                }
+              ]
+            }}
+            placement="bottomRight"
+            trigger={['click']}
+          >
+            <div className="flex h-11 w-11 items-center justify-center bg-bg-card dark:bg-slate-900/50 hover:bg-emerald-50 dark:hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-border-default dark:border-emerald-500/50 rounded-xl shadow-sm transition-all cursor-pointer group">
+              {isExporting ? (
+                <RefreshCw size={20} className="animate-spin text-emerald-600" />
+              ) : (
+                <Download size={20} className="group-hover:scale-110 transition-transform duration-300" />
+              )}
             </div>
-          </SWTTooltip>
-          {/* <SWTTooltip title="Thêm Giao Dịch Điểm" placement="top" color="#ec4899">
-            <div 
-              onClick={onAdd}
-              className="flex h-11 w-11 items-center justify-center bg-brand-500/10 hover:bg-brand-500/20 text-brand-500 border border-brand-500/20 rounded-xl shadow-sm transition-all cursor-pointer group"
-            >
-              <Plus size={24} className="stroke-[2.5] group-hover:scale-110 group-hover:rotate-90 transition-transform duration-300" />
-            </div>
-          </SWTTooltip> */}
+          </Dropdown>
         </div>
+
       </div>
 
       {/* FILTER BAR */}

@@ -1,19 +1,22 @@
-import { Download, Filter } from "lucide-react";
+import { Download, Filter, FileSpreadsheet, FileText, RefreshCw } from "lucide-react";
 import SWTButton from "@/src/@core/component/AntD/SWTButton";
 import { SWTInputSearch } from "@/src/@core/component/AntD/SWTInput";
 import SWTSelect from "@/src/@core/component/AntD/SWTSelect";
 import SWTDatePickerRange from "@/src/@core/component/AntD/SWTDatePickerRange";
-import SWTTooltip from "@/src/@core/component/AntD/SWTTooltip";
 import { OrderQueryParams } from "@/src/services/admin/order/order.service";
 import { PaymentStatus } from "@/src/enums";
+import { Dropdown } from "antd";
 
 interface OrderFiltersProps {
   params: OrderQueryParams;
   onParamChange: (newParams: Partial<OrderQueryParams>) => void;
   onClear: () => void;
+  onExportExcel?: () => void;
+  onExportPDF?: () => void;
+  isExporting?: boolean;
 }
 
-export default function OrderFilters({ params, onParamChange, onClear }: OrderFiltersProps) {
+export default function OrderFilters({ params, onParamChange, onClear, onExportExcel, onExportPDF, isExporting }: OrderFiltersProps) {
   const sortByVal = params.sortBy || "newest";
   const paymentStatusVal = params.paymentStatus || "all";
   const paymentMethodVal = params.paymentMethod || "all";
@@ -49,11 +52,35 @@ export default function OrderFilters({ params, onParamChange, onClear }: OrderFi
             />
           </div>
 
-          <SWTTooltip title="Xuất báo cáo đơn hàng" placement="top">
+          <Dropdown
+            disabled={isExporting}
+            menu={{
+              items: [
+                {
+                  key: "excel",
+                  label: "Xuất file Excel (.xlsx)",
+                  icon: <FileSpreadsheet size={16} className="text-emerald-600" />,
+                  onClick: onExportExcel
+                },
+                {
+                  key: "pdf",
+                  label: "Xuất file PDF (.pdf)",
+                  icon: <FileText size={16} className="text-rose-600" />,
+                  onClick: onExportPDF
+                }
+              ]
+            }}
+            placement="bottomRight"
+            trigger={['click']}
+          >
             <div className="flex h-11 w-11 items-center justify-center bg-white dark:bg-slate-900/50 hover:bg-emerald-50 dark:hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-slate-200 dark:border-emerald-500/50 rounded-xl shadow-sm transition-all cursor-pointer group">
-              <Download size={20} className="group-hover:scale-110 transition-transform duration-300" />
+              {isExporting ? (
+                <RefreshCw size={20} className="animate-spin text-emerald-600" />
+              ) : (
+                <Download size={20} className="group-hover:scale-110 transition-transform duration-300" />
+              )}
             </div>
-          </SWTTooltip>
+          </Dropdown>
         </div>
       </div>
 

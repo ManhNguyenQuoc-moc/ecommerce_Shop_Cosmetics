@@ -8,8 +8,13 @@ import SWTTabs from "@/src/@core/component/AntD/SWTTabs";
 import { useOrders } from "@/src/services/admin/order/order.hook";
 import { OrderQueryParams } from "@/src/services/admin/order/order.service";
 import OrderDetailDrawer from "./components/OrderDetailDrawer";
-import { OrderDto } from "@/src/services/models/order/output.dto";
+import { OrderDto, OrderListResponseDto } from "@/src/services/models/order/output.dto";
 import { OrderStatus } from "@/src/enums";
+import { get } from "@/src/@core/utils/api";
+import { buildQueryString } from "@/src/@core/utils/query.util";
+import { showNotificationError } from "@/src/@core/utils/message";
+import { exportOrdersToExcel, exportOrdersToPDF } from "@/src/@core/utils/excelandpdf/exportOrder";
+import { ORDER_API_ENDPOINT } from "@/src/services/admin/order/order.service";
 
 export default function OrdersClient() {
   useSWTTilte("Quản lý đơn hàng");
@@ -21,8 +26,47 @@ export default function OrdersClient() {
 
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
 
   const { orders, total, isLoading, mutate } = useOrders(params);
+
+  const fetchAllOrders = async () => {
+    const filters = {
+      ...params,
+      page: 1,
+      pageSize: 9999,
+    };
+
+    const query = buildQueryString(filters);
+    const response = await get<OrderListResponseDto>(`${ORDER_API_ENDPOINT}${query}`);
+    return response.data;
+  };
+
+  const handleExportExcel = async () => {
+    setIsExporting(true);
+    try {
+      const data = await fetchAllOrders();
+      await exportOrdersToExcel(data);
+    } catch (error) {
+      console.error("Export error:", error);
+      showNotificationError("Có lỗi xảy ra khi xuất file Excel");
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  const handleExportPDF = async () => {
+    setIsExporting(true);
+    try {
+      const data = await fetchAllOrders();
+      await exportOrdersToPDF(data);
+    } catch (error) {
+      console.error("Export error:", error);
+      showNotificationError("Có lỗi xảy ra khi xuất file PDF");
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   const handleParamChange = (newParams: Partial<OrderQueryParams>) => {
     setParams(prev => {
@@ -72,6 +116,9 @@ export default function OrdersClient() {
           params={params}
           onParamChange={handleParamChange}
           onClear={handleClear}
+          onExportExcel={handleExportExcel}
+          onExportPDF={handleExportPDF}
+          isExporting={isExporting}
         />
         <OrderTable
           orders={orders}
