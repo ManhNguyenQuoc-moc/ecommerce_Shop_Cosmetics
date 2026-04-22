@@ -45,8 +45,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       return;
     }
 
-    // Gán token tạm để call API
-    authStorage.login(supabaseSession.access_token, {} as any);
+    // Gán token tạm để call API mà không làm mất dữ liệu user cũ
+    authStorage.setToken(supabaseSession.access_token);
 
     try {
       const profile = await getProfile();

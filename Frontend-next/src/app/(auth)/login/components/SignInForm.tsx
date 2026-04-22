@@ -44,8 +44,8 @@ export default function SignInForm() {
 
       // Xác định credentials (email hoặc phone)
       const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email);
-      const credentials = isEmail 
-        ? { email: values.email, password: values.password } 
+      const credentials = isEmail
+        ? { email: values.email, password: values.password }
         : { phone: values.email, password: values.password };
 
       // 1. Đăng nhập Supabase lấy Token
@@ -53,8 +53,9 @@ export default function SignInForm() {
       if (error) throw error;
 
       if (data.session && data.user) {
-  
-        authStorage.login(data.session.access_token, {} as never); 
+
+        // 1.5 Lưu token tạm mà không làm mất dữ liệu user (nếu có)
+        authStorage.setToken(data.session.access_token);
 
         try {
           // 2. Gọi API Backend (đã có Middleware check is_banned)
@@ -94,11 +95,11 @@ export default function SignInForm() {
         } catch (profileErr: unknown) {
           // Xử lý lỗi từ getProfile() - có thể là banned hoặc lỗi khác
           const errorMessage = profileErr instanceof Error ? profileErr.message : "Xác thực tài khoản thất bại";
-          
+
           // Sign out from Supabase để đảm bảo session bị xóa
           await supabase.auth.signOut();
           authStorage.logout();
-          
+
           // Hiển thị thông báo lỗi (có thể là "Tài khoản bị khóa" từ backend hoặc lỗi khác)
           showNotificationError(errorMessage);
         }
@@ -146,18 +147,6 @@ export default function SignInForm() {
 
   return (
     <div className="w-full max-w-md mx-auto px-4">
-      {/* Display error message if present in URL params */}
-      {/* {errorMessage && (
-        <Alert
-          message="Không thể đăng nhập"
-          description={errorMessage}
-          type="error"
-          showIcon
-          closable
-          onClose={() => setErrorMessage(null)}
-          className="mb-6"
-        />
-      )} */}
 
       <div className="mb-8">
         <h2 className="text-2xl font-bold">Chào mừng trở lại</h2>

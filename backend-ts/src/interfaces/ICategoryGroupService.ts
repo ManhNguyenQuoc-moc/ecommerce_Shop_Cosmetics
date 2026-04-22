@@ -1,7 +1,7 @@
 import { CategoryGroup } from "@prisma/client";
 import { CreateCategoryGroupDTO } from "../DTO/category-group/input/CreateCategoryGroupDTO";
 import { UpdateCategoryGroupDTO } from "../DTO/category-group/input/UpdateCategoryGroupDTO";
-import { PagedResult } from "../common/paged-result";
+import { PagedResult } from "../utils/paged-result";
 
 export interface ICategoryGroupService {
   getCategoryGroups(page: number, limit: number, searchTerm?: string): Promise<PagedResult<CategoryGroup>>;

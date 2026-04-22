@@ -4,7 +4,7 @@ import { ICategoryRepository } from "../interfaces/ICategoryRepository";
 import { ICategoryService } from "../interfaces/ICategoryService";
 import { CreateCategoryDTO } from "../DTO/category/input/CreateCategoryDTO";
 import { UpdateCategoryDTO } from "../DTO/category/input/UpdateCategoryDTO";
-import { PagedResult } from "../common/paged-result";
+import { PagedResult } from "../utils/paged-result";
 import { generateSlug } from "../utils/slugify";
 
 export class CategoryService implements ICategoryService {

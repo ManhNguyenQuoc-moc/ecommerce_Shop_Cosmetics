@@ -7,7 +7,7 @@ import {
 import {  confirmPurchaseOrder,
   cancelPurchaseOrder,
   resubmitPurchaseOrder } from "@/src/services/admin/iventory/purchase.service";
-import { exportPOTopdf, exportPOToExcel } from "@/src/@core/utils/exportPO";
+import { exportPOTopdf, exportPOToExcel } from "@/src/@core/utils/excelandpdf/exportPO";
 import {
   CheckCircle2,
   PackageCheck,

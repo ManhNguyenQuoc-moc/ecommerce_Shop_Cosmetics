@@ -7,7 +7,7 @@ import BrandFilters from "./components/BrandFilters";
 import AddBrandModal from "./components/AddBrandModal";
 import { BrandQueryFilters } from "@/src/services/models/brand/input.dto";
 import { BrandResponseDto } from "@/src/services/models/brand/output.dto";
-import { exportSuppliersToExcel, exportSuppliersToPDF } from "@/src/@core/utils/exportSupplier";
+import { exportSuppliersToExcel, exportSuppliersToPDF } from "@/src/@core/utils/excelandpdf/exportSupplier";
 import { get } from "@/src/@core/utils/api";
 import { BRAND_API_ENDPOINT } from "@/src/services/admin/brand/brand.hook";
 import { buildQueryString } from "@/src/@core/utils/query.util";

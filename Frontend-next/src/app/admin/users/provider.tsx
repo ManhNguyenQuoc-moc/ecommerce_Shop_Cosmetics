@@ -7,6 +7,12 @@ import { UserQueryFilters } from "@/src/services/admin/user/models/input.model.d
 import { BaseResultDto } from "@/src/@core/http/models/ApiResponse";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useRoles } from "@/src/services/admin/rbac/rbac.hooks";
+import { exportUsersToExcel, exportUsersToPDF } from "@/src/@core/utils/excelandpdf/exportUser";
+import { get } from "@/src/@core/utils/api";
+import { buildQueryString } from "@/src/@core/utils/query.util";
+import { PaginationResponse } from "@/src/@core/http/models/PaginationResponse";
+import { USER_API_ENDPOINT, getUsers } from "@/src/services/admin/user/user.service";
+
 
 export interface UserContextType {
   users: UserProfileDTO[];
@@ -24,6 +30,9 @@ export interface UserContextType {
   handleToggleStatus: (user: UserProfileDTO) => Promise<void>;
   handleUpdateRole: (user: UserProfileDTO, roleId: string) => Promise<void>;
   handleUpdateAccountType: (user: UserProfileDTO, accountType: "CUSTOMER" | "INTERNAL") => Promise<void>;
+  handleExportExcel: () => Promise<void>;
+  handleExportPDF: () => Promise<void>;
+  isExporting: boolean;
   roles: { id: string; name: string }[];
   mutate: () => void;
 }
@@ -45,9 +54,9 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
 
   const filters: UserQueryFilters = {
     search,
-    roleId,
-    accountType: accountType as "CUSTOMER" | "INTERNAL" | undefined,
-    status,
+    roleId: roleId === 'all' ? undefined : roleId,
+    accountType: accountType === 'all' ? undefined : (accountType as "CUSTOMER" | "INTERNAL" | undefined),
+    status: status === 'all' ? undefined : (status as UserQueryFilters["status"]),
     sortBy: sortBy as UserQueryFilters["sortBy"],
   };
   const { users, total, isLoading: isInitialLoading, isValidating, mutate } = useUsers(page, pageSize, filters);
@@ -55,6 +64,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const { trigger: updateRoleAction } = useUpdateUserRole();
   const { trigger: updateAccountTypeAction } = useUpdateUserAccountType();
   const { roles } = useRoles();
+  const [isExporting, setIsExporting] = React.useState(false);
 
   const replaceIfChanged = useCallback((params: URLSearchParams) => {
     const nextQuery = params.toString();
@@ -141,7 +151,39 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     replaceIfChanged(params);
   }, [replaceIfChanged, searchParams]);
 
+  const fetchAllUsers = async () => {
+    const response = await getUsers({ ...filters, page: 1, pageSize: 9999 });
+    return response.data;
+  };
+
+  const handleExportExcel = async () => {
+    setIsExporting(true);
+    try {
+      const data = await fetchAllUsers();
+      await exportUsersToExcel(data);
+    } catch (error) {
+      console.error("Export error:", error);
+      showNotificationError("Có lỗi xảy ra khi xuất file Excel");
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  const handleExportPDF = async () => {
+    setIsExporting(true);
+    try {
+      const data = await fetchAllUsers();
+      await exportUsersToPDF(data);
+    } catch (error) {
+      console.error("Export error:", error);
+      showNotificationError("Có lỗi xảy ra khi xuất file PDF");
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   const isLoading = isInitialLoading || isValidating;
+
 
   return (
     <UserContext.Provider
@@ -156,6 +198,9 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
         handleToggleStatus,
         handleUpdateRole,
         handleUpdateAccountType,
+        handleExportExcel,
+        handleExportPDF,
+        isExporting,
         roles,
         mutate,
       }}

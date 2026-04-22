@@ -184,7 +184,7 @@ export class OrderService implements IOrderService {
       }).catch(console.error);
 
       // 6. Send Email (Non-blocking, after transaction)
-      // Only send immediately for COD. For online payments, we wait for payment link success or actual payment.
+      // Only send immediately for COD. For online payments, we wait for actual payment.
       if (data.paymentMethod === 'COD') {
         if (data.customer?.email) {
           this.mailService.sendOrderConfirmation(data.customer.email, order, rawPassword).catch(console.error);
@@ -196,6 +196,7 @@ export class OrderService implements IOrderService {
           }).catch(console.error);
         }
       }
+
 
       return order;
     });
@@ -269,6 +270,20 @@ export class OrderService implements IOrderService {
                });
              }
            }
+        }
+      }
+
+      // 6. Notify Customer via Email
+      if (data.current_status && oldOrder.current_status !== data.current_status) {
+        const user = await tx.user.findUnique({ where: { id: updatedOrder.userId }, select: { email: true } });
+        const email = user?.email;
+
+        if (email) {
+          if (data.current_status === 'DELIVERED') {
+            this.mailService.sendDeliverySuccess(email, updatedOrder as any).catch(console.error);
+          } else if (['CONFIRMED', 'SHIPPING', 'CANCELLED', 'RETURNED'].includes(data.current_status)) {
+            this.mailService.sendStatusUpdate(email, updatedOrder as any, data.current_status).catch(console.error);
+          }
         }
       }
 

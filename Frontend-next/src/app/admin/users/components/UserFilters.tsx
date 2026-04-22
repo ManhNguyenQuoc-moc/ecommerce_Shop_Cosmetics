@@ -1,16 +1,16 @@
 "use client";
-import { Download, Filter } from "lucide-react";
+import { Download, Filter, FileSpreadsheet, FileText, RefreshCw } from "lucide-react";
 import SWTButton from "@/src/@core/component/AntD/SWTButton";
 import { SWTInputSearch } from "@/src/@core/component/AntD/SWTInput";
 import SWTSelect from "@/src/@core/component/AntD/SWTSelect";
 import SWTDatePickerRange from "@/src/@core/component/AntD/SWTDatePickerRange";
-import SWTTooltip from "@/src/@core/component/AntD/SWTTooltip";
+import { Dropdown } from "antd";
 import { useState, useEffect } from "react";
 import { useDebounce } from "@/src/@core/hooks/useDebounce";
 import { useUserModule } from "../provider";
 
 export default function UserFilters() {
-  const { handleSearch, handleFilterChange, filters, roles } = useUserModule();
+  const { handleSearch, handleFilterChange, filters, roles, handleExportExcel, handleExportPDF, isExporting } = useUserModule();
   const [localSearch, setLocalSearch] = useState(filters.search ?? "");
   const debouncedSearch = useDebounce(localSearch, 500);
 
@@ -51,11 +51,36 @@ export default function UserFilters() {
             />
           </div>
 
-          <SWTTooltip title="Xuất dữ liệu người dùng" placement="top">
+          <Dropdown
+            disabled={isExporting}
+            menu={{
+              items: [
+                {
+                  key: "excel",
+                  label: "Xuất file Excel (.xlsx)",
+                  icon: <FileSpreadsheet size={16} className="text-emerald-600" />,
+                  onClick: handleExportExcel
+                },
+                {
+                  key: "pdf",
+                  label: "Xuất file PDF (.pdf)",
+                  icon: <FileText size={16} className="text-rose-600" />,
+                  onClick: handleExportPDF
+                }
+              ]
+            }}
+            placement="bottomRight"
+            trigger={['click']}
+          >
             <div className="flex h-11 w-11 items-center justify-center bg-white dark:bg-slate-900/50 hover:bg-emerald-50 dark:hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-slate-200 dark:border-emerald-500/50 rounded-xl shadow-sm transition-all cursor-pointer group">
-              <Download size={20} className="group-hover:scale-110 transition-transform duration-300" />
+              {isExporting ? (
+                <RefreshCw size={20} className="animate-spin text-emerald-600" />
+              ) : (
+                <Download size={20} className="group-hover:scale-110 transition-transform duration-300" />
+              )}
             </div>
-          </SWTTooltip>
+          </Dropdown>
+
           {/* <SWTTooltip title="Thêm Người Dùng Mới" placement="top" color="#6366f1">
             <div className="flex h-11 w-11 items-center justify-center bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-500/30 rounded-xl shadow-sm transition-all cursor-pointer group">
               <Plus size={24} className="stroke-[2.5] group-hover:scale-110 group-hover:rotate-90 transition-transform duration-300" />

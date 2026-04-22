@@ -15,7 +15,7 @@ import SWTModal from "@/src/@core/component/AntD/SWTModal";
 import SWTButton from "@/src/@core/component/AntD/SWTButton";
 import SWTTable from "@/src/@core/component/AntD/SWTTable";
 import { showNotificationSuccess, showNotificationError } from "@/src/@core/utils/message";
-import { parseProductExcel, downloadProductTemplate } from "@/src/@core/utils/importProduct";
+import { parseProductExcel, downloadProductTemplate } from "@/src/@core/utils/excelandpdf/importProduct";
 import { CreateProductInput } from "@/src/services/models/product/input.dto";
 import { bulkImportProducts } from "@/src/services/admin/product/product.service";
 

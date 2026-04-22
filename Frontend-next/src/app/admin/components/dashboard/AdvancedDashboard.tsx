@@ -17,9 +17,7 @@ import {
   Truck,
   AlertTriangle,
   History,
-  Coins,
-  FileText,
-  FileSpreadsheet
+  Coins
 } from "lucide-react";
 import MetricCard from "../MetricCard";
 import RechartsPieChart from "../charts/RechartsPieChart";
@@ -36,9 +34,7 @@ import dayjs, { Dayjs } from "dayjs";
 import RechartsFunnelChart from "../charts/RechartsFunnelChart";
 import RechartsHeatmap from "../charts/RechartsHeatmap";
 import RechartsAreaChart from "../charts/RechartsAreaChart";
-import SWTButton from "@/src/@core/component/AntD/SWTButton";
 import { showNotificationError, showNotificationSuccess } from "@/src/@core/utils/message";
-import { exportDashboardToExcel, exportDashboardToPdf } from "@/src/@core/utils/exportDashboard";
 
 const { Title, Text } = Typography;
 
@@ -73,31 +69,6 @@ export default function AdvancedDashboard() {
     return <AdminDashboardLoading />;
   }
 
-  const handleExportPdf = async () => {
-    try {
-      await exportDashboardToPdf(data, "advanced", {
-        timeFilter,
-        startDate: dateRange?.[0]?.format("YYYY-MM-DD"),
-        endDate: dateRange?.[1]?.format("YYYY-MM-DD"),
-      });
-      showNotificationSuccess("Đã xuất báo cáo PDF cho Phân Tích Chi Tiết");
-    } catch {
-      showNotificationError("Không thể xuất PDF. Vui lòng thử lại.");
-    }
-  };
-
-  const handleExportExcel = async () => {
-    try {
-      await exportDashboardToExcel(data, "advanced", {
-        timeFilter,
-        startDate: dateRange?.[0]?.format("YYYY-MM-DD"),
-        endDate: dateRange?.[1]?.format("YYYY-MM-DD"),
-      });
-      showNotificationSuccess("Đã xuất báo cáo Excel cho Phân Tích Chi Tiết");
-    } catch {
-      showNotificationError("Không thể xuất Excel. Vui lòng thử lại.");
-    }
-  };
 
   const { userAnalytics, brandAnalytics, orderManagement, inventoryAnalytics, purchaseAnalytics } = data;
 
@@ -143,22 +114,6 @@ export default function AdvancedDashboard() {
         </div>
 
         <div className="flex items-center gap-2 w-full xl:w-auto">
-          <SWTButton
-            size="sm"
-            icon={<FileText size={14} />}
-            onClick={handleExportPdf}
-            className="!w-auto !h-9 !px-4 !bg-rose-500/10 !text-rose-500 !border-rose-500/20 hover:!bg-rose-500/20 !font-bold"
-          >
-            Xuất PDF
-          </SWTButton>
-          <SWTButton
-            size="sm"
-            icon={<FileSpreadsheet size={14} />}
-            onClick={handleExportExcel}
-            className="!w-auto !h-9 !px-4 !bg-emerald-500/10 !text-emerald-500 !border-emerald-500/20 hover:!bg-emerald-500/20 !font-bold"
-          >
-            Xuất Excel
-          </SWTButton>
         </div>
       </div>
 
