@@ -226,7 +226,7 @@ export default function ProductDetailClient({ id }: { id: string }) {
                 <div className="flex items-center gap-6 mb-8">
                   <div className="flex items-center gap-1.5 text-amber-500">
                     <Star size={20} fill="currentColor" />
-                    <span className="font-black text-xl">{product.rating || 0}</span>
+                    <span className="font-black text-xl">{Number(product.rating || 0).toFixed(1)}</span>
                     <span className="text-slate-400 text-sm font-medium">({product.reviewCount || 0} đánh giá)</span>
                   </div>
                   <div className="flex items-center gap-1.5 text-blue-500 border-l border-slate-100 dark:border-slate-800 pl-6">

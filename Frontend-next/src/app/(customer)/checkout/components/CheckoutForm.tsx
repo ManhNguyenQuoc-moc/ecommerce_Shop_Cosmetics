@@ -80,7 +80,7 @@ export default function CheckoutForm() {
               />
             </SWTFormItem>
 
-            <SWTFormItem name="phone" label="Số điện thoại" rules={[{ required: true }]}>
+            <SWTFormItem name="phone" label="Số điện thoại" rules={[{ required: true } ,{ pattern: /^\d{10,11}$/, message: "Số điện thoại không hợp lệ" }]}>
               <SWTInput
                 prefix={<PhoneOutlined />}
                 placeholder="Vui lòng nhập số điện thoại"

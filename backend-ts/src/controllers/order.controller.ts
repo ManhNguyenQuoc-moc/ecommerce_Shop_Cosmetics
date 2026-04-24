@@ -231,11 +231,6 @@ export class OrderController {
   cancelUnpaidOrder = async (req: Request, res: Response): Promise<void> => {
     try {
       const user = (req as any).user;
-      if (!user?.id) {
-        res.status(401).json({ success: false, message: "Unauthorized" });
-        return;
-      }
-
       const id = req.params.id as string;
       const order = await this.orderService.getOrderById(id);
 
@@ -244,9 +239,24 @@ export class OrderController {
         return;
       }
 
-      if (user.accountType === "CUSTOMER" && order.userId !== user.id) {
-        res.status(403).json({ success: false, message: "Forbidden" });
-        return;
+      // If user is logged in, verify ownership
+      if (user?.id) {
+        if (user.accountType === "CUSTOMER" && order.userId !== user.id) {
+          res.status(403).json({ success: false, message: "Forbidden" });
+          return;
+        }
+      } else {
+        // For guest checkout cancellation:
+        // We allow it ONLY if the order is PENDING and UNPAID.
+        // The UUID of the order acts as the "secret" token.
+        if (order.payment_status === "PAID") {
+          res.status(400).json({ success: false, message: "Order already paid" });
+          return;
+        }
+        if (order.current_status !== "PENDING") {
+          res.status(400).json({ success: false, message: "Chỉ có thể xóa đơn hàng ở trạng thái chờ xác nhận." });
+          return;
+        }
       }
 
       if (order.payment_status === "PAID") {

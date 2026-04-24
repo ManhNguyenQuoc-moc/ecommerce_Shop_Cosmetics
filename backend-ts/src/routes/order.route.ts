@@ -9,7 +9,7 @@ import { MailService } from "../services/mail.service";
 import { SettingRepository } from "../repositories/setting.repository";
 import { SettingService } from "../services/setting.service";
 
-import { authenticate } from "../middlewares/auth.middleware";
+import { authenticate, authenticateOptional } from "../middlewares/auth.middleware";
 import { permissionGuard } from "../middlewares/rbac-guard.middleware";
 
 import { NotificationService } from "../services/notification.service";
@@ -38,11 +38,13 @@ const orderService = new OrderService(
 );
 
 const orderController = new OrderController(orderService);
-router.post("/checkout", orderController.createOrder); 
 
+// 1. Public / Optionally authenticated routes
+router.post("/checkout", authenticateOptional, orderController.createOrder); 
+router.post("/:id/cancel-unpaid", authenticateOptional, orderController.cancelUnpaidOrder);
+
+// 2. Strictly authenticated routes
 router.use(authenticate);
-
-router.post("/:id/cancel-unpaid", orderController.cancelUnpaidOrder);
 
 router.get("/me", orderController.getMyOrders);
 router.get("/", permissionGuard("order", "list"), orderController.getOrders);

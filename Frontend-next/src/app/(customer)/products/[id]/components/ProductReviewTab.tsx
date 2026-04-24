@@ -33,11 +33,12 @@ export default function ProductReviewTab({ productId, initialRating, initialRevi
 
   // Calculate stats from current state to keep it updated real-time
   const stats = useMemo(() => {
-    if (reviews.length === 0) return { rating: initialRating, count: initialReviewCount };
+    const format = (val: number) => Number((val || 0).toFixed(1));
+    if (reviews.length === 0) return { rating: format(initialRating), count: initialReviewCount };
     const topLevel = reviews.filter(r => !r.parentId);
-    if (topLevel.length === 0) return { rating: initialRating, count: initialReviewCount };
+    if (topLevel.length === 0) return { rating: format(initialRating), count: initialReviewCount };
     const avg = topLevel.reduce((sum, r) => sum + r.rating, 0) / topLevel.length;
-    return { rating: Number(avg.toFixed(1)), count: topLevel.length };
+    return { rating: format(avg), count: topLevel.length };
   }, [reviews, initialRating, initialReviewCount]);
 
   const fetchReviews = useCallback(async () => {

@@ -90,6 +90,12 @@ export const authenticateOptional = async (req: Request, res: Response, next: Ne
       });
       
       if (dbUser) {
+        if (dbUser.is_banned) {
+          // If banned, treat as guest even if token is valid
+          next();
+          return;
+        }
+
         const userMetadata = { ...(user.user_metadata || {}) } as Record<string, any>;
         delete userMetadata.accountType;
         delete userMetadata.account_type;

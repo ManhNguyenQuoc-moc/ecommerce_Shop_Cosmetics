@@ -39,9 +39,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const syncUserWithBackend = async (supabaseSession: Session | null) => {
     if (!supabaseSession?.user) {
-      setCurrentUser(null);
-      authStorage.logout();
-      resetUserStores();
+      // Only reset if there was a previous user session that is now gone
+      const existingUser = authStorage.getUser();
+      if (currentUser || existingUser) {
+        console.log("[AuthContext] Session lost or logout, resetting stores");
+        setCurrentUser(null);
+        authStorage.logout();
+        resetUserStores();
+      }
       return;
     }
 
@@ -110,6 +115,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   useEffect(() => {
+    // Listen for banned account event from HTTP interceptor
+    const handleBanned = () => {
+      console.log("[AuthContext] Banned event received, kicking out user");
+      logout();
+    };
+
+    window.addEventListener('auth:banned', handleBanned);
+
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       syncUserWithBackend(session).finally(() => {
@@ -131,7 +144,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+      window.removeEventListener('auth:banned', handleBanned);
+    };
   }, []);
 
   const login = async (token: string, user: AuthUser) => {

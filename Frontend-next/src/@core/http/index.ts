@@ -72,12 +72,15 @@ const onResponseInterceptor = async (error: AxiosError) => {
     const isBanned = _response?.message?.includes("bị khóa") || _response?.message?.includes("khóa");
     
     if (isBanned) {
-      // Tài khoản bị khóa - Đừng tự động logout/redirect, để SignInForm xử lý
+      // Nếu bị khóa khi đang ở các trang khác (không phải trang login), thực hiện xóa token và phát sự kiện kickout
+      if (typeof window !== "undefined" && !window.location.pathname.startsWith('/login')) {
+         authStorage.logout();
+         window.dispatchEvent(new CustomEvent('auth:banned'));
+      }
       return Promise.reject(error.response.data);
     }
     
-    // Không có quyền - chỉ hiển thị thông báo, không tự logout/redirect.
-    // Điều này giúp người dùng đọc được thông báo và ở lại trang hiện tại.
+    // Không có quyền - chỉ hiển thị thông báo
     showNotificationError(_response?.message || "Bạn không có quyền truy cập.");
     return Promise.reject(error.response.data);
   }
