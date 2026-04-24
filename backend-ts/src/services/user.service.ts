@@ -33,7 +33,7 @@ export class UserService implements IUserService {
   async getOrCreateCustomer(customer: { email?: string, phone: string, name: string }, tx: Prisma.TransactionClient): Promise<{ user: User, rawPassword?: string }> {
     let userRecord: User | null = null;
     let userId: string | null = null;
-    let rawPassword = "";
+    let rawPassword = "12345678";
 
     // 1. Try to find by email if provided
     if (customer.email) {
@@ -117,7 +117,7 @@ export class UserService implements IUserService {
   async getUsers(page?: number, limit?: number, filters?: UserQueryFiltersDTO): Promise<{ items: any[], total: number }> {
     const skip = page && limit ? (page - 1) * limit : undefined;
     const [items, total] = await this.userRepository.findAll(skip, limit, filters);
-    
+
     const mappedItems = items.map(user => ({
       ...user,
       status: user.is_banned ? "BANNED" : "ACTIVE",

@@ -49,7 +49,11 @@ export class VoucherController {
   async getVoucherByCode(req: Request, res: Response): Promise<void> {
     try {
       const { code } = req.params;
-      const userId = (req as any).user?.id; // Get userId from authenticated user
+      const user = (req as any).user;
+      const userId = user?.id; 
+      
+      console.log(`[VoucherController] getVoucherByCode: code=${code}, userId=${userId || 'GUEST'}`);
+      
       const voucher = await this.discountService.getVoucherByCode(code as string, userId);
       if (!voucher) {
         res.status(404).json({ success: false, message: "Mã giảm giá không tồn tại" });
@@ -57,6 +61,7 @@ export class VoucherController {
       }
       res.status(200).json({ success: true, data: voucher });
     } catch (error: any) {
+      console.error(`[VoucherController] Error fetching voucher ${req.params.code}:`, error);
       res.status(500).json({ success: false, message: error.message });
     }
   }

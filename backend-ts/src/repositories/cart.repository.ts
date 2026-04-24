@@ -26,8 +26,10 @@ export class CartRepository implements ICartRepository {
   }
 
   async create(userId: string): Promise<Cart> {
-    return prisma.cart.create({
-      data: { userId },
+    return prisma.cart.upsert({
+      where: { userId },
+      update: {}, // Không thay đổi gì nếu đã tồn tại
+      create: { userId },
       include: { 
         items: {
           include: {

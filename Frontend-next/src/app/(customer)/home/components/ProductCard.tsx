@@ -141,7 +141,7 @@ export default function ProductCard({ product, loading, priority }: Props) {
                     className={`${i < Math.floor(product.rating || 5) ? 'text-yellow-400 fill-yellow-400' : 'text-text-muted opacity-30'} relative z-0`}
                   />
                 ))}
-                <span className="text-[10px] text-text-muted font-bold ml-1 relative z-0">({product.rating})</span>
+                <span className="text-[10px] text-text-muted font-bold ml-1 relative z-0">({Number(product.rating || 0).toFixed(1)})</span>
               </div>
 
               {/* Giá cả */}

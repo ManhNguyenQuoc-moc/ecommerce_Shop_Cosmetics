@@ -89,6 +89,8 @@ export const useCheckoutStore = create<CheckoutState>()(
         items: state.items,
         addresses: state.addresses,
         selectedAddress: state.selectedAddress,
+        shippingMethod: state.shippingMethod,
+        paymentMethod: state.paymentMethod,
         appliedVoucher: state.appliedVoucher,
       }),
     }

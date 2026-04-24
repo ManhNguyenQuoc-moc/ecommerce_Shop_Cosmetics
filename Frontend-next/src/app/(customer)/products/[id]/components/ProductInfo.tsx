@@ -22,7 +22,7 @@ export default function ProductInfo({ product }: Props) {
       <div className="flex flex-wrap items-center gap-3 text-md text-gray-600">
         <div className="flex items-center gap-1 bg-orange-500 rounded-xl p-2">
           <span className="font-medium text-white">
-            {product.rating ?? "0"}
+            {Number(product.rating || 0).toFixed(1)}
           </span>
           <Star className="text-white fill-white" size={16} />
         </div>

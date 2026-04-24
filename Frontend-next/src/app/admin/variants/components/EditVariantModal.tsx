@@ -152,14 +152,14 @@ export default function EditVariantModal({ isOpen, onClose, variant, onUpdate }:
             label="Màu sắc / Tên"
             rules={[{ required: true, message: 'Vui lòng nhập màu sắc hoặc tên' }]}
           >
-            <SWTInput placeholder="Vd: Đỏ Ruby..." className="!bg-bg-muted !border-border-default text-text-main" />
+            <SWTInput placeholder="Vd: Đỏ Ruby..." className="dark:!bg-slate-800/80 dark:!border-slate-700 dark:!text-white" />
           </SWTFormItem>
  
           <SWTFormItem
             name="size"
             label="Kích cỡ / Dung tích"
           >
-            <SWTInput placeholder="Vd: 30ml..." className="!bg-bg-muted !border-border-default text-text-main" />
+            <SWTInput placeholder="Vd: 30ml..." className="dark:!bg-slate-800/80 dark:!border-slate-700 dark:!text-white" />
           </SWTFormItem>
         </div>
  
@@ -168,7 +168,7 @@ export default function EditVariantModal({ isOpen, onClose, variant, onUpdate }:
             name="sku"
             label="Mã SKU (Tự động)"
           >
-            <SWTInput disabled placeholder="Mã SKU..." className="!bg-bg-muted !border-border-default text-text-main opacity-60" />
+            <SWTInput disabled placeholder="Mã SKU..." className="dark:!bg-slate-800/80 dark:!border-slate-700 dark:!text-white" />
           </SWTFormItem>
  
           <SWTFormItem
