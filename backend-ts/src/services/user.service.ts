@@ -33,7 +33,7 @@ export class UserService implements IUserService {
   async getOrCreateCustomer(customer: { email?: string, phone: string, name: string }, tx: Prisma.TransactionClient): Promise<{ user: User, rawPassword?: string }> {
     let userRecord: User | null = null;
     let userId: string | null = null;
-    let rawPassword = "12345678";
+    let rawPassword: string | undefined = undefined;
 
     // 1. Try to find by email if provided
     if (customer.email) {
@@ -74,13 +74,28 @@ export class UserService implements IUserService {
         }
       }
 
-      userRecord = await this.userRepository.create({
-        id: userId || undefined,
-        email: customer.email || null,
-        full_name: customer.name,
-        phone: customer.phone,
-        is_verified: !!customer.email,
-      }, tx);
+      // 4. Critical fix: Check if the userId from Supabase already exists in our DB
+      if (userId) {
+        userRecord = await this.userRepository.findById(userId);
+      }
+
+      if (!userRecord) {
+        userRecord = await this.userRepository.create({
+          id: userId || undefined,
+          email: customer.email || null,
+          full_name: customer.name,
+          phone: customer.phone,
+          is_verified: !!customer.email,
+        }, tx);
+      } else {
+        // If user existed by ID (e.g. from Supabase) but not found by email/phone earlier, update it
+        userRecord = await this.userRepository.update(userRecord.id, {
+          full_name: customer.name,
+          phone: customer.phone,
+          // If we have an email now but didn't before, the update should ideally handle it
+          // but our repository update might be limited. Let's ensure it's as up-to-date as possible.
+        }, tx);
+      }
     } else {
       // Update existing user info if needed
       userRecord = await this.userRepository.update(userRecord.id, {

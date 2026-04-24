@@ -1,0 +1,68 @@
+Giải pháp thương mại điện tử được thiết kế riêng cho ngành công nghiệp mỹ phẩm. Hệ thống này có giao diện cửa hàng hiện đại, tối ưu hóa SEO dành cho khách hàng và bảng điều khiển quản trị mạnh mẽ để quản lý toàn diện hoạt động kinh doanh.
+
+Đối tượng người dùng: Khách hàng, quản lý cửa hàng và nhân viên cửa hàng.
+
+Phát triển website bán hàng trực tuyến cho cửa hàng mỹ phẩm giúp mở rộng thị trường kinh doanh và tối ưu hóa hiệu suất bán hàng.
+
+Giao diện cửa hàng có tỷ lệ chuyển đổi cao: Xây dựng cửa hàng trực tuyến hiện đại, tối ưu hóa SEO để tối đa hóa khả năng hiển thị trên công cụ tìm kiếm và cung cấp trải nghiệm mua sắm liền mạch.
+
+Hệ thống quản lý thống nhất: Phát triển bảng điều khiển quản trị mạnh mẽ để tập trung xử lý đơn hàng, theo dõi hàng tồn kho và phân tích kinh doanh. Và mang lại trải nghiệm đáng tin cậy cho cả khách hàng và người quản lý.
+
+Phân tích hệ thống & Thiết kế kiến ​​trúc
+Thiết kế UI/UX & Phát triển giao diện người dùng
+Triển khai Backend & API
+Tích hợp hệ thống & Sử dụng API
+Xác thực & Tích hợp bên thứ ba
+Đảm bảo chất lượng & Gỡ lỗi
+Quy trình CI/CD & Triển khai
+
+Quản lý sản phẩm, danh mục, thương hiệu, mua hàng: Quản lý hiệu quả các sản phẩm, các biến thể phức tạp (kích thước, màu sắc), thuộc tính và nhóm danh mục đa cấp.
+
+Tìm kiếm & Lọc thông minh: Tìm kiếm tốc độ cao với các bộ lọc nâng cao theo danh mục, thương hiệu, phạm vi giá và thuộc tính sản phẩm cụ thể.
+
+Tối ưu hóa phương tiện: Tích hợp Cloudinary để tải lên hình ảnh, tối ưu hóa tự động và thư viện sản phẩm đáp ứng.
+
+Giỏ hàng & Thanh toán liền mạch: Quản lý giỏ hàng phía máy khách với tính toán giá động, phí vận chuyển và tạo đơn hàng đơn giản.
+
+Tích hợp thanh toán linh hoạt: Xử lý thanh toán tự động qua SEPAY (Ngân hàng QR).
+
+Kiểm soát tồn kho: Theo dõi tồn kho theo thời gian thực với cập nhật tự động về doanh số/hàng bổ sung và cảnh báo hàng tồn kho thấp.
+
+Bảng điều khiển quản trị & Phân tích: Giao diện quản lý tập trung cho sản phẩm, đơn hàng và báo cáo doanh thu/lợi nhuận toàn diện.
+
+Xác thực & RBAC: Xác thực người dùng an toàn với Google OAuth/JWT và Kiểm soát truy cập dựa trên vai trò (Quản trị viên, Nhân viên, Khách hàng).
+
+Hoàn thành đơn hàng & Thông báo: Theo dõi trạng thái đơn hàng theo thời gian thực, lịch sử mua hàng và thông báo hệ thống tự động.
+
+Khung giao diện người dùng (Frontend): Next.js + React.
+
+Giao diện người dùng & Tạo kiểu: Ant Design (antd), Tailwind CSS, postcss. Tải trạng thái & dữ liệu: zustand, swr.
+
+HTTP / Tiện ích: axios, fecth, js-cookie.
+
+SSR, ISR, CSR
+
+Backend
+Môi trường chạy & Ngôn ngữ: Node.js + TypeScript.
+
+Framework: express (v5).
+
+ORM / Cơ sở dữ liệu: prisma (Prisma 7) + @prisma/client; PostgreSQL (Supabase/Neon).
+
+Xác thực / Máy khách cơ sở dữ liệu: @supabase/supabase-js.
+
+Thời gian thực: socket.io.
+
+Phương tiện & Tải lên: cloudinary
+Thanh toán & Tích hợp: SEPay
+Xác thực & Email: zod, nodemailer.
+
+Hiểu rõ vai trò của frontend
+Học cách xây dựng mã frontend
+Nâng cao kiến ​​thức về React và Next.js
+Học cách triển khai sản phẩm lên môi trường sản xuất
+Có khả năng triển khai các dự án frontend, thiết kế giao diện và hình thành ý tưởng về frontend
+
+Tiếp tục triển khai hệ thống thông báo
+Thêm các tính năng AI liên quan đến khách hàng
+Triển khai các trang quản trị lên ứng dụng di động
