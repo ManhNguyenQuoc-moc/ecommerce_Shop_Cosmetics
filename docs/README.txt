@@ -1,247 +1,503 @@
+# Production-Ready Cosmetics E-commerce Platform
 
-Backend
-tao file env truoc 
+A production-ready full-stack cosmetics e-commerce platform built with **Next.js**, **Node.js**, **Express.js**, **PostgreSQL**, and **Prisma ORM**. The system supports secure authentication, online payments, inventory management, order processing, AI-powered features, and an administrative dashboard.
 
+**Live Demo:** https://ecommerce-shop-cosmetics.vercel.app
+
+---
+
+# 📖 Overview
+
+This project was developed to simulate a real-world B2C e-commerce platform following modern software engineering practices.
+
+The system focuses on:
+
+* Secure authentication & authorization
+* ACID-compliant order processing
+* FEFO inventory allocation
+* Real-time inventory synchronization
+* Payment gateway integration
+* AI-powered customer experience
+* Responsive UI
+* Production deployment
+
+---
+
+# Features
+
+## Customer
+
+* User Registration & Login
+* Google OAuth Login
+* JWT Authentication
+* Refresh Token Authentication
+* Browse Products
+* Product Search
+* Product Filtering
+* Product Categories
+* Product Details
+* Shopping Cart
+* Wishlist
+* Checkout
+* Order History
+* Review Products
+* AI Review Sentiment Analysis
+* User Profile Management
+
+---
+
+## Admin
+
+* Dashboard
+* Product Management
+* Category Management
+* Brand Management
+* Inventory Management
+* Order Management
+* Customer Management
+* Review Moderation
+* Revenue Analytics
+
+---
+
+## Payment
+
+Integrated payment gateways:
+
+* MoMo
+* ZaloPay
+* SEPay
+
+Features:
+
+* HMAC SHA256 Signature Verification
+* Webhook Handling
+* Payment Confirmation
+* Failed Payment Recovery
+
+---
+
+## Inventory
+
+Production-style inventory implementation:
+
+* FEFO (First Expired First Out)
+* Stock Reservation
+* Transaction-safe Inventory Update
+* Inventory Synchronization
+* Automatic Stock Deduction
+
+---
+
+## AI Features
+
+* Gemini AI Integration
+* Review Sentiment Analysis
+
+---
+
+# Tech Stack
+
+## Frontend
+
+* Next.js
+* React
+* TypeScript
+* Tailwind CSS
+* Ant Design
+* React Query
+* Axios
+
+---
+
+## Backend
+
+* Node.js
+* Express.js
+* TypeScript
+* Prisma ORM
+* PostgreSQL
+* JWT Authentication
+* Google OAuth
+* Socket.IO
+
+---
+
+## Database
+
+* PostgreSQL
+* Prisma ORM
+
+---
+
+## DevOps
+
+* Docker
+* Docker Compose
+* GitHub Actions
+* Vercel
+* Render
+* Supabase
+
+---
+
+# Project Structure
+
+```
+Ecommerce-Shop-Cosmetics
+│
+├── Frontend-next/
+│   ├── app/
+│   ├── components/
+│   ├── hooks/
+│   ├── services/
+│   └── ...
+│
+├── backend-ts/
+│   ├── prisma/
+│   ├── src/
+│   ├── routes/
+│   ├── controllers/
+│   ├── middleware/
+│   ├── services/
+│   └── ...
+│
+└── README.md
+```
+
+---
+
+#  Getting Started
+
+## Clone Repository
+
+```bash
+git clone https://github.com/yourusername/ecommerce-shop-cosmetics.git
+
+cd ecommerce-shop-cosmetics
+```
+
+---
+
+# 🛠 Backend Setup
+
+## 1. Create Environment File
+
+Create a `.env` file inside `backend-ts`.
+
+```env
 DATABASE_URL=
-PORT=
 
+PORT=3000
+
+JWT_SECRET=
+```
+
+---
+
+## 2. Install Dependencies
+
+```bash
 npm install
+```
+
+---
+
+## 3. Start PostgreSQL
+
+```bash
 docker compose up -d
+```
+
+---
+
+## 4. Run Database Migration
+
+```bash
 npx prisma migrate dev
-npm run dev
+```
 
-khi thay doi db
-npx prisma migrate dev --name ten_migration
+---
 
+## 5. Generate Prisma Client
 
-reset khi chay lai db 
-npx prisma migrate reset
-# 1. migrate
-npx prisma migrate dev --name init
-
-# 2. generate
+```bash
 npx prisma generate
+```
 
-# 3. seed
+---
+
+## 6. Seed Database
+
+```bash
 npx prisma db seed
+```
 
-# 4. run backend
+---
+
+## 7. Run Backend
+
+```bash
 npm run dev
+```
 
-DEPLOY FULLSTACK (FRONTEND + BACKEND + DB) – HƯỚNG DẪN TÓM TẮT
+Backend runs at:
 
-========================
+```
+http://localhost:3000
+```
 
-1. FRONTEND (Next.js – Vercel)
-   ========================
+---
 
-* Login Vercel bằng GitHub
-* Import repository
+#  Database Commands
 
-Cấu hình:
+## Create New Migration
 
-* Root Directory = Frontend-next
+```bash
+npx prisma migrate dev --name migration_name
+```
 
-Environment Variables:
+---
 
-* NEXT_PUBLIC_API_URL=https://your-backend.onrender.com
+## Reset Database
 
-Deploy:
+```bash
+npx prisma migrate reset
+```
 
-* Nhấn Deploy
-* Sau này mỗi lần git push → auto deploy
+---
 
-========================
-2. BACKEND (Node.js – Render)
-=============================
+## Apply Existing Migrations
 
-* Vào Render → New Web Service
-* Connect GitHub repo
+```bash
+npx prisma migrate deploy
+```
 
-Cấu hình:
+---
 
-* Root Directory = backend-ts
-* Build Command:
-  npm install && npx prisma migrate deploy && npm run build
-* Start Command:
-  npm run start
+## Generate Prisma Client
 
-Environment Variables:
+```bash
+npx prisma generate
+```
 
-* DATABASE_URL=... (Supabase hoặc Neon)
-* PORT=10000
-* JWT_SECRET=your_secret
+---
 
-Code cần có:
+# 💻 Frontend Setup
 
-* const port = process.env.PORT || 3000;
-* app.listen(port);
+Inside:
 
-========================
-3. DATABASE (Supabase)
-======================
+```
+Frontend-next
+```
 
-* Tạo project trên Supabase
-* Vào: Settings → Database → Connection string
+Install packages
 
-Dùng connection pooling (QUAN TRỌNG)
-
-Format:
-postgresql://user:pass@host:6543/postgres?pgbouncer=true&connection_limit=1&sslmode=require
-
-Copy vào:
-
-* DATABASE_URL (Render)
-
-========================
-4. PRISMA (BACKEND)
-===================
-
-schema.prisma:
-
-datasource db {
-provider = "postgresql"
-url      = env("DATABASE_URL")
-}
-
-Chạy migration:
-
-* npx prisma migrate deploy
-
-========================
-5. FLOW HOẠT ĐỘNG
-=================
-
-git push
-↓
-Vercel build frontend
-Render build backend
-↓
-Backend connect DB
-↓
-Frontend gọi API backend
-
-========================
-6. LỖI THƯỜNG GẶP
-=================
-
-* Backend không connect DB → sai DATABASE_URL
-* Prisma lỗi → chưa migrate
-* Supabase lỗi connection → chưa dùng pgbouncer
-* Frontend gọi API lỗi → sai NEXT_PUBLIC_API_URL
-* Render chậm → do free tier sleep
-
-========================
-7. KIẾN TRÚC CUỐI
-=================
-
-Frontend (Vercel)
-↓
-Backend (Render)
-↓
-Database (Supabase)
-
-=> Stack FREE + chạy production được
-
-========================
-END
-===
-1️⃣ Cấu trúc môi trường
-
-Local / Dev
-.env.local
-DATABASE_URL="postgresql://postgres:localpassword@localhost:5432/devdb"
-NODE_ENV=development
-Production (Render / Supabase)
-.env.production
-DATABASE_URL="postgresql://postgres:<prod-password>@aws-1-ap-southeast-1.pooler.supabase.com:5432/postgres"
-NODE_ENV=production
-Trên Render, thêm environment variables tương ứng (DATABASE_URL, NODE_ENV).
-
-2️⃣ Prisma config
-Với Prisma 7, không dùng directUrl trong schema. Thay vào đó dùng prisma.config.ts.
-import { defineConfig } from "prisma/config";
-
-export default defineConfig({
-  schema: "prisma/schema.prisma",
-  migrations: {
-    path: "prisma/migrations",
-    seed: "npx tsx src/scripts/seed.ts",
-  },
-  datasource: {
-    url: process.env.DATABASE_URL!,
-  },
-});
-Schema Prisma chỉ cần provider:
-datasource db {
-  provider = "postgresql"
-}
-generator client {
-  provider = "prisma-client-js"
-}
-3️⃣ Scripts trong package.json
-{
-  "scripts": {
-    "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
-    "build": "prisma generate && tsc",
-    "postinstall": "prisma generate",
-    "migrate:prod": "prisma migrate deploy",
-    "seed": "npx tsx src/scripts/seed.ts",
-    "start": "node dist/index.js",
-    "dev:db": "prisma migrate dev --name init && npm run seed"
-  }
-}
-dev:db → dev local: migrate + seed
-migrate:prod → deploy production: apply migration (không seed mặc định)
-4️⃣ Seed dữ liệu
-src/scripts/seed.ts
-import { PrismaClient } from "@prisma/client";
-const prisma = new PrismaClient();
-async function main() {
-  if (process.env.NODE_ENV === "production") {
-    console.log("Production mode: only minimal seed (brands, categories)...");
-    await seedProd();
-  } else {
-    console.log("Development mode: full seed (brands, categories, products)...");
-    await seedDev();
-  }
-}
-async function seedProd() {
-  await prisma.brand.upsert({ where: { name: "The Ordinary" }, update: {}, create: { name: "The Ordinary" } });
-  await prisma.category.upsert({ where: { name: "Skincare" }, update: {}, create: { name: "Skincare" } });
-}
-async function seedDev() {
-  await seedProd();
-  await prisma.product.upsert({ where: { name: "Niacinamide Serum" }, update: {}, create: { name: "Niacinamide Serum", price: 15 } });
-}
-main()
-  .catch((e) => console.error(e))
-  .finally(() => prisma.$disconnect());
-✅ Phân biệt dev vs production:
-Dev: full seed, fake data để test.
-Production: chỉ seed dữ liệu quan trọng, tránh ghi đè dữ liệu người dùng.
-5️⃣ Tự chạy khi deploy
-Trên Render / Vercel:
-Build phase:
+```bash
 npm install
-npm run build
-Deploy phase:
-npm run migrate:prod
-npm run seed # tùy chọn nếu muốn auto seed dữ liệu mặc định
-Đảm bảo DATABASE_URL đúng.
-Luôn backup Supabase trước khi seed production.
-6️⃣ Tại dev local
-Chạy DB local (Docker hoặc Postgres local)
-Migrate + seed:
-npm run dev:db
-Chạy server:
+```
+
+Create
+
+```
+.env.local
+```
+
+```env
+NEXT_PUBLIC_API_URL=http://localhost:3000
+```
+
+Run
+
+```bash
 npm run dev
-7️⃣ Backup dữ liệu Supabase
-Supabase → Database → Backups → Export SQL
-Lưu SQL + migrate + seed → có thể restore khi cần.
-8️⃣ Tips an toàn
-Không bao giờ seed production full dữ liệu dev.
-Luôn check NODE_ENV trong seed.
-Test kết nối DB trước khi seed.
-Dùng upsert thay vì create để tránh duplicate / crash.
-"https://ecommerce-shop-cosmetics.vercel.app"
+```
+
+Frontend runs at
+
+```
+http://localhost:3001
+```
+
+---
+
+#  Environment Configuration
+
+## Development
+
+```env
+DATABASE_URL=postgresql://postgres:password@localhost:5432/devdb
+
+NODE_ENV=development
+```
+
+---
+
+## Production
+
+```env
+DATABASE_URL=postgresql://user:password@host:6543/postgres?pgbouncer=true&connection_limit=1&sslmode=require
+
+NODE_ENV=production
+```
+
+---
+
+#  Deployment
+
+## Frontend
+
+Platform:
+
+* Vercel
+
+Environment Variables
+
+```env
+NEXT_PUBLIC_API_URL=https://your-backend.onrender.com
+```
+
+Deployment Flow
+
+```
+Git Push
+
+↓
+
+Vercel Build
+
+↓
+
+Production
+```
+
+---
+
+## Backend
+
+Platform:
+
+* Render
+
+Build Command
+
+```bash
+npm install && npx prisma migrate deploy && npm run build
+```
+
+Start Command
+
+```bash
+npm run start
+```
+
+Environment Variables
+
+```env
+DATABASE_URL=
+
+JWT_SECRET=
+
+PORT=10000
+```
+
+---
+
+## Database
+
+Platform:
+
+* Supabase PostgreSQL
+
+Use connection pooling:
+
+```
+postgresql://user:password@host:6543/postgres?pgbouncer=true&connection_limit=1&sslmode=require
+```
+
+---
+
+# Deployment Architecture
+
+```
+                GitHub
+                   │
+        ┌──────────┴──────────┐
+        │                     │
+     Vercel                Render
+   (Next.js)           (Express API)
+        │                     │
+        └──────────┬──────────┘
+                   │
+             Supabase PostgreSQL
+```
+
+---
+
+#  Testing
+
+Run tests
+
+```bash
+npm test
+```
+
+The project includes unit tests for:
+
+* Business Logic
+* API Services
+* Frontend Components
+* Utility Functions
+
+---
+
+# 📸 Screenshots
+
+You can include screenshots here.
+
+```
+Home Page
+
+Product Detail
+
+Checkout
+
+Admin Dashboard
+
+Order Management
+```
+
+---
+
+#  Future Improvements
+
+* Recommendation System
+* Email Notifications
+* Loyalty Program
+* Product Recommendation AI
+* Elasticsearch
+* Redis Cache
+* Microservices Architecture
+* Kubernetes Deployment
+
+---
+
+#  Author
+
+**Nguyen Quoc Manh**
+
+Software Engineering Student
+
+Interested in:
+
+* Full-stack Development
+* Backend Engineering
+* Enterprise Software
+* AI Integration
+* Cloud Deployment
+
+---
+
+#  License
+
+This project is developed for educational purposes and portfolio demonstration.
